@@ -1,0 +1,6 @@
+{
+  "name": "QuietStatic.Core.Runtime",
+  "rootNamespace": "QuietStatic",
+  "references": [],
+  "autoReferenced": true
+}

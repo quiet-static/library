@@ -1,0 +1,6 @@
+{
+  "name": "QuietStatic.Core.Editor",
+  "rootNamespace": "QuietStatic",
+  "references": [],
+  "autoReferenced": true
+}
