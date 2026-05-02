@@ -12,7 +12,7 @@ namespace QuietStatic.Characters
     /// <see cref="Tick(Vector2, bool, bool)"/>.
     /// </remarks>
     [RequireComponent(typeof(CharacterController))]
-    public class ThirdPersonMotor : MonoBehaviour
+    public class CharacterMotor : MonoBehaviour
     {
         [Header("References")]
 
@@ -119,7 +119,7 @@ namespace QuietStatic.Characters
 
             if (characterController == null)
             {
-                GameLogger.Error(nameof(ThirdPersonMotor), this, "Missing CharacterController reference.");
+                GameLogger.Error(nameof(CharacterMotor), this, "Missing CharacterController reference.");
                 enabled = false;
                 return;
             }
@@ -172,7 +172,7 @@ namespace QuietStatic.Characters
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             isGrounded = false;
 
-            GameLogger.Log(nameof(ThirdPersonMotor), this, "Jump triggered.");
+            GameLogger.Log(nameof(CharacterMotor), this, "Jump triggered.");
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace QuietStatic.Characters
             movementStateController.UpdateState(IsGrounded, VerticalVelocity, NormalizedSpeed);
 
             GameLogger.Log(
-                nameof(ThirdPersonMotor),
+                nameof(CharacterMotor),
                 this,
                 $"Current State: {movementStateController.CurrentState}"
             );
