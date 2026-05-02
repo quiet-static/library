@@ -6,7 +6,7 @@ namespace QuietStatic.Systems.Cameras
     /// <summary>
     /// A third-person camera that follows a target and rotates using a look input source.
     /// </summary>
-    public class ThirdPersonCamera : MonoBehaviour
+    public class CameraController : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Transform target;
@@ -41,7 +41,7 @@ namespace QuietStatic.Systems.Cameras
             if (inputSourceBehaviour != null && inputSource == null)
             {
                 Debug.LogError(
-                    $"{nameof(ThirdPersonCamera)} requires a component that implements {nameof(ILookInputSource)}.",
+                    $"{nameof(CameraController)} requires a component that implements {nameof(ILookInputSource)}.",
                     this
                 );
                 enabled = false;

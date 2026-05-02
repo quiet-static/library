@@ -25,7 +25,7 @@ namespace QuietStatic.Characters
         /// <summary>
         /// Motor providing movement metrics such as normalized speed and grounded state.
         /// </summary>
-        [SerializeField] private ThirdPersonMotor motor;
+        [SerializeField] private CharacterMotor motor;
 
         /// <summary>
         /// State source providing the current movement state.
@@ -88,7 +88,7 @@ namespace QuietStatic.Characters
 
             if (motor == null)
             {
-                motor = GetComponent<ThirdPersonMotor>();
+                motor = GetComponent<CharacterMotor>();
             }
 
             if (stateController == null)
