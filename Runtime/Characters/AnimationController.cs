@@ -3,80 +3,114 @@ using UnityEngine;
 namespace QuietStatic.Characters
 {
     /// <summary>
-    /// Synchronizes common movement-related animation parameters from a character motor
-    /// and movement state source to a Unity Animator.
+    /// Synchronizes common movement-related values from a character movement system
+    /// to a Unity <see cref="Animator"/>.
     /// </summary>
     /// <remarks>
-    /// This component is intended to be more reusable across projects than a game-specific
-    /// animation controller. Animator parameter names are configurable in the Inspector,
-    /// and each parameter can be disabled by leaving its name blank.
-    ///
-    /// Supported parameter types:
-    /// - float: movement speed
-    /// - bool: grounded state
-    /// - trigger: jump start
-    ///
-    /// Expected state values come from <see cref="MovementStateController"/>.
+    /// <para>
+    /// This component is meant to sit on the same GameObject as an Animator and, usually,
+    /// the character's movement components. It reads movement information from a
+    /// <see cref="CharacterMotor"/> and a <see cref="MovementStateController"/>, then writes
+    /// those values into Animator parameters each frame.
+    /// </para>
+    /// <para>
+    /// Animator parameter names are configurable in the Inspector. Leave a parameter name
+    /// blank to disable that specific Animator update without changing code.
+    /// </para>
+    /// <para>
+    /// Supported Animator parameter types:
+    /// </para>
+    /// <list type="bullet">
+    /// <item><description><c>float</c>: movement speed.</description></item>
+    /// <item><description><c>bool</c>: grounded state.</description></item>
+    /// <item><description><c>trigger</c>: jump start.</description></item>
+    /// </list>
     /// </remarks>
     [RequireComponent(typeof(Animator))]
     public class AnimationController : MonoBehaviour
     {
         [Header("References")]
-        /// <summary>
-        /// Motor providing movement metrics such as normalized speed and grounded state.
-        /// </summary>
+        [Tooltip("Movement component that provides values such as normalized movement speed. If left empty, this is searched for on the same GameObject.")]
         [SerializeField] private CharacterMotor motor;
 
-        /// <summary>
-        /// State source providing the current movement state.
-        /// </summary>
+        [Tooltip("Movement state source used to decide which Animator parameters should be updated. If left empty, this is searched for on the same GameObject.")]
         [SerializeField] private MovementStateController stateController;
 
         [Header("Animator Parameters")]
-        /// <summary>
-        /// Name of the float Animator parameter used for movement speed.
-        /// Leave blank to disable speed updates.
-        /// </summary>
+        [Tooltip("Name of the float Animator parameter used for movement speed. Leave blank to disable speed updates.")]
         [SerializeField] private string speedParameter = "Speed";
 
-        /// <summary>
-        /// Name of the bool Animator parameter used for grounded state.
-        /// Leave blank to disable grounded updates.
-        /// </summary>
+        [Tooltip("Name of the bool Animator parameter used for grounded state. Leave blank to disable grounded updates.")]
         [SerializeField] private string groundedParameter = "IsGrounded";
 
-        /// <summary>
-        /// Name of the trigger Animator parameter used when entering the jump state.
-        /// Leave blank to disable jump triggering.
-        /// </summary>
+        [Tooltip("Name of the trigger Animator parameter fired when the character first enters the jump state. Leave blank to disable jump triggering.")]
         [SerializeField] private string jumpTriggerParameter = "Jump";
 
-        [Header("Settings")]
-        /// <summary>
-        /// Damp time used when updating the speed parameter.
-        /// </summary>
+        [Header("Speed Smoothing")]
+        [Tooltip("Damping time used when updating the speed float while the character is moving. Higher values make speed animation changes smoother but less responsive.")]
+        [Min(0f)]
         [SerializeField] private float speedDampTime = 0.1f;
 
-        /// <summary>
-        /// Enables logger output for this component.
-        /// </summary>
+        [Header("Debug")]
+        [Tooltip("When enabled, this component can write debug output through GameLogger. Disable this to silence logs from this component.")]
         [SerializeField] private bool enableDebug = true;
 
+        /// <summary>
+        /// Animator controlled by this component.
+        /// </summary>
         private Animator animator;
 
+        /// <summary>
+        /// Cached hash for the configured speed float parameter.
+        /// </summary>
         private int speedHash;
+
+        /// <summary>
+        /// Cached hash for the configured grounded bool parameter.
+        /// </summary>
         private int groundedHash;
+
+        /// <summary>
+        /// Cached hash for the configured jump trigger parameter.
+        /// </summary>
         private int jumpHash;
 
+        /// <summary>
+        /// True when <see cref="speedParameter"/> has a usable parameter name.
+        /// </summary>
         private bool hasSpeedParameter;
+
+        /// <summary>
+        /// True when <see cref="groundedParameter"/> has a usable parameter name.
+        /// </summary>
         private bool hasGroundedParameter;
+
+        /// <summary>
+        /// True when <see cref="jumpTriggerParameter"/> has a usable parameter name.
+        /// </summary>
         private bool hasJumpTriggerParameter;
 
         /// <summary>
         /// Tracks whether the jump trigger has already been fired for the current airborne sequence.
         /// </summary>
+        /// <remarks>
+        /// Without this guard, the Animator trigger could be set every frame while the movement
+        /// state remains <see cref="EntityState.MovementState.Jumping"/>.
+        /// </remarks>
         private bool hasTriggeredJump;
 
+        /// <summary>
+        /// Automatically fills common references when the component is added or reset in the Inspector.
+        /// </summary>
+        private void Reset()
+        {
+            motor = GetComponent<CharacterMotor>();
+            stateController = GetComponent<MovementStateController>();
+        }
+
+        /// <summary>
+        /// Initializes component references, validates required dependencies, and caches Animator parameter hashes.
+        /// </summary>
         private void Awake()
         {
             if (!enableDebug)
@@ -114,15 +148,22 @@ namespace QuietStatic.Characters
             hasTriggeredJump = false;
         }
 
+        /// <summary>
+        /// Updates Animator parameters once per frame using the current movement state.
+        /// </summary>
         private void Update()
         {
             ApplyAnimationParameters();
         }
 
         /// <summary>
-        /// Converts configured parameter names into Animator hashes and records which
-        /// parameters are enabled.
+        /// Converts configured Animator parameter names into integer hashes and records which
+        /// parameter updates are enabled.
         /// </summary>
+        /// <remarks>
+        /// Hashing parameter names once avoids repeated string lookups every frame. A blank or
+        /// whitespace-only parameter name disables that parameter update.
+        /// </remarks>
         private void CacheAnimatorParameters()
         {
             hasSpeedParameter = !string.IsNullOrWhiteSpace(speedParameter);
@@ -148,6 +189,11 @@ namespace QuietStatic.Characters
         /// <summary>
         /// Applies Animator parameter updates based on the current movement state.
         /// </summary>
+        /// <remarks>
+        /// Grounded movement states reset the jump trigger guard. Jumping sets the grounded
+        /// parameter to false and fires the jump trigger once. Falling only keeps the grounded
+        /// parameter false.
+        /// </remarks>
         private void ApplyAnimationParameters()
         {
             switch (stateController.CurrentState)
@@ -187,28 +233,32 @@ namespace QuietStatic.Characters
         }
 
         /// <summary>
-        /// Sets the configured grounded bool parameter, if enabled.
+        /// Sets the configured grounded bool parameter, if grounded updates are enabled.
         /// </summary>
-        /// <param name="isGrounded">The grounded state to apply.</param>
+        /// <param name="isGrounded">Whether the Animator should be told the character is grounded.</param>
         private void SetGrounded(bool isGrounded)
         {
             if (!hasGroundedParameter)
+            {
                 return;
+            }
 
             animator.SetBool(groundedHash, isGrounded);
         }
 
         /// <summary>
-        /// Sets the configured speed float parameter, if enabled.
+        /// Sets the configured speed float parameter, if speed updates are enabled.
         /// </summary>
-        /// <param name="speed">The speed value to apply.</param>
+        /// <param name="speed">The movement speed value to send to the Animator.</param>
         /// <param name="useDamping">
-        /// True to apply damping; false to set the value immediately.
+        /// True to apply Animator float damping; false to set the value immediately.
         /// </param>
         private void SetSpeed(float speed, bool useDamping)
         {
             if (!hasSpeedParameter)
+            {
                 return;
+            }
 
             if (useDamping)
             {
@@ -221,12 +271,14 @@ namespace QuietStatic.Characters
         }
 
         /// <summary>
-        /// Fires the configured jump trigger parameter, if enabled.
+        /// Fires the configured jump trigger parameter, if jump triggering is enabled.
         /// </summary>
         private void TriggerJump()
         {
             if (!hasJumpTriggerParameter)
+            {
                 return;
+            }
 
             animator.SetTrigger(jumpHash);
         }
