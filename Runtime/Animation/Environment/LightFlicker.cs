@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace QuietStatic.Animation.Environment
+namespace QuietStatic.Toolkit.Animation.Environment
 {
     /// <summary>
     /// Creates an atmospheric, randomized flickering effect for a Unity <see cref="Light"/>.

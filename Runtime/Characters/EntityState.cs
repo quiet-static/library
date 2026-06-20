@@ -1,4 +1,4 @@
-namespace QuietStatic.Characters
+namespace QuietStatic.Toolkit.Characters
 {
     /// <summary>
     /// Defines shared character state types used by character movement, animation,

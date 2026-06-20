@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace QuietStatic.Cinematic
+namespace QuietStatic.Toolkit.Cinematics
 {
     /// <summary>
     /// Inspector-friendly wrapper for running one or more cutscene character actions.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Cinematic
+namespace QuietStatic.Toolkit.Cinematics
 {
     /// <summary>
     /// Scrolls a UI <see cref="RectTransform"/> upward to create a simple credits roll.

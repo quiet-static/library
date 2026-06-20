@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using QuietStatic.Toolkit.Cinematics;
 using UnityEngine;
@@ -9,16 +10,30 @@ namespace QuietStatic.Toolkit.Jumpscare
     /// Runs a simple, reusable jumpscare sequence.
     /// </summary>
     /// <remarks>
-    /// The sequence can optionally wait before starting, activate a scare object,
-    /// play a one-shot sound, keep the scare visible for a short duration, fade the
-    /// screen, disable the object afterward, and invoke UnityEvents at the start and end.
+    /// Supports both Inspector-assigned UnityEvents and static C# events.
     ///
-    /// This component is intentionally generic so it can be used for hallway scares,
-    /// object pop-ins, enemy reveals, sudden sound events, or any other scripted scare
-    /// that follows the same basic timing pattern.
+    /// Use UnityEvents for local scene behavior such as animations, lights, and object activation.
+    /// Use static C# events for systems that may exist in other scenes, such as objective,
+    /// audio, analytics, UI, or progression managers.
     /// </remarks>
     public class JumpscareEvent : MonoBehaviour
     {
+        /// <summary>
+        /// Raised when any jumpscare begins, after its optional delay has completed.
+        /// </summary>
+        public static event Action<JumpscareEvent> OnJumpscareStarted;
+
+        /// <summary>
+        /// Raised when any jumpscare finishes its cleanup and fade sequence.
+        /// </summary>
+        public static event Action<JumpscareEvent> OnJumpscareFinished;
+
+        /// <summary>
+        /// Raised when a jumpscare's running state changes.
+        /// The bool parameter is true while running and false when complete.
+        /// </summary>
+        public static event Action<JumpscareEvent, bool> OnJumpscareRunningChanged;
+
         [Header("Scare Target")]
         [Tooltip("Optional GameObject to enable when the jumpscare starts. This is usually the scare model, image, prop, or enemy reveal object.")]
         [SerializeField] private GameObject scareObject;
@@ -55,18 +70,15 @@ namespace QuietStatic.Toolkit.Jumpscare
         [SerializeField] private UnityEvent onFinished;
 
         /// <summary>
-        /// Tracks whether the jumpscare sequence is currently running.
+        /// Gets whether this jumpscare sequence is currently active.
         /// </summary>
-        /// <remarks>
-        /// This prevents multiple overlapping Play calls from starting duplicate
-        /// routines on the same jumpscare object.
-        /// </remarks>
-        private bool running;
+        public bool IsRunning => running;
 
         /// <summary>
-        /// Attempts to auto-fill nearby component references when this component is
-        /// first added or reset in the Unity Inspector.
+        /// Tracks whether the jumpscare sequence is currently running.
         /// </summary>
+        private bool running;
+
         private void Reset()
         {
             audioSource = GetComponent<AudioSource>();
@@ -76,11 +88,6 @@ namespace QuietStatic.Toolkit.Jumpscare
         /// <summary>
         /// Starts the jumpscare sequence if it is not already running.
         /// </summary>
-        /// <remarks>
-        /// This method is safe to call from UnityEvents, animation events, triggers,
-        /// interactables, or other gameplay scripts. Repeated calls while the sequence
-        /// is already active are ignored.
-        /// </remarks>
         public void Play()
         {
             if (running)
@@ -91,15 +98,9 @@ namespace QuietStatic.Toolkit.Jumpscare
             StartCoroutine(PlayRoutine());
         }
 
-        /// <summary>
-        /// Runs the full jumpscare sequence from delay to cleanup.
-        /// </summary>
-        /// <returns>
-        /// Coroutine enumerator used by Unity to step through the timed sequence.
-        /// </returns>
         private IEnumerator PlayRoutine()
         {
-            running = true;
+            SetRunning(true);
 
             if (startDelay > 0f)
             {
@@ -128,15 +129,10 @@ namespace QuietStatic.Toolkit.Jumpscare
             FinishScare();
         }
 
-        /// <summary>
-        /// Performs the start-of-scare actions.
-        /// </summary>
-        /// <remarks>
-        /// This invokes the start event, enables the scare object if assigned, and
-        /// plays the scare sound if both an AudioSource and AudioClip are available.
-        /// </remarks>
         private void BeginScare()
         {
+            // Global listeners first, then scene-local UnityEvent listeners.
+            OnJumpscareStarted?.Invoke(this);
             onStarted?.Invoke();
 
             if (scareObject != null)
@@ -150,9 +146,6 @@ namespace QuietStatic.Toolkit.Jumpscare
             }
         }
 
-        /// <summary>
-        /// Performs cleanup after the scare has been visible long enough.
-        /// </summary>
         private void CleanupScare()
         {
             if (disableObjectAfter && scareObject != null)
@@ -161,13 +154,27 @@ namespace QuietStatic.Toolkit.Jumpscare
             }
         }
 
-        /// <summary>
-        /// Marks the sequence as complete and invokes the finished event.
-        /// </summary>
         private void FinishScare()
         {
+            // Global listeners first, then scene-local UnityEvent listeners.
+            OnJumpscareFinished?.Invoke(this);
             onFinished?.Invoke();
-            running = false;
+
+            SetRunning(false);
+        }
+
+        /// <summary>
+        /// Updates the running state and notifies global listeners when it changes.
+        /// </summary>
+        private void SetRunning(bool isRunning)
+        {
+            if (running == isRunning)
+            {
+                return;
+            }
+
+            running = isRunning;
+            OnJumpscareRunningChanged?.Invoke(this, running);
         }
     }
 }

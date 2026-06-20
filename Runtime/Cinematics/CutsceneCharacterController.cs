@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace QuietStatic.Cinematic
+namespace QuietStatic.Toolkit.Cinematics
 {
     /// <summary>
     /// Manages temporary or scene-placed characters during cinematic cutscenes.

@@ -27,7 +27,7 @@ namespace QuietStatic.Toolkit.Core
         /// <remarks>
         /// The string argument is the new state identifier. In projects using
         /// <see cref="GameStateController"/>, this is usually the current
-        /// <see cref="ToolkitGameState"/> converted to a string.
+        /// <see cref="GameState"/> converted to a string.
         /// </remarks>
         public static event Action<string> StateChanged;
 

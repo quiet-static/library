@@ -12,7 +12,7 @@ namespace QuietStatic.Toolkit.Core
     /// These states are intentionally generic so the toolkit can be reused across projects
     /// without depending on a specific scene layout, game flow, or gameplay genre.
     /// </remarks>
-    public enum ToolkitGameState
+    public enum GameState
     {
         /// <summary>
         /// Initial startup state used while core systems are being initialized.
@@ -67,18 +67,18 @@ namespace QuietStatic.Toolkit.Core
     public class GameStateController : ToolkitSingleton<GameStateController>
     {
         /// <summary>
-        /// UnityEvent wrapper that exposes a <see cref="ToolkitGameState"/> parameter in the Inspector.
+        /// UnityEvent wrapper that exposes a <see cref="GameState"/> parameter in the Inspector.
         /// </summary>
         /// <remarks>
         /// Unity cannot directly serialize generic UnityEvent declarations in the Inspector,
         /// so this named subclass makes state-change callbacks assignable from UnityEvents.
         /// </remarks>
         [Serializable]
-        public class StateUnityEvent : UnityEvent<ToolkitGameState> { }
+        public class StateUnityEvent : UnityEvent<GameState> { }
 
         [Header("Initial State")]
         [Tooltip("State assigned when this controller awakens. Use Boot for startup flows, Title for menu-only scenes, or Playing for direct gameplay test scenes.")]
-        [SerializeField] private ToolkitGameState startingState = ToolkitGameState.Boot;
+        [SerializeField] private GameState startingState = GameState.Boot;
 
         [Header("Events")]
         [Tooltip("Inspector-assigned callbacks invoked whenever the game state changes. The new state is passed as the event argument.")]
@@ -87,7 +87,7 @@ namespace QuietStatic.Toolkit.Core
         /// <summary>
         /// Gets the current high-level game state.
         /// </summary>
-        public ToolkitGameState CurrentState { get; private set; }
+        public GameState CurrentState { get; private set; }
 
         /// <summary>
         /// Gets the state that was active immediately before <see cref="CurrentState"/>.
@@ -96,7 +96,7 @@ namespace QuietStatic.Toolkit.Core
         /// This is primarily used by <see cref="ReturnToPreviousState"/> and by systems that
         /// need to know what state was interrupted, such as returning from pause or dialogue.
         /// </remarks>
-        public ToolkitGameState PreviousState { get; private set; }
+        public GameState PreviousState { get; private set; }
 
         /// <summary>
         /// Code-facing event raised whenever the game state changes.
@@ -105,7 +105,7 @@ namespace QuietStatic.Toolkit.Core
         /// The event argument is the new current state. This event is static so other systems
         /// can subscribe without needing a direct reference to the singleton instance.
         /// </remarks>
-        public static event Action<ToolkitGameState> OnStateChanged;
+        public static event Action<GameState> OnStateChanged;
 
         /// <summary>
         /// Initializes the singleton and applies the configured starting state.
@@ -132,7 +132,7 @@ namespace QuietStatic.Toolkit.Core
         /// <see cref="CurrentState"/>, raises the static C# event, invokes the serialized
         /// UnityEvent, and forwards the change through <see cref="ToolkitEvents"/>.
         /// </remarks>
-        public void SetState(ToolkitGameState newState)
+        public void SetState(GameState newState)
         {
             if (CurrentState == newState)
             {
@@ -152,7 +152,7 @@ namespace QuietStatic.Toolkit.Core
         /// </summary>
         /// <param name="state">The state to compare against <see cref="CurrentState"/>.</param>
         /// <returns>True if <see cref="CurrentState"/> matches <paramref name="state"/>; otherwise, false.</returns>
-        public bool IsState(ToolkitGameState state)
+        public bool IsState(GameState state)
         {
             return CurrentState == state;
         }

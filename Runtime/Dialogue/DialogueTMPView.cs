@@ -1,4 +1,4 @@
-using System.Collections;
+using Febucci.TextAnimatorForUnity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,16 +6,9 @@ using UnityEngine.UI;
 namespace QuietStatic.Toolkit.Dialogue
 {
     /// <summary>
-    /// Displays dialogue from a <see cref="DialogueRunner"/> using TextMeshPro labels and Unity UI buttons.
+    /// Displays dialogue from a <see cref="DialogueRunner"/> using TextMeshPro labels,
+    /// Text Animator typewriter effects, and Unity UI buttons.
     /// </summary>
-    /// <remarks>
-    /// This view is intentionally lightweight and reusable. It listens to the static events raised by
-    /// <see cref="DialogueRunner"/>, shows or hides a dialogue root object, types dialogue text over time,
-    /// and wires available choices to UI buttons.
-    ///
-    /// Assign a specific runner to make this view respond only to that runner. Leave the runner reference
-    /// empty if the view should bind to whichever runner starts sending dialogue events first.
-    /// </remarks>
     public class DialogueTMPView : MonoBehaviour
     {
         [Header("Dialogue Source")]
@@ -32,28 +25,16 @@ namespace QuietStatic.Toolkit.Dialogue
         [Tooltip("TextMeshPro label used to display the current dialogue line.")]
         [SerializeField] private TMP_Text lineLabel;
 
+        [Tooltip("Text Animator's typewriter component attached to the same object as the dialogue line TMP text.")]
+        [SerializeField] private TypewriterComponent lineTypewriter;
+
         [Tooltip("Buttons used to display dialogue choices. Extra buttons are hidden when the current node has fewer choices.")]
         [SerializeField] private Button[] choiceButtons;
 
-        [Header("Typing")]
-        [Tooltip("How many characters are revealed per second. Set to 0 or below to display each line instantly.")]
-        [Min(0f)]
-        [SerializeField] private float charactersPerSecond = 45f;
-
         /// <summary>
-        /// Active coroutine used for the current typewriter effect.
-        /// </summary>
-        private Coroutine typingRoutine;
-
-        /// <summary>
-        /// Tracks whether the current line is still being typed out.
+        /// Tracks whether the current dialogue line is still being revealed.
         /// </summary>
         private bool isTyping;
-
-        /// <summary>
-        /// Full text for the current line, cached so the typewriter effect can be skipped instantly.
-        /// </summary>
-        private string fullLine;
 
         /// <summary>
         /// Attempts to auto-fill common UI references when the component is added or reset in the Inspector.
@@ -64,6 +45,7 @@ namespace QuietStatic.Toolkit.Dialogue
             runner = GetComponentInParent<DialogueRunner>();
 
             TMP_Text[] labels = GetComponentsInChildren<TMP_Text>(true);
+
             if (labels.Length > 0)
             {
                 speakerLabel = labels[0];
@@ -72,6 +54,7 @@ namespace QuietStatic.Toolkit.Dialogue
             if (labels.Length > 1)
             {
                 lineLabel = labels[1];
+                lineTypewriter = lineLabel.GetComponent<TypewriterComponent>();
             }
 
             choiceButtons = GetComponentsInChildren<Button>(true);
@@ -106,12 +89,8 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Advances dialogue or skips the active typewriter effect.
+        /// Advances dialogue or instantly reveals the active line.
         /// </summary>
-        /// <remarks>
-        /// Call this from input, a Continue button, or a UI input event. If a line is currently typing,
-        /// this method finishes the line immediately. Otherwise, it asks the current runner to advance.
-        /// </remarks>
         public void ContinueOrSkip()
         {
             if (runner == null)
@@ -131,7 +110,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Shows the dialogue UI when the observed runner starts dialogue.
         /// </summary>
-        /// <param name="activeRunner">The runner that started dialogue.</param>
         private void HandleDialogueStarted(DialogueRunner activeRunner)
         {
             if (!ShouldHandleRunner(activeRunner))
@@ -146,7 +124,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Hides the dialogue UI when the observed runner finishes dialogue.
         /// </summary>
-        /// <param name="activeRunner">The runner that ended dialogue.</param>
         private void HandleDialogueEnded(DialogueRunner activeRunner)
         {
             if (!ShouldHandleRunner(activeRunner))
@@ -154,14 +131,13 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
+            isTyping = false;
             SetVisible(false);
         }
 
         /// <summary>
-        /// Updates labels, restarts the typewriter effect, and rebuilds choice buttons for a new node.
+        /// Updates the displayed dialogue node.
         /// </summary>
-        /// <param name="activeRunner">The runner that changed nodes.</param>
-        /// <param name="node">The newly active dialogue node.</param>
         private void HandleNodeChanged(DialogueRunner activeRunner, DialogueTree.Node node)
         {
             if (!ShouldHandleRunner(activeRunner))
@@ -170,57 +146,50 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             runner = activeRunner;
+
             SetSpeaker(node);
-            StartTypingLine(node);
+            StartTypingLine(node.line);
             BuildChoices(node);
         }
 
         /// <summary>
-        /// Types a line into the line label one character at a time.
+        /// Sends the complete dialogue line to Text Animator so it can handle
+        /// character visibility, tags, pauses, and appearance effects.
         /// </summary>
-        /// <param name="line">The complete line to reveal.</param>
-        /// <returns>Coroutine yield instructions for the typewriter effect.</returns>
-        private IEnumerator TypeLine(string line)
+        private void StartTypingLine(string line)
         {
-            isTyping = true;
+            string fullLine = line ?? string.Empty;
 
-            if (lineLabel != null)
+            if (lineTypewriter == null)
             {
-                lineLabel.text = string.Empty;
-            }
+                GameLogger.Warning(
+                    "StartTypingLine",
+                    this,
+                    $"{nameof(DialogueTMPView)} has no {nameof(TypewriterComponent)} assigned. " +
+                    "Falling back to showing dialogue instantly.",
+                );
 
-            float delay = charactersPerSecond <= 0f ? 0f : 1f / charactersPerSecond;
-
-            for (int i = 0; i < line.Length; i++)
-            {
                 if (lineLabel != null)
                 {
-                    lineLabel.text = line.Substring(0, i + 1);
+                    lineLabel.text = fullLine;
                 }
 
-                if (delay > 0f)
-                {
-                    yield return new WaitForSeconds(delay);
-                }
+                isTyping = false;
+                return;
             }
 
-            isTyping = false;
+            isTyping = true;
+            lineTypewriter.ShowText(fullLine);
         }
 
         /// <summary>
-        /// Immediately completes the active typewriter effect and displays the full current line.
+        /// Immediately reveals the remainder of the active dialogue line.
         /// </summary>
         private void FinishTyping()
         {
-            if (typingRoutine != null)
+            if (lineTypewriter != null)
             {
-                StopCoroutine(typingRoutine);
-                typingRoutine = null;
-            }
-
-            if (lineLabel != null)
-            {
-                lineLabel.text = fullLine;
+                lineTypewriter.SkipTypewriter();
             }
 
             isTyping = false;
@@ -229,7 +198,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Shows, hides, labels, and wires choice buttons for the current dialogue node.
         /// </summary>
-        /// <param name="node">The dialogue node containing choices to display.</param>
         private void BuildChoices(DialogueTree.Node node)
         {
             if (choiceButtons == null)
@@ -244,11 +212,9 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Configures one choice button for a matching choice index, or hides it when no choice exists.
+        /// Configures one choice button for a matching choice index,
+        /// or hides it when no choice exists.
         /// </summary>
-        /// <param name="button">The button to configure.</param>
-        /// <param name="node">The active dialogue node.</param>
-        /// <param name="choiceIndex">The choice index represented by the button.</param>
         private void ConfigureChoiceButton(Button button, DialogueTree.Node node, int choiceIndex)
         {
             if (button == null)
@@ -257,6 +223,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             bool hasChoice = node.choices != null && choiceIndex < node.choices.Length;
+
             button.gameObject.SetActive(hasChoice);
             button.onClick.RemoveAllListeners();
 
@@ -266,6 +233,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+
             if (label != null)
             {
                 label.text = node.choices[choiceIndex].text;
@@ -278,7 +246,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Updates the speaker label for the current dialogue node.
         /// </summary>
-        /// <param name="node">The dialogue node containing the speaker name.</param>
         private void SetSpeaker(DialogueTree.Node node)
         {
             if (speakerLabel != null)
@@ -288,29 +255,8 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Starts typing the line from the current dialogue node.
-        /// </summary>
-        /// <param name="node">The dialogue node containing the line text.</param>
-        private void StartTypingLine(DialogueTree.Node node)
-        {
-            fullLine = node.line ?? string.Empty;
-
-            if (typingRoutine != null)
-            {
-                StopCoroutine(typingRoutine);
-            }
-
-            typingRoutine = StartCoroutine(TypeLine(fullLine));
-        }
-
-        /// <summary>
         /// Determines whether this view should react to an event from a specific dialogue runner.
         /// </summary>
-        /// <param name="activeRunner">The runner that raised the event.</param>
-        /// <returns>
-        /// <c>true</c> if this view has no assigned runner yet or the event came from the assigned runner;
-        /// otherwise, <c>false</c>.
-        /// </returns>
         private bool ShouldHandleRunner(DialogueRunner activeRunner)
         {
             return runner == null || activeRunner == runner;
@@ -319,7 +265,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Shows or hides the configured dialogue root object.
         /// </summary>
-        /// <param name="visible">Whether the dialogue UI should be visible.</param>
         private void SetVisible(bool visible)
         {
             if (root != null)

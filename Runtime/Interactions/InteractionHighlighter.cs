@@ -3,41 +3,44 @@ using UnityEngine;
 namespace QuietStatic.Toolkit.Interactions
 {
     /// <summary>
-    /// Applies a simple material-swap highlight effect to one or more renderers.
+    /// Adjusts renderer brightness for interaction feedback without replacing materials.
     /// </summary>
     /// <remarks>
-    /// This component is intentionally lightweight and reusable. It does not detect
-    /// interactables on its own; another script should call <see cref="SetHighlighted"/>
-    /// when the object becomes focused, hovered, targeted, or otherwise interactable.
-    ///
-    /// The highlighter stores each renderer's original material array during
-    /// <see cref="Awake"/>. When highlighting is enabled, every material slot on each
-    /// renderer is replaced with the configured highlight material. When highlighting
-    /// is disabled, the original material arrays are restored.
+    /// This component uses <see cref="MaterialPropertyBlock"/> so each renderer can appear brighter
+    /// without changing the original shared material asset or creating runtime material instances.
     /// </remarks>
     public class InteractionHighlighter : MonoBehaviour
     {
         [Header("Renderer References")]
-        [Tooltip("Renderers affected by the highlight effect. If left empty, all child renderers are found automatically on Awake.")]
+        [Tooltip("Renderers affected by the brightness effect. If left empty, all child renderers are found automatically on Awake.")]
         [SerializeField] private Renderer[] renderers;
 
-        [Header("Highlight Material")]
-        [Tooltip("Material used while highlighted. This material replaces every material slot on each configured renderer.")]
-        [SerializeField] private Material highlightedMaterial;
+        [Header("Brightness Settings")]
+        [Tooltip("Multiplier applied to the material color while highlighted. 1 means unchanged; values above 1 make the object brighter.")]
+        [Min(1f)]
+        [SerializeField] private float highlightedBrightness = 1.35f;
+
+        [Tooltip("Adds emission while highlighted. This can make the object stand out more clearly in darker scenes.")]
+        [SerializeField] private bool useEmission = true;
+
+        [Tooltip("Emission brightness added while highlighted. Keep this low unless you want a strong glow.")]
+        [Min(0f)]
+        [SerializeField] private float emissionBrightness = 0.15f;
 
         /// <summary>
-        /// Original material arrays for each configured renderer.
+        /// Cached property block reused for renderer shader overrides.
         /// </summary>
-        /// <remarks>
-        /// The first array index matches the renderer index in <see cref="renderers"/>.
-        /// The second array contains the renderer's original material slots, allowing the
-        /// component to restore objects exactly after the highlight is removed.
-        /// </remarks>
-        private Material[][] originalMaterials;
+        private MaterialPropertyBlock propertyBlock;
 
         /// <summary>
-        /// Attempts to auto-fill renderer references when the component is first added
-        /// or reset in the Unity Inspector.
+        /// Shader property IDs for common Unity render pipelines.
+        /// </summary>
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+
+        /// <summary>
+        /// Attempts to auto-fill renderer references when the component is reset in the Inspector.
         /// </summary>
         private void Reset()
         {
@@ -45,54 +48,35 @@ namespace QuietStatic.Toolkit.Interactions
         }
 
         /// <summary>
-        /// Initializes renderer references and caches the original material arrays.
+        /// Initializes renderer references and reusable shader property storage.
         /// </summary>
-        /// <remarks>
-        /// If no renderers were manually assigned, this searches the GameObject and its
-        /// children. The cached materials are later used by <see cref="SetHighlighted"/>
-        /// to restore the object's normal appearance.
-        /// </remarks>
         private void Awake()
         {
             CacheRenderersIfNeeded();
-            CacheOriginalMaterials();
+            propertyBlock = new MaterialPropertyBlock();
         }
 
         /// <summary>
-        /// Enables or disables the highlight effect.
+        /// Enables or disables the interaction brightness effect.
         /// </summary>
         /// <param name="highlighted">
-        /// <c>true</c> to replace renderer materials with the highlight material;
-        /// <c>false</c> to restore the original materials cached on Awake.
+        /// <c>true</c> to brighten the object; <c>false</c> to clear the shader overrides.
         /// </param>
         public void SetHighlighted(bool highlighted)
         {
-            if (highlightedMaterial == null)
+            if (renderers == null)
             {
                 return;
             }
 
-            if (renderers == null || originalMaterials == null)
+            foreach (Renderer targetRenderer in renderers)
             {
-                return;
-            }
-
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                Renderer targetRenderer = renderers[i];
-
                 if (targetRenderer == null)
                 {
                     continue;
                 }
 
-                if (!highlighted)
-                {
-                    RestoreOriginalMaterials(targetRenderer, i);
-                    continue;
-                }
-
-                ApplyHighlightedMaterial(targetRenderer);
+                ApplyBrightness(targetRenderer, highlighted);
             }
         }
 
@@ -108,58 +92,53 @@ namespace QuietStatic.Toolkit.Interactions
         }
 
         /// <summary>
-        /// Stores each renderer's original material array for later restoration.
+        /// Applies a brightness override to all material slots on one renderer.
         /// </summary>
-        private void CacheOriginalMaterials()
+        /// <param name="targetRenderer">Renderer receiving the brightness effect.</param>
+        /// <param name="highlighted">Whether the effect should be active.</param>
+        private void ApplyBrightness(Renderer targetRenderer, bool highlighted)
         {
-            originalMaterials = new Material[renderers.Length][];
+            Material[] materials = targetRenderer.sharedMaterials;
 
-            for (int i = 0; i < renderers.Length; i++)
+            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
             {
-                if (renderers[i] == null)
+                Material material = materials[materialIndex];
+
+                if (material == null)
                 {
-                    originalMaterials[i] = null;
                     continue;
                 }
 
-                originalMaterials[i] = renderers[i].materials;
+                if (!highlighted)
+                {
+                    targetRenderer.SetPropertyBlock(null, materialIndex);
+                    continue;
+                }
+
+                propertyBlock.Clear();
+
+                if (material.HasProperty(BaseColorId))
+                {
+                    Color baseColor = material.GetColor(BaseColorId);
+                    propertyBlock.SetColor(BaseColorId, baseColor * highlightedBrightness);
+                }
+                else if (material.HasProperty(ColorId))
+                {
+                    Color baseColor = material.GetColor(ColorId);
+                    propertyBlock.SetColor(ColorId, baseColor * highlightedBrightness);
+                }
+
+                if (useEmission && material.HasProperty(EmissionColorId))
+                {
+                    Color emissionColor = material.GetColor(EmissionColorId);
+                    propertyBlock.SetColor(
+                        EmissionColorId,
+                        emissionColor + Color.white * emissionBrightness
+                    );
+                }
+
+                targetRenderer.SetPropertyBlock(propertyBlock, materialIndex);
             }
-        }
-
-        /// <summary>
-        /// Replaces every material slot on a renderer with the configured highlight material.
-        /// </summary>
-        /// <param name="targetRenderer">The renderer to highlight.</param>
-        private void ApplyHighlightedMaterial(Renderer targetRenderer)
-        {
-            Material[] highlightedMaterials = new Material[targetRenderer.materials.Length];
-
-            for (int i = 0; i < highlightedMaterials.Length; i++)
-            {
-                highlightedMaterials[i] = highlightedMaterial;
-            }
-
-            targetRenderer.materials = highlightedMaterials;
-        }
-
-        /// <summary>
-        /// Restores the cached original material array for one renderer.
-        /// </summary>
-        /// <param name="targetRenderer">The renderer to restore.</param>
-        /// <param name="rendererIndex">The renderer's index in the cached renderer array.</param>
-        private void RestoreOriginalMaterials(Renderer targetRenderer, int rendererIndex)
-        {
-            if (rendererIndex < 0 || rendererIndex >= originalMaterials.Length)
-            {
-                return;
-            }
-
-            if (originalMaterials[rendererIndex] == null)
-            {
-                return;
-            }
-
-            targetRenderer.materials = originalMaterials[rendererIndex];
         }
     }
 }

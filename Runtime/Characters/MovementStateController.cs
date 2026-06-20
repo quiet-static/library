@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Characters
+namespace QuietStatic.Toolkit.Characters
 {
     /// <summary>
     /// Determines and stores a character's current high-level movement state.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Characters
+namespace QuietStatic.Toolkit.Characters
 {
     /// <summary>
     /// Synchronizes common movement-related values from a character movement system

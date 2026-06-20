@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace QuietStatic.Animation.Audio
+namespace QuietStatic.Toolkit.Audio
 {
     /// <summary>
     /// Plays a one-shot 3D sound from this GameObject and destroys the GameObject

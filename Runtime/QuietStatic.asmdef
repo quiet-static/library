@@ -1,6 +1,10 @@
 {
   "name": "QuietStatic.Core.Runtime",
   "rootNamespace": "QuietStatic",
-  "references": [],
+  "references": [
+	  "Unity.TextMeshPro",
+	  "Unity.RenderPipelines.Core.Runtime",
+	  "Unity.RenderPipelines.Universal.Runtime",
+	  "Febucci.TextAnimatorForUnity"],
   "autoReferenced": true
 }

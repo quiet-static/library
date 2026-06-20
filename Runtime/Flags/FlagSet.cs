@@ -11,99 +11,124 @@ namespace QuietStatic.Toolkit.Flags
     /// Stores and manages a global set of string-based gameplay flags.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// A flag is a simple string id that represents a piece of game state, such as
-    /// a completed interaction, unlocked door, collected item, viewed cutscene, or
-    /// one-shot event.
-    /// </para>
-    /// <para>
-    /// This class intentionally uses strings instead of project-specific enums so it
-    /// can be reused across different projects and prototypes. For larger projects,
-    /// pair this with <see cref="FlagDatabase"/> to keep a documented list of known
-    /// flag ids.
-    /// </para>
-    /// <para>
-    /// The manager inherits from <see cref="ToolkitSingleton{T}"/>, so other systems
-    /// can access the active instance through <see cref="ToolkitSingleton{T}.Instance"/>.
-    /// </para>
+    /// Flags are simple string identifiers representing game progression, completed
+    /// interactions, unlocked content, viewed cutscenes, collected items, and similar state.
+    ///
+    /// This class intentionally does not know about dialogue, interactables, scenes,
+    /// objectives, or other project-specific systems.
     /// </remarks>
     public class FlagSet : ToolkitSingleton<FlagSet>
     {
-        /// <summary>
-        /// UnityEvent wrapper that passes a single string value.
-        /// </summary>
-        /// <remarks>
-        /// Used so the Inspector can react to newly set flags without requiring
-        /// another script to subscribe to the static <see cref="OnFlagSet"/> event.
-        /// </remarks>
         [Serializable]
-        public class StringUnityEvent : UnityEvent<string> { }
+        public class StringUnityEvent : UnityEvent<string>
+        {
+        }
+
+        /// <summary>
+        /// Describes a flag that should automatically be set once all required flags are active.
+        /// </summary>
+        [Serializable]
+        public class FlagDependency
+        {
+            [Tooltip("Flag automatically set when every required flag is active.")]
+            [SerializeField] private string resultFlag;
+
+            [Tooltip("All of these flags must be active before Result Flag is set.")]
+            [SerializeField] private string[] requiredFlags;
+
+            /// <summary>
+            /// Gets the flag automatically set when this dependency is satisfied.
+            /// </summary>
+            public string ResultFlag => resultFlag;
+
+            /// <summary>
+            /// Gets the flags required before the result flag can be set.
+            /// </summary>
+            public IReadOnlyList<string> RequiredFlags => requiredFlags;
+        }
 
         [Header("Starting State")]
         [Tooltip("Flags that should already be active when this flag set initializes.")]
         [SerializeField] private string[] startingFlags;
 
-        [Header("Events")]
-        [Tooltip("Invoked when a new flag is set. The string argument is the flag id that was added.")]
+        [Header("Dependencies")]
+        [Tooltip("Optional rules that automatically set a result flag once all required flags are active.")]
+        [SerializeField] private FlagDependency[] dependencies;
+
+        [Header("Unity Events")]
+        [Tooltip("Invoked when a new flag is set. The argument is the flag ID.")]
         [SerializeField] private StringUnityEvent onFlagSet;
 
-        /// <summary>
-        /// Runtime storage for every active flag id.
-        /// </summary>
-        /// <remarks>
-        /// A <see cref="HashSet{T}"/> is used so duplicate flags are ignored automatically
-        /// and lookup checks remain fast.
-        /// </remarks>
-        private readonly HashSet<string> activeFlags = new HashSet<string>();
+        [Tooltip("Invoked when a flag is removed. The argument is the flag ID.")]
+        [SerializeField] private StringUnityEvent onFlagCleared;
 
         /// <summary>
-        /// Raised when a new flag is successfully added to the active flag set.
+        /// Raised when a new flag is successfully added.
         /// </summary>
-        /// <remarks>
-        /// This event is only raised when the flag was not already active. Calling
-        /// <see cref="SetFlag"/> with a duplicate flag id will not fire this event.
-        /// </remarks>
         public static event Action<string> OnFlagSet;
 
         /// <summary>
-        /// Gets a read-only view of all currently active flag ids.
+        /// Raised when an active flag is removed.
+        /// </summary>
+        public static event Action<string> OnFlagCleared;
+
+        /// <summary>
+        /// Raised whenever the flag collection changes.
+        /// </summary>
+        public static event Action OnFlagsChanged;
+
+        /// <summary>
+        /// Runtime storage for active flag IDs.
+        /// </summary>
+        private readonly HashSet<string> activeFlags = new();
+
+        /// <summary>
+        /// Prevents dependency evaluation from recursively restarting itself.
+        /// </summary>
+        private bool isApplyingDependencies;
+
+        /// <summary>
+        /// Gets a read-only view of all active flag IDs.
         /// </summary>
         public IReadOnlyCollection<string> ActiveFlags => activeFlags;
 
         /// <summary>
-        /// Initializes the singleton and applies any configured starting flags.
+        /// Initializes the singleton and applies configured starting flags.
         /// </summary>
         protected override void Awake()
         {
             base.Awake();
 
+            if (Instance != this)
+            {
+                return;
+            }
+
+            if (startingFlags == null)
+            {
+                return;
+            }
+
             foreach (string flag in startingFlags)
             {
                 AddFlagSilently(flag);
             }
+
+            ApplyDependencies();
         }
 
         /// <summary>
-        /// Checks whether a specific flag is currently active.
+        /// Checks whether a specific flag is active.
         /// </summary>
-        /// <param name="flagId">The flag id to check.</param>
-        /// <returns>
-        /// <c>true</c> if the flag id is valid and active; otherwise, <c>false</c>.
-        /// </returns>
         public bool HasFlag(string flagId)
         {
-            return !string.IsNullOrWhiteSpace(flagId) && activeFlags.Contains(flagId);
+            return !string.IsNullOrWhiteSpace(flagId) &&
+                   activeFlags.Contains(flagId.Trim());
         }
 
         /// <summary>
-        /// Checks whether every valid flag id in the collection is active.
+        /// Checks whether every valid flag in a collection is active.
         /// </summary>
-        /// <param name="flagIds">The flag ids to check.</param>
-        /// <returns>
-        /// <c>true</c> if all non-blank flag ids are active.
-        /// Returns <c>true</c> when <paramref name="flagIds"/> is <c>null</c>,
-        /// because there are no requirements to fail.
-        /// </returns>
         public bool HasAll(IEnumerable<string> flagIds)
         {
             if (flagIds == null)
@@ -117,13 +142,8 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Checks whether at least one valid flag id in the collection is active.
+        /// Checks whether at least one valid flag in a collection is active.
         /// </summary>
-        /// <param name="flagIds">The flag ids to check.</param>
-        /// <returns>
-        /// <c>true</c> if any non-blank flag id is active.
-        /// Returns <c>false</c> when <paramref name="flagIds"/> is <c>null</c>.
-        /// </returns>
         public bool HasAny(IEnumerable<string> flagIds)
         {
             if (flagIds == null)
@@ -137,13 +157,8 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Adds a flag to the active flag set and raises flag-set events.
+        /// Adds a flag and notifies listeners if it was newly added.
         /// </summary>
-        /// <param name="flagId">The flag id to activate.</param>
-        /// <remarks>
-        /// Blank flag ids are ignored. Duplicate flag ids are also ignored and do not
-        /// raise events.
-        /// </remarks>
         public void SetFlag(string flagId)
         {
             if (!AddFlagSilently(flagId))
@@ -151,19 +166,20 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            OnFlagSet?.Invoke(flagId);
-            onFlagSet?.Invoke(flagId);
-            ToolkitEvents.RaiseFlagSet(flagId);
+            string normalizedFlagId = flagId.Trim();
+
+            OnFlagSet?.Invoke(normalizedFlagId);
+            onFlagSet?.Invoke(normalizedFlagId);
+            OnFlagsChanged?.Invoke();
+
+            ToolkitEvents.RaiseFlagSet(normalizedFlagId);
+
+            ApplyDependencies();
         }
 
         /// <summary>
-        /// Removes a single flag from the active flag set.
+        /// Removes a flag and notifies listeners if it was active.
         /// </summary>
-        /// <param name="flagId">The flag id to clear.</param>
-        /// <remarks>
-        /// Clearing a flag currently does not raise an event. Add a separate event if
-        /// other systems need to react to flags being removed.
-        /// </remarks>
         public void ClearFlag(string flagId)
         {
             if (string.IsNullOrWhiteSpace(flagId))
@@ -171,28 +187,91 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            activeFlags.Remove(flagId);
+            string normalizedFlagId = flagId.Trim();
+
+            if (!activeFlags.Remove(normalizedFlagId))
+            {
+                return;
+            }
+
+            OnFlagCleared?.Invoke(normalizedFlagId);
+            onFlagCleared?.Invoke(normalizedFlagId);
+            OnFlagsChanged?.Invoke();
         }
 
         /// <summary>
-        /// Removes every active flag from this flag set.
+        /// Removes all active flags.
         /// </summary>
-        /// <remarks>
-        /// This is useful when resetting a game, returning to a title menu, or starting
-        /// a new save file. This does not automatically re-apply starting flags.
-        /// </remarks>
         public void ClearAllFlags()
         {
+            if (activeFlags.Count == 0)
+            {
+                return;
+            }
+
             activeFlags.Clear();
+            OnFlagsChanged?.Invoke();
         }
 
         /// <summary>
-        /// Adds a flag without raising any flag-set events.
+        /// Evaluates configured dependency rules and adds any newly satisfied result flags.
         /// </summary>
-        /// <param name="flagId">The flag id to add.</param>
-        /// <returns>
-        /// <c>true</c> if the flag id was valid and newly added; otherwise, <c>false</c>.
-        /// </returns>
+        private void ApplyDependencies()
+        {
+            if (isApplyingDependencies || dependencies == null || dependencies.Length == 0)
+            {
+                return;
+            }
+
+            isApplyingDependencies = true;
+
+            try
+            {
+                bool addedFlag;
+
+                do
+                {
+                    addedFlag = false;
+
+                    foreach (FlagDependency dependency in dependencies)
+                    {
+                        if (dependency == null ||
+                            string.IsNullOrWhiteSpace(dependency.ResultFlag) ||
+                            HasFlag(dependency.ResultFlag) ||
+                            dependency.RequiredFlags == null ||
+                            dependency.RequiredFlags.Count == 0 ||
+                            !HasAll(dependency.RequiredFlags))
+                        {
+                            continue;
+                        }
+
+                        if (!AddFlagSilently(dependency.ResultFlag))
+                        {
+                            continue;
+                        }
+
+                        string resultFlag = dependency.ResultFlag.Trim();
+
+                        OnFlagSet?.Invoke(resultFlag);
+                        onFlagSet?.Invoke(resultFlag);
+                        OnFlagsChanged?.Invoke();
+
+                        ToolkitEvents.RaiseFlagSet(resultFlag);
+
+                        addedFlag = true;
+                    }
+                }
+                while (addedFlag);
+            }
+            finally
+            {
+                isApplyingDependencies = false;
+            }
+        }
+
+        /// <summary>
+        /// Adds a flag without raising events.
+        /// </summary>
         private bool AddFlagSilently(string flagId)
         {
             if (string.IsNullOrWhiteSpace(flagId))

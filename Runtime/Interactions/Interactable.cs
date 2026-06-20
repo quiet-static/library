@@ -1,3 +1,4 @@
+using System;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,16 +9,36 @@ namespace QuietStatic.Toolkit.Interactions
     /// Represents a reusable world object that can be interacted with by an <see cref="Interactor"/>.
     /// </summary>
     /// <remarks>
-    /// This component is intentionally generic so it can be reused for doors, pickups, switches,
-    /// readable objects, puzzle props, and other interaction targets.
+    /// This component supports both Inspector-assigned UnityEvents and static C# events.
     ///
-    /// Interaction success is determined by the optional <see cref="FlagRequirement"/>. When the
-    /// requirement is met, this component sets success flags, invokes success events, and can
-    /// optionally disable itself so it cannot be used again. When the requirement is not met, it
-    /// sets failure flags and invokes failure events instead.
+    /// Use UnityEvents for scene-local behavior such as animations, sounds, or enabling objects.
+    /// Use the static C# events for systems that may live in separate loaded scenes, such as
+    /// objective managers, dialogue systems, analytics, or global progression managers.
     /// </remarks>
     public class Interactable : MonoBehaviour
     {
+        /// <summary>
+        /// Raised whenever any interactable successfully completes an interaction.
+        /// The first parameter is the interactable that was used.
+        /// The second parameter is the interactor that initiated the action, if available.
+        /// </summary>
+        public static event Action<Interactable, Interactor> OnInteractionSucceeded;
+
+        /// <summary>
+        /// Raised whenever any interactable receives an interaction attempt that fails because
+        /// its requirements were not met.
+        /// The first parameter is the interactable that was attempted.
+        /// The second parameter is the interactor that initiated the action, if available.
+        /// </summary>
+        public static event Action<Interactable, Interactor> OnInteractionFailed;
+
+        /// <summary>
+        /// Raised whenever an interactable's enabled state changes.
+        /// The first parameter is the interactable whose state changed.
+        /// The second parameter is its new enabled state.
+        /// </summary>
+        public static event Action<Interactable, bool> OnInteractionEnabledChanged;
+
         [Header("Interaction Display")]
         [Tooltip("Name or prompt shown to the player when this object can be interacted with.")]
         [SerializeField] private string displayName = "Interact";
@@ -51,19 +72,11 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>
         /// Gets whether this interactable is currently allowed to process interaction attempts.
         /// </summary>
-        /// <remarks>
-        /// This is separate from the GameObject active state. A disabled interactable can remain
-        /// visible in the scene while rejecting interaction attempts.
-        /// </remarks>
         public bool IsEnabled { get; private set; } = true;
 
         /// <summary>
         /// Checks whether this interactable is currently available and its flag requirement is met.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if the interactable is enabled and has no unmet requirement;
-        /// otherwise, <c>false</c>.
-        /// </returns>
         public bool CanInteract()
         {
             if (!IsEnabled)
@@ -78,12 +91,10 @@ namespace QuietStatic.Toolkit.Interactions
         /// Attempts to interact with this object.
         /// </summary>
         /// <param name="interactor">
-        /// Optional interactor that initiated the interaction. This parameter is currently unused,
-        /// but is kept so future interaction logic can react to who performed the interaction.
+        /// Optional interactor that initiated the interaction.
         /// </param>
         /// <returns>
-        /// <c>true</c> if the interaction succeeded; <c>false</c> if the interactable was disabled
-        /// or its requirement was not met.
+        /// <c>true</c> if the interaction succeeded; otherwise <c>false</c>.
         /// </returns>
         public bool TryInteract(Interactor interactor = null)
         {
@@ -94,45 +105,55 @@ namespace QuietStatic.Toolkit.Interactions
 
             if (!CanInteract())
             {
-                HandleFailedInteraction();
+                HandleFailedInteraction(interactor);
                 return false;
             }
 
-            HandleSuccessfulInteraction();
+            HandleSuccessfulInteraction(interactor);
             return true;
         }
 
         /// <summary>
         /// Enables or disables this interactable without changing the GameObject active state.
         /// </summary>
-        /// <param name="isEnabled">
-        /// Whether future interaction attempts should be accepted.
-        /// </param>
+        /// <param name="isEnabled">Whether future interaction attempts should be accepted.</param>
         public void SetEnabled(bool isEnabled)
         {
+            if (IsEnabled == isEnabled)
+            {
+                return;
+            }
+
             IsEnabled = isEnabled;
+            OnInteractionEnabledChanged?.Invoke(this, IsEnabled);
         }
 
         /// <summary>
         /// Applies all success effects for this interaction.
         /// </summary>
-        private void HandleSuccessfulInteraction()
+        private void HandleSuccessfulInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnSuccess);
+
+            // Global C# listeners first, then local Inspector listeners.
+            OnInteractionSucceeded?.Invoke(this, interactor);
             onInteractionSucceeded?.Invoke();
 
             if (disableAfterSuccess)
             {
-                IsEnabled = false;
+                SetEnabled(false);
             }
         }
 
         /// <summary>
         /// Applies all failure effects for this interaction.
         /// </summary>
-        private void HandleFailedInteraction()
+        private void HandleFailedInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnFailure);
+
+            // Global C# listeners first, then local Inspector listeners.
+            OnInteractionFailed?.Invoke(this, interactor);
             onInteractionFailed?.Invoke();
         }
 
@@ -149,6 +170,11 @@ namespace QuietStatic.Toolkit.Interactions
 
             foreach (string flagId in flagIds)
             {
+                if (string.IsNullOrWhiteSpace(flagId))
+                {
+                    continue;
+                }
+
                 FlagSet.Instance.SetFlag(flagId);
             }
         }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UnityStandardAssets.Utility
+namespace QuietStatic.Toolkit.Debug
 {
     /// <summary>
     /// Displays a simple frames-per-second counter using a legacy Unity UI Text component.

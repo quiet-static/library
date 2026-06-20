@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Characters
+namespace QuietStatic.Toolkit.Characters
 {
     /// <summary>
     /// Handles character movement using a <see cref="CharacterController"/>,

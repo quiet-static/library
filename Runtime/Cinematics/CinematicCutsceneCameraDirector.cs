@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using QuietStatic.Toolkit.Cinematics;
 using UnityEngine;
 
-namespace QuietStatic.Cinematic
+namespace QuietStatic.Toolkit.Cinematics
 {
     /// <summary>
     /// Directs a dedicated cinematic cutscene camera by jumping between predefined camera shots.

@@ -89,9 +89,10 @@ namespace QuietStatic.Toolkit.SceneFlow
         {
             if (SceneLoadService.Instance == null)
             {
-                Debug.LogWarning(
+                GameLogger.Warning(
+                    "LoadTargetScene",
+                    this,
                     $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no {nameof(SceneLoadService)} instance exists.",
-                    this
                 );
 
                 return;

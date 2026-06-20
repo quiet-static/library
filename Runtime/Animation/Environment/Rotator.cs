@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Animation.Environment
+namespace QuietStatic.Toolkit.Animation.Environment
 {
     /// <summary>
     /// Continuously rotates this GameObject every frame.

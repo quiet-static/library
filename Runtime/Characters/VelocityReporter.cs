@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Characters
+namespace QuietStatic.Toolkit.Characters
 {
     /// <summary>
     /// Calculates and exposes this GameObject's current velocity based on its frame-to-frame

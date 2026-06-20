@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace QuietStatic.Animation.Environment
+namespace QuietStatic.Toolkit.Animation.Environment
 {
     /// <summary>
     /// Continuously rotates the active scene skybox over time.
