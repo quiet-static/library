@@ -60,7 +60,11 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             if (characterController == null)
             {
-                Debug.LogWarning("No CutsceneCharacterController assigned.", this);
+                GameLogger.Warning(
+                    "Run",
+                    this,
+                    "No CutsceneCharacterController assigned."
+                );
                 return;
             }
 

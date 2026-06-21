@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Cinematics
@@ -56,6 +57,11 @@ namespace QuietStatic.Toolkit.Cinematics
         private bool hasFinished;
 
         /// <summary>
+        /// Event for when the credits stop rolling
+        /// </summary>
+        public static event Action OnCreditsEnd;
+
+        /// <summary>
         /// Attempts to automatically assign the credits content reference in the Inspector.
         /// </summary>
         /// <remarks>
@@ -79,9 +85,10 @@ namespace QuietStatic.Toolkit.Cinematics
 
             if (creditsContent == null)
             {
-                Debug.LogWarning(
-                    $"{nameof(CreditsScroller)} could not find a RectTransform to scroll.",
-                    this
+                GameLogger.Warning(
+                    "Start",
+                    this,
+                    $"{nameof(CreditsScroller)} could not find a RectTransform to scroll."
                 );
 
                 enabled = false;
@@ -152,19 +159,14 @@ namespace QuietStatic.Toolkit.Cinematics
             }
 
             hasFinished = true;
+            OnCreditsEnd?.Invoke();
 
             if (!loadSceneWhenFinished)
             {
                 return;
             }
 
-            if (GameSceneManager.Instance == null)
-            {
-                Debug.LogWarning("Credits finished, but GameSceneManager.Instance was null.", this);
-                return;
-            }
-
-            GameSceneManager.Instance.ReturnToTitleMenu();
+            // Return to title
         }
     }
 }

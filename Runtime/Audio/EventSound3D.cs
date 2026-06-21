@@ -56,13 +56,21 @@ namespace QuietStatic.Toolkit.Audio
         {
             if (clip == null)
             {
-                Debug.LogWarning($"{nameof(EventSound3D)} tried to play a null AudioClip.", this);
+                GameLogger.Warning(
+                    "Play",
+                    this,
+                    $"{nameof(EventSound3D)} tried to play a null AudioClip."
+                );
                 return;
             }
 
             if (audioSrc == null)
             {
-                Debug.LogWarning($"{nameof(EventSound3D)} has no AudioSource assigned.", this);
+                GameLogger.Warning(
+                    "Play",
+                    this,
+                    $"{nameof(EventSound3D)} has no AudioSource assigned."
+                );
                 return;
             }
 

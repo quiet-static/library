@@ -41,11 +41,11 @@ namespace QuietStatic.Toolkit.Cameras
         [SerializeField] private float rotationSmoothTime = 8f;
 
         [Header("First Person")]
-        [Tooltip("Camera position anchor, usually placed at the player's eye level.")]
-        [SerializeField] private Transform firstPersonAnchor;
-
         [Tooltip("Whether the camera should use first-person behavior.")]
         [SerializeField] private bool isFirstPerson;
+
+        [Tooltip("Camera position anchor, usually placed at the player's eye level.")]
+        [SerializeField] private Transform firstPersonAnchor;
 
         [Tooltip("The player body rotated horizontally with first-person camera yaw.")]
         [SerializeField] private Transform playerBody;

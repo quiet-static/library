@@ -151,7 +151,11 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             if (!IsValidShotIndex(shotIndex))
             {
-                Debug.LogWarning($"Invalid cinematic shot index: {shotIndex}", this);
+                GameLogger.Warning(
+                    "CutToShot",
+                    this,
+                    $"Invalid cinematic shot index: {shotIndex}"
+                );
                 return;
             }
 
@@ -165,7 +169,11 @@ namespace QuietStatic.Toolkit.Cinematics
             currentShotIndex = shotIndex;
             ApplyShot(shot);
 
-            Debug.Log($"Cut to cinematic shot {shotIndex}: {shot.shotName}", this);
+            GameLogger.Log(
+                "CutToShot",
+                this,
+                $"Cut to cinematic shot {shotIndex}: {shot.shotName}"
+            );
         }
 
         /// <summary>
@@ -222,15 +230,20 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             if (shot == null)
             {
-                Debug.LogWarning("Cinematic shot is null.", this);
+                GameLogger.Warning(
+                    "IsUsableShot",
+                    this,
+                    "Cinematic shot is null."
+                );
                 return false;
             }
 
             if (shot.focusTarget == null && shot.cameraPositionMarker == null)
             {
-                Debug.LogWarning(
-                    $"Cinematic shot '{shot.shotName}' has no focus target or camera position marker.",
-                    this
+                GameLogger.Warning(
+                    "IsUsableShot",
+                    this,
+                    $"Cinematic shot '{shot.shotName}' has no focus target or camera position marker."
                 );
 
                 return false;

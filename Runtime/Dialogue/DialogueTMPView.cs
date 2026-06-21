@@ -166,7 +166,7 @@ namespace QuietStatic.Toolkit.Dialogue
                     "StartTypingLine",
                     this,
                     $"{nameof(DialogueTMPView)} has no {nameof(TypewriterComponent)} assigned. " +
-                    "Falling back to showing dialogue instantly.",
+                    "Falling back to showing dialogue instantly."
                 );
 
                 if (lineLabel != null)

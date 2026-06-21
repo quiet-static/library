@@ -252,7 +252,11 @@ namespace QuietStatic.Toolkit.Cinematics
 
             if (character == null)
             {
-                Debug.LogWarning($"Could not resolve cutscene character with id '{action.characterId}'.", this);
+                GameLogger.Warning(
+                    "ApplyAction",
+                    this,
+                    $"Could not resolve cutscene character with id '{action.characterId}'."
+                );
                 return;
             }
 
@@ -319,13 +323,21 @@ namespace QuietStatic.Toolkit.Cinematics
 
             if (entry == null)
             {
-                Debug.LogWarning($"No cutscene character entry exists for id '{characterId}'.", this);
+                GameLogger.Warning(
+                    "GetOrSpawnCharacter",
+                    this,
+                    $"No cutscene character entry exists for id '{characterId}'."
+                );
                 return null;
             }
 
             if (entry.characterPrefab == null)
             {
-                Debug.LogWarning($"Cutscene character '{characterId}' has no prefab assigned.", this);
+                GameLogger.Warning(
+                    "GetOrSpawnCharacter",
+                    this,
+                    $"Cutscene character '{characterId}' has no prefab assigned."
+                );
                 return null;
             }
 
