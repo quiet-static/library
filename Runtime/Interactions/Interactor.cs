@@ -27,6 +27,9 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Physics layers that can be hit by the interaction raycast.")]
         [SerializeField] private LayerMask interactionMask = ~0;
 
+        [Tooltip("The main camera the player uses")]
+        [SerializeField] private Camera interactionCamera;
+
         /// <summary>
         /// Gets the interactable currently detected by the interaction raycast.
         /// </summary>
@@ -35,6 +38,14 @@ namespace QuietStatic.Toolkit.Interactions
         /// <see cref="TryInteract"/> attempts an interaction.
         /// </remarks>
         public Interactable CurrentTarget { get; private set; }
+
+        /// <summary>
+        /// UnityEvent-friendly entry point for an interact input.
+        /// </summary>
+        public void HandleInteractInput()
+        {
+            TryInteract();
+        }
 
         /// <summary>
         /// Auto-fills the ray origin when the component is added or reset in the Inspector.
@@ -62,12 +73,24 @@ namespace QuietStatic.Toolkit.Interactions
         /// </remarks>
         public void RefreshTarget()
         {
-            Transform origin = GetRayOrigin();
             CurrentTarget = null;
 
+            if (interactionCamera == null)
+            {
+                interactionCamera = Camera.main;
+            }
+
+            if (interactionCamera == null)
+            {
+                return;
+            }
+
+            Ray ray = interactionCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f, 0f)
+            );
+
             if (Physics.Raycast(
-                    origin.position,
-                    origin.forward,
+                    ray,
                     out RaycastHit hit,
                     range,
                     interactionMask,

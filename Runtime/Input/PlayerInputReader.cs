@@ -57,20 +57,6 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void Awake()
         {
-            inputManager = GameInputManager.Instance;
-
-            if (inputManager == null)
-            {
-                GameLogger.Error(
-                    "Awake",
-                    this,
-                    $"{nameof(PlayerInputReader)} requires a {nameof(GameInputManager)} in the loaded scenes."
-                );
-
-                enabled = false;
-                return;
-            }
-
             if (inputActions == null)
             {
                 GameLogger.Error(
@@ -155,7 +141,9 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void Update()
         {
-            if (inputManager == null || playerActionMap == null || !playerActionMap.enabled)
+            if (!TryResolveInputManager() ||
+                playerActionMap == null ||
+                !playerActionMap.enabled)
             {
                 return;
             }
@@ -169,7 +157,21 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void LateUpdate()
         {
-            inputManager?.ClearFrameInput();
+            if (TryResolveInputManager())
+            {
+                inputManager.ClearFrameInput();
+            }
+        }
+
+        private bool TryResolveInputManager()
+        {
+            if (inputManager != null)
+            {
+                return true;
+            }
+
+            inputManager = GameInputManager.Instance;
+            return inputManager != null;
         }
 
         /// <summary>
