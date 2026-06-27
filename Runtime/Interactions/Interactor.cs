@@ -1,24 +1,17 @@
+using QuietStatic;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Interactions
 {
     /// <summary>
-    /// Detects and interacts with nearby <see cref="Interactable"/> objects using a forward raycast.
+    /// Detects and interacts with nearby interactable objects using a camera-center raycast.
+    /// Also updates interaction UI and optional highlighting for the current target.
     /// </summary>
-    /// <remarks>
-    /// Attach this component to the player or to another object that needs to trigger
-    /// interactable objects. The component continuously refreshes <see cref="CurrentTarget"/>
-    /// each frame, and <see cref="TryInteract"/> can be called by an input system when the
-    /// player presses the interact button.
-    ///
-    /// The raycast uses <see cref="QueryTriggerInteraction.Collide"/> so trigger colliders
-    /// can be used as interaction volumes.
-    /// </remarks>
     public class Interactor : MonoBehaviour
     {
         [Header("Raycast")]
-        [Tooltip("Transform used as the starting point and forward direction for interaction checks. If left empty, this object's transform is used.")]
-        [SerializeField] private Transform rayOrigin;
+        [Tooltip("Camera used to cast the interaction ray through the center of the screen.")]
+        [SerializeField] private Camera interactionCamera;
 
         [Tooltip("Maximum distance, in world units, that this interactor can detect interactable objects.")]
         [Min(0f)]
@@ -27,17 +20,22 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Physics layers that can be hit by the interaction raycast.")]
         [SerializeField] private LayerMask interactionMask = ~0;
 
-        [Tooltip("The main camera the player uses")]
-        [SerializeField] private Camera interactionCamera;
+        [Header("Feedback")]
+        [Tooltip("Optional UI manager used to show the current interaction prompt.")]
+        [SerializeField] private InteractionUIManager interactionUI;
+
+        [Tooltip("Text shown before the interactable display name.")]
+        [SerializeField] private string promptPrefix = "Press E to ";
 
         /// <summary>
-        /// Gets the interactable currently detected by the interaction raycast.
+        /// Gets the interactable currently under the center crosshair.
         /// </summary>
-        /// <remarks>
-        /// This value is refreshed during <see cref="Update"/> and again immediately before
-        /// <see cref="TryInteract"/> attempts an interaction.
-        /// </remarks>
         public Interactable CurrentTarget { get; private set; }
+
+        /// <summary>
+        /// Previously targeted object, used to clear UI and highlight state.
+        /// </summary>
+        private Interactable previousTarget;
 
         /// <summary>
         /// UnityEvent-friendly entry point for an interact input.
@@ -47,70 +45,45 @@ namespace QuietStatic.Toolkit.Interactions
             TryInteract();
         }
 
-        /// <summary>
-        /// Auto-fills the ray origin when the component is added or reset in the Inspector.
-        /// </summary>
-        private void Reset()
+        private void Awake()
         {
-            rayOrigin = transform;
+            if (interactionCamera == null)
+            {
+                interactionCamera = Camera.main;
+            }
+
+            if (interactionUI == null)
+            {
+                interactionUI = InteractionUIManager.Instance;
+            }
         }
 
-        /// <summary>
-        /// Refreshes the current interaction target once per frame.
-        /// </summary>
         private void Update()
         {
             RefreshTarget();
         }
 
         /// <summary>
-        /// Updates <see cref="CurrentTarget"/> by raycasting forward from the configured origin.
+        /// Raycasts from the center of the assigned camera and updates target feedback.
         /// </summary>
-        /// <remarks>
-        /// If the raycast hits a collider, this method searches that collider and its parents
-        /// for an <see cref="Interactable"/> component. If no valid interactable is found,
-        /// <see cref="CurrentTarget"/> remains <c>null</c>.
-        /// </remarks>
         public void RefreshTarget()
         {
-            CurrentTarget = null;
+            Interactable newTarget = GetTargetFromCrosshair();
 
-            if (interactionCamera == null)
-            {
-                interactionCamera = Camera.main;
-            }
-
-            if (interactionCamera == null)
+            if (newTarget == CurrentTarget)
             {
                 return;
             }
 
-            Ray ray = interactionCamera.ViewportPointToRay(
-                new Vector3(0.5f, 0.5f, 0f)
-            );
+            previousTarget = CurrentTarget;
+            CurrentTarget = newTarget;
 
-            if (Physics.Raycast(
-                    ray,
-                    out RaycastHit hit,
-                    range,
-                    interactionMask,
-                    QueryTriggerInteraction.Collide))
-            {
-                CurrentTarget = hit.collider.GetComponentInParent<Interactable>();
-            }
+            UpdateFeedback();
         }
 
         /// <summary>
-        /// Attempts to interact with the currently detected target.
+        /// Attempts to interact with the object currently under the crosshair.
         /// </summary>
-        /// <returns>
-        /// <c>true</c> if an interactable was found and its interaction succeeded;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        /// <remarks>
-        /// This method refreshes the target immediately before interacting so the result
-        /// reflects the latest player/camera position.
-        /// </remarks>
         public bool TryInteract()
         {
             RefreshTarget();
@@ -120,18 +93,85 @@ namespace QuietStatic.Toolkit.Interactions
                 return false;
             }
 
-            return CurrentTarget.TryInteract(this);
+            bool succeeded = CurrentTarget.TryInteract(this);
+
+            // Refresh after interaction in case it disabled itself.
+            RefreshTarget();
+
+            return succeeded;
         }
 
         /// <summary>
-        /// Gets the transform used for raycast origin and direction.
+        /// Finds the interactable hit by a ray through the camera center.
         /// </summary>
-        /// <returns>
-        /// The assigned ray origin, or this object's transform if no custom origin is assigned.
-        /// </returns>
-        private Transform GetRayOrigin()
+        private Interactable GetTargetFromCrosshair()
         {
-            return rayOrigin != null ? rayOrigin : transform;
+            if (interactionCamera == null)
+            {
+                return null;
+            }
+
+            Ray ray = interactionCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f, 0f)
+            );
+
+            UnityEngine.Debug.DrawRay(ray.origin, ray.direction * range, Color.green);
+
+            if (!Physics.Raycast(
+                    ray,
+                    out RaycastHit hit,
+                    range,
+                    interactionMask,
+                    QueryTriggerInteraction.Collide))
+            {
+                return null;
+            }
+
+            return hit.collider.GetComponentInParent<Interactable>();
+        }
+
+        /// <summary>
+        /// Updates the interaction prompt and highlight when the viewed target changes.
+        /// </summary>
+        private void UpdateFeedback()
+        {
+            SetHighlight(previousTarget, false);
+
+            if (CurrentTarget == null)
+            {
+                interactionUI?.HidePrompt();
+                return;
+            }
+
+            if (!CurrentTarget.CanInteract())
+            {
+                interactionUI?.HidePrompt();
+                return;
+            }
+
+            SetHighlight(CurrentTarget, true);
+
+            interactionUI?.ShowPrompt(
+                $"{promptPrefix}{CurrentTarget.DisplayName}"
+            );
+        }
+
+        /// <summary>
+        /// Enables or disables highlighting on an interactable when available.
+        /// </summary>
+        private static void SetHighlight(
+            Interactable interactable,
+            bool highlighted)
+        {
+            if (interactable == null)
+            {
+                return;
+            }
+
+            InteractionHighlighter highlighter =
+                interactable.GetComponentInChildren<InteractionHighlighter>();
+
+            highlighter?.SetHighlighted(highlighted);
         }
     }
 }
