@@ -20,7 +20,16 @@ namespace QuietStatic.Toolkit.Interactions
         [SerializeField] Animator animator;
 
         [Tooltip("Animation trigger string")]
-        [SerializeField] private string animationTrigger;
+        [SerializeField] private string animationOnTrigger;
+
+        [Header("Binary States")]
+        [Tooltip("Whether this game object should act on interactions in 2 states (ON with interaction 1, OFF with interaction 2)")]
+        [SerializeField] private bool isBinary;
+
+        [Tooltip("Trigger for returning to an OFF state")]
+        [SerializeField] private string animationOffTrigger;
+
+        private bool currentState = false; // FALSE = OFF | TRUE = ON
 
         private void OnEnable()
         {
@@ -52,7 +61,25 @@ namespace QuietStatic.Toolkit.Interactions
         /// </summary>
         public void UnlockInteraction()
         {
-            animator.SetTrigger(animationTrigger);
+            GameLogger.Log(
+                "UnlockInteraction",
+                this,
+                $"Called on {gameObject.name}. State before toggle: {currentState}"
+            );
+
+            string triggerToUse = "";
+
+            if (isBinary)
+            {
+                currentState = !currentState;
+                triggerToUse = currentState ? animationOnTrigger : animationOffTrigger;
+            }
+            else
+            {
+                triggerToUse = animationOnTrigger;
+            }
+
+            animator.SetTrigger(triggerToUse);
         }
     }
 }

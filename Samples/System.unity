@@ -387,10 +387,10 @@ MonoBehaviour:
   destroyDuplicates: 1
   musicSource: {fileID: 0}
   stateMusicEntries: []
-  defaultVolume: 0.7
+  defaultVolume: 0.3
   fadeDuration: 1.5
-  startupMusic: {fileID: 0}
-  playOnStart: 0
+  startupMusic: {fileID: 8300000, guid: f190c0401e1d783429e62067b71e8edc, type: 3}
+  playOnStart: 1
   useFadeOnStateChange: 1
   onMusicStarted:
     m_PersistentCalls:
@@ -699,7 +699,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.SfxManager
   persistBetweenScenes: 1
   destroyDuplicates: 1
-  eventSound3DPrefab: {fileID: 0}
+  eventSound3DPrefab: {fileID: 5699780695079487177, guid: f1811274938a8404f9a0941965ede442, type: 3}
   defaultMinDistance: 5
   defaultMaxDistance: 100
   defaultVolume: 1

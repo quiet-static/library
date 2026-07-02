@@ -98,6 +98,8 @@ namespace QuietStatic.Toolkit.Interactions
         /// </returns>
         public bool TryInteract(Interactor interactor = null)
         {
+            GameLogger.Log("TryInteract", this, $"TryInteract called on {gameObject.name} at frame {Time.frameCount}");
+
             if (!IsEnabled)
             {
                 return false;
