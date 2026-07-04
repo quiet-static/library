@@ -255,7 +255,7 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Sets each valid flag id through the global <see cref="FlagSet"/> singleton.
+        /// Sets each valid flag id through the global <see cref="FlagManager"/> singleton.
         /// </summary>
         /// <param name="flagIds">Flag ids to set. Null arrays are ignored.</param>
         /// <remarks>
@@ -264,7 +264,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </remarks>
         private static void SetFlags(string[] flagIds)
         {
-            if (FlagSet.Instance == null || flagIds == null)
+            if (FlagManager.Instance == null || flagIds == null)
             {
                 return;
             }
@@ -276,7 +276,7 @@ namespace QuietStatic.Toolkit.Dialogue
                     continue;
                 }
 
-                FlagSet.Instance.SetFlag(flagId);
+                FlagManager.Instance.SetFlag(flagId);
             }
         }
     }

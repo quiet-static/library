@@ -8,16 +8,10 @@ using UnityEngine.Events;
 namespace QuietStatic.Toolkit.Flags
 {
     /// <summary>
-    /// Stores and manages a global set of string-based gameplay flags.
+    /// Stores the runtime state of gameplay flags defined by an optional
+    /// <see cref="FlagDatabase"/>.
     /// </summary>
-    /// <remarks>
-    /// Flags are simple string identifiers representing game progression, completed
-    /// interactions, unlocked content, viewed cutscenes, collected items, and similar state.
-    ///
-    /// This class intentionally does not know about dialogue, interactables, scenes,
-    /// objectives, or other project-specific systems.
-    /// </remarks>
-    public class FlagSet : ToolkitSingleton<FlagSet>
+    public class FlagManager : ToolkitSingleton<FlagManager>
     {
         [Serializable]
         public class StringUnityEvent : UnityEvent<string>
@@ -25,7 +19,7 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Describes a flag that should automatically be set once all required flags are active.
+        /// Describes a flag that is automatically set after all required flags are active.
         /// </summary>
         [Serializable]
         public class FlagDependency
@@ -36,16 +30,13 @@ namespace QuietStatic.Toolkit.Flags
             [Tooltip("All of these flags must be active before Result Flag is set.")]
             [SerializeField] private string[] requiredFlags;
 
-            /// <summary>
-            /// Gets the flag automatically set when this dependency is satisfied.
-            /// </summary>
             public string ResultFlag => resultFlag;
-
-            /// <summary>
-            /// Gets the flags required before the result flag can be set.
-            /// </summary>
             public IReadOnlyList<string> RequiredFlags => requiredFlags;
         }
+
+        [Header("Database")]
+        [Tooltip("Optional central list of valid flag IDs. When assigned, unknown IDs cannot be set.")]
+        [SerializeField] private FlagDatabase flagDatabase;
 
         [Header("Starting State")]
         [Tooltip("Flags that should already be active when this flag set initializes.")]
@@ -73,14 +64,19 @@ namespace QuietStatic.Toolkit.Flags
         public static event Action<string> OnFlagCleared;
 
         /// <summary>
-        /// Raised whenever the flag collection changes.
+        /// Raised whenever the active flag collection changes.
         /// </summary>
         public static event Action OnFlagsChanged;
 
         /// <summary>
-        /// Runtime storage for active flag IDs.
+        /// Stores currently active runtime flag IDs.
         /// </summary>
         private readonly HashSet<string> activeFlags = new();
+
+        /// <summary>
+        /// Cached valid IDs from the assigned database.
+        /// </summary>
+        private readonly HashSet<string> knownFlagIds = new();
 
         /// <summary>
         /// Prevents dependency evaluation from recursively restarting itself.
@@ -88,13 +84,15 @@ namespace QuietStatic.Toolkit.Flags
         private bool isApplyingDependencies;
 
         /// <summary>
-        /// Gets a read-only view of all active flag IDs.
+        /// Gets the assigned database, if one exists.
+        /// </summary>
+        public FlagDatabase Database => flagDatabase;
+
+        /// <summary>
+        /// Gets all currently active flags.
         /// </summary>
         public IReadOnlyCollection<string> ActiveFlags => activeFlags;
 
-        /// <summary>
-        /// Initializes the singleton and applies configured starting flags.
-        /// </summary>
         protected override void Awake()
         {
             base.Awake();
@@ -104,21 +102,35 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            if (startingFlags == null)
-            {
-                return;
-            }
+            CacheDatabaseFlags();
 
-            foreach (string flag in startingFlags)
+            if (startingFlags != null)
             {
-                AddFlagSilently(flag);
+                foreach (string flagId in startingFlags)
+                {
+                    AddFlagSilently(flagId);
+                }
             }
 
             ApplyDependencies();
         }
 
         /// <summary>
-        /// Checks whether a specific flag is active.
+        /// Returns whether the database contains a flag ID.
+        /// When no database is assigned, any non-empty ID is considered valid.
+        /// </summary>
+        public bool IsKnownFlag(string flagId)
+        {
+            if (string.IsNullOrWhiteSpace(flagId))
+            {
+                return false;
+            }
+
+            return flagDatabase == null || knownFlagIds.Contains(flagId.Trim());
+        }
+
+        /// <summary>
+        /// Checks whether a specific flag is currently active.
         /// </summary>
         public bool HasFlag(string flagId)
         {
@@ -157,7 +169,7 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Adds a flag and notifies listeners if it was newly added.
+        /// Activates a known flag and notifies listeners.
         /// </summary>
         public void SetFlag(string flagId)
         {
@@ -166,19 +178,12 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            string normalizedFlagId = flagId.Trim();
-
-            OnFlagSet?.Invoke(normalizedFlagId);
-            onFlagSet?.Invoke(normalizedFlagId);
-            OnFlagsChanged?.Invoke();
-
-            ToolkitEvents.RaiseFlagSet(normalizedFlagId);
-
+            RaiseFlagSetEvents(flagId.Trim());
             ApplyDependencies();
         }
 
         /// <summary>
-        /// Removes a flag and notifies listeners if it was active.
+        /// Removes an active known flag and notifies listeners.
         /// </summary>
         public void ClearFlag(string flagId)
         {
@@ -188,6 +193,18 @@ namespace QuietStatic.Toolkit.Flags
             }
 
             string normalizedFlagId = flagId.Trim();
+
+            if (!IsKnownFlag(normalizedFlagId))
+            {
+                GameLogger.Warning(
+                    "ClearFlag",
+                    this,
+                    $"[{nameof(FlagManager)}] Cannot clear unknown flag '{normalizedFlagId}'. " +
+                    $"Add it to the assigned {nameof(FlagDatabase)} first."
+                );
+
+                return;
+            }
 
             if (!activeFlags.Remove(normalizedFlagId))
             {
@@ -200,7 +217,7 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Removes all active flags.
+        /// Removes every active flag.
         /// </summary>
         public void ClearAllFlags()
         {
@@ -214,7 +231,39 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Evaluates configured dependency rules and adds any newly satisfied result flags.
+        /// Copies valid IDs from the assigned database into a runtime lookup set.
+        /// </summary>
+        private void CacheDatabaseFlags()
+        {
+            knownFlagIds.Clear();
+
+            if (flagDatabase == null || flagDatabase.Flags == null)
+            {
+                return;
+            }
+
+            foreach (FlagDatabase.FlagDefinition definition in flagDatabase.Flags)
+            {
+                if (definition == null || string.IsNullOrWhiteSpace(definition.id))
+                {
+                    continue;
+                }
+
+                string normalizedId = definition.id.Trim();
+
+                if (!knownFlagIds.Add(normalizedId))
+                {
+                    GameLogger.Warning(
+                        "CacheDatabaseFlags",
+                        this,
+                        $"[{nameof(FlagManager)}] The assigned {nameof(FlagDatabase)} contains a duplicate flag ID: '{normalizedId}'."
+                    );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Evaluates dependency rules until no additional result flags can be set.
         /// </summary>
         private void ApplyDependencies()
         {
@@ -250,14 +299,7 @@ namespace QuietStatic.Toolkit.Flags
                             continue;
                         }
 
-                        string resultFlag = dependency.ResultFlag.Trim();
-
-                        OnFlagSet?.Invoke(resultFlag);
-                        onFlagSet?.Invoke(resultFlag);
-                        OnFlagsChanged?.Invoke();
-
-                        ToolkitEvents.RaiseFlagSet(resultFlag);
-
+                        RaiseFlagSetEvents(dependency.ResultFlag.Trim());
                         addedFlag = true;
                     }
                 }
@@ -270,7 +312,7 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Adds a flag without raising events.
+        /// Adds a valid flag without triggering events.
         /// </summary>
         private bool AddFlagSilently(string flagId)
         {
@@ -279,7 +321,33 @@ namespace QuietStatic.Toolkit.Flags
                 return false;
             }
 
-            return activeFlags.Add(flagId.Trim());
+            string normalizedFlagId = flagId.Trim();
+
+            if (!IsKnownFlag(normalizedFlagId))
+            {
+                GameLogger.Warning(
+                    "AddFlagSilently",
+                    this,
+                    $"[{nameof(FlagManager)}] Cannot set unknown flag '{normalizedFlagId}'. " +
+                    $"Add it to the assigned {nameof(FlagDatabase)} first."
+                );
+
+                return false;
+            }
+
+            return activeFlags.Add(normalizedFlagId);
+        }
+
+        /// <summary>
+        /// Invokes all events associated with activating a flag.
+        /// </summary>
+        private void RaiseFlagSetEvents(string flagId)
+        {
+            OnFlagSet?.Invoke(flagId);
+            onFlagSet?.Invoke(flagId);
+            OnFlagsChanged?.Invoke();
+
+            ToolkitEvents.RaiseFlagSet(flagId);
         }
     }
 }

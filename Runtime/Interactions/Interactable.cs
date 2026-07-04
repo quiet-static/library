@@ -160,12 +160,12 @@ namespace QuietStatic.Toolkit.Interactions
         }
 
         /// <summary>
-        /// Sets each valid flag id through the active <see cref="FlagSet"/> singleton.
+        /// Sets each valid flag id through the active <see cref="FlagManager"/> singleton.
         /// </summary>
         /// <param name="flagIds">The flag ids to set. Null arrays are ignored.</param>
         private static void SetFlags(string[] flagIds)
         {
-            if (FlagSet.Instance == null || flagIds == null)
+            if (FlagManager.Instance == null || flagIds == null)
             {
                 return;
             }
@@ -177,7 +177,7 @@ namespace QuietStatic.Toolkit.Interactions
                     continue;
                 }
 
-                FlagSet.Instance.SetFlag(flagId);
+                FlagManager.Instance.SetFlag(flagId);
             }
         }
     }

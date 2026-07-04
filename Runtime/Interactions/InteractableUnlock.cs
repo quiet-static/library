@@ -33,12 +33,12 @@ namespace QuietStatic.Toolkit.Interactions
 
         private void OnEnable()
         {
-            FlagSet.OnFlagSet += HandleFlagSet;
+            FlagManager.OnFlagSet += HandleFlagSet;
         }
 
         private void OnDisable()
         {
-            FlagSet.OnFlagSet -= HandleFlagSet;
+            FlagManager.OnFlagSet -= HandleFlagSet;
         }
 
         /// <summary>

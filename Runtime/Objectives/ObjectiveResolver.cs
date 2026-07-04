@@ -106,7 +106,7 @@ namespace QuietStatic.Toolkit.Objectives
         /// </summary>
         private void OnEnable()
         {
-            FlagSet.OnFlagSet += HandleFlagSet;
+            FlagManager.OnFlagSet += HandleFlagSet;
             RefreshObjective();
         }
 
@@ -116,7 +116,7 @@ namespace QuietStatic.Toolkit.Objectives
         /// </summary>
         private void OnDisable()
         {
-            FlagSet.OnFlagSet -= HandleFlagSet;
+            FlagManager.OnFlagSet -= HandleFlagSet;
         }
 
         /// <summary>
