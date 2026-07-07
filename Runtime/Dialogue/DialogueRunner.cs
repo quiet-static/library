@@ -114,6 +114,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </remarks>
         public void StartDialogue()
         {
+            GameLogger.Log(
+                "StartDialogue",
+                this,
+                "Started a dialogue"
+            );
+
             if (dialogueTree == null || IsRunning)
             {
                 return;
