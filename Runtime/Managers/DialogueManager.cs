@@ -1,39 +1,57 @@
+/*
+ * DialogueManager.cs
+ * 
+ * Persistent Systems-scene coordinator for dialogue sessions.
+ * 
+ * This manager does not store dialogue content and does not directly draw UI.
+ * Dialogue content lives in DialogueTree assets.
+ * Dialogue traversal lives in DialogueRunner.
+ * Dialogue presentation lives in DialogueUIManager.
+ * 
+ * The manager coordinates those pieces so scene-local handlers and interactables
+ * have one simple public API to call.
+ */
+
 using System;
 using QuietStatic.Toolkit.Core;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace QuietStatic
+namespace QuietStatic.Toolkit.Dialogue
 {
     /// <summary>
-    /// Coordinates the lifecycle of a dialogue session.
+    /// Coordinates dialogue sessions between scene callers, tree traversal, and UI display.
     /// </summary>
     /// <remarks>
-    /// This manager does not control dialogue UI, dialogue trees, game states,
-    /// player input, cameras, or scene loading directly.
-    ///
-    /// It simply tracks whether dialogue is active and raises events so other
-    /// systems can react however they need.
+    /// This manager should live in the persistent Systems scene.
+    /// 
+    /// It is responsible for:
+    /// - Starting dialogue from a DialogueTree.
+    /// - Tracking whether dialogue is active.
+    /// - Passing node data from DialogueRunner to DialogueUIManager.
+    /// - Forwarding player advance and choice input to DialogueRunner.
+    /// - Raising high-level dialogue lifecycle events.
+    /// 
+    /// It is not responsible for:
+    /// - Storing dialogue content.
+    /// - Traversing dialogue nodes directly.
+    /// - Drawing text or buttons directly.
+    /// - Being referenced directly by scene objects.
     /// </remarks>
     public class DialogueManager : ToolkitSingleton<DialogueManager>
     {
         /// <summary>
-        /// Raised when a dialogue session begins.
-        /// The first parameter is the dialogue source object, if one was supplied.
-        /// The second parameter is the optional world-space focus target.
+        /// Raised when dialogue begins.
         /// </summary>
         public static event Action<UnityEngine.Object, Transform> OnDialogueStarted;
 
         /// <summary>
-        /// Raised when the active dialogue session ends.
-        /// The parameter is the dialogue source object that was active.
+        /// Raised when dialogue ends.
         /// </summary>
         public static event Action<UnityEngine.Object> OnDialogueEnded;
 
         /// <summary>
         /// Raised whenever dialogue activity changes.
-        /// The first parameter is the dialogue source object.
-        /// The second parameter is true when dialogue begins and false when it ends.
         /// </summary>
         public static event Action<UnityEngine.Object, bool> OnDialogueStateChanged;
 
@@ -47,11 +65,19 @@ namespace QuietStatic
         {
         }
 
+        [Header("Traversal")]
+        [Tooltip("Dialogue runner used for traversing DialogueTree assets. If empty, one is searched for on this GameObject.")]
+        [SerializeField] private DialogueRunner dialogueRunner;
+
+        [Header("UI")]
+        [Tooltip("Dialogue UI manager used to display speaker names, dialogue text, and choices. If empty, DialogueUIManager.Instance is used.")]
+        [SerializeField] private DialogueUIManager dialogueUIManager;
+
         [Header("Unity Events")]
-        [Tooltip("Invoked when dialogue begins. Intended for scene-local behavior.")]
+        [Tooltip("Invoked when dialogue begins.")]
         [SerializeField] private DialogueStartedEvent onDialogueStarted;
 
-        [Tooltip("Invoked when dialogue ends. Intended for scene-local behavior.")]
+        [Tooltip("Invoked when dialogue ends.")]
         [SerializeField] private DialogueEndedEvent onDialogueEnded;
 
         /// <summary>
@@ -60,10 +86,9 @@ namespace QuietStatic
         public bool IsDialogueActive { get; private set; }
 
         /// <summary>
-        /// Gets the object that started the active dialogue session.
-        /// This may be a DialogueTree, ScriptableObject, MonoBehaviour, or other dialogue asset.
+        /// Gets the dialogue tree currently being played.
         /// </summary>
-        public UnityEngine.Object CurrentDialogue { get; private set; }
+        public DialogueTree CurrentDialogueTree { get; private set; }
 
         /// <summary>
         /// Gets the optional focus target associated with the active dialogue.
@@ -71,59 +96,152 @@ namespace QuietStatic
         public Transform CurrentFocusTarget { get; private set; }
 
         /// <summary>
-        /// Gets the world-space speaker or target currently associated with dialogue.
+        /// Gets the optional speaker transform associated with the active dialogue.
         /// </summary>
         public Transform CurrentSpeaker { get; private set; }
 
         /// <summary>
+        /// Initializes references and subscribes to UI choice events.
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (Instance != this)
+            {
+                return;
+            }
+
+            DontDestroyOnLoad(gameObject);
+
+            if (dialogueRunner == null)
+            {
+                dialogueRunner = GetComponent<DialogueRunner>();
+            }
+
+            if (dialogueUIManager == null)
+            {
+                dialogueUIManager = DialogueUIManager.Instance;
+            }
+        }
+
+        /// <summary>
+        /// Subscribes to runner and UI events.
+        /// </summary>
+        private void OnEnable()
+        {
+            DialogueRunner.OnNodeChanged += HandleNodeChanged;
+            DialogueRunner.OnDialogueEnded += HandleRunnerEnded;
+
+            if (dialogueUIManager != null)
+            {
+                dialogueUIManager.OnChoiceSelected += ChooseDialogueOption;
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribes from runner and UI events.
+        /// </summary>
+        private void OnDisable()
+        {
+            DialogueRunner.OnNodeChanged -= HandleNodeChanged;
+            DialogueRunner.OnDialogueEnded -= HandleRunnerEnded;
+
+            if (dialogueUIManager != null)
+            {
+                dialogueUIManager.OnChoiceSelected -= ChooseDialogueOption;
+            }
+        }
+
+        /// <summary>
         /// Starts a new dialogue session.
         /// </summary>
-        /// <param name="dialogue">
-        /// Dialogue source or asset associated with this session.
-        /// </param>
-        /// <param name="focusTarget">
-        /// Optional transform the camera or other systems should focus toward.
-        /// </param>
-        /// <param name="speaker">
-        /// Optional transform representing the speaking character or object.
-        /// </param>
-        /// <returns>
-        /// True if dialogue started; false if another dialogue session is already active.
-        /// </returns>
+        /// <param name="dialogueTree">Dialogue tree to play.</param>
+        /// <param name="focusTarget">Optional world-space target for cameras or other systems.</param>
+        /// <param name="speaker">Optional speaker transform associated with the session.</param>
+        /// <returns>True if dialogue started successfully; otherwise, false.</returns>
         public bool StartDialogue(
-            UnityEngine.Object dialogue,
+            DialogueTree dialogueTree,
             Transform focusTarget = null,
             Transform speaker = null
         )
         {
+            if (dialogueTree == null)
+            {
+                GameLogger.Warning(
+                    "StartDialogue",
+                    this,
+                    $"{nameof(DialogueManager)} cannot start dialogue because no DialogueTree was provided."
+                );
+                return false;
+            }
+
+            if (dialogueRunner == null)
+            {
+                GameLogger.Warning(
+                    "StartDialogue",
+                    this,
+                    $"{nameof(DialogueManager)} cannot start dialogue because no DialogueRunner is assigned."
+                );
+                return false;
+            }
+
             if (IsDialogueActive)
             {
                 GameLogger.Warning(
                     "StartDialogue",
                     this,
-                    $"{nameof(DialogueManager)} cannot start dialogue because another dialogue session is already active."
+                    $"{nameof(DialogueManager)} cannot start dialogue because another dialogue is already active."
                 );
                 return false;
             }
 
-            IsDialogueActive = true;
-            CurrentDialogue = dialogue;
+            CurrentDialogueTree = dialogueTree;
             CurrentFocusTarget = focusTarget;
             CurrentSpeaker = speaker;
+            IsDialogueActive = true;
 
-            OnDialogueStateChanged?.Invoke(CurrentDialogue, true);
-            OnDialogueStarted?.Invoke(CurrentDialogue, CurrentFocusTarget);
-            onDialogueStarted?.Invoke(CurrentDialogue, CurrentFocusTarget);
+            OnDialogueStateChanged?.Invoke(CurrentDialogueTree, true);
+            OnDialogueStarted?.Invoke(CurrentDialogueTree, CurrentFocusTarget);
+            onDialogueStarted?.Invoke(CurrentDialogueTree, CurrentFocusTarget);
+
+            dialogueRunner.SetTree(CurrentDialogueTree);
+            dialogueRunner.StartDialogue();
 
             return true;
         }
 
         /// <summary>
-        /// Ends the active dialogue session.
+        /// Advances the active dialogue to the next node.
         /// </summary>
-        /// <returns>
-        /// True if dialogue ended; false if no dialogue session was active.
-        /// </returns>
+        public void AdvanceDialogue()
+        {
+            if (!IsDialogueActive || dialogueRunner == null)
+            {
+                return;
+            }
+
+            dialogueRunner.Advance();
+        }
+
+        /// <summary>
+        /// Chooses a response option from the active dialogue node.
+        /// </summary>
+        /// <param name="choiceIndex">Index of the selected choice.</param>
+        public void ChooseDialogueOption(int choiceIndex)
+        {
+            if (!IsDialogueActive || dialogueRunner == null)
+            {
+                return;
+            }
+
+            dialogueRunner.Choose(choiceIndex);
+        }
+
+        /// <summary>
+        /// Stops the active dialogue session.
+        /// </summary>
+        /// <returns>True if a dialogue was stopped; otherwise, false.</returns>
         public bool StopDialogue()
         {
             if (!IsDialogueActive)
@@ -131,37 +249,101 @@ namespace QuietStatic
                 return false;
             }
 
-            UnityEngine.Object endedDialogue = CurrentDialogue;
-
-            // Clear state before events so listeners may safely begin a new dialogue.
-            IsDialogueActive = false;
-            CurrentDialogue = null;
-            CurrentFocusTarget = null;
-            CurrentSpeaker = null;
-
-            OnDialogueStateChanged?.Invoke(endedDialogue, false);
-            OnDialogueEnded?.Invoke(endedDialogue);
-            onDialogueEnded?.Invoke(endedDialogue);
+            if (dialogueRunner != null && dialogueRunner.IsRunning)
+            {
+                dialogueRunner.EndDialogue();
+            }
+            else
+            {
+                FinishDialogueState();
+            }
 
             return true;
         }
 
         /// <summary>
-        /// Updates the active dialogue's focus target.
+        /// Displays the current dialogue node through the DialogueUIManager.
         /// </summary>
-        /// <param name="focusTarget">New target for camera or UI focus behavior.</param>
-        public void SetFocusTarget(Transform focusTarget)
+        /// <param name="runner">Runner that changed nodes.</param>
+        /// <param name="node">New active dialogue node.</param>
+        private void HandleNodeChanged(DialogueRunner runner, DialogueTree.Node node)
         {
-            CurrentFocusTarget = focusTarget;
+            if (runner != dialogueRunner || node == null)
+            {
+                return;
+            }
+
+            if (dialogueUIManager == null)
+            {
+                dialogueUIManager = DialogueUIManager.Instance;
+            }
+
+            if (dialogueUIManager == null)
+            {
+                return;
+            }
+
+            if (node.HasChoices)
+            {
+                dialogueUIManager.ShowChoices(
+                    node.speaker,
+                    node.line,
+                    node.GetChoiceTexts()
+                );
+            }
+            else
+            {
+                dialogueUIManager.ShowLine(
+                    node.speaker,
+                    node.line
+                );
+            }
         }
 
         /// <summary>
-        /// Updates the active dialogue's speaker transform.
+        /// Finishes manager state when the runner reports that dialogue ended.
         /// </summary>
-        /// <param name="speaker">New transform representing the active speaker.</param>
-        public void SetSpeaker(Transform speaker)
+        /// <param name="runner">Runner that ended dialogue.</param>
+        private void HandleRunnerEnded(DialogueRunner runner)
         {
-            CurrentSpeaker = speaker;
+            if (runner != dialogueRunner)
+            {
+                return;
+            }
+
+            FinishDialogueState();
+        }
+
+        /// <summary>
+        /// Clears dialogue state, hides UI, and raises dialogue-ended events.
+        /// </summary>
+        private void FinishDialogueState()
+        {
+            if (!IsDialogueActive)
+            {
+                return;
+            }
+
+            DialogueTree endedDialogue = CurrentDialogueTree;
+
+            IsDialogueActive = false;
+            CurrentDialogueTree = null;
+            CurrentFocusTarget = null;
+            CurrentSpeaker = null;
+
+            if (dialogueUIManager == null)
+            {
+                dialogueUIManager = DialogueUIManager.Instance;
+            }
+
+            if (dialogueUIManager != null)
+            {
+                dialogueUIManager.HideDialogueUI();
+            }
+
+            OnDialogueStateChanged?.Invoke(endedDialogue, false);
+            OnDialogueEnded?.Invoke(endedDialogue);
+            onDialogueEnded?.Invoke(endedDialogue);
         }
     }
 }
