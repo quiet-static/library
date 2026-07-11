@@ -148,12 +148,6 @@ namespace QuietStatic.Toolkit.Interactions
                 return;
             }
 
-            if (!CurrentTarget.CanInteract())
-            {
-                interactionUI?.HidePrompt();
-                return;
-            }
-
             SetHighlight(CurrentTarget, true);
 
             interactionUI?.ShowPrompt(
