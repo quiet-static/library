@@ -3,6 +3,14 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
 
+/// <summary>
+/// Extracts embedded model materials in batches and optionally remaps duplicates to existing assets.
+/// </summary>
+/// <remarks>
+/// Open from <c>Window &gt; Batch Extract Materials</c>, choose an Assets-relative destination,
+/// add model assets, review each extraction/remapping decision, and then apply. Model importer
+/// changes are saved and reimported, so use version control before processing large batches.
+/// </remarks>
 public class BatchExtractMaterials : EditorWindow
 {
 	private enum ExtractMode { Extract = 0, Remap = 1, Ignore = 2 };

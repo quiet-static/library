@@ -23,11 +23,17 @@ namespace QuietStatic.Toolkit.Input
         [SerializeField] private string actionMapName = "Player";
 
         [Header("Action Names")]
+        [Tooltip("Vector2 action used for directional movement.")]
         [SerializeField] private string moveActionName = "Move";
+        [Tooltip("Vector2 action used for camera or character look input.")]
         [SerializeField] private string lookActionName = "Look";
+        [Tooltip("Button action used to request a jump.")]
         [SerializeField] private string jumpActionName = "Jump";
+        [Tooltip("Button action held while sprinting.")]
         [SerializeField] private string sprintActionName = "Sprint";
+        [Tooltip("Button action used to interact with the current target.")]
         [SerializeField] private string interactActionName = "Interact";
+        [Tooltip("Button action used to request pause.")]
         [SerializeField] private string pauseActionName = "Pause";
 
         /// <summary>

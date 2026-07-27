@@ -64,6 +64,7 @@ namespace QuietStatic
 
         private bool interactQueued;
 
+        [Tooltip("Seconds an interact press remains queued while an interaction consumer becomes ready.")]
         [SerializeField] private float interactBufferDuration = 0.15f;
         private float interactQueuedTime;
 

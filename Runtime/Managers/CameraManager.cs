@@ -22,6 +22,9 @@ namespace QuietStatic
         [Tooltip("Unity Camera component controlled when enabling or disabling the main view. If left empty, it is found on the CameraController object.")]
         [SerializeField] private Camera mainCamera;
 
+        [Tooltip("Camera controller used for cinematic shots/dialogue")]
+        [SerializeField] private CameraFocusController focusController;
+
         /// <summary>
         /// Most recently assigned follow target.
         /// </summary>
@@ -78,6 +81,12 @@ namespace QuietStatic
                 );
 
                 return;
+            }
+
+            if (focusController == null)
+            {
+                focusController =
+                    cameraController.GetComponent<CameraFocusController>();
             }
 
             if (mainCamera == null)
@@ -253,6 +262,30 @@ namespace QuietStatic
             }
 
             cameraController.SetFirstPersonMode(enabled);
+        }
+
+        public void BeginFocus(Transform focusTarget)
+        {
+            ResolveReferences();
+
+            if (focusController == null || focusTarget == null)
+            {
+                return;
+            }
+
+            focusController.BeginFocus(focusTarget);
+        }
+
+        public void EndFocus()
+        {
+            ResolveReferences();
+
+            if (focusController == null)
+            {
+                return;
+            }
+
+            focusController.EndFocus();
         }
 
         /// <summary>

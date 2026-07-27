@@ -8,34 +8,54 @@ using UnityEngine.Rendering.Universal;
 
 namespace QuietStatic
 {
+    /// <summary>
+    /// Connects settings UI controls to audio, display, brightness, and mouse preferences.
+    /// </summary>
+    /// <remarks>
+    /// Values are stored in <see cref="PlayerPrefs"/> and applied on startup. Place one instance
+    /// in the persistent UI or System scene. Mixer parameters must match the documented names,
+    /// and brightness requires a Volume profile containing a Color Adjustments override.
+    /// </remarks>
+    [AddComponentMenu("Quiet Static Toolkit/Managers/Settings Manager UI")]
     public class SettingsManager : MonoBehaviour
     {
+        /// <summary>Gets the active settings UI manager.</summary>
         public static SettingsManager Instance { get; private set; }
 
+        /// <summary>Raised after the normalized mouse sensitivity changes.</summary>
         public static event Action<float> OnMouseSensitivityChanged;
 
         [Header("Audio Mixer")]
+        [Tooltip("Mixer containing exposed MasterVolume, MusicVolume, and SfxVolume parameters.")]
         [SerializeField] private AudioMixer audioMixer;
 
         [Header("Audio Sliders")]
+        [Tooltip("Normalized zero-to-one master volume slider.")]
         [SerializeField] private Slider masterVolumeSlider;
+        [Tooltip("Normalized zero-to-one music volume slider.")]
         [SerializeField] private Slider musicVolumeSlider;
+        [Tooltip("Normalized zero-to-one sound-effects volume slider.")]
         [SerializeField] private Slider sfxVolumeSlider;
 
         [Header("Video")]
+        [Tooltip("Dropdown populated from Resolution Options at startup.")]
         [SerializeField] private TMP_Dropdown resolutionDropdown;
+        [Tooltip("Toggle that enables one VSync interval when selected.")]
         [SerializeField] private Toggle vSyncToggle;
 
         [Header("Brightness")]
+        [Tooltip("Post-exposure slider. Requires Color Adjustments on a loaded Volume profile.")]
         [SerializeField] private Slider brightnessSlider;
 
         private Volume globalVolume;
         private ColorAdjustments colorAdjustments;
 
         [Header("Gameplay")]
+        [Tooltip("Normalized look sensitivity control broadcast to player look systems.")]
         [SerializeField] private Slider mouseSensitivitySlider;
 
         [Header("Resolution Options")]
+        [Tooltip("Ordered resolutions displayed by the resolution dropdown.")]
         [SerializeField]
         private ResolutionOption[] resolutionOptions =
         {
@@ -58,6 +78,7 @@ namespace QuietStatic
         private const string MusicVolumeParam = "MusicVolume";
         private const string SfxVolumeParam = "SfxVolume";
 
+        /// <summary>Gets the currently applied mouse sensitivity.</summary>
         public float MouseSensitivity { get; private set; } = 1f;
 
         private void Awake()
@@ -140,6 +161,7 @@ namespace QuietStatic
             ApplyBrightness(brightness);
         }
 
+        /// <summary>Applies and saves the post-exposure brightness value.</summary>
         public void SetBrightness(float value)
         {
             ApplyBrightness(value);
@@ -193,6 +215,7 @@ namespace QuietStatic
             Debug.Log($"{nameof(SettingsManager)} found Color Adjustments successfully.");
         }
 
+        /// <summary>Applies and saves normalized master volume.</summary>
         public void SetMasterVolume(float value)
         {
             ApplyMasterVolume(value);
@@ -200,6 +223,7 @@ namespace QuietStatic
             PlayerPrefs.Save();
         }
 
+        /// <summary>Applies and saves normalized music volume.</summary>
         public void SetMusicVolume(float value)
         {
             ApplyMusicVolume(value);
@@ -207,6 +231,7 @@ namespace QuietStatic
             PlayerPrefs.Save();
         }
 
+        /// <summary>Applies and saves normalized sound-effects volume.</summary>
         public void SetSfxVolume(float value)
         {
             ApplySfxVolume(value);
@@ -214,6 +239,7 @@ namespace QuietStatic
             PlayerPrefs.Save();
         }
 
+        /// <summary>Applies and saves a configured resolution option by index.</summary>
         public void SetResolution(int index)
         {
             ApplyResolution(index);
@@ -221,6 +247,7 @@ namespace QuietStatic
             PlayerPrefs.Save();
         }
 
+        /// <summary>Applies and saves VSync state.</summary>
         public void SetVSync(bool isOn)
         {
             ApplyVSync(isOn);
@@ -228,6 +255,7 @@ namespace QuietStatic
             PlayerPrefs.Save();
         }
 
+        /// <summary>Applies, broadcasts, and saves mouse sensitivity.</summary>
         public void SetMouseSensitivity(float value)
         {
             ApplyMouseSensitivity(value);
@@ -302,6 +330,7 @@ namespace QuietStatic
             return 0;
         }
 
+        /// <summary>Serializable width and height pair displayed in the resolution dropdown.</summary>
         [Serializable]
         public class ResolutionOption
         {
@@ -314,6 +343,7 @@ namespace QuietStatic
                 this.height = height;
             }
 
+            /// <summary>Returns a human-readable resolution label.</summary>
             public string GetLabel()
             {
                 return $"{width} x {height}";

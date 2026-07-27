@@ -6,98 +6,77 @@ using UnityEngine.Events;
 namespace QuietStatic.Toolkit.Interactions
 {
     /// <summary>
-    /// Represents a reusable world object that can be interacted with by an <see cref="Interactor"/>.
+    /// Defines a world interaction with optional flag requirements, progression effects,
+    /// and Inspector-configured success or failure callbacks.
     /// </summary>
     /// <remarks>
-    /// This component supports both Inspector-assigned UnityEvents and static C# events.
-    ///
-    /// Use UnityEvents for scene-local behavior such as animations, sounds, or enabling objects.
-    /// Use the static C# events for systems that may live in separate loaded scenes, such as
-    /// objective managers, dialogue systems, analytics, or global progression managers.
+    /// The component owns interaction rules, not input or UI. An <see cref="Interactor"/>
+    /// attempts the action, global events notify cross-scene listeners, and serialized
+    /// UnityEvents drive local behavior such as animation or audio.
     /// </remarks>
+    [AddComponentMenu("Quiet Static Toolkit/Interactions/Interactable")]
     public class Interactable : MonoBehaviour
     {
-        /// <summary>
-        /// Raised whenever any interactable successfully completes an interaction.
-        /// The first parameter is the interactable that was used.
-        /// The second parameter is the interactor that initiated the action, if available.
-        /// </summary>
+        /// <summary>Raised after any interactable completes successfully.</summary>
         public static event Action<Interactable, Interactor> OnInteractionSucceeded;
 
-        /// <summary>
-        /// Raised whenever any interactable receives an interaction attempt that fails because
-        /// its requirements were not met.
-        /// The first parameter is the interactable that was attempted.
-        /// The second parameter is the interactor that initiated the action, if available.
-        /// </summary>
+        /// <summary>Raised after an enabled interactable fails its requirements.</summary>
         public static event Action<Interactable, Interactor> OnInteractionFailed;
 
-        /// <summary>
-        /// Raised whenever an interactable's enabled state changes.
-        /// The first parameter is the interactable whose state changed.
-        /// The second parameter is its new enabled state.
-        /// </summary>
+        /// <summary>Raised when an interactable's runtime enabled state changes.</summary>
         public static event Action<Interactable, bool> OnInteractionEnabledChanged;
 
         [Header("Interaction Display")]
-        [Tooltip("Name or prompt shown to the player when this object can be interacted with.")]
+        [Tooltip("Name or prompt shown to the player.")]
         [SerializeField] private string displayName = "Interact";
 
         [Header("Requirements")]
-        [Tooltip("Optional flag requirement that must be met before the interaction succeeds. If left null, the interaction is always allowed while enabled.")]
+        [Tooltip("Optional flags required before this interaction succeeds.")]
         [SerializeField] private FlagRequirement requirement;
 
         [Header("Success Behavior")]
-        [Tooltip("If true, this interactable disables itself after a successful interaction.")]
+        [Tooltip("Disable further interaction attempts after the first successful interaction.")]
         [SerializeField] private bool disableAfterSuccess;
 
-        [Tooltip("Flags to set when the interaction succeeds.")]
+        [Tooltip("Flags set when the interaction succeeds.")]
+        [FlagId]
         [SerializeField] private string[] flagsToSetOnSuccess;
 
-        [Tooltip("Events invoked after the interaction succeeds and success flags are set.")]
+        [Tooltip("Scene-local callbacks invoked after success flags and the global success event.")]
         [SerializeField] private UnityEvent onInteractionSucceeded;
 
         [Header("Failure Behavior")]
-        [Tooltip("Flags to set when the player attempts the interaction but the requirement is not met.")]
+        [Tooltip("Flags set when the interaction fails.")]
+        [FlagId]
         [SerializeField] private string[] flagsToSetOnFailure;
 
-        [Tooltip("Events invoked after the interaction fails and failure flags are set.")]
+        [Tooltip("Scene-local callbacks invoked after failure flags and the global failure event.")]
         [SerializeField] private UnityEvent onInteractionFailed;
 
-        /// <summary>
-        /// Gets the player-facing display name or prompt for this interactable.
-        /// </summary>
+        /// <summary>Gets the player-facing interaction label.</summary>
         public string DisplayName => displayName;
 
-        /// <summary>
-        /// Gets whether this interactable is currently allowed to process interaction attempts.
-        /// </summary>
+        /// <summary>Gets whether this component currently accepts interaction attempts.</summary>
         public bool IsEnabled { get; private set; } = true;
 
-        /// <summary>
-        /// Checks whether this interactable is currently available and its flag requirement is met.
-        /// </summary>
+        /// <summary>Checks the runtime enabled state and configured flag requirement.</summary>
+        /// <returns>True when an interaction attempt would succeed.</returns>
         public bool CanInteract()
         {
-            if (!IsEnabled)
-            {
-                return false;
-            }
-
-            return requirement == null || requirement.IsMet();
+            return IsEnabled && (requirement == null || requirement.IsMet());
         }
 
-        /// <summary>
-        /// Attempts to interact with this object.
-        /// </summary>
-        /// <param name="interactor">
-        /// Optional interactor that initiated the interaction.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the interaction succeeded; otherwise <c>false</c>.
-        /// </returns>
+        /// <summary>Attempts the interaction and invokes the matching event path.</summary>
+        /// <param name="interactor">Optional actor that initiated the attempt.</param>
+        /// <returns>True when the success path ran; otherwise false.</returns>
         public bool TryInteract(Interactor interactor = null)
         {
+            GameLogger.Log(
+                "TryInteract",
+                this,
+                $"TryInteract called on {gameObject.name} at frame {Time.frameCount}"
+            );
+
             if (!IsEnabled)
             {
                 return false;
@@ -113,10 +92,8 @@ namespace QuietStatic.Toolkit.Interactions
             return true;
         }
 
-        /// <summary>
-        /// Enables or disables this interactable without changing the GameObject active state.
-        /// </summary>
-        /// <param name="isEnabled">Whether future interaction attempts should be accepted.</param>
+        /// <summary>Changes whether this object accepts attempts and notifies global listeners.</summary>
+        /// <param name="isEnabled">New interaction state.</param>
         public void SetEnabled(bool isEnabled)
         {
             if (IsEnabled == isEnabled)
@@ -128,14 +105,9 @@ namespace QuietStatic.Toolkit.Interactions
             OnInteractionEnabledChanged?.Invoke(this, IsEnabled);
         }
 
-        /// <summary>
-        /// Applies all success effects for this interaction.
-        /// </summary>
         private void HandleSuccessfulInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnSuccess);
-
-            // Global C# listeners first, then local Inspector listeners.
             OnInteractionSucceeded?.Invoke(this, interactor);
             onInteractionSucceeded?.Invoke();
 
@@ -145,37 +117,26 @@ namespace QuietStatic.Toolkit.Interactions
             }
         }
 
-        /// <summary>
-        /// Applies all failure effects for this interaction.
-        /// </summary>
         private void HandleFailedInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnFailure);
-
-            // Global C# listeners first, then local Inspector listeners.
             OnInteractionFailed?.Invoke(this, interactor);
             onInteractionFailed?.Invoke();
         }
 
-        /// <summary>
-        /// Sets each valid flag id through the active <see cref="FlagSet"/> singleton.
-        /// </summary>
-        /// <param name="flagIds">The flag ids to set. Null arrays are ignored.</param>
         private static void SetFlags(string[] flagIds)
         {
-            if (FlagSet.Instance == null || flagIds == null)
+            if (FlagManager.Instance == null || flagIds == null)
             {
                 return;
             }
 
             foreach (string flagId in flagIds)
             {
-                if (string.IsNullOrWhiteSpace(flagId))
+                if (!string.IsNullOrWhiteSpace(flagId))
                 {
-                    continue;
+                    FlagManager.Instance.SetFlag(flagId);
                 }
-
-                FlagSet.Instance.SetFlag(flagId);
             }
         }
     }

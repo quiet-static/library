@@ -1,3 +1,4 @@
+using System;
 using QuietStatic.Input;
 using UnityEngine;
 
@@ -75,6 +76,11 @@ namespace QuietStatic.Toolkit.Cameras
         /// </summary>
         public bool IsFirstPerson => isFirstPerson;
 
+        /// <summary>
+        /// Whether camera movement should be factored into input
+        /// </summary>
+        private bool lookEnabled = true;
+
         private void Awake()
         {
             inputSource = inputSourceBehaviour as ILookInputSource;
@@ -96,12 +102,17 @@ namespace QuietStatic.Toolkit.Cameras
 
         private void LateUpdate()
         {
-            if (target == null || inputSource == null)
+            if (target == null)
             {
                 return;
             }
 
-            HandleRotation(inputSource.Look);
+            // Handle look if player is currently controlling
+            if (lookEnabled && inputSource != null)
+            {
+                HandleRotation(inputSource.Look);
+            }
+
             HandleFollow();
         }
 
@@ -263,6 +274,32 @@ namespace QuietStatic.Toolkit.Cameras
             SnapToTarget();
         }
 
+        /// <summary>
+        /// Disables camera look. Unseful for state changes
+        /// </summary>
+        /// <param name="enabled">Whether the camera should look</param>
+        public void SetLookEnabled(bool enabled)
+        {
+            lookEnabled = enabled;
+        }
+
+        /// <summary>
+        /// Enables or disables normal camera updating.
+        /// </summary>
+        public void SetCameraControlEnabled(bool enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        /// <summary>
+        /// Synchronizes the internal look angles with the camera's current rotation.
+        /// Prevents snapping when normal camera control resumes.
+        /// </summary>
+        public void SyncAnglesFromCurrentRotation()
+        {
+            SetAnglesFromRotation(transform.rotation);
+        }
+
         private void HandleRotation(Vector2 lookInput)
         {
             yaw += lookInput.x * mouseSensitivity;
@@ -292,22 +329,12 @@ namespace QuietStatic.Toolkit.Cameras
         {
             if (firstPersonAnchor == null)
             {
-                GameLogger.Warning(
-                    nameof(HandleFirstPersonFollow),
-                    this,
-                    $"{nameof(CameraController)} is in first-person mode but has no first-person anchor assigned."
-                );
-
                 return;
             }
 
-            // FPS camera movement should be immediate, not smoothed.
-            transform.SetPositionAndRotation(
-                firstPersonAnchor.position,
-                targetRotation
-            );
+            transform.position = firstPersonAnchor.position;
+            transform.rotation = targetRotation;
 
-            // The body follows yaw only. Pitch stays on the camera.
             if (playerBody != null)
             {
                 playerBody.rotation = Quaternion.Euler(0f, yaw, 0f);

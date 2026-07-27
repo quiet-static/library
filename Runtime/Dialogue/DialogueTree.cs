@@ -1,40 +1,35 @@
+/*
+ * DialogueTree.cs
+ * 
+ * ScriptableObject asset for storing linear or branching dialogue data.
+ * 
+ * This asset contains only data. It does not run dialogue, show UI, read input,
+ * change scenes, or directly communicate with managers.
+ */
+
 using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Dialogue
 {
     /// <summary>
-    /// ScriptableObject asset that stores a reusable branching dialogue tree.
+    /// ScriptableObject asset containing a reusable branching dialogue tree.
     /// </summary>
-    /// <remarks>
-    /// A dialogue tree is made up of ordered <see cref="Node"/> entries. Each node can display
-    /// a speaker name, one line of dialogue, optional choices, optional flags to set when the
-    /// node is entered, and a fallback next-node index for linear dialogue.
-    ///
-    /// This asset only stores dialogue data. Runtime behavior is handled by
-    /// <see cref="DialogueRunner"/>, and UI display is handled separately by a view such as
-    /// <see cref="DialogueTMPView"/>.
-    /// </remarks>
     [CreateAssetMenu(menuName = "Quiet Static Toolkit/Dialogue/Dialogue Tree")]
     public class DialogueTree : ScriptableObject
     {
         /// <summary>
-        /// Represents one selectable response or branch from a dialogue node.
+        /// Represents one selectable response from a dialogue node.
         /// </summary>
-        /// <remarks>
-        /// Choices are evaluated by <see cref="DialogueRunner"/> when the player selects a
-        /// response. A choice can move the dialogue to another node and optionally set one
-        /// or more gameplay flags.
-        /// </remarks>
         [Serializable]
         public class Choice
         {
             [Header("Choice Text")]
-            [Tooltip("Text shown on the choice button or response UI.")]
+            [Tooltip("Text shown on the choice button.")]
             public string text;
 
             [Header("Flow")]
-            [Tooltip("Index of the node to visit after this choice is selected. Use -1 to end the dialogue.")]
+            [Tooltip("Index of the node to visit after selecting this choice. Use -1 to end dialogue.")]
             public int nextNodeIndex = -1;
 
             [Header("Flags")]
@@ -43,19 +38,13 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Represents one dialogue entry in the tree.
+        /// Represents one dialogue node in the tree.
         /// </summary>
-        /// <remarks>
-        /// A node can be used as a simple linear line of dialogue, or as a branching point
-        /// with one or more <see cref="Choice"/> entries. If choices are present, the runner
-        /// will use the chosen response's next node instead of this node's
-        /// <see cref="nextNodeIndex"/>.
-        /// </remarks>
         [Serializable]
         public class Node
         {
             [Header("Dialogue Text")]
-            [Tooltip("Name of the character, narrator, object, or source speaking this line.")]
+            [Tooltip("Name of the speaker, narrator, object, or source.")]
             public string speaker;
 
             [Tooltip("Dialogue line displayed for this node.")]
@@ -63,23 +52,49 @@ namespace QuietStatic.Toolkit.Dialogue
             public string line;
 
             [Header("Choices")]
-            [Tooltip("Optional response choices for this node. Leave empty for normal linear dialogue.")]
+            [Tooltip("Optional response choices. Leave empty for normal linear dialogue.")]
             public Choice[] choices;
 
             [Header("Flow")]
-            [Tooltip("Index of the next node for linear dialogue. Use -1 to end the dialogue.")]
+            [Tooltip("Index of the next node for linear dialogue. Use -1 to end dialogue.")]
             public int nextNodeIndex = -1;
 
             [Header("Flags")]
-            [Tooltip("Optional flag IDs to set as soon as this node is entered.")]
+            [Tooltip("Optional flag IDs to set when this node is entered.")]
             public string[] flagsToSetOnEnter;
+
+            /// <summary>
+            /// Gets whether this node has at least one response choice.
+            /// </summary>
+            public bool HasChoices => choices != null && choices.Length > 0;
+
+            /// <summary>
+            /// Gets the display text for every response choice.
+            /// </summary>
+            /// <returns>Array of choice display strings.</returns>
+            public string[] GetChoiceTexts()
+            {
+                if (!HasChoices)
+                {
+                    return Array.Empty<string>();
+                }
+
+                string[] choiceTexts = new string[choices.Length];
+
+                for (int i = 0; i < choices.Length; i++)
+                {
+                    choiceTexts[i] = choices[i]?.text ?? string.Empty;
+                }
+
+                return choiceTexts;
+            }
         }
 
         [Header("Nodes")]
         [Tooltip("All dialogue nodes in this tree. Node indexes are based on this array order.")]
         [SerializeField] private Node[] nodes;
 
-        [Tooltip("Index of the first node that should play when this dialogue tree starts.")]
+        [Tooltip("Index of the first node played when this tree starts.")]
         [SerializeField] private int startNodeIndex;
 
         /// <summary>
@@ -88,22 +103,16 @@ namespace QuietStatic.Toolkit.Dialogue
         public Node[] Nodes => nodes;
 
         /// <summary>
-        /// Gets the index of the node where this tree should begin.
+        /// Gets the first node index for this tree.
         /// </summary>
         public int StartNodeIndex => startNodeIndex;
 
         /// <summary>
-        /// Attempts to retrieve a dialogue node by index.
+        /// Attempts to retrieve a node by index.
         /// </summary>
-        /// <param name="index">The node index to retrieve from the <see cref="Nodes"/> array.</param>
-        /// <param name="node">
-        /// When this method returns, contains the node at the requested index if one exists;
-        /// otherwise, <c>null</c>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the requested index exists and a node was returned; otherwise,
-        /// <c>false</c>.
-        /// </returns>
+        /// <param name="index">Node index to retrieve.</param>
+        /// <param name="node">Returned node when found; otherwise, null.</param>
+        /// <returns>True if the node exists; otherwise, false.</returns>
         public bool TryGetNode(int index, out Node node)
         {
             if (nodes == null || index < 0 || index >= nodes.Length)
@@ -113,7 +122,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             node = nodes[index];
-            return true;
+            return node != null;
         }
     }
 }

@@ -4,18 +4,31 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Creates one material beside each selected texture and assigns that texture to a shader property.
+/// </summary>
+/// <remarks>
+/// Open from <c>Assets &gt; Bulk Material Creator</c>. Asset creation is not automatically
+/// reversible, so verify the shader, property name, and selection before confirming.
+/// </remarks>
 public class BulkMaterialCreator : ScriptableWizard
 {
-
+    [Tooltip("Shader texture property that receives each selected texture, such as _BaseMap.")]
     public string PropertyName = "_MainTex";
+
+    [Tooltip("Text appended to each generated material asset name.")]
     public string Suffix;
+
+    [Tooltip("Shader assigned to every generated material.")]
     public Shader Shader;
 
+    /// <summary>Opens the material creation wizard.</summary>
     [MenuItem(itemName: "Assets/Bulk Material Creator")]
     public static void CreateWizard() => DisplayWizard(title: "Bulk Material Creator", klass: typeof(BulkMaterialCreator));
 
     public void OnWizardUpdate() { }
 
+    /// <summary>Creates material assets for all selected Texture2D assets.</summary>
     public void OnWizardCreate()
     {
         foreach (var obj in Selection.objects)

@@ -27,6 +27,11 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Text shown before the interactable display name.")]
         [SerializeField] private string promptPrefix = "Press E to ";
 
+        [Tooltip("Minimum unscaled seconds between accepted interaction input requests.")]
+        [SerializeField] private float interactionCooldown = 0.2f;
+
+        private float nextInteractTime;
+
         /// <summary>
         /// Gets the interactable currently under the center crosshair.
         /// </summary>
@@ -86,18 +91,19 @@ namespace QuietStatic.Toolkit.Interactions
         /// </summary>
         public bool TryInteract()
         {
+            if (Time.time < nextInteractTime)
+                return false;
+
+            nextInteractTime = Time.time + interactionCooldown;
+
             RefreshTarget();
 
             if (CurrentTarget == null)
-            {
                 return false;
-            }
 
             bool succeeded = CurrentTarget.TryInteract(this);
 
-            // Refresh after interaction in case it disabled itself.
             RefreshTarget();
-
             return succeeded;
         }
 
@@ -138,12 +144,6 @@ namespace QuietStatic.Toolkit.Interactions
             SetHighlight(previousTarget, false);
 
             if (CurrentTarget == null)
-            {
-                interactionUI?.HidePrompt();
-                return;
-            }
-
-            if (!CurrentTarget.CanInteract())
             {
                 interactionUI?.HidePrompt();
                 return;
