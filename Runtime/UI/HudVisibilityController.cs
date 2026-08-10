@@ -18,6 +18,7 @@ namespace QuietStatic.Toolkit.UI
 
         [Header("Visibility Rules")]
         [Tooltip("Game states in which this HUD element should be visible.")]
+        [GameStateId]
         [SerializeField] private string[] visibleStates = { "Playing" };
 
         [Tooltip("Whether the HUD should be visible when no GameStateManager exists.")]

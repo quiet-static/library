@@ -12,6 +12,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("NavMeshAgent that performs pathfinding and movement.")]
         [SerializeField] private NavMeshAgent agent;
         [Tooltip("Radius used when projecting requested positions onto the NavMesh.")]
+        [Min(0f)]
         [SerializeField] private float placementSampleRadius = 3f;
         [Tooltip("Clear the current path when this motor is disabled.")]
         [SerializeField] private bool stopOnDisable = true;
@@ -22,8 +23,13 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private bool wasMoving;
 
+        /// <summary>Gets the wrapped NavMesh agent.</summary>
         public NavMeshAgent Agent => agent;
+
+        /// <summary>Gets whether the agent can currently accept NavMesh commands.</summary>
         public bool IsReady => agent != null && agent.enabled && agent.isOnNavMesh;
+
+        /// <summary>Gets whether the agent currently has meaningful velocity.</summary>
         public bool IsMoving => IsReady && agent.velocity.sqrMagnitude > 0.01f;
 
         private void Reset() => agent = GetComponent<NavMeshAgent>();
@@ -53,6 +59,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 Stop();
         }
 
+        /// <summary>Attempts to project and warp the agent onto a nearby NavMesh position.</summary>
+        /// <returns>True when the agent is already placed or was placed successfully.</returns>
         public bool TryPlaceOnNavMesh()
         {
             if (agent == null || !agent.enabled)
@@ -67,6 +75,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
             return agent.Warp(hit.position);
         }
 
+        /// <summary>Projects a world position onto the NavMesh and assigns it as the destination.</summary>
+        /// <param name="worldPosition">Requested world-space destination.</param>
+        /// <param name="sampleRadius">Radius used to find a nearby NavMesh position.</param>
+        /// <returns>True when a valid destination was assigned.</returns>
         public bool SetDestination(Vector3 worldPosition, float sampleRadius = 2f)
         {
             if (!TryPlaceOnNavMesh())
@@ -79,6 +91,32 @@ namespace QuietStatic.Toolkit.Characters.NPC
             return agent.SetDestination(hit.position);
         }
 
+        /// <summary>Immediately moves the NPC to a nearby valid NavMesh position.</summary>
+        /// <param name="worldPosition">Requested world-space arrival position.</param>
+        /// <param name="worldRotation">Rotation applied after the agent is moved.</param>
+        /// <param name="sampleRadius">Radius used to find a nearby NavMesh position.</param>
+        /// <returns>True when the NPC was transported successfully.</returns>
+        public bool Warp(Vector3 worldPosition, Quaternion worldRotation, float sampleRadius = 2f)
+        {
+            if (agent == null || !agent.enabled ||
+                !NavMesh.SamplePosition(worldPosition, out NavMeshHit hit, sampleRadius, agent.areaMask))
+            {
+                return false;
+            }
+
+            bool transported = agent.Warp(hit.position);
+            if (!transported)
+            {
+                return false;
+            }
+
+            transform.rotation = worldRotation;
+            agent.ResetPath();
+            agent.isStopped = false;
+            return true;
+        }
+
+        /// <summary>Stops movement and clears the current path.</summary>
         public void Stop()
         {
             if (!IsReady)
@@ -88,12 +126,15 @@ namespace QuietStatic.Toolkit.Characters.NPC
             agent.ResetPath();
         }
 
+        /// <summary>Allows the agent to resume its current path when ready.</summary>
         public void Resume()
         {
             if (IsReady)
                 agent.isStopped = false;
         }
 
+        /// <summary>Changes whether the NavMesh agent rotates its transform automatically.</summary>
+        /// <param name="enabledState">Whether automatic rotation should be enabled.</param>
         public void SetAutomaticRotation(bool enabledState)
         {
             if (agent != null)

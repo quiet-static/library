@@ -5,31 +5,14 @@ using UnityEngine;
 namespace QuietStatic.Toolkit.Audio
 {
     /// <summary>
-    /// Plays positional footstep sounds while the attached character is moving.
+    /// Plays positional footstep sounds when the attached player controller emits a step.
     /// </summary>
-    [RequireComponent(typeof(CharacterMotor))]
+    [RequireComponent(typeof(PlayerController))]
     public class PlayerFootsteps : MonoBehaviour
     {
         [Header("Dependencies")]
-        [Tooltip("Controls the character's movement speed state.")]
-        [SerializeField] private CharacterMotor motor;
-
-        [Header("Footstep Clips")]
         [Tooltip("Possible footstep clips. One is selected at random per step.")]
         [SerializeField] private AudioClip[] footstepClips;
-
-        [Header("Timing")]
-        [Tooltip("Seconds between footsteps while walking.")]
-        [Min(0.01f)]
-        [SerializeField] private float walkStepInterval = 0.55f;
-
-        [Tooltip("Seconds between footsteps while sprinting.")]
-        [Min(0.01f)]
-        [SerializeField] private float sprintStepInterval = 0.35f;
-
-        [Tooltip("Minimum normalized movement speed required to emit footsteps.")]
-        [Min(0f)]
-        [SerializeField] private float minSpeedForFootsteps = 0.1f;
 
         [Header("Audio")]
         [Tooltip("Volume passed to SfxManager when playing each footstep.")]
@@ -39,55 +22,42 @@ namespace QuietStatic.Toolkit.Audio
         [Tooltip("Optional transform used as the footstep sound origin. Defaults to this object.")]
         [SerializeField] private Transform soundOrigin;
 
-        private float footstepTimer;
+        private PlayerController playerController;
 
         /// <summary>
         /// Resolves required references when they were not assigned in the Inspector.
         /// </summary>
         private void Awake()
         {
-            if (motor == null)
-            {
-                motor = GetComponent<CharacterMotor>();
-            }
-
             if (soundOrigin == null)
             {
                 soundOrigin = transform;
             }
+
+            playerController = GetComponent<PlayerController>();
+        }
+
+        private void OnEnable()
+        {
+            PlayerController.OnFootstep += HandleFootstep;
+        }
+
+        private void OnDisable()
+        {
+            PlayerController.OnFootstep -= HandleFootstep;
         }
 
         /// <summary>
-        /// Tracks movement and plays a footstep when the current step interval elapses.
+        /// Plays a step only when it came from the controller on this GameObject.
         /// </summary>
-        private void Update()
+        private void HandleFootstep(PlayerController source)
         {
-            if (motor == null || footstepClips == null || footstepClips.Length == 0)
-            {
-                return;
-            }
-
-            bool isMoving = motor.NormalizedSpeed > minSpeedForFootsteps;
-
-            if (!isMoving)
-            {
-                footstepTimer = 0f;
-                return;
-            }
-
-            float stepInterval = GameInputManager.Instance.Sprint
-                ? sprintStepInterval
-                : walkStepInterval;
-
-            footstepTimer += Time.deltaTime;
-
-            if (footstepTimer < stepInterval)
+            if (source != playerController)
             {
                 return;
             }
 
             PlayFootstep();
-            footstepTimer = 0f;
         }
 
         /// <summary>

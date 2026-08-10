@@ -94,11 +94,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3190405497089895982}
   - component: {fileID: 2241096408467972528}
-  - component: {fileID: 6789765919312335766}
   - component: {fileID: 1200501005475157065}
   - component: {fileID: 4696522702784670675}
   - component: {fileID: 806764036955018349}
-  - component: {fileID: 3094240779040293414}
   - component: {fileID: 3318565771985150124}
   m_Layer: 0
   m_Name: player
@@ -147,28 +145,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!95 &6789765919312335766
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6698151493094512804}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1200501005475157065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,25 +195,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Characters.AnimationController
   idleSpeedThreshold: 0.01
-  enableDebug: 1
---- !u!114 &3094240779040293414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6698151493094512804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a086502b0a5c3c49a2741539e57501a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Characters.MovementStateController
-  motor: {fileID: 0}
-  stateController: {fileID: 0}
-  speedParameter: Speed
-  groundedParameter: IsGrounded
-  jumpTriggerParameter: Jump
-  speedDampTime: 0.1
   enableDebug: 1
 --- !u!114 &3318565771985150124
 MonoBehaviour:

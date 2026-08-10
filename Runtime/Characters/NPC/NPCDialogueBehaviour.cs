@@ -50,7 +50,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private NPCController controller;
         private bool[] previousBehaviourStates;
 
+        /// <summary>Gets the dialogue tree configured for this NPC.</summary>
         public DialogueTree DialogueTree => dialogueTree;
+
+        /// <summary>Gets whether this NPC currently owns an active dialogue.</summary>
         public bool IsInDialogue { get; private set; }
 
         private void Awake()
@@ -204,8 +207,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 participantTarget != null &&
                 lookAtBehaviour != null)
             {
-                lookAtBehaviour.SetLookTarget(participantTarget);
-                lookAtBehaviour.SetBehaviourActive(true);
+                lookAtBehaviour.StartTemporaryLookAt(participantTarget);
             }
 
             onDialogueBegan?.Invoke();
@@ -227,8 +229,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             if (faceControllerTargetDuringDialogue && lookAtBehaviour != null)
             {
-                lookAtBehaviour.SetBehaviourActive(false);
-                lookAtBehaviour.ClearLookTarget();
+                lookAtBehaviour.StopTemporaryLook();
             }
 
             if (stopMovementDuringDialogue)

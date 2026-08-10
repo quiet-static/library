@@ -27,6 +27,7 @@ namespace QuietStatic
         public class StateMusicEntry
         {
             [Tooltip("Global game state that should use this music track.")]
+            [GameStateId]
             [SerializeField] private string stateId;
 
             [Tooltip("Music clip played when the configured state becomes active.")]
@@ -119,6 +120,9 @@ namespace QuietStatic
         /// </summary>
         public bool IsPlaying => musicSource != null && musicSource.isPlaying;
 
+        /// <summary>Gets whether music playback is currently paused.</summary>
+        public bool IsPaused { get; private set; }
+
         /// <summary>
         /// Initializes the singleton and configures the audio source for 2D looping music.
         /// </summary>
@@ -138,10 +142,8 @@ namespace QuietStatic
 
             if (musicSource == null)
             {
-                Debug.LogWarning(
-                    $"{nameof(MusicManager)} could not find an {nameof(AudioSource)}.",
-                    this
-                );
+                GameLogger.Warning(nameof(MusicManager), this,
+                    $"Could not find an {nameof(AudioSource)}.");
                 return;
             }
 
@@ -203,6 +205,7 @@ namespace QuietStatic
 
             musicSource.clip = clip;
             musicSource.volume = defaultVolume;
+            IsPaused = false;
             musicSource.Play();
 
             OnMusicStarted?.Invoke(clip);
@@ -244,6 +247,7 @@ namespace QuietStatic
             musicSource.Stop();
             musicSource.clip = null;
             musicSource.volume = defaultVolume;
+            IsPaused = false;
 
             OnMusicStopped?.Invoke();
             onMusicStopped?.Invoke();
@@ -267,6 +271,31 @@ namespace QuietStatic
             }
 
             fadeRoutine = StartCoroutine(FadeOutAndStop());
+        }
+
+        /// <summary>Pauses the current music track while preserving its playback position.</summary>
+        public void PauseMusic()
+        {
+            if (musicSource == null || !musicSource.isPlaying)
+            {
+                return;
+            }
+
+            StopFadeRoutine();
+            musicSource.Pause();
+            IsPaused = true;
+        }
+
+        /// <summary>Resumes the current music track when it was previously paused.</summary>
+        public void ResumeMusic()
+        {
+            if (musicSource == null || !IsPaused)
+            {
+                return;
+            }
+
+            IsPaused = false;
+            musicSource.UnPause();
         }
 
         /// <summary>
@@ -357,6 +386,7 @@ namespace QuietStatic
             musicSource.Stop();
             musicSource.clip = newClip;
             musicSource.volume = 0f;
+            IsPaused = false;
             musicSource.Play();
 
             OnMusicStarted?.Invoke(newClip);
@@ -377,6 +407,7 @@ namespace QuietStatic
             musicSource.Stop();
             musicSource.clip = null;
             musicSource.volume = defaultVolume;
+            IsPaused = false;
 
             fadeRoutine = null;
 

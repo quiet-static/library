@@ -1,0 +1,15 @@
+{
+  "name": "QuietStatic.Core.EditModeTests",
+  "rootNamespace": "QuietStatic.Tests.EditMode",
+  "references": [
+    "QuietStatic.Core.Runtime",
+    "Unity.InputSystem"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false
+}

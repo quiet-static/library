@@ -15,7 +15,7 @@ namespace QuietStatic.Toolkit.Interactions
     /// UnityEvents drive local behavior such as animation or audio.
     /// </remarks>
     [AddComponentMenu("Quiet Static Toolkit/Interactions/Interactable")]
-    public class Interactable : MonoBehaviour
+    public class Interactable : MonoBehaviour, IInteractionTarget
     {
         /// <summary>Raised after any interactable completes successfully.</summary>
         public static event Action<Interactable, Interactor> OnInteractionSucceeded;
@@ -56,6 +56,9 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Gets the player-facing interaction label.</summary>
         public string DisplayName => displayName;
 
+        /// <inheritdoc />
+        public Transform InteractionTransform => transform;
+
         /// <summary>Gets whether this component currently accepts interaction attempts.</summary>
         public bool IsEnabled { get; private set; } = true;
 
@@ -64,6 +67,12 @@ namespace QuietStatic.Toolkit.Interactions
         public bool CanInteract()
         {
             return IsEnabled && (requirement == null || requirement.IsMet());
+        }
+
+        /// <inheritdoc />
+        public bool IsInteractionAvailable(Interactor interactor)
+        {
+            return IsEnabled;
         }
 
         /// <summary>Attempts the interaction and invokes the matching event path.</summary>

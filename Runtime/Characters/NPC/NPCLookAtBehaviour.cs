@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace QuietStatic.Toolkit.Characters.NPC
 {
@@ -16,18 +17,9 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("Animator used for humanoid look-at IK and automatic head-bone lookup.")]
         [SerializeField] private Animator animator;
 
-        [Tooltip("Optional target that overrides the target stored by NPCController.")]
-        [SerializeField] private Transform explicitTarget;
-
-        [Tooltip("Uses NPCController.Target when no explicit target has been assigned.")]
-        [SerializeField] private bool useControllerTarget = true;
-
-        [Header("Activation")]
-        [Tooltip("Automatically activates this behaviour when SetLookTarget receives a valid target.")]
-        [SerializeField] private bool activateWhenTargetAssigned = true;
-
-        [Tooltip("Automatically deactivates this behaviour when its explicit target is cleared.")]
-        [SerializeField] private bool deactivateWhenTargetCleared = true;
+        [Tooltip("Target this NPC normally looks toward.")]
+        [FormerlySerializedAs("explicitTarget")]
+        [SerializeField] private Transform target;
 
         [Header("Look Mode")]
         [Tooltip("When enabled, only the head looks toward the target. Otherwise, the NPC root rotates.")]
@@ -50,6 +42,9 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("How quickly the head look direction catches up to the target.")]
         [SerializeField, Min(0f)] private float headTurnSpeed = 12f;
 
+        [Tooltip("How quickly the head returns to its animated resting pose after looking stops.")]
+        [SerializeField, Min(0f)] private float headReturnSpeed = 8f;
+
         [Tooltip("Maximum degrees the head may turn left or right.")]
         [SerializeField, Range(0f, 180f)] private float maxHeadYaw = 75f;
 
@@ -60,18 +55,30 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [SerializeField, Range(0f, 90f)] private float maxHeadPitchDown = 45f;
 
         [Header("Humanoid IK Weights")]
+        [Tooltip("Overall Animator IK look-at influence.")]
         [SerializeField, Range(0f, 1f)] private float overallWeight = 1f;
+        [Tooltip("How much the character's body rotates toward the target.")]
         [SerializeField, Range(0f, 1f)] private float bodyWeight = 0f;
+        [Tooltip("How much the character's head rotates toward the target.")]
         [SerializeField, Range(0f, 1f)] private float headWeight = 1f;
+        [Tooltip("How much the character's eyes rotate toward the target.")]
         [SerializeField, Range(0f, 1f)] private float eyesWeight = 0.25f;
+        [Tooltip("Restricts the maximum look angle to reduce unnatural twisting.")]
         [SerializeField, Range(0f, 1f)] private float clampWeight = 0.5f;
 
         private float smoothedYaw;
         private float smoothedPitch;
         private Vector3 smoothedLookPosition;
         private bool hasSmoothedLookPosition;
+        private float humanoidLookWeight;
+        private Transform temporaryTarget;
+        private Vector3 targetOffset;
+        private Vector3 temporaryTargetOffset;
 
+        /// <summary>Gets whether this behavior rotates only the head.</summary>
         public bool HeadOnly => headOnly;
+
+        /// <summary>Gets the temporary target when present, otherwise the normal target.</summary>
         public Transform CurrentTarget => GetCurrentTarget();
 
         protected override void Awake()
@@ -92,9 +99,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
             if (!IsBehaviourActive || headOnly)
                 return;
 
-            Transform target = GetCurrentTarget();
-            if (target != null)
-                RotateFullBodyToward(target.position);
+            if (TryGetLookPosition(out Vector3 lookPosition))
+                RotateFullBodyToward(lookPosition);
         }
 
         /// <summary>
@@ -107,11 +113,17 @@ namespace QuietStatic.Toolkit.Characters.NPC
             if (!IsBehaviourActive || !headOnly || ShouldUseAnimatorIK())
                 return;
 
-            Transform target = GetCurrentTarget();
-            if (target == null || !EnsureHeadTransform())
+            if (!EnsureHeadTransform())
                 return;
 
-            RotateHeadTransformToward(target.position);
+            if (TryGetLookPosition(out Vector3 lookPosition))
+            {
+                RotateHeadTransformToward(lookPosition);
+            }
+            else
+            {
+                ReturnHeadTransformToRest();
+            }
         }
 
         /// <summary>
@@ -127,58 +139,92 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 IsBehaviourActive &&
                 headOnly &&
                 useHumanoidAnimatorIK &&
-                GetCurrentTarget() != null;
+                TryGetLookPosition(out _);
 
-            if (!shouldLook)
-            {
-                animator.SetLookAtWeight(0f);
-                return;
-            }
-
-            Transform target = GetCurrentTarget();
-            Vector3 targetPosition = target.position;
-
-            if (!hasSmoothedLookPosition)
-            {
-                smoothedLookPosition = targetPosition;
-                hasSmoothedLookPosition = true;
-            }
-
-            float interpolation = 1f - Mathf.Exp(-headTurnSpeed * Time.deltaTime);
-            smoothedLookPosition = Vector3.Lerp(
-                smoothedLookPosition,
-                targetPosition,
+            float blendSpeed = shouldLook ? headTurnSpeed : headReturnSpeed;
+            float interpolation = GetExponentialInterpolation(blendSpeed);
+            humanoidLookWeight = Mathf.Lerp(
+                humanoidLookWeight,
+                shouldLook ? 1f : 0f,
                 interpolation
             );
 
+            if (shouldLook)
+            {
+                TryGetLookPosition(out Vector3 targetPosition);
+
+                if (!hasSmoothedLookPosition)
+                {
+                    smoothedLookPosition = targetPosition;
+                    hasSmoothedLookPosition = true;
+                }
+
+                smoothedLookPosition = Vector3.Lerp(
+                    smoothedLookPosition,
+                    targetPosition,
+                    interpolation
+                );
+            }
+
             animator.SetLookAtWeight(
-                overallWeight,
+                overallWeight * humanoidLookWeight,
                 bodyWeight,
                 headWeight,
                 eyesWeight,
                 clampWeight
             );
-            animator.SetLookAtPosition(smoothedLookPosition);
+
+            if (hasSmoothedLookPosition)
+                animator.SetLookAtPosition(smoothedLookPosition);
         }
 
+        /// <summary>Sets the normal look target without changing the behavior's active state.</summary>
+        /// <param name="target">New normal look target.</param>
         public void SetLookTarget(Transform target)
         {
-            explicitTarget = target;
+            this.target = target;
+            targetOffset = Vector3.zero;
             ResetLookSmoothing();
-
-            if (target != null && activateWhenTargetAssigned)
-                SetBehaviourActive(true);
-            else if (target == null && deactivateWhenTargetCleared)
-                SetBehaviourActive(false);
         }
 
+        /// <summary>Sets a normal look target and activates looking.</summary>
+        /// <param name="target">Target to look toward.</param>
         public void StartLookingAt(Transform target)
         {
-            explicitTarget = target;
+            StartLookingAt(target, Vector3.zero);
+        }
+
+        /// <summary>Sets a normal look target with a world-space offset and activates looking.</summary>
+        /// <param name="target">Target to look toward.</param>
+        /// <param name="worldOffset">World-space offset from the target position.</param>
+        public void StartLookingAt(Transform target, Vector3 worldOffset)
+        {
+            this.target = target;
+            targetOffset = worldOffset;
             ResetLookSmoothing();
             SetBehaviourActive(target != null);
         }
 
+        /// <summary>
+        /// Temporarily overrides the normal look target. Dialogue and cutscenes can use this
+        /// without destroying passive player-tracking state.
+        /// </summary>
+        public void StartTemporaryLookAt(Transform target, Vector3 worldOffset = default)
+        {
+            temporaryTarget = target;
+            temporaryTargetOffset = worldOffset;
+            ResetLookSmoothing();
+            SetBehaviourActive(target != null);
+        }
+
+        /// <summary>Clears the temporary override and returns to the normal look target.</summary>
+        public void StopTemporaryLook()
+        {
+            temporaryTarget = null;
+            temporaryTargetOffset = Vector3.zero;
+        }
+
+        /// <summary>Activates looking when a normal or temporary target is available.</summary>
         public void StartLooking()
         {
             if (GetCurrentTarget() == null)
@@ -188,22 +234,30 @@ namespace QuietStatic.Toolkit.Characters.NPC
             SetBehaviourActive(true);
         }
 
+        /// <summary>Clears the normal target while preserving any temporary override.</summary>
         public void ClearLookTarget()
         {
-            explicitTarget = null;
+            target = null;
+            targetOffset = Vector3.zero;
             ResetLookSmoothing();
 
-            if (deactivateWhenTargetCleared)
+            if (temporaryTarget == null)
                 SetBehaviourActive(false);
         }
 
+        /// <summary>Clears all targets and deactivates this behavior.</summary>
         public void StopLooking()
         {
-            explicitTarget = null;
+            target = null;
+            temporaryTarget = null;
+            targetOffset = Vector3.zero;
+            temporaryTargetOffset = Vector3.zero;
             ResetLookSmoothing();
             SetBehaviourActive(false);
         }
 
+        /// <summary>Changes between head-only and full-body looking.</summary>
+        /// <param name="value">True for head-only looking; false for full-body looking.</param>
         public void SetHeadOnly(bool value)
         {
             if (headOnly == value)
@@ -241,12 +295,23 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private Transform GetCurrentTarget()
         {
-            if (explicitTarget != null)
-                return explicitTarget;
+            return temporaryTarget != null ? temporaryTarget : target;
+        }
 
-            return useControllerTarget && Controller != null
-                ? Controller.Target
-                : null;
+        private bool TryGetLookPosition(out Vector3 position)
+        {
+            Transform currentTarget = GetCurrentTarget();
+            if (currentTarget == null)
+            {
+                position = default;
+                return false;
+            }
+
+            Vector3 offset = temporaryTarget != null
+                ? temporaryTargetOffset
+                : targetOffset;
+            position = currentTarget.position + offset;
+            return true;
         }
 
         private bool ShouldUseAnimatorIK()
@@ -301,10 +366,24 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 maxHeadPitchDown
             );
 
-            float interpolation = 1f - Mathf.Exp(-headTurnSpeed * Time.deltaTime);
+            float interpolation = GetExponentialInterpolation(headTurnSpeed);
             smoothedYaw = Mathf.Lerp(smoothedYaw, targetYaw, interpolation);
             smoothedPitch = Mathf.Lerp(smoothedPitch, targetPitch, interpolation);
 
+            ApplyHeadTransformCorrection();
+        }
+
+        private void ReturnHeadTransformToRest()
+        {
+            float interpolation = GetExponentialInterpolation(headReturnSpeed);
+            smoothedYaw = Mathf.Lerp(smoothedYaw, 0f, interpolation);
+            smoothedPitch = Mathf.Lerp(smoothedPitch, 0f, interpolation);
+
+            ApplyHeadTransformCorrection();
+        }
+
+        private void ApplyHeadTransformCorrection()
+        {
             Quaternion bodyRelativeRotation =
                 Quaternion.Euler(smoothedPitch, smoothedYaw, 0f);
 
@@ -314,12 +393,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
             // The Animator has already evaluated this frame. Apply the complete correction
             // from that animated pose instead of partially slerping from a pose that will
             // be reset again next frame.
+            // Imported skeletons do not consistently use the bone's local Z axis as the
+            // face direction. Rotate the animated pose by the character-space look delta.
             Quaternion correction = Quaternion.FromToRotation(
-                headTransform.forward,
+                transform.forward,
                 desiredWorldDirection
             );
 
             headTransform.rotation = correction * headTransform.rotation;
+        }
+
+        private static float GetExponentialInterpolation(float speed)
+        {
+            return 1f - Mathf.Exp(-speed * Time.deltaTime);
         }
 
         private bool EnsureHeadTransform()
@@ -338,6 +424,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
             smoothedYaw = 0f;
             smoothedPitch = 0f;
             hasSmoothedLookPosition = false;
+            humanoidLookWeight = 0f;
         }
 
         private void ApplyMotorRotationState()

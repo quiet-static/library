@@ -2,12 +2,11 @@ using System.Collections.Generic;
 using QuietStatic.Toolkit.Core;
 using QuietStatic.Toolkit.Spawning;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace QuietStatic
 {
     /// <summary>
-    /// Registers scene objects that can be repositioned at named spawn points.
+    /// Resolves spawn points, moves registered targets, and instantiates prefabs.
     /// </summary>
     /// <remarks>
     /// This manager is useful for player characters, companions, enemies, cameras,
@@ -16,6 +15,7 @@ namespace QuietStatic
     /// Registered objects can live in additive scenes. They register when enabled
     /// and unregister when their scene unloads.
     /// </remarks>
+    [AddComponentMenu("Quiet Static Toolkit/Managers/Spawn Manager")]
     public class SpawnManager : ToolkitSingleton<SpawnManager>
     {
         [Header("Fallback")]
@@ -26,6 +26,16 @@ namespace QuietStatic
         /// Runtime registry of movable objects, grouped by a caller-defined ID.
         /// </summary>
         private readonly Dictionary<string, Transform> registeredTargets = new();
+
+        /// <summary>Gets the number of live registered targets.</summary>
+        public int RegisteredTargetCount
+        {
+            get
+            {
+                RemoveDestroyedTargets();
+                return registeredTargets.Count;
+            }
+        }
 
         /// <summary>
         /// Registers a target that can later be moved using <see cref="MoveRegisteredTargetToSpawn"/>.
@@ -82,18 +92,57 @@ namespace QuietStatic
         /// <returns>True if the target was moved successfully.</returns>
         public bool MoveRegisteredTargetToSpawn(string targetId, string spawnId)
         {
-            if (string.IsNullOrWhiteSpace(targetId))
-            {
-                return false;
-            }
-
-            if (!registeredTargets.TryGetValue(targetId.Trim(), out Transform target) ||
-                target == null)
+            if (!TryGetRegisteredTarget(targetId, out Transform target))
             {
                 return false;
             }
 
             return MoveToSpawn(target, spawnId);
+        }
+
+        /// <summary>
+        /// Resolves a registered target, discovering a matching enabled
+        /// <see cref="SpawnTarget"/> when necessary.
+        /// </summary>
+        public bool TryGetRegisteredTarget(
+            string targetId,
+            out Transform target)
+        {
+            target = null;
+
+            if (string.IsNullOrWhiteSpace(targetId))
+            {
+                return false;
+            }
+
+            string normalizedId = targetId.Trim();
+
+            if (registeredTargets.TryGetValue(normalizedId, out target) &&
+                target != null)
+            {
+                return true;
+            }
+
+            registeredTargets.Remove(normalizedId);
+
+            SpawnTarget[] sceneTargets =
+                FindObjectsByType<SpawnTarget>(FindObjectsSortMode.None);
+
+            foreach (SpawnTarget sceneTarget in sceneTargets)
+            {
+                if (sceneTarget == null ||
+                    sceneTarget.TargetId != normalizedId ||
+                    sceneTarget.Target == null)
+                {
+                    continue;
+                }
+
+                target = sceneTarget.Target;
+                registeredTargets[normalizedId] = target;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -109,14 +158,7 @@ namespace QuietStatic
                 return false;
             }
 
-            SpawnPoint spawnPoint = FindSpawnPoint(spawnId);
-
-            if (spawnPoint == null &&
-                !string.IsNullOrWhiteSpace(fallbackSpawnId) &&
-                spawnId.Trim() != fallbackSpawnId.Trim())
-            {
-                spawnPoint = FindSpawnPoint(fallbackSpawnId);
-            }
+            SpawnPoint spawnPoint = ResolveSpawnPoint(spawnId);
 
             if (spawnPoint == null)
             {
@@ -128,8 +170,39 @@ namespace QuietStatic
                 return false;
             }
 
-            MoveSafely(target, spawnPoint.transform);
+            SpawnPlacementUtility.MoveSafely(target, spawnPoint.transform);
             return true;
+        }
+
+        /// <summary>
+        /// Instantiates a prefab at a named spawn point, using the configured fallback
+        /// point when the requested point is unavailable.
+        /// </summary>
+        /// <remarks>
+        /// If neither point exists, the prefab is still instantiated at its authored
+        /// position and rotation for compatibility with the former SpawnService.
+        /// </remarks>
+        public GameObject Spawn(GameObject prefab, string spawnId)
+        {
+            if (prefab == null)
+            {
+                return null;
+            }
+
+            SpawnPoint spawnPoint = string.IsNullOrWhiteSpace(spawnId)
+                ? null
+                : ResolveSpawnPoint(spawnId);
+
+            if (spawnPoint == null && !string.IsNullOrWhiteSpace(spawnId))
+            {
+                GameLogger.Warning(
+                    "Spawn",
+                    this,
+                    $"{nameof(SpawnManager)} could not find spawn point '{spawnId}'. " +
+                    "The prefab will use its authored transform.");
+            }
+
+            return SpawnPlacementUtility.InstantiateAt(prefab, spawnPoint);
         }
 
         /// <summary>
@@ -137,66 +210,41 @@ namespace QuietStatic
         /// </summary>
         public SpawnPoint FindSpawnPoint(string spawnId)
         {
-            if (string.IsNullOrWhiteSpace(spawnId))
+            return SpawnPlacementUtility.FindSpawnPoint(spawnId);
+        }
+
+        private SpawnPoint ResolveSpawnPoint(string spawnId)
+        {
+            SpawnPoint spawnPoint = FindSpawnPoint(spawnId);
+
+            if (spawnPoint == null &&
+                !string.IsNullOrWhiteSpace(fallbackSpawnId) &&
+                !string.Equals(
+                    spawnId?.Trim(),
+                    fallbackSpawnId.Trim(),
+                    System.StringComparison.Ordinal))
             {
-                return null;
+                spawnPoint = FindSpawnPoint(fallbackSpawnId);
             }
 
-            SpawnPoint[] spawnPoints =
-                FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
+            return spawnPoint;
+        }
 
-            foreach (SpawnPoint spawnPoint in spawnPoints)
+        private void RemoveDestroyedTargets()
+        {
+            var destroyedIds = new List<string>();
+
+            foreach (KeyValuePair<string, Transform> entry in registeredTargets)
             {
-                if (spawnPoint != null &&
-                    spawnPoint.Id == spawnId.Trim())
+                if (entry.Value == null)
                 {
-                    return spawnPoint;
+                    destroyedIds.Add(entry.Key);
                 }
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// Safely moves an object while accounting for CharacterControllers and NavMeshAgents.
-        /// </summary>
-        private static void MoveSafely(
-            Transform target,
-            Transform spawnTransform
-        )
-        {
-            CharacterController characterController =
-                target.GetComponent<CharacterController>();
-
-            NavMeshAgent navMeshAgent =
-                target.GetComponent<NavMeshAgent>();
-
-            if (characterController != null)
+            foreach (string destroyedId in destroyedIds)
             {
-                characterController.enabled = false;
-            }
-
-            if (navMeshAgent != null &&
-                navMeshAgent.enabled &&
-                navMeshAgent.isOnNavMesh)
-            {
-                navMeshAgent.Warp(spawnTransform.position);
-            }
-            else
-            {
-                target.position = spawnTransform.position;
-            }
-
-            target.rotation = spawnTransform.rotation;
-
-            if (characterController != null)
-            {
-                characterController.enabled = true;
-            }
-
-            if (navMeshAgent != null && navMeshAgent.enabled)
-            {
-                navMeshAgent.ResetPath();
+                registeredTargets.Remove(destroyedId);
             }
         }
     }

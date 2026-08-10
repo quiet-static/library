@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9439a44cde93d94997e1ebcdabb8f5c, type: 3}
+  m_Name: ExampleTension
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Horror.HorrorTensionDefinition
+  defaultStateId: calm
+  states:
+  - id: calm
+    priority: 0
+    activationRequirement:
+      mode: 0
+      flags: []
+    musicAction: 0
+    music: {fileID: 0}
+    fadeMusic: 0
+    entrySfx: []
+    entrySfxVolume: 0
+    overlayColor: {r: 0, g: 0, b: 0, a: 0}
+    overlayAlpha: 0
+    overlayTransitionDuration: 0
+  - id: uneasy
+    priority: 10
+    activationRequirement:
+      mode: 0
+      flags: []
+    musicAction: 0
+    music: {fileID: 0}
+    fadeMusic: 0
+    entrySfx: []
+    entrySfxVolume: 0
+    overlayColor: {r: 0, g: 0, b: 0, a: 0}
+    overlayAlpha: 0
+    overlayTransitionDuration: 0

@@ -1,6 +1,13 @@
 {
   "name": "QuietStatic.Core.Editor",
   "rootNamespace": "QuietStatic",
-  "references": ["Unity.TextMeshPro.Editor"],
+  "references": [
+    "QuietStatic.Core.Runtime",
+    "Unity.TextMeshPro.Editor",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
   "autoReferenced": true
 }

@@ -38,13 +38,16 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             [Header("Shot Identity")]
             [Tooltip("Friendly name used to identify this shot in the Inspector and debug logs.")]
+            /// <summary>Designer-facing label for this shot.</summary>
             public string shotName;
 
             [Header("Camera Placement")]
             [Tooltip("Optional target the camera should look at. Also used as the origin for Target Relative Offset when no camera marker is assigned.")]
+            /// <summary>Optional transform the shot faces and uses as its relative origin.</summary>
             public Transform focusTarget;
 
             [Tooltip("Optional transform used as the exact camera position for this shot. If assigned, its position overrides Target Relative Offset.")]
+            /// <summary>Optional transform supplying the exact camera pose position.</summary>
             public Transform cameraPositionMarker;
 
             [Tooltip("Camera offset relative to the Focus Target. Used only when Camera Position Marker is not assigned.")]

@@ -1,4 +1,5 @@
 using System;
+using QuietStatic.Input;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Characters.Player
@@ -9,7 +10,7 @@ namespace QuietStatic.Toolkit.Characters.Player
     /// <remarks>
     /// This component does not read Unity input actions directly and does not contain
     /// movement physics. It receives processed gameplay input from
-    /// <see cref="GameInputManager"/> and sends it to <see cref="CharacterMotor"/>.
+    /// an <see cref="IMoveInputSource"/> and sends it to <see cref="CharacterMotor"/>.
     /// </remarks>
     [RequireComponent(typeof(CharacterMotor))]
     public class PlayerController : MonoBehaviour
@@ -17,6 +18,9 @@ namespace QuietStatic.Toolkit.Characters.Player
         [Header("Dependencies")]
         [Tooltip("Movement component that receives processed player input.")]
         [SerializeField] private CharacterMotor motor;
+
+        [Tooltip("Component that supplies movement, sprint, and jump input. Leave empty to use the persistent GameInputManager.")]
+        [SerializeField] private MonoBehaviour inputSourceBehaviour;
 
         [Header("Footsteps")]
         [Tooltip("Seconds between footsteps while walking.")]
@@ -28,7 +32,7 @@ namespace QuietStatic.Toolkit.Characters.Player
         [SerializeField] private float sprintStepInterval = 0.35f;
 
         [Tooltip("Minimum normalized movement speed required to emit footsteps.")]
-        [Min(0f)]
+        [Range(0f, 1f)]
         [SerializeField] private float minimumSpeedForFootsteps = 0.1f;
 
         /// <summary>
@@ -39,6 +43,7 @@ namespace QuietStatic.Toolkit.Characters.Player
         private float footstepTimer;
 
         private bool movementEnabled = true;
+        private IMoveInputSource inputSource;
 
         private void Reset()
         {
@@ -61,30 +66,52 @@ namespace QuietStatic.Toolkit.Characters.Player
                 );
 
                 enabled = false;
+                return;
             }
+
+            ResolveInputSource();
         }
 
         private void Update()
         {
-            // Null guard check
-            if (motor == null || GameInputManager.Instance == null)
+            if (motor == null)
             {
                 return;
             }
 
-            // Movement guard check
             if (!movementEnabled)
+            {
                 return;
+            }
 
-            GameInputManager input = GameInputManager.Instance;
+            if (inputSource == null)
+            {
+                ResolveInputSource();
+            }
+
+            if (inputSource == null)
+            {
+                return;
+            }
 
             motor.Tick(
-                input.Move,
-                input.Sprint,
-                input.ConsumeJump()
+                inputSource.Move,
+                inputSource.Sprint,
+                inputSource.ConsumeJump()
             );
 
-            UpdateFootsteps(input.Sprint);
+            UpdateFootsteps(inputSource.Sprint);
+        }
+
+        /// <summary>Resolves the configured input provider or the persistent manager fallback.</summary>
+        private void ResolveInputSource()
+        {
+            inputSource = inputSourceBehaviour as IMoveInputSource;
+
+            if (inputSource == null && GameInputManager.Instance != null)
+            {
+                inputSource = GameInputManager.Instance;
+            }
         }
 
         /// <summary>
@@ -115,7 +142,12 @@ namespace QuietStatic.Toolkit.Characters.Player
 
         private void StopMovement()
         {
-            GameInputManager.Instance.ClearGameplayInput();
+            motor.Tick(Vector2.zero, false, false);
+
+            if (inputSource is GameInputManager gameInput)
+            {
+                gameInput.ClearGameplayInput();
+            }
         }
 
         /// <summary>

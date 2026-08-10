@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace QuietStatic.Toolkit.UI
 {
@@ -18,19 +20,34 @@ namespace QuietStatic.Toolkit.UI
     {
         [Header("Scroll Target")]
         [Tooltip("The UI RectTransform that should move upward. If left empty, Reset tries to use this object's RectTransform.")]
+        [FormerlySerializedAs("creditsContent")]
         [SerializeField] private RectTransform content;
 
         [Header("Scroll Settings")]
         [Tooltip("How quickly the credits content moves upward in anchored-position units per second.")]
         [Min(0f)]
+        [FormerlySerializedAs("scrollSpeed")]
         [SerializeField] private float speed = 40f;
+
+        [Tooltip("The anchored Y position assigned when this component starts.")]
+        [SerializeField] private float startY = -700f;
 
         [Tooltip("The anchored Y position where the credits are considered finished.")]
         [SerializeField] private float endY = 1200f;
 
+        [Header("Skip")]
+        [Tooltip("Allow the configured key to finish the credits immediately.")]
+        [SerializeField] private bool allowSkip;
+
+        [Tooltip("Key that finishes the credits when skipping is enabled.")]
+        [SerializeField] private KeyCode skipKey = KeyCode.Escape;
+
         [Header("Events")]
         [Tooltip("Invoked once when the credits content reaches or passes the configured end Y position.")]
         [SerializeField] private UnityEvent onCreditsFinished;
+
+        /// <summary>Raised once whenever any credits scroller finishes.</summary>
+        public static event Action OnCreditsEnd;
 
         /// <summary>
         /// Tracks whether the credits have already reached the end.
@@ -41,6 +58,11 @@ namespace QuietStatic.Toolkit.UI
         private bool finished;
 
         /// <summary>
+        /// Gets whether this credits roll has already completed.
+        /// </summary>
+        public bool IsFinished => finished;
+
+        /// <summary>
         /// Attempts to auto-fill the content reference when the component is added or reset
         /// in the Unity Inspector.
         /// </summary>
@@ -49,13 +71,34 @@ namespace QuietStatic.Toolkit.UI
             content = transform as RectTransform;
         }
 
+        protected virtual void Start()
+        {
+            if (content == null)
+            {
+                content = transform as RectTransform;
+            }
+
+            if (content != null)
+            {
+                Vector2 position = content.anchoredPosition;
+                position.y = startY;
+                content.anchoredPosition = position;
+            }
+        }
+
         /// <summary>
         /// Advances the credits scroll each frame until the content reaches the end position.
         /// </summary>
-        private void Update()
+        protected virtual void Update()
         {
             if (finished || content == null)
             {
+                return;
+            }
+
+            if (allowSkip && UnityEngine.Input.GetKeyDown(skipKey))
+            {
+                FinishCredits();
                 return;
             }
 
@@ -90,7 +133,7 @@ namespace QuietStatic.Toolkit.UI
         /// <summary>
         /// Marks the credits as finished and invokes the completion event once.
         /// </summary>
-        private void FinishCredits()
+        protected virtual void FinishCredits()
         {
             if (finished)
             {
@@ -98,6 +141,7 @@ namespace QuietStatic.Toolkit.UI
             }
 
             finished = true;
+            OnCreditsEnd?.Invoke();
             onCreditsFinished?.Invoke();
         }
     }

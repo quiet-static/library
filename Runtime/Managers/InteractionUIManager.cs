@@ -4,6 +4,7 @@ using QuietStatic.Toolkit.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace QuietStatic
 {
@@ -55,6 +56,15 @@ namespace QuietStatic
 
         [Tooltip("Text used for a persistent interaction prompt, such as Press E to Interact.")]
         [SerializeField] private TMP_Text promptText;
+
+        [Tooltip("Optional root shown while a hold interaction is progressing.")]
+        [SerializeField] private GameObject progressRoot;
+
+        [Tooltip("Optional label describing the hold interaction meter.")]
+        [SerializeField] private TMP_Text progressLabel;
+
+        [Tooltip("Optional normalized bar used by hold interactions.")]
+        [SerializeField] private Slider progressSlider;
 
         [Header("Message Settings")]
         [Tooltip("Default number of seconds temporary messages remain visible.")]
@@ -108,6 +118,7 @@ namespace QuietStatic
 
             HideMessage();
             HidePrompt();
+            HideProgress();
         }
 
         /// <summary>
@@ -148,6 +159,36 @@ namespace QuietStatic
 
             OnPromptHidden?.Invoke();
             onPromptHidden?.Invoke();
+        }
+
+        /// <summary>Shows a named, normalized hold-interaction meter.</summary>
+        public void ShowProgress(string label, float normalizedProgress)
+        {
+            if (progressLabel != null)
+            {
+                progressLabel.text = label ?? string.Empty;
+            }
+
+            if (progressSlider != null)
+            {
+                progressSlider.minValue = 0f;
+                progressSlider.maxValue = 1f;
+                progressSlider.value = Mathf.Clamp01(normalizedProgress);
+            }
+
+            if (progressRoot != null)
+            {
+                progressRoot.SetActive(true);
+            }
+        }
+
+        /// <summary>Hides the hold-interaction meter.</summary>
+        public void HideProgress()
+        {
+            if (progressRoot != null)
+            {
+                progressRoot.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -220,6 +261,7 @@ namespace QuietStatic
         {
             HidePrompt();
             HideMessage();
+            HideProgress();
         }
 
         /// <summary>

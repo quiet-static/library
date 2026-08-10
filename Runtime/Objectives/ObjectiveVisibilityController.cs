@@ -14,6 +14,7 @@ namespace QuietStatic.Toolkit.Objectives
 
         [Header("Visibility Rules")]
         [Tooltip("States where the objective UI should be visible.")]
+        [GameStateId]
         [SerializeField]
         private string[] visibleStates =
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using QuietStatic.Toolkit.Core;
 using UnityEngine;
 using UnityEngine.Events;
@@ -22,11 +23,16 @@ namespace QuietStatic.Toolkit.State
 
         [Header("Startup State")]
         [Tooltip("State assigned when this manager initializes.")]
+        [GameStateId]
         [SerializeField] private string startingState = "Starting";
 
         [Header("Unity Events")]
         [Tooltip("Invoked whenever the current game state changes.")]
         [SerializeField] private StringUnityEvent onGameStateChanged;
+
+        private readonly Queue<string> pendingStates = new Queue<string>();
+        private bool isPublishingStateChange;
+        private string lastScheduledState;
 
         /// <summary>
         /// Raised whenever the global state changes.
@@ -37,7 +43,7 @@ namespace QuietStatic.Toolkit.State
         /// <summary>
         /// Gets the current high-level game state.
         /// </summary>
-        public string CurrentState { get; private set; }
+        public string CurrentState { get; private set; } = "Starting";
 
         protected override void Awake()
         {
@@ -51,6 +57,7 @@ namespace QuietStatic.Toolkit.State
             CurrentState = string.IsNullOrWhiteSpace(startingState)
                 ? "Starting"
                 : startingState.Trim();
+            lastScheduledState = CurrentState;
         }
 
         /// <summary>
@@ -58,6 +65,10 @@ namespace QuietStatic.Toolkit.State
         /// </summary>
         /// <param name="newState">New non-empty state identifier.</param>
         /// <returns>True when the state actually changed.</returns>
+        /// <remarks>
+        /// State requests made by a change listener are queued until the current
+        /// notification finishes, preserving a consistent event order.
+        /// </remarks>
         public bool SetState(string newState)
         {
             if (string.IsNullOrWhiteSpace(newState))
@@ -72,18 +83,52 @@ namespace QuietStatic.Toolkit.State
 
             newState = newState.Trim();
 
-            if (CurrentState == newState)
+            string effectiveState = isPublishingStateChange
+                ? lastScheduledState
+                : CurrentState;
+
+            if (effectiveState == newState)
             {
                 return false;
             }
 
+            if (isPublishingStateChange)
+            {
+                pendingStates.Enqueue(newState);
+                lastScheduledState = newState;
+                return true;
+            }
+
+            isPublishingStateChange = true;
+            lastScheduledState = newState;
+
+            try
+            {
+                PublishStateChange(newState);
+
+                while (pendingStates.Count > 0)
+                {
+                    PublishStateChange(pendingStates.Dequeue());
+                }
+            }
+            finally
+            {
+                pendingStates.Clear();
+                lastScheduledState = CurrentState;
+                isPublishingStateChange = false;
+            }
+
+            return true;
+        }
+
+        private void PublishStateChange(string newState)
+        {
             string previousState = CurrentState;
             CurrentState = newState;
 
-            OnGameStateChanged?.Invoke(previousState, CurrentState);
-            onGameStateChanged?.Invoke(CurrentState);
-
-            return true;
+            OnGameStateChanged?.Invoke(previousState, newState);
+            onGameStateChanged?.Invoke(newState);
+            ToolkitEvents.RaiseStateChanged(newState);
         }
 
         /// <summary>

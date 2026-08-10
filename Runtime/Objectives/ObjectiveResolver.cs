@@ -35,6 +35,12 @@ namespace QuietStatic.Toolkit.Objectives
             /// </summary>
             public string id;
 
+            [Tooltip("Reusable objective definition activated when this rule wins. Legacy text below remains supported.")]
+            /// <summary>
+            /// Optional reusable definition associated with this entry.
+            /// </summary>
+            public ObjectiveDefinition definition;
+
             [Header("Requirement")]
             [Tooltip("Flag condition that must be met for this objective to become active.")]
             /// <summary>
@@ -78,7 +84,11 @@ namespace QuietStatic.Toolkit.Objectives
         /// <summary>
         /// Objective text used when no configured objective requirement is met.
         /// </summary>
+        [TextArea(2, 5)]
         [SerializeField] private string fallbackObjective = "";
+
+        [Tooltip("When entries use definitions, synchronize the winning definition with ObjectiveManager.")]
+        [SerializeField] private bool synchronizeObjectiveManager = true;
 
         [Header("Events")]
         [Tooltip("Invoked whenever the resolved objective text changes.")]
@@ -91,6 +101,12 @@ namespace QuietStatic.Toolkit.Objectives
         /// Gets the currently resolved objective text.
         /// </summary>
         public string CurrentObjective { get; private set; }
+
+        /// <summary>Gets the currently resolved reusable definition, if any.</summary>
+        public ObjectiveDefinition CurrentDefinition { get; private set; }
+
+        private bool isRefreshing;
+        private bool refreshRequested;
 
         /// <summary>
         /// Attempts to populate the objective label reference when the component is added
@@ -106,7 +122,8 @@ namespace QuietStatic.Toolkit.Objectives
         /// </summary>
         private void OnEnable()
         {
-            FlagManager.OnFlagSet += HandleFlagSet;
+            FlagManager.OnFlagsChanged += RefreshObjective;
+            ObjectiveManager.OnObjectiveLifecycleChanged += RefreshObjective;
             RefreshObjective();
         }
 
@@ -116,19 +133,8 @@ namespace QuietStatic.Toolkit.Objectives
         /// </summary>
         private void OnDisable()
         {
-            FlagManager.OnFlagSet -= HandleFlagSet;
-        }
-
-        /// <summary>
-        /// Refreshes the active objective after a flag is set.
-        /// </summary>
-        /// <param name="flagId">
-        /// The flag that was set. This resolver does not need the specific value because
-        /// it re-checks every configured objective requirement.
-        /// </param>
-        private void HandleFlagSet(string flagId)
-        {
-            RefreshObjective();
+            FlagManager.OnFlagsChanged -= RefreshObjective;
+            ObjectiveManager.OnObjectiveLifecycleChanged -= RefreshObjective;
         }
 
         /// <summary>
@@ -141,23 +147,115 @@ namespace QuietStatic.Toolkit.Objectives
         /// </remarks>
         public void RefreshObjective()
         {
-            string selected = fallbackObjective;
-
-            if (objectives != null)
+            if (isRefreshing)
             {
-                for (int i = objectives.Length - 1; i >= 0; i--)
-                {
-                    ObjectiveEntry entry = objectives[i];
+                refreshRequested = true;
+                return;
+            }
 
-                    if (CanUseObjective(entry))
+            isRefreshing = true;
+
+            try
+            {
+                do
+                {
+                    refreshRequested = false;
+                    ObjectiveEntry selectedEntry = FindSelectedEntry();
+                    ObjectiveDefinition selectedDefinition =
+                        selectedEntry?.definition;
+
+                    SynchronizeObjectiveManager(selectedDefinition);
+
+                    if (selectedDefinition != null &&
+                        ObjectiveManager.Instance != null &&
+                        ObjectiveManager.Instance.HasCompleted(selectedDefinition))
                     {
-                        selected = entry.objectiveText;
-                        break;
+                        refreshRequested = true;
+                        continue;
                     }
+
+                    CurrentDefinition = selectedDefinition;
+                    string selectedText = selectedEntry != null
+                        ? GetDisplayText(selectedEntry)
+                        : fallbackObjective;
+                    SetObjective(selectedText);
+                }
+                while (refreshRequested);
+            }
+            finally
+            {
+                isRefreshing = false;
+            }
+        }
+
+        private ObjectiveEntry FindSelectedEntry()
+        {
+            if (objectives == null)
+            {
+                return null;
+            }
+
+            for (int i = objectives.Length - 1; i >= 0; i--)
+            {
+                ObjectiveEntry entry = objectives[i];
+
+                if (CanUseObjective(entry))
+                {
+                    return entry;
                 }
             }
 
-            SetObjective(selected);
+            return null;
+        }
+
+        private void SynchronizeObjectiveManager(
+            ObjectiveDefinition selectedDefinition)
+        {
+            ObjectiveManager manager = ObjectiveManager.Instance;
+
+            if (!synchronizeObjectiveManager ||
+                manager == null ||
+                !UsesDefinitions())
+            {
+                return;
+            }
+
+            if (selectedDefinition != null)
+            {
+                manager.ActivateObjective(selectedDefinition);
+            }
+            else
+            {
+                manager.ClearActiveObjective();
+            }
+        }
+
+        private bool UsesDefinitions()
+        {
+            if (objectives == null)
+            {
+                return false;
+            }
+
+            foreach (ObjectiveEntry entry in objectives)
+            {
+                if (entry?.definition != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string GetDisplayText(ObjectiveEntry entry)
+        {
+            if (entry?.definition != null)
+            {
+                return entry.definition.DisplayText;
+            }
+
+            return entry?.objectiveText ?? string.Empty;
         }
 
         /// <summary>
@@ -190,9 +288,28 @@ namespace QuietStatic.Toolkit.Objectives
         /// </returns>
         private bool CanUseObjective(ObjectiveEntry entry)
         {
-            return entry != null &&
-                   entry.requirement != null &&
-                   entry.requirement.IsMet();
+            if (entry == null ||
+                entry.requirement == null ||
+                !entry.requirement.IsMet())
+            {
+                return false;
+            }
+
+            if (entry.definition == null)
+            {
+                return true;
+            }
+
+            // Completion flags are the authoritative progression state. This also
+            // prevents an older objective from reappearing when loading a legacy
+            // save that contains flags but predates objective completion history.
+            if (entry.definition.IsCompletionMet())
+            {
+                return false;
+            }
+
+            return ObjectiveManager.Instance == null ||
+                   !ObjectiveManager.Instance.HasCompleted(entry.definition);
         }
 
         /// <summary>

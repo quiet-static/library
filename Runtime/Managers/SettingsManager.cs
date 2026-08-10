@@ -8,6 +8,19 @@ using UnityEngine.Rendering.Universal;
 
 namespace QuietStatic
 {
+    public enum SubtitleTextSize { Small, Medium, Large, ExtraLarge }
+    public enum SpeakerLabelMode { Off, DialogueOnly, Always }
+    public enum InteractionInputMode { Hold, Toggle }
+
+    /// <summary>Stable identifiers published when an individual preference changes.</summary>
+    public enum GameSettingId
+    {
+        MasterVolume, MusicVolume, SfxVolume, AmbienceVolume, DialogueVolume,
+        MouseSensitivity, VSync, SubtitleTextSize, SpeakerLabels, ClosedCaptions,
+        ReducedFlashing, ReducedCameraMotion, InteractionInputMode,
+        HighContrastPrompts, ContentWarning
+    }
+
     /// <summary>
     /// Connects settings UI controls to audio, display, brightness, and mouse preferences.
     /// </summary>
@@ -24,6 +37,12 @@ namespace QuietStatic
 
         /// <summary>Raised after the normalized mouse sensitivity changes.</summary>
         public static event Action<float> OnMouseSensitivityChanged;
+
+        /// <summary>Raised after any setting is applied, including during initial loading.</summary>
+        public static event Action<GameSettingId> OnSettingChanged;
+
+        /// <summary>Raised once all saved preferences have been applied.</summary>
+        public static event Action OnSettingsLoaded;
 
         [Header("Audio Mixer")]
         [Tooltip("Mixer containing exposed MasterVolume, MusicVolume, and SfxVolume parameters.")]
@@ -73,13 +92,39 @@ namespace QuietStatic
         private const string VSyncKey = "Settings_VSync";
         private const string MouseSensitivityKey = "Settings_MouseSensitivity";
         private const string BrightnessKey = "Settings_Brightness";
+        private const string AmbienceVolumeKey = "Settings_AmbienceVolume";
+        private const string DialogueVolumeKey = "Settings_DialogueVolume";
+        private const string SubtitleTextSizeKey = "Settings_SubtitleTextSize";
+        private const string SpeakerLabelsKey = "Settings_SpeakerLabels";
+        private const string ClosedCaptionsKey = "Settings_ClosedCaptions";
+        private const string ReducedFlashingKey = "Settings_ReducedFlashing";
+        private const string ReducedCameraMotionKey = "Settings_ReducedCameraMotion";
+        private const string InteractionInputModeKey = "Settings_InteractionInputMode";
+        private const string HighContrastPromptsKey = "Settings_HighContrastPrompts";
+        private const string ContentWarningKey = "Settings_ContentWarning";
 
         private const string MasterVolumeParam = "MasterVolume";
         private const string MusicVolumeParam = "MusicVolume";
         private const string SfxVolumeParam = "SfxVolume";
+        private const string AmbienceVolumeParam = "AmbienceVolume";
+        private const string DialogueVolumeParam = "DialogueVolume";
 
         /// <summary>Gets the currently applied mouse sensitivity.</summary>
+        public float MasterVolume { get; private set; } = 1f;
+        public float MusicVolume { get; private set; } = 1f;
+        public float SfxVolume { get; private set; } = 1f;
+        public bool VSyncEnabled { get; private set; } = true;
         public float MouseSensitivity { get; private set; } = 1f;
+        public float AmbienceVolume { get; private set; } = 1f;
+        public float DialogueVolume { get; private set; } = 1f;
+        public SubtitleTextSize SubtitleSize { get; private set; } = SubtitleTextSize.Medium;
+        public SpeakerLabelMode SpeakerLabels { get; private set; } = SpeakerLabelMode.DialogueOnly;
+        public bool ClosedCaptionsEnabled { get; private set; } = true;
+        public bool ReducedFlashingEnabled { get; private set; }
+        public bool ReducedCameraMotionEnabled { get; private set; }
+        public InteractionInputMode InteractionMode { get; private set; } = InteractionInputMode.Hold;
+        public bool HighContrastPromptsEnabled { get; private set; }
+        public bool ContentWarningEnabled { get; private set; } = true;
 
         private void Awake()
         {
@@ -92,6 +137,14 @@ namespace QuietStatic
             Instance = this;
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         private void Start()
         {
             SetupResolutionDropdown();
@@ -102,21 +155,37 @@ namespace QuietStatic
 
         private void HookupUIEvents()
         {
-            masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
-            musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
-            sfxVolumeSlider.onValueChanged.AddListener(SetSfxVolume);
+            if (masterVolumeSlider != null)
+                masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
+
+            if (musicVolumeSlider != null)
+                musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
+
+            if (sfxVolumeSlider != null)
+                sfxVolumeSlider.onValueChanged.AddListener(SetSfxVolume);
 
             if (brightnessSlider != null)
                 brightnessSlider.onValueChanged.AddListener(SetBrightness);
 
-            resolutionDropdown.onValueChanged.AddListener(SetResolution);
-            vSyncToggle.onValueChanged.AddListener(SetVSync);
+            if (resolutionDropdown != null)
+                resolutionDropdown.onValueChanged.AddListener(SetResolution);
 
-            mouseSensitivitySlider.onValueChanged.AddListener(SetMouseSensitivity);
+            if (vSyncToggle != null)
+                vSyncToggle.onValueChanged.AddListener(SetVSync);
+
+            if (mouseSensitivitySlider != null)
+                mouseSensitivitySlider.onValueChanged.AddListener(SetMouseSensitivity);
         }
 
         private void SetupResolutionDropdown()
         {
+            if (resolutionDropdown == null ||
+                resolutionOptions == null ||
+                resolutionOptions.Length == 0)
+            {
+                return;
+            }
+
             resolutionDropdown.ClearOptions();
 
             for (int i = 0; i < resolutionOptions.Length; i++)
@@ -139,18 +208,29 @@ namespace QuietStatic
             float brightness = PlayerPrefs.GetFloat(BrightnessKey, 0f);
 
             float mouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityKey, 1f);
+            float ambienceVolume = PlayerPrefs.GetFloat(AmbienceVolumeKey, 1f);
+            float dialogueVolume = PlayerPrefs.GetFloat(DialogueVolumeKey, 1f);
 
-            masterVolumeSlider.SetValueWithoutNotify(masterVolume);
-            musicVolumeSlider.SetValueWithoutNotify(musicVolume);
-            sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
+            if (masterVolumeSlider != null)
+                masterVolumeSlider.SetValueWithoutNotify(masterVolume);
+
+            if (musicVolumeSlider != null)
+                musicVolumeSlider.SetValueWithoutNotify(musicVolume);
+
+            if (sfxVolumeSlider != null)
+                sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
 
             if (brightnessSlider != null)
                 brightnessSlider.SetValueWithoutNotify(brightness);
 
-            resolutionDropdown.SetValueWithoutNotify(resolutionIndex);
-            vSyncToggle.SetIsOnWithoutNotify(vSync);
+            if (resolutionDropdown != null)
+                resolutionDropdown.SetValueWithoutNotify(resolutionIndex);
 
-            mouseSensitivitySlider.SetValueWithoutNotify(mouseSensitivity);
+            if (vSyncToggle != null)
+                vSyncToggle.SetIsOnWithoutNotify(vSync);
+
+            if (mouseSensitivitySlider != null)
+                mouseSensitivitySlider.SetValueWithoutNotify(mouseSensitivity);
 
             ApplyMasterVolume(masterVolume);
             ApplyMusicVolume(musicVolume);
@@ -159,7 +239,29 @@ namespace QuietStatic
             ApplyVSync(vSync);
             ApplyMouseSensitivity(mouseSensitivity);
             ApplyBrightness(brightness);
+            ApplyAmbienceVolume(ambienceVolume);
+            ApplyDialogueVolume(dialogueVolume);
+            ApplySubtitleTextSize((SubtitleTextSize)PlayerPrefs.GetInt(SubtitleTextSizeKey, (int)SubtitleTextSize.Medium));
+            ApplySpeakerLabels((SpeakerLabelMode)PlayerPrefs.GetInt(SpeakerLabelsKey, (int)SpeakerLabelMode.DialogueOnly));
+            ApplyClosedCaptions(PlayerPrefs.GetInt(ClosedCaptionsKey, 1) == 1);
+            ApplyReducedFlashing(PlayerPrefs.GetInt(ReducedFlashingKey, 0) == 1);
+            ApplyReducedCameraMotion(PlayerPrefs.GetInt(ReducedCameraMotionKey, 0) == 1);
+            ApplyInteractionInputMode((InteractionInputMode)PlayerPrefs.GetInt(InteractionInputModeKey, 0));
+            ApplyHighContrastPrompts(PlayerPrefs.GetInt(HighContrastPromptsKey, 0) == 1);
+            ApplyContentWarning(PlayerPrefs.GetInt(ContentWarningKey, 1) == 1);
+            OnSettingsLoaded?.Invoke();
         }
+
+        public void SetAmbienceVolume(float value) => SaveFloat(AmbienceVolumeKey, value, ApplyAmbienceVolume);
+        public void SetDialogueVolume(float value) => SaveFloat(DialogueVolumeKey, value, ApplyDialogueVolume);
+        public void SetSubtitleTextSize(int value) => SaveInt(SubtitleTextSizeKey, value, v => ApplySubtitleTextSize((SubtitleTextSize)v));
+        public void SetSpeakerLabels(int value) => SaveInt(SpeakerLabelsKey, value, v => ApplySpeakerLabels((SpeakerLabelMode)v));
+        public void SetClosedCaptions(bool value) => SaveBool(ClosedCaptionsKey, value, ApplyClosedCaptions);
+        public void SetReducedFlashing(bool value) => SaveBool(ReducedFlashingKey, value, ApplyReducedFlashing);
+        public void SetReducedCameraMotion(bool value) => SaveBool(ReducedCameraMotionKey, value, ApplyReducedCameraMotion);
+        public void SetInteractionInputMode(int value) => SaveInt(InteractionInputModeKey, value, v => ApplyInteractionInputMode((InteractionInputMode)v));
+        public void SetHighContrastPrompts(bool value) => SaveBool(HighContrastPromptsKey, value, ApplyHighContrastPrompts);
+        public void SetContentWarning(bool value) => SaveBool(ContentWarningKey, value, ApplyContentWarning);
 
         /// <summary>Applies and saves the post-exposure brightness value.</summary>
         public void SetBrightness(float value)
@@ -173,14 +275,15 @@ namespace QuietStatic
         {
             if (colorAdjustments == null)
             {
-                Debug.LogWarning($"{nameof(SettingsManager)} cannot apply brightness because ColorAdjustments is null.");
+                GameLogger.Warning(nameof(SettingsManager), this,
+                    "Cannot apply brightness because ColorAdjustments is null.");
                 return;
             }
 
             colorAdjustments.postExposure.overrideState = true;
             colorAdjustments.postExposure.value = value;
 
-            Debug.Log($"Brightness applied: {value}");
+            GameLogger.Log(nameof(SettingsManager), this, $"Brightness applied: {value}");
         }
 
         private void SetupBrightnessVolume()
@@ -194,25 +297,29 @@ namespace QuietStatic
 
             if (globalVolume == null)
             {
-                Debug.LogWarning($"{nameof(SettingsManager)} could not find any Volume in the scene.");
+                GameLogger.Warning(nameof(SettingsManager), this,
+                    "Could not find any Volume in the scene.");
                 return;
             }
 
             if (globalVolume.profile == null)
             {
-                Debug.LogWarning($"{nameof(SettingsManager)} found a Volume, but it has no profile assigned.");
+                GameLogger.Warning(nameof(SettingsManager), this,
+                    "Found a Volume, but it has no profile assigned.");
                 return;
             }
 
             if (!globalVolume.profile.TryGet(out colorAdjustments))
             {
-                Debug.LogWarning($"{nameof(SettingsManager)} could not find Color Adjustments on the Volume profile.");
+                GameLogger.Warning(nameof(SettingsManager), this,
+                    "Could not find Color Adjustments on the Volume profile.");
                 return;
             }
 
             colorAdjustments.postExposure.overrideState = true;
 
-            Debug.Log($"{nameof(SettingsManager)} found Color Adjustments successfully.");
+            GameLogger.Log(nameof(SettingsManager), this,
+                "Found Color Adjustments successfully.");
         }
 
         /// <summary>Applies and saves normalized master volume.</summary>
@@ -265,17 +372,23 @@ namespace QuietStatic
 
         private void ApplyMasterVolume(float value)
         {
+            MasterVolume = Mathf.Clamp01(value);
             SetMixerVolume(MasterVolumeParam, value);
+            Notify(GameSettingId.MasterVolume);
         }
 
         private void ApplyMusicVolume(float value)
         {
+            MusicVolume = Mathf.Clamp01(value);
             SetMixerVolume(MusicVolumeParam, value);
+            Notify(GameSettingId.MusicVolume);
         }
 
         private void ApplySfxVolume(float value)
         {
+            SfxVolume = Mathf.Clamp01(value);
             SetMixerVolume(SfxVolumeParam, value);
+            Notify(GameSettingId.SfxVolume);
         }
 
         private void ApplyResolution(int index)
@@ -296,14 +409,77 @@ namespace QuietStatic
 
         private void ApplyVSync(bool isOn)
         {
+            VSyncEnabled = isOn;
             QualitySettings.vSyncCount = isOn ? 1 : 0;
+            Notify(GameSettingId.VSync);
         }
 
         private void ApplyMouseSensitivity(float value)
         {
             MouseSensitivity = value;
             OnMouseSensitivityChanged?.Invoke(value);
+            Notify(GameSettingId.MouseSensitivity);
         }
+
+        private void ApplyAmbienceVolume(float value)
+        {
+            AmbienceVolume = Mathf.Clamp01(value);
+            SetMixerVolume(AmbienceVolumeParam, AmbienceVolume);
+            Notify(GameSettingId.AmbienceVolume);
+        }
+
+        private void ApplyDialogueVolume(float value)
+        {
+            DialogueVolume = Mathf.Clamp01(value);
+            SetMixerVolume(DialogueVolumeParam, DialogueVolume);
+            Notify(GameSettingId.DialogueVolume);
+        }
+
+        private void ApplySubtitleTextSize(SubtitleTextSize value)
+        {
+            SubtitleSize = ClampEnum(value, SubtitleTextSize.Medium);
+            Notify(GameSettingId.SubtitleTextSize);
+        }
+
+        private void ApplySpeakerLabels(SpeakerLabelMode value)
+        {
+            SpeakerLabels = ClampEnum(value, SpeakerLabelMode.DialogueOnly);
+            Notify(GameSettingId.SpeakerLabels);
+        }
+
+        private void ApplyClosedCaptions(bool value) { ClosedCaptionsEnabled = value; Notify(GameSettingId.ClosedCaptions); }
+        private void ApplyReducedFlashing(bool value) { ReducedFlashingEnabled = value; Notify(GameSettingId.ReducedFlashing); }
+        private void ApplyReducedCameraMotion(bool value) { ReducedCameraMotionEnabled = value; Notify(GameSettingId.ReducedCameraMotion); }
+        private void ApplyInteractionInputMode(InteractionInputMode value)
+        {
+            InteractionMode = ClampEnum(value, InteractionInputMode.Hold);
+            Notify(GameSettingId.InteractionInputMode);
+        }
+        private void ApplyHighContrastPrompts(bool value) { HighContrastPromptsEnabled = value; Notify(GameSettingId.HighContrastPrompts); }
+        private void ApplyContentWarning(bool value) { ContentWarningEnabled = value; Notify(GameSettingId.ContentWarning); }
+
+        private static T ClampEnum<T>(T value, T fallback) where T : struct, Enum =>
+            Enum.IsDefined(typeof(T), value) ? value : fallback;
+
+        private static void Notify(GameSettingId id) => OnSettingChanged?.Invoke(id);
+
+        private static void SaveFloat(string key, float value, Action<float> apply)
+        {
+            value = Mathf.Clamp01(value);
+            apply(value);
+            PlayerPrefs.SetFloat(key, value);
+            PlayerPrefs.Save();
+        }
+
+        private static void SaveInt(string key, int value, Action<int> apply)
+        {
+            apply(value);
+            PlayerPrefs.SetInt(key, value);
+            PlayerPrefs.Save();
+        }
+
+        private static void SaveBool(string key, bool value, Action<bool> apply) =>
+            SaveInt(key, value ? 1 : 0, raw => apply(raw == 1));
 
         private void SetMixerVolume(string parameterName, float sliderValue)
         {
@@ -318,6 +494,11 @@ namespace QuietStatic
 
         private int GetDefaultResolutionIndex()
         {
+            if (resolutionOptions == null || resolutionOptions.Length == 0)
+            {
+                return 0;
+            }
+
             for (int i = 0; i < resolutionOptions.Length; i++)
             {
                 if (resolutionOptions[i].width == Screen.currentResolution.width &&
@@ -334,7 +515,10 @@ namespace QuietStatic
         [Serializable]
         public class ResolutionOption
         {
+            /// <summary>Resolution width in pixels.</summary>
             public int width;
+
+            /// <summary>Resolution height in pixels.</summary>
             public int height;
 
             public ResolutionOption(int width, int height)

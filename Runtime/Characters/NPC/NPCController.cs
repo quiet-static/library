@@ -35,11 +35,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private NPCBehaviour[] behaviours;
 
+        /// <summary>Gets the stable NPC identifier.</summary>
         public string NpcId => npcId;
+
+        /// <summary>Gets the player-facing name, falling back to the GameObject name.</summary>
         public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
+
+        /// <summary>Gets the shared target used by attached NPC behaviors.</summary>
         public Transform Target => target;
+
+        /// <summary>Gets whether the behavior master switch is enabled.</summary>
         public bool BehavioursEnabled => behavioursEnabled;
 
+        /// <summary>Raised when the shared target changes.</summary>
         public event Action<Transform> TargetChanged;
 
         private void Awake()
@@ -47,6 +55,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
             behaviours = GetComponents<NPCBehaviour>();
         }
 
+        /// <summary>Changes the shared target and notifies attached systems.</summary>
+        /// <param name="newTarget">New shared target, or null to clear it.</param>
         public void SetTarget(Transform newTarget)
         {
             if (target == newTarget)
@@ -57,8 +67,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
             onTargetChanged?.Invoke(target);
         }
 
+        /// <summary>Clears the shared target.</summary>
         public void ClearTarget() => SetTarget(null);
 
+        /// <summary>Changes the active state of every attached NPC behavior.</summary>
+        /// <param name="enabledState">Whether attached behaviors should be active.</param>
         public void SetBehavioursEnabled(bool enabledState)
         {
             behavioursEnabled = enabledState;
@@ -73,7 +86,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
             else onBehavioursDisabled?.Invoke();
         }
 
+        /// <summary>Enables all attached NPC behaviors.</summary>
         public void EnableBehaviours() => SetBehavioursEnabled(true);
+
+        /// <summary>Disables all attached NPC behaviors.</summary>
         public void DisableBehaviours() => SetBehavioursEnabled(false);
     }
 }

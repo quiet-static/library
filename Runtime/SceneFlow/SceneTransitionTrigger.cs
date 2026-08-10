@@ -23,6 +23,15 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Tooltip("If true, the target scene is loaded additively. If false, the target scene replaces the current scene.")]
         [SerializeField] private bool additive;
 
+        [Tooltip("Optional channel used to reach the persistent Scene Flow Manager.")]
+        [SerializeField] private SceneFlowRequestChannel requestChannel;
+
+        [Tooltip("Optional scene map. When assigned with a Connection Id, the configured connection replaces Target Scene and Additive.")]
+        [SerializeField] private SceneFlowMap sceneFlowMap;
+
+        [Tooltip("Stable connection identifier from the Scene Flow Map.")]
+        [SerializeField] private string connectionId;
+
         [Header("Trigger Rules")]
         [Tooltip("If true, this trigger can only activate once. If false, it may activate every time a valid collider enters.")]
         [SerializeField] private bool onlyOnce = true;
@@ -50,9 +59,14 @@ namespace QuietStatic.Toolkit.SceneFlow
                 return;
             }
 
+            if (!CanDispatchTarget())
+            {
+                return;
+            }
+
             triggered = true;
             onTriggered?.Invoke();
-            LoadTargetScene();
+            TryLoadTargetScene();
         }
 
         /// <summary>
@@ -85,27 +99,166 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// <summary>
         /// Requests the configured scene load through the shared <see cref="SceneLoadService"/>.
         /// </summary>
-        private void LoadTargetScene()
+        private bool TryLoadTargetScene()
         {
-            if (SceneLoadService.Instance == null)
+            if (TryGetMappedRequest(out SceneTransitionRequest mappedRequest))
+            {
+                if (requestChannel != null)
+                {
+                    return requestChannel.RequestTransition(mappedRequest);
+                }
+
+                if (SceneFlowManager.Instance != null)
+                {
+                    SceneFlowManager.Instance.TransitionToScene(mappedRequest);
+                    return true;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(targetScene))
             {
                 GameLogger.Warning(
-                    "LoadTargetScene",
+                    nameof(TryLoadTargetScene),
                     this,
-                    $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no {nameof(SceneLoadService)} instance exists."
+                    $"{nameof(SceneTransitionTrigger)} needs a target scene."
                 );
-
-                return;
+                return false;
             }
 
-            if (additive)
+            if (requestChannel != null)
             {
-                SceneLoadService.Instance.LoadAdditive(targetScene);
+                return additive
+                    ? requestChannel.TryLoadAdditive(targetScene)
+                    : requestChannel.TryTransitionToScene(targetScene);
             }
-            else
+
+            if (SceneFlowManager.Instance != null)
             {
-                SceneLoadService.Instance.LoadSingle(targetScene);
+                if (additive)
+                {
+                    SceneFlowManager.Instance.LoadSceneAdditive(targetScene);
+                }
+                else
+                {
+                    SceneFlowManager.Instance.TransitionToScene(targetScene);
+                }
+
+                return true;
             }
+
+            // Compatibility fallback for projects using the smaller legacy
+            // scene-loading service without a content-stack manager.
+            if (SceneLoadService.Instance != null)
+            {
+                if (additive)
+                {
+                    SceneLoadService.Instance.LoadAdditive(targetScene);
+                }
+                else
+                {
+                    SceneLoadService.Instance.LoadSingle(targetScene);
+                }
+
+                return true;
+            }
+
+            GameLogger.Warning(
+                nameof(TryLoadTargetScene),
+                this,
+                $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no scene-flow receiver exists."
+            );
+            return false;
+        }
+
+        private bool CanDispatchTarget()
+        {
+            bool usesMappedConnection =
+                sceneFlowMap != null && !string.IsNullOrWhiteSpace(connectionId);
+            if (usesMappedConnection)
+            {
+                if (!sceneFlowMap.TryGetConnection(connectionId, out SceneFlowMap.Connection connection) ||
+                    string.IsNullOrWhiteSpace(connection.ToSceneName))
+                {
+                    GameLogger.Warning(
+                        nameof(CanDispatchTarget),
+                        this,
+                        $"{nameof(SceneTransitionTrigger)} cannot find a valid connection named '{connectionId}'.");
+                    return false;
+                }
+
+                string activeScene = gameObject.scene.name;
+                if (!string.IsNullOrWhiteSpace(connection.FromSceneName) &&
+                    connection.FromSceneName != activeScene)
+                {
+                    GameLogger.Warning(
+                        nameof(CanDispatchTarget),
+                        this,
+                        $"Connection '{connectionId}' starts in '{connection.FromSceneName}', not '{activeScene}'.");
+                    return false;
+                }
+
+                if (requestChannel != null)
+                {
+                    return requestChannel.HasReceivers;
+                }
+
+                if (SceneFlowManager.Instance != null)
+                {
+                    return true;
+                }
+
+                GameLogger.Warning(
+                    nameof(CanDispatchTarget),
+                    this,
+                    $"Connection '{connectionId}' needs a scene-flow channel or {nameof(SceneFlowManager)}.");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(targetScene))
+            {
+                GameLogger.Warning(
+                    nameof(CanDispatchTarget),
+                    this,
+                    $"{nameof(SceneTransitionTrigger)} needs a target scene."
+                );
+                return false;
+            }
+
+            if (requestChannel != null)
+            {
+                if (requestChannel.HasReceivers)
+                {
+                    return true;
+                }
+
+                GameLogger.Warning(
+                    nameof(CanDispatchTarget),
+                    this,
+                    $"{nameof(SceneTransitionTrigger)} has no receiver for its scene-flow channel."
+                );
+                return false;
+            }
+
+            if (SceneFlowManager.Instance != null ||
+                SceneLoadService.Instance != null)
+            {
+                return true;
+            }
+
+            GameLogger.Warning(
+                nameof(CanDispatchTarget),
+                this,
+                $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no scene-flow receiver exists."
+            );
+            return false;
+        }
+
+        private bool TryGetMappedRequest(out SceneTransitionRequest request)
+        {
+            request = null;
+            return sceneFlowMap != null &&
+                   !string.IsNullOrWhiteSpace(connectionId) &&
+                   sceneFlowMap.TryCreateRequest(connectionId, out request);
         }
     }
 }

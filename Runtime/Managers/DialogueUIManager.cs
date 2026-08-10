@@ -34,6 +34,11 @@ namespace QuietStatic.Toolkit.Dialogue
         public event Action<int> OnChoiceSelected;
 
         /// <summary>
+        /// Raised when the player requests that a linear dialogue line advance.
+        /// </summary>
+        public event Action OnAdvanceRequested;
+
+        /// <summary>
         /// Raised whenever dialogue UI visibility changes.
         /// </summary>
         public event Action<bool> OnDialogueVisibilityChanged;
@@ -66,6 +71,16 @@ namespace QuietStatic.Toolkit.Dialogue
 
         [Tooltip("Text labels matching each response choice button.")]
         [SerializeField] private TMP_Text[] choiceLabels;
+
+        [Header("Continue")]
+        [Tooltip("Optional button shown for dialogue nodes without response choices.")]
+        [SerializeField] private Button continueButton;
+
+        [Tooltip("Optional text label for the continue button.")]
+        [SerializeField] private TMP_Text continueLabel;
+
+        [Tooltip("Text displayed on the continue button.")]
+        [SerializeField] private string continueText = "Continue";
 
         [Header("Cursor Behavior")]
         [Tooltip("Whether this UI should unlock and show the cursor while dialogue is visible.")]
@@ -103,6 +118,7 @@ namespace QuietStatic.Toolkit.Dialogue
 
             DontDestroyOnLoad(gameObject);
             WireChoiceButtons();
+            WireContinueButton();
             HideDialogueUI();
         }
 
@@ -200,6 +216,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             SetChoiceTexts(null);
+            SetContinueVisible(false);
         }
 
         /// <summary>
@@ -256,6 +273,14 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
+        /// Requests advancement from a dialogue node without response choices.
+        /// </summary>
+        public void Continue()
+        {
+            OnAdvanceRequested?.Invoke();
+        }
+
+        /// <summary>
         /// Connects each configured choice button to its matching choice index.
         /// </summary>
         private void WireChoiceButtons()
@@ -282,6 +307,20 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
+        /// Connects the optional continue button to linear dialogue advancement.
+        /// </summary>
+        private void WireContinueButton()
+        {
+            if (continueButton == null)
+            {
+                return;
+            }
+
+            continueButton.onClick.RemoveListener(Continue);
+            continueButton.onClick.AddListener(Continue);
+        }
+
+        /// <summary>
         /// Configures the UI for dialogue without choices.
         /// </summary>
         private void SetNoOptionsMode()
@@ -297,6 +336,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             SetChoiceTexts(null);
+            SetContinueVisible(true);
         }
 
         /// <summary>
@@ -312,6 +352,21 @@ namespace QuietStatic.Toolkit.Dialogue
             if (dialogueWithOptionsText != null)
             {
                 dialogueWithOptionsText.gameObject.SetActive(true);
+            }
+
+            SetContinueVisible(false);
+        }
+
+        private void SetContinueVisible(bool visible)
+        {
+            if (continueButton != null)
+            {
+                continueButton.gameObject.SetActive(visible);
+            }
+
+            if (continueLabel != null)
+            {
+                continueLabel.text = visible ? continueText : string.Empty;
             }
         }
 

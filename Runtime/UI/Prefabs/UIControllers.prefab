@@ -176,12 +176,14 @@ MonoBehaviour:
   objectiveLabel: {fileID: 0}
   objectives:
   - id: 
+    definition: {fileID: 0}
     requirement:
       mode: 0
       flags:
       - 
     objectiveText: 
   fallbackObjective: 
+  synchronizeObjectiveManager: 1
   onObjectiveChanged:
     m_PersistentCalls:
       m_Calls: []

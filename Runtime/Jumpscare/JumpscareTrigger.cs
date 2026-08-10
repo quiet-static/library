@@ -29,10 +29,22 @@ namespace QuietStatic.Toolkit.Jumpscare
         [Tooltip("If true, this trigger can only activate one time.")]
         [SerializeField] private bool onlyOnce = true;
 
+        [Tooltip("Maximum activations when Only Once is disabled. Zero allows unlimited activations.")]
+        [Min(0)] [SerializeField] private int maximumActivations;
+
+        [Tooltip("Minimum seconds between accepted activations when reuse is enabled.")]
+        [Min(0f)] [SerializeField] private float cooldown;
+
+        [Range(0f, 1f)]
+        [Tooltip("Chance that an otherwise valid activation plays the scare.")]
+        [SerializeField] private float activationChance = 1f;
+
         /// <summary>
         /// Tracks whether this trigger has already fired.
         /// </summary>
         private bool triggered;
+        private int activationCount;
+        private float lastActivationTime = float.NegativeInfinity;
 
         /// <summary>
         /// Attempts to auto-fill the jumpscare reference when the component is added or reset.
@@ -54,8 +66,7 @@ namespace QuietStatic.Toolkit.Jumpscare
                 return;
             }
 
-            triggered = true;
-            PlayJumpscare();
+            TryPlay();
         }
 
         /// <summary>
@@ -71,6 +82,9 @@ namespace QuietStatic.Toolkit.Jumpscare
             {
                 return false;
             }
+
+            if (!onlyOnce && maximumActivations > 0 && activationCount >= maximumActivations) return false;
+            if (Time.unscaledTime - lastActivationTime < cooldown) return false;
 
             if (other == null)
             {
@@ -96,6 +110,32 @@ namespace QuietStatic.Toolkit.Jumpscare
             }
 
             jumpscare.Play();
+        }
+
+        /// <summary>UnityEvent entry point that attempts activation without a collider/tag check.</summary>
+        public void Trigger()
+        {
+            if ((onlyOnce && triggered) ||
+                (!onlyOnce && maximumActivations > 0 && activationCount >= maximumActivations) ||
+                Time.unscaledTime - lastActivationTime < cooldown) return;
+            TryPlay();
+        }
+
+        /// <summary>Clears reuse state so the trigger can activate again.</summary>
+        public void ResetTrigger()
+        {
+            triggered = false;
+            activationCount = 0;
+            lastActivationTime = float.NegativeInfinity;
+        }
+
+        private void TryPlay()
+        {
+            if (UnityEngine.Random.value > activationChance) return;
+            triggered = true;
+            activationCount++;
+            lastActivationTime = Time.unscaledTime;
+            PlayJumpscare();
         }
     }
 }

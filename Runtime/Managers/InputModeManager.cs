@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using QuietStatic.Toolkit.Core;
+using QuietStatic.Toolkit.Input;
 using QuietStatic.Toolkit.State;
 using UnityEngine;
 
@@ -18,11 +20,30 @@ namespace QuietStatic
     /// </remarks>
     public class InputModeManager : ToolkitSingleton<InputModeManager>
     {
+        private sealed class InputBlockClaim
+        {
+            public InputBlockClaim(InputBlockGroups groups, string ownerName)
+            {
+                Groups = groups;
+                OwnerName = string.IsNullOrWhiteSpace(ownerName)
+                    ? "Unnamed"
+                    : ownerName.Trim();
+            }
+
+            /// <summary>Gets the input groups blocked by this claim.</summary>
+            public InputBlockGroups Groups { get; }
+
+            /// <summary>Gets the diagnostic name of the claim owner.</summary>
+            public string OwnerName { get; }
+        }
+
         [Header("State Rules")]
         [Tooltip("States that should enable registered gameplay input behaviours.")]
+        [GameStateId]
         [SerializeField] private string[] gameplayStates = { "Playing" };
 
         [Tooltip("States that should enable registered UI input behaviours.")]
+        [GameStateId]
         [SerializeField]
         private string[] uiStates =
         {
@@ -33,6 +54,7 @@ namespace QuietStatic
         };
 
         [Tooltip("States that should enable registered cutscene input behaviours.")]
+        [GameStateId]
         [SerializeField] private string[] cutsceneStates = { "Cutscene" };
 
         [Header("Startup")]
@@ -54,10 +76,23 @@ namespace QuietStatic
         /// </summary>
         private readonly List<Behaviour> cutsceneInputs = new();
 
+        private readonly Dictionary<int, InputBlockClaim> inputBlocks = new();
+        private int nextBlockToken = 1;
+        private string desiredMode = "None";
+
         /// <summary>
         /// Gets the currently active input mode.
         /// </summary>
         public string CurrentMode { get; private set; } = "None";
+
+        /// <summary>Combined input groups currently suppressed by temporary owners.</summary>
+        public InputBlockGroups BlockedGroups { get; private set; }
+
+        /// <summary>Number of independently owned blocks currently active.</summary>
+        public int ActiveBlockCount => inputBlocks.Count;
+
+        /// <summary>Raised whenever the combined temporary block mask changes.</summary>
+        public static event Action<InputBlockGroups> OnInputBlocksChanged;
 
         /// <summary>
         /// Initializes the singleton and ensures no input group is active by default.
@@ -160,11 +195,8 @@ namespace QuietStatic
         /// </summary>
         public void EnableGameplayInput()
         {
-            SetInputGroupEnabled(gameplayInputs, true);
-            SetInputGroupEnabled(uiInputs, false);
-            SetInputGroupEnabled(cutsceneInputs, false);
-
-            CurrentMode = "Gameplay";
+            desiredMode = "Gameplay";
+            ApplyDesiredMode();
         }
 
         /// <summary>
@@ -172,11 +204,8 @@ namespace QuietStatic
         /// </summary>
         public void EnableUIInput()
         {
-            SetInputGroupEnabled(gameplayInputs, false);
-            SetInputGroupEnabled(uiInputs, true);
-            SetInputGroupEnabled(cutsceneInputs, false);
-
-            CurrentMode = "UI";
+            desiredMode = "UI";
+            ApplyDesiredMode();
         }
 
         /// <summary>
@@ -184,11 +213,8 @@ namespace QuietStatic
         /// </summary>
         public void EnableCutsceneInput()
         {
-            SetInputGroupEnabled(gameplayInputs, false);
-            SetInputGroupEnabled(uiInputs, false);
-            SetInputGroupEnabled(cutsceneInputs, true);
-
-            CurrentMode = "Cutscene";
+            desiredMode = "Cutscene";
+            ApplyDesiredMode();
         }
 
         /// <summary>
@@ -196,11 +222,60 @@ namespace QuietStatic
         /// </summary>
         public void DisableAllInput()
         {
-            SetInputGroupEnabled(gameplayInputs, false);
-            SetInputGroupEnabled(uiInputs, false);
-            SetInputGroupEnabled(cutsceneInputs, false);
+            desiredMode = "None";
+            ApplyDesiredMode();
+        }
 
-            CurrentMode = "None";
+        /// <summary>
+        /// Acquires a temporary block for one or more input groups.
+        /// </summary>
+        /// <param name="groups">Groups suppressed until the returned handle is disposed.</param>
+        /// <param name="ownerName">Optional diagnostic name for the claimant.</param>
+        public InputBlockHandle AcquireInputBlock(
+            InputBlockGroups groups,
+            string ownerName = null)
+        {
+            groups &= InputBlockGroups.All;
+            if (groups == InputBlockGroups.None)
+            {
+                return new InputBlockHandle(null, 0);
+            }
+
+            int token = nextBlockToken++;
+            inputBlocks[token] = new InputBlockClaim(groups, ownerName);
+            RefreshBlockedGroups();
+            return new InputBlockHandle(this, token);
+        }
+
+        /// <summary>Returns whether any temporary owner blocks the supplied groups.</summary>
+        public bool IsInputBlocked(InputBlockGroups groups)
+        {
+            return (BlockedGroups & groups) != 0;
+        }
+
+        /// <summary>Returns diagnostic names for owners blocking the supplied groups.</summary>
+        public IReadOnlyList<string> GetInputBlockOwners(InputBlockGroups groups)
+        {
+            var owners = new List<string>();
+            foreach (InputBlockClaim claim in inputBlocks.Values)
+            {
+                if ((claim.Groups & groups) != 0)
+                {
+                    owners.Add(claim.OwnerName);
+                }
+            }
+
+            return owners;
+        }
+
+        internal void ReleaseInputBlock(int token)
+        {
+            if (!inputBlocks.Remove(token))
+            {
+                return;
+            }
+
+            RefreshBlockedGroups();
         }
 
         /// <summary>
@@ -238,6 +313,42 @@ namespace QuietStatic
             }
 
             DisableAllInput();
+        }
+
+        private void RefreshBlockedGroups()
+        {
+            InputBlockGroups combined = InputBlockGroups.None;
+            foreach (InputBlockClaim claim in inputBlocks.Values)
+            {
+                combined |= claim.Groups;
+            }
+
+            bool changed = combined != BlockedGroups;
+            BlockedGroups = combined;
+            ApplyDesiredMode();
+
+            if (changed)
+            {
+                OnInputBlocksChanged?.Invoke(BlockedGroups);
+            }
+        }
+
+        private void ApplyDesiredMode()
+        {
+            bool gameplayEnabled =
+                desiredMode == "Gameplay" &&
+                !IsInputBlocked(InputBlockGroups.Gameplay);
+            bool uiEnabled =
+                desiredMode == "UI" &&
+                !IsInputBlocked(InputBlockGroups.UI);
+            bool cutsceneEnabled =
+                desiredMode == "Cutscene" &&
+                !IsInputBlocked(InputBlockGroups.Cutscene);
+
+            SetInputGroupEnabled(gameplayInputs, gameplayEnabled);
+            SetInputGroupEnabled(uiInputs, uiEnabled);
+            SetInputGroupEnabled(cutsceneInputs, cutsceneEnabled);
+            CurrentMode = desiredMode;
         }
 
         /// <summary>

@@ -11,7 +11,21 @@ In Unity, open **Window > Package Management > Package Manager**, choose
 
 `https://github.com/quiet-static/library.git`
 
-The copy inside Stolen lives under `Assets/Packages/library` while it is being developed.
+## Workspace development
+
+The canonical package source in the Quiet Static workspace is
+`libraries/library`. Do not copy the package into a project's `Assets`
+directory; Unity would compile a second set of assemblies and asset GUIDs.
+
+Both active projects consume this same checkout through local Package Manager
+dependencies:
+
+- Stolen: `file:../../../libraries/library`
+- Lab Partners: `file:../../../../libraries/library`
+
+Keep each project's `Packages/manifest.json` and `packages-lock.json` entries
+together. For a standalone release, replace the local path with an immutable
+Git revision as described below.
 
 ## Recommended project structure
 
@@ -58,7 +72,9 @@ Inspector-facing IDs should come from the provided databases.
 
 ## Getting started
 
-1. Open the scenes in `Samples` to see bootstrap, system, UI, and prefab composition.
+1. Import **Toolkit Examples** from this package's Samples tab in Package Manager (or
+   open `Samples` directly while developing the package) to see bootstrap, system, UI,
+   interaction, narrative, horror, and prefab composition.
 2. Add the manager prefabs from `Runtime/Managers/Prefabs` to a persistent System scene.
 3. Assign flag and game-state databases before wiring scene behavior.
 4. Add a player prefab and matching camera rig.
@@ -66,3 +82,8 @@ Inspector-facing IDs should come from the provided databases.
 
 Every runtime module contains a README with setup, hierarchy examples, and integration
 notes. API comments and Inspector tooltips document individual components and fields.
+
+For step-by-step scene recipes, see
+[`docs/Runtime/CommonComponentRecipes.md`](docs/Runtime/CommonComponentRecipes.md). It covers
+basic and flag-gated interactions, hold and autonomous progress, dialogue, staged behavior,
+object states, reusable prefabs, and troubleshooting.

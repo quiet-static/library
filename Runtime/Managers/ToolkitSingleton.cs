@@ -7,7 +7,7 @@ namespace QuietStatic.Toolkit.Core
     /// </summary>
     /// <typeparam name="T">
     /// The concrete MonoBehaviour type that should expose a static singleton instance.
-    /// This is normally the derived class itself, such as <c>GameStateController</c>.
+    /// This is normally the derived class itself, such as <c>GameStateManager</c>.
     /// </typeparam>
     /// <remarks>
     /// This class provides a simple reusable singleton pattern for manager-style components.

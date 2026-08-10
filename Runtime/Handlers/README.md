@@ -5,15 +5,26 @@ systems. They keep triggers, animation events, and UI buttons from referencing m
 
 ```text
 system_callers
-├── SystemHandler
-├── GameplayHandler
-├── InteractionHandler
-├── FlagHandler
-├── ObjectiveHandler
-├── PlayerLockHandler
-├── PlayerLookHandler
-└── AudioHandler
+|-- SystemHandler
+|-- GameplayHandler
+|-- InteractionHandler
+|-- FlagHandler
+|-- ObjectiveHandler
+|-- SpawnHandler
+|-- PlayerLockHandler
+|-- PlayerLookHandler
+`-- AudioHandler
 ```
 
-Place the handler prefab in the persistent System or Player scene. Drag a handler method
-into a scene object's UnityEvent. Prefer one handler responsibility per component.
+Place handlers in the persistent System or Player scene, or add the focused
+handler needed by a trigger. Drag a handler method into the scene object's
+UnityEvent. Prefer one handler responsibility per component.
+
+Use a ScriptableObject command channel instead when the caller and receiver live in
+independently loaded scenes and therefore cannot safely serialize references to one
+another. Channels carry commands; handlers remain the convenient local UnityEvent edge.
+
+`SceneTransitionHandler` bridges successful interactions, buttons, animation events,
+and Timeline signals to the persistent scene-flow system. Prefer a configured
+`SceneFlowMap` connection and request channel; `Transition()` is the parameterless
+UnityEvent entry point.

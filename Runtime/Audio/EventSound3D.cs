@@ -3,8 +3,8 @@
 namespace QuietStatic.Toolkit.Audio
 {
     /// <summary>
-    /// Plays a one-shot 3D sound from this GameObject and destroys the GameObject
-    /// once the sound has finished playing.
+    /// Plays a temporary 3D sound from this GameObject and destroys the GameObject
+    /// once playback finishes or is explicitly stopped.
     /// </summary>
     /// <remarks>
     /// This component is intended for temporary world-space sound effects such as
@@ -20,6 +20,12 @@ namespace QuietStatic.Toolkit.Audio
         [Header("Audio Source Reference")]
         [Tooltip("The AudioSource used to play this 3D event sound. If left empty, this is automatically found on the same GameObject during Awake.")]
         [SerializeField] private AudioSource audioSrc;
+
+        /// <summary>Gets whether this temporary sound is currently paused.</summary>
+        public bool IsPaused { get; private set; }
+
+        /// <summary>Gets whether this temporary sound is actively playing.</summary>
+        public bool IsPlaying => audioSrc != null && audioSrc.isPlaying;
 
         /// <summary>
         /// Automatically fills the AudioSource reference when the component is added
@@ -48,11 +54,13 @@ namespace QuietStatic.Toolkit.Audio
         /// <param name="minDistance">The distance from the sound source where the audio begins to attenuate.</param>
         /// <param name="maxDistance">The maximum distance at which the sound can still be heard.</param>
         /// <param name="volume">The playback volume for this sound. A value of 1 is full volume.</param>
+        /// <param name="loop">Whether playback should repeat until explicitly stopped.</param>
         public void Play(
             AudioClip clip,
             float minDistance = 5f,
             float maxDistance = 100f,
-            float volume = 1f)
+            float volume = 1f,
+            bool loop = false)
         {
             if (clip == null)
             {
@@ -79,8 +87,49 @@ namespace QuietStatic.Toolkit.Audio
             audioSrc.spatialBlend = 1f; // 1 = fully 3D.
             audioSrc.minDistance = minDistance;
             audioSrc.maxDistance = maxDistance;
+            audioSrc.loop = loop;
 
+            IsPaused = false;
             audioSrc.Play();
+        }
+
+        /// <summary>Pauses playback without allowing the temporary sound to clean itself up.</summary>
+        public void Pause()
+        {
+            if (audioSrc == null || !audioSrc.isPlaying)
+            {
+                return;
+            }
+
+            audioSrc.Pause();
+            IsPaused = true;
+        }
+
+        /// <summary>Resumes playback when this sound was previously paused.</summary>
+        public void Resume()
+        {
+            if (audioSrc == null || !IsPaused)
+            {
+                return;
+            }
+
+            IsPaused = false;
+            audioSrc.UnPause();
+        }
+
+        /// <summary>
+        /// Stops playback and destroys this temporary sound GameObject.
+        /// </summary>
+        public void Stop()
+        {
+            IsPaused = false;
+
+            if (audioSrc != null)
+            {
+                audioSrc.Stop();
+            }
+
+            Destroy(gameObject);
         }
 
         /// <summary>
@@ -94,7 +143,7 @@ namespace QuietStatic.Toolkit.Audio
                 return;
             }
 
-            if (!audioSrc.isPlaying)
+            if (!audioSrc.isPlaying && !IsPaused)
             {
                 Destroy(gameObject);
             }

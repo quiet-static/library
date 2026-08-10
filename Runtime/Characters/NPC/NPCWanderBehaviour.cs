@@ -15,14 +15,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [SerializeField] private WanderMode wanderMode = WanderMode.RandomRadius;
         [Tooltip("Center of random wandering. Uses this NPC's initial position when omitted.")]
         [SerializeField] private Transform wanderOrigin;
+        [Tooltip("Maximum distance from the wander origin used in Random Radius mode.")]
         [SerializeField, Min(0.1f)] private float wanderRadius = 5f;
         [Tooltip("Ordered destinations used in Patrol Points mode.")]
         [SerializeField] private Transform[] patrolPoints;
         [Tooltip("Choose a random patrol destination instead of advancing in array order.")]
         [SerializeField] private bool randomizePatrolOrder;
+        [Tooltip("Minimum idle time after reaching a wander destination.")]
         [SerializeField, Min(0f)] private float minimumWait = 1f;
+        [Tooltip("Maximum idle time after reaching a wander destination.")]
         [SerializeField, Min(0f)] private float maximumWait = 3f;
+        [Tooltip("Remaining path distance considered close enough to have arrived.")]
         [SerializeField, Min(0.01f)] private float arrivalDistance = 0.3f;
+        [Tooltip("Radius used to project generated wander positions onto the NavMesh.")]
         [SerializeField, Min(0.1f)] private float sampleRadius = 2f;
 
         private Vector3 startPosition;

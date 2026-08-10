@@ -25,12 +25,17 @@ namespace QuietStatic.Toolkit.Flags
         public class FlagDependency
         {
             [Tooltip("Flag automatically set when every required flag is active.")]
+            [FlagId]
             [SerializeField] private string resultFlag;
 
             [Tooltip("All of these flags must be active before Result Flag is set.")]
+            [FlagId]
             [SerializeField] private string[] requiredFlags;
 
+            /// <summary>Gets the flag set after all requirements become active.</summary>
             public string ResultFlag => resultFlag;
+
+            /// <summary>Gets the flags required by this dependency.</summary>
             public IReadOnlyList<string> RequiredFlags => requiredFlags;
         }
 
@@ -40,6 +45,7 @@ namespace QuietStatic.Toolkit.Flags
 
         [Header("Starting State")]
         [Tooltip("Flags that should already be active when this flag set initializes.")]
+        [FlagId]
         [SerializeField] private string[] startingFlags;
 
         [Header("Dependencies")]
@@ -227,6 +233,30 @@ namespace QuietStatic.Toolkit.Flags
             }
 
             activeFlags.Clear();
+            OnFlagsChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Replaces the active flag collection with restored save data.
+        /// </summary>
+        /// <param name="flagIds">Flag IDs captured in a save snapshot.</param>
+        /// <remarks>
+        /// Unknown IDs are ignored through the normal database validation path.
+        /// One collection-changed notification is raised after dependencies are applied.
+        /// </remarks>
+        public void RestoreFlags(IEnumerable<string> flagIds)
+        {
+            activeFlags.Clear();
+
+            if (flagIds != null)
+            {
+                foreach (string flagId in flagIds)
+                {
+                    AddFlagSilently(flagId);
+                }
+            }
+
+            ApplyDependencies();
             OnFlagsChanged?.Invoke();
         }
 

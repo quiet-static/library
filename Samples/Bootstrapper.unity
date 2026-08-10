@@ -167,6 +167,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1095530221970339963, guid: 469f199763d3b724fb3b5965d6246807, type: 3}
+      propertyPath: additiveScenes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4685145941853791869, guid: 469f199763d3b724fb3b5965d6246807, type: 3}
       propertyPath: m_Name
       value: BootstrapScenes

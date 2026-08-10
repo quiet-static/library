@@ -35,10 +35,12 @@ namespace QuietStatic.Toolkit.Audio
         [Tooltip("Where the sound/s should originate")]
         [SerializeField] private Transform objectTransform;
 
-        [Tooltip("Minimum distance the sound should travel")]
+        [Tooltip("Distance at which the sound plays at full configured volume.")]
+        [Min(0f)]
         [SerializeField] private float minDistance = 1f;
 
-        [Tooltip("Maximum distance the sound should travel")]
+        [Tooltip("Distance beyond which the sound is no longer audible.")]
+        [Min(0f)]
         [SerializeField] private float maxDistance = 15f;
 
         [Tooltip("How loud the sound should be when it plays")]
@@ -50,84 +52,100 @@ namespace QuietStatic.Toolkit.Audio
         /// </summary>
         private int currIndex;
 
+        /// <summary>
+        /// The temporary sound instance created by <see cref="PlayContinuously"/>.
+        /// </summary>
+        private EventSound3D continuousSound;
+
         private void Awake()
         {
             currIndex = 0;
         }
 
+        private void OnDestroy()
+        {
+            Stop();
+        }
+
+        /// <summary>
+        /// Plays one configured clip using the selected ordering mode.
+        /// </summary>
         public void Play()
+        {
+            AudioClip selectedClip = SelectClip();
+            PlayClip(selectedClip, false);
+        }
+
+        /// <summary>
+        /// Plays the configured audio continuously until <see cref="Stop"/> is called.
+        /// Calling this again replaces the currently playing continuous sound.
+        /// </summary>
+        public void PlayContinuously()
+        {
+            Stop();
+
+            AudioClip selectedClip = SelectClip();
+            continuousSound = PlayClip(selectedClip, true);
+        }
+
+        /// <summary>
+        /// Stops the continuous sound and destroys its temporary audio prefab.
+        /// This method is parameterless so it can be assigned directly to a UnityEvent.
+        /// </summary>
+        public void Stop()
+        {
+            if (continuousSound == null)
+            {
+                return;
+            }
+
+            continuousSound.Stop();
+            continuousSound = null;
+        }
+
+        private AudioClip SelectClip()
         {
             switch (howToPlay)
             {
                 case HowToPlay.InOrder:
-                    PlayInOrderClip();
-                    break;
+                    return GetInOrderClip();
                 case HowToPlay.Random:
-                    PlayRandomClip();
-                    break;
+                    return GetRandomClip();
                 default:
-                    PlayMainClip();
-                    break;
+                    return clip;
             }
         }
 
-
-        private void PlayMainClip()
+        private EventSound3D PlayClip(AudioClip selectedClip, bool loop)
         {
-            if (clip == null || SfxManager.Instance == null)
+            if (selectedClip == null || SfxManager.Instance == null)
             {
-                return;
+                return null;
             }
 
-            SfxManager.Instance.PlayAtPosition(
-                clip,
-                objectTransform.position,
+            Transform origin = objectTransform != null ? objectTransform : transform;
+
+            return SfxManager.Instance.PlayAtPosition(
+                selectedClip,
+                origin.position,
                 minDistance,
                 maxDistance,
-                volume
+                volume,
+                loop
             );
         }
 
-        private void PlayInOrderClip()
+        private AudioClip GetInOrderClip()
         {
-            AudioClip clip = clips[currIndex];
-            currIndex++;
-
-            if (currIndex > clips.Length - 1)
+            if (clips == null || clips.Length == 0)
             {
-                currIndex = 0;
+                return null;
             }
 
-            if (clip == null || SfxManager.Instance == null)
-            {
-                return;
-            }
+            AudioClip selectedClip = clips[currIndex];
+            currIndex = (currIndex + 1) % clips.Length;
 
-            SfxManager.Instance.PlayAtPosition(
-                clip,
-                objectTransform.position,
-                1f,
-                15f,
-                volume
-            );
-        }
-
-        private void PlayRandomClip()
-        {
-            AudioClip clip = GetRandomClip();
-
-            if (clip == null || SfxManager.Instance == null)
-            {
-                return;
-            }
-
-            SfxManager.Instance.PlayAtPosition(
-                clip,
-                objectTransform.position,
-                1f,
-                15f,
-                volume
-            );
+            return selectedClip;
         }
 
         /// <summary>

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using QuietStatic.Toolkit.Audio;
 using QuietStatic.Toolkit.Core;
 using UnityEngine;
@@ -32,6 +33,22 @@ namespace QuietStatic
         [Range(0f, 1f)]
         [SerializeField] private float defaultVolume = 1f;
 
+        private readonly HashSet<EventSound3D> spawnedSounds = new();
+        private readonly HashSet<EventSound3D> pausedSounds = new();
+
+        /// <summary>Gets whether this manager accepts new sound spawn requests.</summary>
+        public bool IsSpawningEnabled { get; private set; } = true;
+
+        /// <summary>Gets the number of currently tracked spawned sounds.</summary>
+        public int SpawnedSoundCount
+        {
+            get
+            {
+                RemoveDestroyedSounds();
+                return spawnedSounds.Count;
+            }
+        }
+
         /// <summary>
         /// Spawns and plays a 3D sound at a world position using default audio settings.
         /// </summary>
@@ -60,15 +77,22 @@ namespace QuietStatic
         /// <param name="minDistance">Distance where the sound is heard at full volume.</param>
         /// <param name="maxDistance">Distance where the sound becomes inaudible.</param>
         /// <param name="volume">Playback volume from 0 to 1.</param>
+        /// <param name="loop">Whether playback should repeat until explicitly stopped.</param>
         /// <returns>The spawned EventSound3D instance, or null if playback failed.</returns>
         public EventSound3D PlayAtPosition(
             AudioClip clip,
             Vector3 worldPosition,
             float minDistance,
             float maxDistance,
-            float volume
+            float volume,
+            bool loop = false
         )
         {
+            if (!IsSpawningEnabled)
+            {
+                return null;
+            }
+
             if (eventSound3DPrefab == null)
             {
                 GameLogger.Warning(
@@ -94,9 +118,11 @@ namespace QuietStatic
                 clip,
                 Mathf.Max(0f, minDistance),
                 Mathf.Max(minDistance, maxDistance),
-                Mathf.Clamp01(volume)
+                Mathf.Clamp01(volume),
+                loop
             );
 
+            spawnedSounds.Add(sound);
             return sound;
         }
 
@@ -132,6 +158,74 @@ namespace QuietStatic
             }
 
             return sound;
+        }
+
+        /// <summary>Pauses all currently playing sounds spawned by this manager.</summary>
+        public void PauseSpawnedSounds()
+        {
+            RemoveDestroyedSounds();
+            pausedSounds.Clear();
+
+            foreach (EventSound3D sound in spawnedSounds)
+            {
+                if (sound == null || !sound.IsPlaying)
+                {
+                    continue;
+                }
+
+                sound.Pause();
+                pausedSounds.Add(sound);
+            }
+        }
+
+        /// <summary>Resumes sounds paused by the last manager pause request.</summary>
+        public void ResumeSpawnedSounds()
+        {
+            foreach (EventSound3D sound in pausedSounds)
+            {
+                if (sound != null)
+                {
+                    sound.Resume();
+                }
+            }
+
+            pausedSounds.Clear();
+            RemoveDestroyedSounds();
+        }
+
+        /// <summary>Stops and despawns every sound spawned by this manager.</summary>
+        public void DespawnSpawnedSounds()
+        {
+            RemoveDestroyedSounds();
+
+            foreach (EventSound3D sound in spawnedSounds)
+            {
+                if (sound != null)
+                {
+                    sound.Stop();
+                }
+            }
+
+            spawnedSounds.Clear();
+            pausedSounds.Clear();
+        }
+
+        /// <summary>Enables or disables future sound spawn requests.</summary>
+        public void SetSpawningEnabled(bool enabled)
+        {
+            IsSpawningEnabled = enabled;
+        }
+
+        /// <summary>Allows future sound spawn requests.</summary>
+        public void EnableSpawning() => SetSpawningEnabled(true);
+
+        /// <summary>Rejects future sound spawn requests without stopping existing sounds.</summary>
+        public void DisableSpawning() => SetSpawningEnabled(false);
+
+        private void RemoveDestroyedSounds()
+        {
+            spawnedSounds.RemoveWhere(sound => sound == null);
+            pausedSounds.RemoveWhere(sound => sound == null);
         }
     }
 }

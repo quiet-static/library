@@ -3,7 +3,24 @@
   "version": "0.1.0",
   "displayName": "Quiet Static Library",
   "description": "Reusable scripts for Quiet Static projects.",
-  "unity": "6000.0",
+  "unity": "6000.3",
+  "dependencies": {
+    "com.unity.inputsystem": "1.18.0",
+    "com.unity.modules.ai": "1.0.0",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.render-pipelines.core": "17.3.0",
+    "com.unity.render-pipelines.universal": "17.3.0",
+    "com.unity.ugui": "2.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Toolkit Examples",
+      "description": "Bootstrap, persistent systems, interactions, objectives, narrative, horror, and menu examples with reusable definition assets.",
+      "path": "Samples"
+    }
+  ],
   "author": {
     "name": "smtono"
   }

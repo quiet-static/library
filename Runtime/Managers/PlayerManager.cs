@@ -1,3 +1,4 @@
+using System;
 using QuietStatic.Toolkit.Core;
 using UnityEngine;
 
@@ -13,11 +14,47 @@ namespace QuietStatic
     [AddComponentMenu("Quiet Static Toolkit/Managers/Player Manager")]
     public class PlayerManager : ToolkitSingleton<PlayerManager>
     {
-        [Tooltip("Root GameObject representing the active player.")]
+        [Tooltip("Root GameObject currently registered as the active player.")]
         [SerializeField] private GameObject player;
 
-        /// <summary>Gets the configured player root, or null when none is assigned.</summary>
+        /// <summary>
+        /// Raised when the active player reference changes.
+        /// </summary>
+        /// <remarks>
+        /// The first argument is the previously registered player and the second
+        /// argument is the newly registered player. Either argument can be null.
+        /// Reassigning the current player does not raise this event.
+        /// </remarks>
+        public static event Action<GameObject, GameObject> OnPlayerChanged;
+
+        /// <summary>
+        /// Gets the configured active player root, or null when none is assigned.
+        /// </summary>
         public GameObject Player => player;
+
+        /// <summary>
+        /// Registers the active player root.
+        /// </summary>
+        /// <param name="newPlayer">
+        /// Player root to register, or null to clear the active player.
+        /// </param>
+        /// <remarks>
+        /// Setting the already registered reference is idempotent and does not
+        /// notify listeners. Reference identity is used so a destroyed Unity
+        /// object can still be replaced with an actual null reference.
+        /// </remarks>
+        public void SetPlayer(GameObject newPlayer)
+        {
+            if (ReferenceEquals(player, newPlayer))
+            {
+                return;
+            }
+
+            GameObject previousPlayer = player;
+            player = newPlayer;
+
+            OnPlayerChanged?.Invoke(previousPlayer, player);
+        }
 
         protected override void Awake()
         {

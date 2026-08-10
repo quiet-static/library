@@ -19,16 +19,20 @@ namespace QuietStatic.Toolkit.Cameras
 
         [Header("Sensitivity")]
         [Tooltip("Multiplier applied to look input before updating the camera yaw and pitch.")]
+        [Min(0f)]
         [SerializeField] private float mouseSensitivity = 2f;
 
         [Tooltip("Lowest vertical pitch angle the camera can rotate to, in degrees.")]
+        [Range(-89f, 89f)]
         [SerializeField] private float minVerticalAngle = -30f;
 
         [Tooltip("Highest vertical pitch angle the camera can rotate to, in degrees.")]
+        [Range(-89f, 89f)]
         [SerializeField] private float maxVerticalAngle = 70f;
 
         [Header("Third Person")]
         [Tooltip("How far behind the target the camera should sit.")]
+        [Min(0f)]
         [SerializeField] private float distance = 5f;
 
         [Tooltip("Vertical offset added to the target position for third-person orbiting.")]
@@ -36,9 +40,11 @@ namespace QuietStatic.Toolkit.Cameras
 
         [Header("Third Person Smoothing")]
         [Tooltip("How quickly the camera position catches up to the desired follow position.")]
+        [Min(0f)]
         [SerializeField] private float followSmoothTime = 0.001f;
 
         [Tooltip("How quickly the camera rotation catches up to the desired rotation.")]
+        [Min(0f)]
         [SerializeField] private float rotationSmoothTime = 8f;
 
         [Header("First Person")]
@@ -66,6 +72,12 @@ namespace QuietStatic.Toolkit.Cameras
         /// </summary>
         private float pitch;
 
+        private bool isLookConstrained;
+        private float constrainedYawCenter;
+        private float constrainedPitchCenter;
+        private float constrainedYawRange;
+        private float constrainedPitchRange;
+
         /// <summary>
         /// Velocity used by SmoothDamp for third-person camera movement.
         /// </summary>
@@ -75,6 +87,9 @@ namespace QuietStatic.Toolkit.Cameras
         /// Gets whether the camera is currently operating in first-person mode.
         /// </summary>
         public bool IsFirstPerson => isFirstPerson;
+
+        /// <summary>Gets whether look input is currently limited around a focus direction.</summary>
+        public bool IsLookConstrained => isLookConstrained;
 
         /// <summary>
         /// Whether camera movement should be factored into input
@@ -275,6 +290,41 @@ namespace QuietStatic.Toolkit.Cameras
         }
 
         /// <summary>
+        /// Faces a target and limits subsequent player look input around that direction.
+        /// Movement and camera input remain independently controllable.
+        /// </summary>
+        public void BeginLookConstraint(
+            Transform focusTarget,
+            float horizontalRange,
+            float verticalRange,
+            bool snapImmediately = true)
+        {
+            if (focusTarget == null)
+            {
+                return;
+            }
+
+            FaceTarget(focusTarget);
+            constrainedYawCenter = yaw;
+            constrainedPitchCenter = pitch;
+            constrainedYawRange = Mathf.Clamp(horizontalRange, 0f, 180f);
+            constrainedPitchRange = Mathf.Clamp(verticalRange, 0f, 89f);
+            isLookConstrained = true;
+            ApplyLookConstraint();
+
+            if (snapImmediately)
+            {
+                SnapToTarget();
+            }
+        }
+
+        /// <summary>Removes the current limited-look region without changing camera direction.</summary>
+        public void EndLookConstraint()
+        {
+            isLookConstrained = false;
+        }
+
+        /// <summary>
         /// Disables camera look. Unseful for state changes
         /// </summary>
         /// <param name="enabled">Whether the camera should look</param>
@@ -310,6 +360,8 @@ namespace QuietStatic.Toolkit.Cameras
                 minVerticalAngle,
                 maxVerticalAngle
             );
+
+            ApplyLookConstraint();
         }
 
         private void HandleFollow()
@@ -335,7 +387,7 @@ namespace QuietStatic.Toolkit.Cameras
             transform.position = firstPersonAnchor.position;
             transform.rotation = targetRotation;
 
-            if (playerBody != null)
+            if (playerBody != null && !isLookConstrained)
             {
                 playerBody.rotation = Quaternion.Euler(0f, yaw, 0f);
             }
@@ -393,6 +445,25 @@ namespace QuietStatic.Toolkit.Cameras
                 minVerticalAngle,
                 maxVerticalAngle
             );
+        }
+
+        private void ApplyLookConstraint()
+        {
+            if (!isLookConstrained)
+            {
+                return;
+            }
+
+            float yawOffset = Mathf.DeltaAngle(constrainedYawCenter, yaw);
+            yaw = constrainedYawCenter + Mathf.Clamp(
+                yawOffset,
+                -constrainedYawRange,
+                constrainedYawRange);
+            pitch = Mathf.Clamp(
+                pitch,
+                constrainedPitchCenter - constrainedPitchRange,
+                constrainedPitchCenter + constrainedPitchRange);
+            pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
         }
     }
 }

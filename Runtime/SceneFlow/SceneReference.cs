@@ -19,6 +19,17 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Tooltip("Name of the Unity scene to reference. The scene must be included in Build Settings before it can be loaded at runtime.")]
         [SerializeField] private string sceneName;
 
+        /// <summary>Creates an empty Inspector-assignable scene reference.</summary>
+        public SceneReference()
+        {
+        }
+
+        /// <summary>Creates a reference from a runtime scene name.</summary>
+        public SceneReference(string sceneName)
+        {
+            this.sceneName = sceneName?.Trim() ?? string.Empty;
+        }
+
         /// <summary>
         /// Gets the configured scene name.
         /// </summary>

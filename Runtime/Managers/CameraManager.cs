@@ -55,7 +55,7 @@ namespace QuietStatic
         /// </summary>
         public Transform ActiveTarget => activeTarget;
 
-        private void Awake()
+        protected override void Awake()
         {
             base.Awake();
 
@@ -264,6 +264,8 @@ namespace QuietStatic
             cameraController.SetFirstPersonMode(enabled);
         }
 
+        /// <summary>Delegates scripted camera focus to the managed focus controller.</summary>
+        /// <param name="focusTarget">World transform the camera should face.</param>
         public void BeginFocus(Transform focusTarget)
         {
             ResolveReferences();
@@ -276,6 +278,7 @@ namespace QuietStatic
             focusController.BeginFocus(focusTarget);
         }
 
+        /// <summary>Ends scripted focus and restores normal camera control.</summary>
         public void EndFocus()
         {
             ResolveReferences();

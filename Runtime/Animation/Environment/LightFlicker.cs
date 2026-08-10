@@ -26,27 +26,34 @@ namespace QuietStatic.Toolkit.Animation.Environment
 
         [Header("Base Intensity")]
         [Tooltip("The intensity the light should return to when flickering stops. This is automatically overwritten in Awake using the target light's starting intensity.")]
+        [Min(0f)]
         [SerializeField] private float normalIntensity = 1f;
 
         [Header("Dim Flicker Intensity")]
         [Tooltip("The lowest intensity the light can randomly dim to during a non-off flicker.")]
+        [Min(0f)]
         [SerializeField] private float minimumDimIntensity = 0.2f;
 
         [Tooltip("The highest intensity the light can randomly dim to during a non-off flicker.")]
+        [Min(0f)]
         [SerializeField] private float maximumDimIntensity = 0.7f;
 
         [Header("Time Between Flickers")]
         [Tooltip("The shortest amount of time, in seconds, to wait before the next flicker can happen.")]
+        [Min(0f)]
         [SerializeField] private float minimumTimeBetweenFlickers = 1f;
 
         [Tooltip("The longest amount of time, in seconds, to wait before the next flicker can happen.")]
+        [Min(0f)]
         [SerializeField] private float maximumTimeBetweenFlickers = 5f;
 
         [Header("Flicker Duration")]
         [Tooltip("The shortest amount of time, in seconds, that a single flicker can last.")]
+        [Min(0f)]
         [SerializeField] private float minimumFlickerDuration = 0.03f;
 
         [Tooltip("The longest amount of time, in seconds, that a single flicker can last.")]
+        [Min(0f)]
         [SerializeField] private float maximumFlickerDuration = 0.2f;
 
         [Header("Off Flicker Behavior")]

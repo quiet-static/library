@@ -15,6 +15,7 @@
  */
 
 using System;
+using QuietStatic.Toolkit.Cinematics;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,7 +25,7 @@ namespace QuietStatic.Toolkit.Dialogue
     /// <summary>
     /// Traverses a DialogueTree at runtime and exposes progress events.
     /// </summary>
-    public class DialogueRunner : MonoBehaviour
+    public class DialogueRunner : MonoBehaviour, ICinematicWaitSource
     {
         /// <summary>
         /// Raised whenever any DialogueRunner starts.
@@ -67,6 +68,10 @@ namespace QuietStatic.Toolkit.Dialogue
         /// Gets whether this runner is currently traversing dialogue.
         /// </summary>
         public bool IsRunning { get; private set; }
+
+        /// <summary>Number of choices currently visible under active flag state.</summary>
+        public int AvailableChoiceCount =>
+            CurrentNode?.GetAvailableChoiceIndexes().Length ?? 0;
 
         /// <summary>
         /// Index of the current node inside the active DialogueTree.
@@ -112,6 +117,14 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
+        /// Starts dialogue through the generic cinematic wait-source contract.
+        /// </summary>
+        public void Play()
+        {
+            StartDialogue();
+        }
+
+        /// <summary>
         /// Advances from the current node using the node's default flow.
         /// </summary>
         public void Advance()
@@ -121,7 +134,7 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            if (CurrentNode.HasChoices)
+            if (AvailableChoiceCount > 0)
             {
                 return;
             }
@@ -144,6 +157,26 @@ namespace QuietStatic.Toolkit.Dialogue
 
             SetFlags(choice.flagsToSet);
             GoToOrEnd(choice.nextNodeIndex);
+        }
+
+        /// <summary>Selects by visible UI index and maps back to authored choice order.</summary>
+        public void ChooseAvailable(int visibleChoiceIndex)
+        {
+            int[] available = CurrentNode?.GetAvailableChoiceIndexes();
+            if (available == null || visibleChoiceIndex < 0 || visibleChoiceIndex >= available.Length)
+                return;
+            Choose(available[visibleChoiceIndex]);
+        }
+
+        /// <summary>Gets labels for choices currently available.</summary>
+        public string[] GetAvailableChoiceTexts()
+        {
+            int[] available = CurrentNode?.GetAvailableChoiceIndexes();
+            if (available == null || CurrentNode?.choices == null) return Array.Empty<string>();
+            string[] texts = new string[available.Length];
+            for (int index = 0; index < available.Length; index++)
+                texts[index] = CurrentNode.choices[available[index]]?.text ?? string.Empty;
+            return texts;
         }
 
         /// <summary>
@@ -211,7 +244,9 @@ namespace QuietStatic.Toolkit.Dialogue
                 && CurrentNode != null
                 && CurrentNode.choices != null
                 && choiceIndex >= 0
-                && choiceIndex < CurrentNode.choices.Length;
+                && choiceIndex < CurrentNode.choices.Length
+                && CurrentNode.choices[choiceIndex] != null
+                && CurrentNode.choices[choiceIndex].IsAvailable();
         }
 
         /// <summary>

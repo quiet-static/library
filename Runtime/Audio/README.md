@@ -14,3 +14,7 @@ World Sound
 
 Use `AudioHandler` from scene UnityEvents. Use `EventSound3D` or `AudioEventPlayer` for
 object-local sounds. Keep mixer routing and volume policy in persistent managers.
+
+When an additive content scene cannot reference the persistent handler hierarchy, use
+an `AudioRequestChannel` asset. `AudioRequestChannelListener` receives its typed
+`AudioCommand` stream and forwards commands to the music and SFX managers.

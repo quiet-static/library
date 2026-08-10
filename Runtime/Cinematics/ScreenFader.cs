@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,6 @@ namespace QuietStatic.Toolkit.Cinematics
     /// <summary>
     /// Handles full-screen fade transitions using a <see cref="CanvasGroup"/>.
     /// </summary>
-    [RequireComponent(typeof(CanvasGroup))]
     public class ScreenFader : MonoBehaviour
     {
         [Header("References")]
@@ -166,6 +166,7 @@ namespace QuietStatic.Toolkit.Cinematics
 
             canvasGroup.alpha = Mathf.Clamp01(alpha);
             canvasGroup.blocksRaycasts = canvasGroup.alpha > 0.01f;
+            canvasGroup.interactable = canvasGroup.alpha > 0.01f;
         }
 
         /// <summary>
@@ -230,6 +231,111 @@ namespace QuietStatic.Toolkit.Cinematics
 
             IsFading = false;
             fadeRoutine = null;
+        }
+    }
+
+    /// <summary>Target state requested through a <see cref="ScreenFadeChannel"/>.</summary>
+    public enum ScreenFadeTarget
+    {
+        Clear,
+        Black
+    }
+
+    /// <summary>One completion-aware cross-scene fade request.</summary>
+    public sealed class ScreenFadeRequest
+    {
+        internal ScreenFadeRequest(ScreenFadeTarget target, float duration)
+        {
+            Target = target;
+            Duration = Mathf.Max(0f, duration);
+        }
+
+        /// <summary>Requested final screen state.</summary>
+        public ScreenFadeTarget Target { get; }
+
+        /// <summary>Requested fade duration in unscaled seconds.</summary>
+        public float Duration { get; }
+
+        /// <summary>Gets whether the receiving handler completed the fade.</summary>
+        public bool IsComplete { get; private set; }
+
+        /// <summary>Marks this request complete. Intended for a screen-fade handler.</summary>
+        public void Complete() => IsComplete = true;
+    }
+
+    /// <summary>Routes completion-aware fade requests between separately loaded scenes.</summary>
+    [CreateAssetMenu(
+        fileName = "ScreenFadeChannel",
+        menuName = "Quiet Static Toolkit/Cinematics/Screen Fade Channel")]
+    public sealed class ScreenFadeChannel : ScriptableObject
+    {
+        /// <summary>Raised when a fade is requested.</summary>
+        public event Action<ScreenFadeRequest> FadeRequested;
+
+        /// <summary>Gets whether an enabled handler is subscribed.</summary>
+        public bool HasReceiver => FadeRequested != null;
+
+        /// <summary>Requests a fade and waits until its handler reports completion.</summary>
+        public IEnumerator FadeRoutine(ScreenFadeTarget target, float duration)
+        {
+            ScreenFadeRequest request = new(target, duration);
+            Action<ScreenFadeRequest> receivers = FadeRequested;
+            if (receivers == null)
+            {
+                GameLogger.Warning(nameof(ScreenFadeChannel), this,
+                    $"{nameof(ScreenFadeChannel)} has no active handler.");
+                yield break;
+            }
+
+            receivers.Invoke(request);
+            yield return new WaitUntil(() => request.IsComplete);
+        }
+    }
+
+    /// <summary>Connects a scene-local <see cref="ScreenFader"/> to a cross-scene channel.</summary>
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(ScreenFader))]
+    [AddComponentMenu("Quiet Static Toolkit/Cinematics/Screen Fade Channel Handler")]
+    public sealed class ScreenFadeChannelHandler : MonoBehaviour
+    {
+        [Tooltip("Channel shared with systems that request screen fades.")]
+        [SerializeField] private ScreenFadeChannel channel;
+
+        [Tooltip("Scene-local fader that performs requests. Auto-filled from this object.")]
+        [SerializeField] private ScreenFader screenFader;
+
+        private Coroutine activeRequest;
+
+        private void Reset() => screenFader = GetComponent<ScreenFader>();
+
+        private void OnEnable()
+        {
+            if (screenFader == null) screenFader = GetComponent<ScreenFader>();
+            if (channel != null) channel.FadeRequested += HandleFadeRequested;
+        }
+
+        private void OnDisable()
+        {
+            if (channel != null) channel.FadeRequested -= HandleFadeRequested;
+        }
+
+        private void HandleFadeRequested(ScreenFadeRequest request)
+        {
+            if (activeRequest != null) StopCoroutine(activeRequest);
+            activeRequest = StartCoroutine(PerformFade(request));
+        }
+
+        private IEnumerator PerformFade(ScreenFadeRequest request)
+        {
+            if (screenFader != null)
+            {
+                screenFader.StopActiveFade();
+                yield return request.Target == ScreenFadeTarget.Black
+                    ? screenFader.FadeToBlackRoutine(request.Duration)
+                    : screenFader.FadeToClearRoutine(request.Duration);
+            }
+            request.Complete();
+            activeRequest = null;
         }
     }
 }

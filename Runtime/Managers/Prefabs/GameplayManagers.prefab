@@ -83,6 +83,8 @@ Transform:
   - {fileID: 1340673542739274946}
   - {fileID: 2096475498428414785}
   - {fileID: 379411494977870667}
+  - {fileID: 6145581230797543110}
+  - {fileID: 730011264883640102}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3074034347268235399
@@ -248,3 +250,111 @@ MonoBehaviour:
   onFlagCleared:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &5081849057764321209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6145581230797543110}
+  - component: {fileID: 4208719331546267058}
+  m_Layer: 0
+  m_Name: ObjectiveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6145581230797543110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081849057764321209}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3657594333865480803}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4208719331546267058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081849057764321209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee312cbc1abe4e9daccad155172d69a2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Objectives.ObjectiveManager
+  persistBetweenScenes: 1
+  destroyDuplicates: 1
+  database: {fileID: 0}
+  autoCompleteFromFlags: 1
+  allowReactivateCompleted: 0
+  onObjectiveActivated:
+    m_PersistentCalls:
+      m_Calls: []
+  onObjectiveUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  onObjectiveCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  onObjectiveCleared:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!1 &730011264883640101
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 730011264883640102}
+  - component: {fileID: 730011264883640103}
+  m_Layer: 0
+  m_Name: SpawnManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &730011264883640102
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730011264883640101}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3657594333865480803}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &730011264883640103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730011264883640101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 287c1f81c98432e4880589d76f703017, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.SpawnManager
+  persistBetweenScenes: 1
+  destroyDuplicates: 1
+  fallbackSpawnId: Default

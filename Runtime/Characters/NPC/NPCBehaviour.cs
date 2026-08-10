@@ -8,7 +8,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("Whether this behavior begins active when its GameObject starts.")]
         [SerializeField] private bool activeOnStart = true;
 
+        /// <summary>Gets the NPC controller that coordinates this behavior.</summary>
         protected NPCController Controller { get; private set; }
+
+        /// <summary>Gets whether this behavior is currently active.</summary>
         public bool IsBehaviourActive { get; private set; }
 
         protected virtual void Awake()
@@ -30,6 +33,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
             SetBehaviourActive(activeOnStart);
         }
 
+        /// <summary>
+        /// Activates or deactivates this behavior and invokes its matching lifecycle hook.
+        /// </summary>
+        /// <param name="active">Whether the behavior should be active.</param>
         public virtual void SetBehaviourActive(bool active)
         {
             if (IsBehaviourActive == active)

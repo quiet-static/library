@@ -618,7 +618,8 @@ public class BatchExtractMaterials : EditorWindow
 			ModelImporter modelImporter = AssetImporter.GetAtPath( modelPath ) as ModelImporter;
 			if( !modelImporter )
 			{
-				Debug.LogWarning( "Couldn't get ModelImporter from asset: " + AssetDatabase.GetAssetPath( data.model ), data.model );
+				QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+					"Couldn't get ModelImporter from asset: " + AssetDatabase.GetAssetPath(data.model));
 				modelData.RemoveAt( i-- );
 				continue;
 			}
@@ -792,7 +793,8 @@ public class BatchExtractMaterials : EditorWindow
 					if( j < 0 )
 					{
 						// This can only occur if user reimports the model with more materials when 'inModelSelectionPhase' is false
-						Debug.LogWarning( data.model.name + "." + name + " material has no matching data, skipped", data.model );
+						QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+							data.model.name + "." + name + " material has no matching data, skipped");
 						continue;
 					}
 
@@ -804,7 +806,8 @@ public class BatchExtractMaterials : EditorWindow
 							if( data.originalMaterials[j] && !AssetDatabase.IsMainAsset( data.originalMaterials[j] ) )
 								targetMaterial = data.originalMaterials[j];
 							else
-								Debug.LogWarning( data.model.name + "." + name + " isn't extracted because either the material doesn't exist or it is already extracted", data.model );
+								QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+									data.model.name + "." + name + " isn't extracted because either the material doesn't exist or it is already extracted");
 
 							break;
 						}
@@ -813,7 +816,8 @@ public class BatchExtractMaterials : EditorWindow
 							if( data.remappedMaterials[j] && ( data.originalMaterials[j] != data.remappedMaterials[j] || !AssetDatabase.IsMainAsset( data.remappedMaterials[j] ) ) )
 								targetMaterial = data.remappedMaterials[j];
 							else
-								Debug.LogWarning( data.model.name + "." + name + " isn't remapped because either the material doesn't exist or it is already extracted", data.model );
+								QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+									data.model.name + "." + name + " isn't remapped because either the material doesn't exist or it is already extracted");
 
 							break;
 						}

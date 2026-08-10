@@ -17,6 +17,7 @@ namespace QuietStatic.Toolkit.Flags
     {
         [Header("Flags")]
         [Tooltip("Flags that will be set when SetFlags is called. Blank entries are ignored by FlagManager.")]
+        [QuietStatic.Toolkit.Flags.FlagId]
         [SerializeField] private string[] flagsToSet;
 
         /// <summary>

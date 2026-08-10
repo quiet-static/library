@@ -17,11 +17,13 @@ namespace QuietStatic.Toolkit.Cameras
 
         [Header("Focus")]
         [Tooltip("How quickly the camera rotates toward its focus target.")]
+        [Min(0f)]
         [SerializeField] private float rotationSpeed = 5f;
 
         private Transform focusTarget;
         private bool isFocusing;
 
+        /// <summary>Gets whether scripted focus currently owns the camera.</summary>
         public bool IsFocusing => isFocusing;
 
         private void Awake()

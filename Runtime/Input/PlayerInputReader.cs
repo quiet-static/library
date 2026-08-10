@@ -124,11 +124,6 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void OnDisable()
         {
-            if (InputModeManager.Instance != null)
-            {
-                InputModeManager.Instance.UnregisterInput(this);
-            }
-
             if (pauseAction != null)
             {
                 pauseAction.performed -= HandlePausePressed;
@@ -140,6 +135,14 @@ namespace QuietStatic.Toolkit.Input
             }
 
             inputManager?.ClearGameplayInput();
+        }
+
+        private void OnDestroy()
+        {
+            if (InputModeManager.Instance != null)
+            {
+                InputModeManager.Instance.UnregisterInput(this);
+            }
         }
 
         /// <summary>
@@ -202,6 +205,8 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void CaptureActionInput()
         {
+            inputManager.SetInteractHeld(interactAction.IsPressed());
+
             if (interactAction.WasPressedThisFrame())
             {
                 inputManager.QueueInteract();

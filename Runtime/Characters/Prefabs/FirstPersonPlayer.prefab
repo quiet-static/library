@@ -657,7 +657,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8822662209356345195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd9eaa3bd8bad6d40be178dde500fef9, type: 3}
+  m_Script: {fileID: 11500000, guid: dbe74cd4e6a1af54a81748f30991c022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Characters.MovementStateController
 --- !u!4 &2639912491226459104 stripped
@@ -673,7 +673,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8822662209356345195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e13735635480774d900c96d69c2a0e6, type: 3}
+  m_Script: {fileID: 11500000, guid: 37c7641486fafd74bb56e57bba1c678c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Characters.CharacterMotor
 --- !u!1 &8822662209356345195 stripped

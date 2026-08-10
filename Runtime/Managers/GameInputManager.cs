@@ -24,7 +24,8 @@ namespace QuietStatic
     public class GameInputManager : ToolkitSingleton<GameInputManager>,
             IMoveInputSource,
             ILookInputSource,
-            IInteractInputSource
+            IInteractInputSource,
+            IHoldInteractInputSource
     {
         /////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -52,6 +53,9 @@ namespace QuietStatic
         /// </summary>
         public bool Interact { get; private set; }
 
+        /// <summary>Whether interact is currently held.</summary>
+        public bool InteractHeld { get; private set; }
+
         /// <summary>
         /// Whether pause was pressed this frame.
         /// </summary>
@@ -65,6 +69,7 @@ namespace QuietStatic
         private bool interactQueued;
 
         [Tooltip("Seconds an interact press remains queued while an interaction consumer becomes ready.")]
+        [Min(0f)]
         [SerializeField] private float interactBufferDuration = 0.15f;
         private float interactQueuedTime;
 
@@ -190,6 +195,12 @@ namespace QuietStatic
         public void SetInteractInput(bool interact)
         {
             Interact = interact;
+        }
+
+        /// <summary>Updates the continuous state of the interaction action.</summary>
+        public void SetInteractHeld(bool interactHeld)
+        {
+            InteractHeld = interactHeld;
         }
 
         /// <summary>
@@ -360,6 +371,7 @@ namespace QuietStatic
             Move = Vector2.zero;
             Look = Vector2.zero;
             Sprint = false;
+            InteractHeld = false;
             Pause = false;
             jumpQueued = false;
 

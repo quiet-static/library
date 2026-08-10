@@ -136,6 +136,7 @@ namespace QuietStatic.Toolkit.Dialogue
             if (dialogueUIManager != null)
             {
                 dialogueUIManager.OnChoiceSelected += ChooseDialogueOption;
+                dialogueUIManager.OnAdvanceRequested += AdvanceDialogue;
             }
         }
 
@@ -150,6 +151,7 @@ namespace QuietStatic.Toolkit.Dialogue
             if (dialogueUIManager != null)
             {
                 dialogueUIManager.OnChoiceSelected -= ChooseDialogueOption;
+                dialogueUIManager.OnAdvanceRequested -= AdvanceDialogue;
             }
         }
 
@@ -235,7 +237,7 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            dialogueRunner.Choose(choiceIndex);
+            dialogueRunner.ChooseAvailable(choiceIndex);
         }
 
         /// <summary>
@@ -283,12 +285,12 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            if (node.HasChoices)
+            if (dialogueRunner.AvailableChoiceCount > 0)
             {
                 dialogueUIManager.ShowChoices(
                     node.speaker,
                     node.line,
-                    node.GetChoiceTexts()
+                    dialogueRunner.GetAvailableChoiceTexts()
                 );
             }
             else

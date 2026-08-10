@@ -6,8 +6,7 @@
 	  "Unity.TextMeshPro",
 	  "Unity.InputSystem",
 	  "Unity.RenderPipelines.Core.Runtime",
-	  "Unity.RenderPipelines.Universal.Runtime",
-	  "Febucci.TextAnimatorForUnity.Runtime"
+	  "Unity.RenderPipelines.Universal.Runtime"
   ],
   "autoReferenced": true
 }

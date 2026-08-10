@@ -18,9 +18,11 @@ namespace QuietStatic
     {
         [Header("State IDs")]
         [Tooltip("State required before the game can be paused.")]
+        [GameStateId]
         [SerializeField] private string gameplayState = "Playing";
 
         [Tooltip("State assigned while the game is paused.")]
+        [GameStateId]
         [SerializeField] private string pausedState = "Paused";
 
         [Header("Pause UI Scene")]

@@ -10,13 +10,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
     {
         [Tooltip("NavMesh motor used to approach the controller target.")]
         [SerializeField] private NPCNavMeshMotor motor;
+        [Tooltip("Distance from the target at which the NPC stops approaching.")]
         [SerializeField, Min(0f)] private float followDistance = 2.5f;
+        [Tooltip("Extra separation required before a stopped NPC begins following again.")]
         [SerializeField, Min(0f)] private float resumeDistanceBuffer = 0.5f;
+        [Tooltip("Seconds between NavMesh destination updates while following.")]
         [SerializeField, Min(0.02f)] private float repathInterval = 0.15f;
         [Tooltip("Lead moving targets using their reported velocity to reduce trailing.")]
         [SerializeField] private bool useVelocityPrediction = true;
+        [Tooltip("Minimum velocity-prediction time in seconds.")]
         [SerializeField, Min(0f)] private float minimumLookAhead = 0.1f;
+        [Tooltip("Maximum velocity-prediction time in seconds.")]
         [SerializeField, Min(0f)] private float maximumLookAhead = 0.75f;
+        [Tooltip("Radius used to project predicted positions onto the NavMesh.")]
         [SerializeField, Min(0.1f)] private float destinationSampleRadius = 2f;
 
         private VelocityReporter targetVelocity;

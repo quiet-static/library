@@ -35,18 +35,21 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// Maximum movement speed while walking.
         /// </summary>
         [Tooltip("Maximum walking speed in world units per second.")]
+        [Min(0f)]
         [SerializeField] private float walkSpeed = 5f;
 
         /// <summary>
         /// Maximum movement speed while sprinting.
         /// </summary>
         [Tooltip("Maximum sprinting speed in world units per second.")]
+        [Min(0f)]
         [SerializeField] private float sprintSpeed = 8f;
 
         /// <summary>
         /// Speed used when rotating the character toward its movement direction.
         /// </summary>
         [Tooltip("Responsiveness when rotating toward the desired movement direction.")]
+        [Min(0f)]
         [SerializeField] private float rotationSpeed = 10f;
 
         [Header("Jump / Gravity")]
@@ -55,6 +58,7 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// Desired jump height in world units.
         /// </summary>
         [Tooltip("Approximate apex height of a jump in world units.")]
+        [Min(0f)]
         [SerializeField] private float jumpHeight = 1.2f;
 
         /// <summary>

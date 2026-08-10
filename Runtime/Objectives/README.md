@@ -1,15 +1,29 @@
 # Objectives
 
-`ObjectiveResolver` selects the current objective from ordered flag-based rules.
-`ObjectiveVisibilityController` shows or hides objective UI in response to state.
+Objectives use reusable definitions and a persistent lifecycle owner:
 
 ```text
+GameplayManagers
+`-- ObjectiveManager
+    `-- ObjectiveDatabase
+
+Scene
+`-- ObjectiveHandler (UnityEvent commands)
+
 UI
-└── Objective Panel
-    ├── ObjectiveResolver
-    ├── ObjectiveVisibilityController
-    └── Objective Text
+`-- ObjectivePresenter (title and description)
 ```
 
-Order rules from most specific/latest to fallback. Assign the same flag database used by
-`FlagManager`, then listen to the resolver or `ToolkitEvents.ObjectiveChanged` to update UI.
+Create `ObjectiveDefinition` assets with stable IDs, player-facing text, and an
+optional flag-based completion requirement. Add them to one `ObjectiveDatabase`
+and assign that database to the persistent `ObjectiveManager`.
+
+The manager owns the active definition and completed-ID history. It completes
+configured objectives when their flag requirement becomes true and implements
+`ISaveParticipant`, so `SaveManager` automatically captures and restores the
+lifecycle state.
+
+Use `ObjectiveHandler` on scene objects for trigger and UnityEvent commands.
+Use `ObjectivePresenter` for new UI. `ObjectiveResolver` still supports its
+original embedded text entries; assigning a definition to an entry opts that
+rule into manager-backed activation without breaking existing serialized data.

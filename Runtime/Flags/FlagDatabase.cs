@@ -29,11 +29,13 @@ namespace QuietStatic.Toolkit.Flags
         {
             [Header("Flag Identity")]
             [Tooltip("Unique string id used by runtime systems when setting or checking this flag.")]
+            /// <summary>Runtime flag identifier.</summary>
             public string id;
 
             [Header("Documentation")]
             [Tooltip("Human-readable explanation of what this flag represents and when it should be set.")]
-            [TextArea]
+            [TextArea(2, 5)]
+            /// <summary>Editor-facing documentation for this flag.</summary>
             public string description;
         }
 
