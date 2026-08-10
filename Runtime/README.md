@@ -4,13 +4,17 @@ Runtime code is grouped by responsibility. Components are intentionally small an
 be combined without adopting every toolkit system.
 
 - `Core`, `Managers`, and `Handlers` provide global state and event-driven coordination.
-- `Flags`, `Objectives`, and `Dialogue` provide narrative progression.
+- `Flags`, `Objectives`, `Dialogue`, and `Deductions` provide narrative progression.
 - `Characters`, `Input`, `Cameras`, `Interactions`, and `Minigames` provide
   player-facing gameplay.
 - `SceneFlow`, `Spawning`, and `Cinematics` coordinate transitions and sequences.
 - `Saving` coordinates versioned slots across flags, scenes, spawn points, and
   explicitly registered state participants.
-- `Audio`, `UI`, `Animation`, and `Utilities` provide reusable presentation helpers.
+- `Audio`, `UI`, `Settings`, `Animation`, and `Utilities` provide reusable presentation helpers.
+
+Cross-scene player activities use `PlayerActivityChannel`, `HoldActivitySequence`, and
+`PlayerActivityHandler`. The older eating-named types remain only as obsolete source
+compatibility adapters and should not be used in new content.
 
 Start with the manager prefabs and sample scenes. Avoid placing a second copy of a
 singleton manager in content scenes; use handlers or static events from scene objects.

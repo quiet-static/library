@@ -2,11 +2,13 @@ using System;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace QuietStatic.NightwatchTheatre.Deductions
+namespace QuietStatic.Toolkit.Deductions
 {
     /// <summary>Selects the highest-priority deduction result matching current flags.</summary>
-    [AddComponentMenu("Quiet Static/Nightwatch Theatre/Deductions/Evaluator")]
+    [MovedFrom(true, "QuietStatic.NightwatchTheatre.Deductions", null, "DeductionEvaluator")]
+    [AddComponentMenu("Quiet Static Toolkit/Deductions/Evaluator")]
     public sealed class DeductionEvaluator : MonoBehaviour
     {
         /// <summary>UnityEvent carrying the selected deduction result.</summary>

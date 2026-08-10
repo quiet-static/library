@@ -1,14 +1,16 @@
 using System;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace QuietStatic.NightwatchTheatre.Deductions
+namespace QuietStatic.Toolkit.Deductions
 {
     /// <summary>
     /// Keeps each configured deduction category mutually exclusive while continuing to
     /// use <see cref="FlagManager"/> as the authoritative state store.
     /// </summary>
-    [AddComponentMenu("Quiet Static/Nightwatch Theatre/Deductions/Category Controller")]
+    [MovedFrom(true, "QuietStatic.NightwatchTheatre.Deductions", null, "DeductionCategoryController")]
+    [AddComponentMenu("Quiet Static Toolkit/Deductions/Category Controller")]
     public sealed class DeductionCategoryController : MonoBehaviour
     {
         /// <summary>Defines the answer flags that belong to one deduction question.</summary>

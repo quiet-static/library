@@ -1,20 +1,21 @@
+using QuietStatic.Input;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Interactions
 {
     /// <summary>
     /// Adapts a world-space hold interaction into a cross-scene seated sequence.
-    /// The couch owns when eating is available; the player scene owns its effects.
+    /// The world object owns when the activity is available; the player scene owns its effects.
     /// </summary>
     [RequireComponent(typeof(HoldInteractable))]
-    [AddComponentMenu("Quiet Static Toolkit/Interactions/Seated Hold Sequence")]
-    public sealed class SeatedHoldSequence : MonoBehaviour
+    [AddComponentMenu("Quiet Static Toolkit/Interactions/Hold Activity Sequence")]
+    public class HoldActivitySequence : MonoBehaviour
     {
         [Tooltip("Hold interaction enabled after the player sits. Defaults to this object.")]
         [SerializeField] private HoldInteractable holdInteractable;
 
-        [Tooltip("Channel received by the persistent player-scene eating handler.")]
-        [SerializeField] private EatingSequenceChannel channel;
+        [Tooltip("Channel received by the persistent player-scene activity handler.")]
+        [SerializeField] private PlayerActivityChannel channel;
 
         [Tooltip("World-space position and facing direction used while the player is seated.")]
         [SerializeField] private Transform playerAnchor;
@@ -25,6 +26,9 @@ namespace QuietStatic.Toolkit.Interactions
 
         [Tooltip("UI channel used for the prompt and progress meter when collider focus is not required.")]
         [SerializeField] private InteractionUIChannel interactionUIChannel;
+
+        [Tooltip("Optional component implementing IHoldInteractInputSource. Defaults to the active GameInputManager for backward compatibility.")]
+        [SerializeField] private MonoBehaviour holdInputSource;
 
         [Header("Camera Focus")]
         [Tooltip("Optional object the seated camera initially faces, such as a television.")]
@@ -43,6 +47,8 @@ namespace QuietStatic.Toolkit.Interactions
 
         private bool isSeated;
         private bool isDirectHoldActive;
+        private IHoldInteractInputSource HoldInput =>
+            holdInputSource as IHoldInteractInputSource ?? GameInputManager.Instance;
 
         /// <summary>
         /// Gets whether eating must remain under the crosshair. When false, the
@@ -97,8 +103,7 @@ namespace QuietStatic.Toolkit.Interactions
                 return;
             }
 
-            bool isHeld = GameInputManager.Instance != null &&
-                GameInputManager.Instance.InteractHeld;
+            bool isHeld = HoldInput?.InteractHeld == true;
 
             if (!isHeld)
             {
@@ -189,6 +194,12 @@ namespace QuietStatic.Toolkit.Interactions
             StopDirectHold(false);
             channel?.Cancel();
         }
+
+        /// <summary>Begins the configured player activity.</summary>
+        public void BeginActivity() => BeginSitting();
+
+        /// <summary>Cancels the configured player activity.</summary>
+        public void CancelActivity() => CancelSitting();
 
         private void HandleProgressChanged(float progress) =>
             channel?.ReportProgress(progress);

@@ -1,4 +1,5 @@
 using System.IO;
+using TMPro;
 using QuietStatic.Toolkit.Settings;
 using QuietStatic.Toolkit.UI.Menu;
 using UnityEditor;
@@ -19,10 +20,13 @@ namespace QuietStatic.Toolkit.Editor.Settings
         private static void BuildMissingPrefabs()
         {
             GameObject settingsPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Output}/SettingsMenu.prefab");
+            GameObject titlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Output}/TitleMenu.prefab");
             bool hasCurrentSettingsLayout = settingsPrefab != null &&
                                             settingsPrefab.transform.Find("Master volume") != null;
-            if (hasCurrentSettingsLayout &&
-                File.Exists($"{Output}/TitleMenu.prefab") &&
+            Transform titleMainPage = titlePrefab != null ? titlePrefab.transform.Find("MainPage") : null;
+            bool hasSpaciousTitleLayout = titleMainPage != null &&
+                                          titleMainPage.GetComponent<VerticalLayoutGroup>() == null;
+            if (hasCurrentSettingsLayout && hasSpaciousTitleLayout &&
                 File.Exists($"{Output}/PauseMenu.prefab") &&
                 File.Exists($"{Output}/InputRebindControl.prefab")) return;
             EditorApplication.delayCall += BuildAll;
@@ -82,9 +86,11 @@ namespace QuietStatic.Toolkit.Editor.Settings
         private static GameObject BuildPauseMenu()
         {
             GameObject root = Panel("PauseMenu", new Color(0f, 0f, 0f, 0.72f));
+            Stretch(root.GetComponent<RectTransform>());
             root.AddComponent<CanvasGroup>();
             GameObject main = Panel("MainPage", new Color(0.04f, 0.045f, 0.055f, 0.98f));
             main.transform.SetParent(root.transform, false);
+            Center(main.GetComponent<RectTransform>(), new Vector2(560f, 0f));
             VerticalLayoutGroup layout = main.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(48, 48, 48, 48);
             layout.spacing = 18;
@@ -100,6 +106,7 @@ namespace QuietStatic.Toolkit.Editor.Settings
             GameObject settings = BuildSettingsMenu();
             settings.name = "SettingsPage";
             settings.transform.SetParent(root.transform, false);
+            Center(settings.GetComponent<RectTransform>(), new Vector2(760f, 0f));
             settings.SetActive(false);
 
             GameQuitter quitter = root.AddComponent<GameQuitter>();
@@ -120,25 +127,27 @@ namespace QuietStatic.Toolkit.Editor.Settings
 
         private static GameObject BuildTitleMenu()
         {
-            GameObject root = Panel("TitleMenu", new Color(0f, 0f, 0f, 0.72f));
+            GameObject root = Panel("TitleMenu", new Color(0.025f, 0.03f, 0.04f, 1f));
+            Stretch(root.GetComponent<RectTransform>());
             root.AddComponent<CanvasGroup>();
-            GameObject main = Panel("MainPage", new Color(0.04f, 0.045f, 0.055f, 0.98f));
+            GameObject main = Panel("MainPage", Color.clear);
             main.transform.SetParent(root.transform, false);
-            VerticalLayoutGroup layout = main.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(48, 48, 48, 48);
-            layout.spacing = 18;
-            layout.childControlHeight = false;
-            layout.childForceExpandHeight = false;
-            ContentSizeFitter mainFitter = main.AddComponent<ContentSizeFitter>();
-            mainFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            AddTitle(main.transform, "GAME TITLE");
+            Stretch(main.GetComponent<RectTransform>());
+
+            TMP_Text title = AddTitle(main.transform, "GAME TITLE");
+            Place(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(760f, 120f), new Vector2(0f, -170f));
+            title.fontSize = 64;
             Button start = AddButton(main.transform, "Start Game");
             Button settingsButton = AddButton(main.transform, "Settings");
             Button exit = AddButton(main.transform, "Exit Game");
+            Place(start.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(340f, 64f), new Vector2(0f, 90f));
+            Place(settingsButton.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(340f, 64f), Vector2.zero);
+            Place(exit.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(340f, 64f), new Vector2(0f, -90f));
 
             GameObject settings = BuildSettingsMenu();
             settings.name = "SettingsPage";
             settings.transform.SetParent(root.transform, false);
+            Center(settings.GetComponent<RectTransform>(), new Vector2(760f, 0f));
             settings.SetActive(false);
 
             GameQuitter quitter = root.AddComponent<GameQuitter>();
@@ -161,10 +170,10 @@ namespace QuietStatic.Toolkit.Editor.Settings
         {
             GameObject row = Row(null, "Input Action");
             row.name = "InputRebindControl";
-            Text action = row.transform.GetChild(0).GetComponent<Text>();
+            TMP_Text action = row.transform.GetChild(0).GetComponent<TMP_Text>();
             Button button = AddButton(row.transform, "Rebind");
             button.GetComponent<LayoutElement>().preferredWidth = 220;
-            Text binding = button.GetComponentInChildren<Text>();
+            TMP_Text binding = button.GetComponentInChildren<TMP_Text>();
             InputRebindControl control = row.AddComponent<InputRebindControl>();
             SerializedObject serialized = new(control);
             Set(serialized, "actionLabel", action);
@@ -184,19 +193,34 @@ namespace QuietStatic.Toolkit.Editor.Settings
             return panel;
         }
 
-        private static void AddTitle(Transform parent, string value)
+        private static TMP_Text AddTitle(Transform parent, string value)
         {
-            Text text = AddText(parent, value, 30);
-            text.alignment = TextAnchor.MiddleCenter;
+            TMP_Text text = AddText(parent, value, 30);
+            text.alignment = TextAlignmentOptions.Center;
             text.gameObject.AddComponent<LayoutElement>().preferredHeight = 54;
+            return text;
         }
 
-        private static void AddNotice(Transform parent, string title, string body)
+        private static void Stretch(RectTransform rect)
         {
-            AddText(parent, title, 18).gameObject.AddComponent<LayoutElement>().preferredHeight = 28;
-            Text text = AddText(parent, body, 14);
-            text.color = new Color(0.75f, 0.78f, 0.82f);
-            text.gameObject.AddComponent<LayoutElement>().preferredHeight = 42;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        private static void Center(RectTransform rect, Vector2 size)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = size;
+        }
+
+        private static void Place(RectTransform rect, Vector2 anchor, Vector2 size, Vector2 position)
+        {
+            rect.anchorMin = rect.anchorMax = anchor;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
         }
 
         private static Toggle AddToggle(Transform parent, string label)
@@ -204,19 +228,9 @@ namespace QuietStatic.Toolkit.Editor.Settings
             GameObject item = DefaultControls.CreateToggle(Resources);
             item.name = label;
             item.transform.SetParent(parent, false);
-            item.GetComponentInChildren<Text>().text = label;
+            ConvertLegacyText(item.GetComponentInChildren<Text>(), label, 16);
             item.AddComponent<LayoutElement>().preferredHeight = 34;
             return item.GetComponent<Toggle>();
-        }
-
-        private static Dropdown AddDropdown(Transform parent, string label)
-        {
-            GameObject row = Row(parent, label);
-            GameObject item = DefaultControls.CreateDropdown(Resources);
-            item.name = "Control";
-            item.transform.SetParent(row.transform, false);
-            item.AddComponent<LayoutElement>().preferredWidth = 300;
-            return item.GetComponent<Dropdown>();
         }
 
         private static Slider AddSlider(Transform parent, string label)
@@ -240,7 +254,7 @@ namespace QuietStatic.Toolkit.Editor.Settings
             HorizontalLayoutGroup layout = row.GetComponent<HorizontalLayoutGroup>();
             layout.spacing = 18;
             layout.childAlignment = TextAnchor.MiddleLeft;
-            Text text = AddText(row.transform, label, 16);
+            TMP_Text text = AddText(row.transform, label, 16);
             text.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
             return row;
         }
@@ -250,20 +264,35 @@ namespace QuietStatic.Toolkit.Editor.Settings
             GameObject item = DefaultControls.CreateButton(Resources);
             item.name = label;
             item.transform.SetParent(parent, false);
-            item.GetComponentInChildren<Text>().text = label;
+            ConvertLegacyText(item.GetComponentInChildren<Text>(), label, 18);
             item.AddComponent<LayoutElement>().preferredHeight = 52;
             return item.GetComponent<Button>();
         }
 
-        private static Text AddText(Transform parent, string value, int size)
+        private static TMP_Text AddText(Transform parent, string value, int size)
         {
-            GameObject item = DefaultControls.CreateText(Resources);
+            GameObject item = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             item.name = "Label";
             item.transform.SetParent(parent, false);
-            Text text = item.GetComponent<Text>();
+            TextMeshProUGUI text = item.GetComponent<TextMeshProUGUI>();
             text.text = value;
             text.fontSize = size;
             text.color = Color.white;
+            text.alignment = TextAlignmentOptions.MidlineLeft;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private static TMP_Text ConvertLegacyText(Text legacyText, string value, float size)
+        {
+            GameObject textObject = legacyText.gameObject;
+            Object.DestroyImmediate(legacyText);
+            TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+            text.text = value;
+            text.fontSize = size;
+            text.color = Color.white;
+            text.alignment = TextAlignmentOptions.Center;
+            text.raycastTarget = false;
             return text;
         }
 

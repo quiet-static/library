@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -14,8 +15,10 @@ namespace QuietStatic.Toolkit.Settings
         [SerializeField] private InputActionReference action;
         [Tooltip("Index within the action bindings collection. Composite parts count as bindings.")]
         [Min(0)] [SerializeField] private int bindingIndex;
-        [SerializeField] private Text actionLabel;
-        [SerializeField] private Text bindingLabel;
+        [Tooltip("TextMeshPro label displaying the action name.")]
+        [SerializeField] private TMP_Text actionLabel;
+        [Tooltip("TextMeshPro label displaying the current binding.")]
+        [SerializeField] private TMP_Text bindingLabel;
         [Tooltip("Button that begins interactive rebinding.")]
         [SerializeField] private Button rebindButton;
         [Tooltip("Text displayed while waiting for the player's replacement input.")]

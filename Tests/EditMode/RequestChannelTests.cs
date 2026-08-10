@@ -46,14 +46,14 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void EatingSequenceChannel_ForwardsAnchorAndLimitedLookContext()
+        public void PlayerActivityChannel_ForwardsAnchorAndLimitedLookContext()
         {
-            EatingSequenceChannel channel =
-                ScriptableObject.CreateInstance<EatingSequenceChannel>();
+            PlayerActivityChannel channel =
+                ScriptableObject.CreateInstance<PlayerActivityChannel>();
             GameObject anchor = new("Player Anchor");
             GameObject focus = new("Camera Focus");
             Transform legacyAnchor = null;
-            EatingSequenceContext received = default;
+            PlayerActivityContext received = default;
             channel.Began += value => legacyAnchor = value;
             channel.ContextBegan += value => received = value;
 

@@ -17,15 +17,9 @@ The canonical package source in the Quiet Static workspace is
 `libraries/library`. Do not copy the package into a project's `Assets`
 directory; Unity would compile a second set of assemblies and asset GUIDs.
 
-Both active projects consume this same checkout through local Package Manager
-dependencies:
-
-- Stolen: `file:../../../libraries/library`
-- Lab Partners: `file:../../../../libraries/library`
-
-Keep each project's `Packages/manifest.json` and `packages-lock.json` entries
-together. For a standalone release, replace the local path with an immutable
-Git revision as described below.
+Workspace projects consume this checkout through a local Package Manager dependency.
+Keep each project's `Packages/manifest.json` and `packages-lock.json` entries together.
+For a standalone release, replace the local path with an immutable Git revision.
 
 ## Recommended project structure
 
@@ -79,6 +73,8 @@ Inspector-facing IDs should come from the provided databases.
 3. Assign flag and game-state databases before wiring scene behavior.
 4. Add a player prefab and matching camera rig.
 5. Load content scenes additively through the Scene Flow components.
+6. Use the neutral TextMeshPro title, pause, and settings prefabs under
+   `Runtime/UI/Prefabs`, then create prefab variants for game-specific presentation.
 
 Every runtime module contains a README with setup, hierarchy examples, and integration
 notes. API comments and Inspector tooltips document individual components and fields.

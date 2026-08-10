@@ -9,6 +9,7 @@ recipe for the feature being built.
 - [Scene transitions and spawning](Setup/SceneTransitionsAndSpawning.md)
 - [Dialogue, choices, and story sequences](Setup/DialogueAndStory.md)
 - [Interactions and objectives](Setup/InteractionsAndObjectives.md)
+- [Reusable activity recipes](Runtime/CommonComponentRecipes.md#recipe-staged-interactions)
 - [Horror tension and jumpscares](Setup/HorrorPresentation.md)
 - [Settings, pause, and accessibility](Setup/SettingsPauseAccessibility.md)
 - [Saving and restoration](Setup/SavingAndRestoration.md)

@@ -234,8 +234,8 @@ project-specific sequence, input-action, and channel references are intentionall
 
 ## Recipe: staged interactions
 
-Use stages when the same object changes interaction type, such as “sit” followed by “hold to
-eat,” or “insert fuel” followed by “start generator.”
+Use stages when the same object changes interaction type, such as “sit” followed by
+“perform activity,” or “insert fuel” followed by “start generator.”
 
 1. Put the initial `Interactable` and later `HoldInteractable` on the same target root.
 2. Disable the later hold at startup with **Start Enabled**.
@@ -244,15 +244,16 @@ eat,” or “insert fuel” followed by “start generator.”
 5. Let the coordinator forward progress and completion to the components that own their
    effects.
 
-`SeatedHoldSequence` and `EatingSequenceChannel` are examples of this pattern, not a reason
-to place food behavior inside the generic interaction system. A content object publishes
-sequence events; the persistent player scene owns movement and held-item visuals.
+`HoldActivitySequence` and `PlayerActivityChannel` are examples of this pattern, not a reason
+to place project-specific behavior inside the generic interaction system. A content object
+publishes sequence events; the persistent player scene owns movement, camera constraints,
+progress visuals, and completion state.
 
-For seated activities, disable **Require Collider Focus** on `SeatedHoldSequence` and assign
-the project's `InteractionUIChannel`. Once sitting begins, the sequence reads the held
-Interact action directly and publishes its prompt and progress meter through the channel.
-The initial sit interaction can still use the furniture collider, but eating no longer needs
-a separate trigger collider or continued crosshair focus. Leave the option enabled for
+For seated activities, disable **Require Collider Focus** on `HoldActivitySequence` and assign
+the project's `InteractionUIChannel`. Once the activity begins, the sequence reads held input
+through its `IHoldInteractInputSource` and publishes its prompt and progress meter through the
+channel. The initial interaction can still use a world collider, but the activity does not
+need a separate trigger collider or continued crosshair focus. Leave the option enabled for
 ordinary world-space holds that should cancel when the player looks away.
 
 Assign **Camera Focus Target** when the seated player should initially face an object such
@@ -260,6 +261,10 @@ as a television. **Horizontal Look Range** and **Vertical Look Range** keep norm
 input enabled inside a limited region around that object. The player body remains aligned
 to the seat while constrained, and normal camera/body behavior is restored when the
 sequence completes or is cancelled.
+
+Place `PlayerActivityHandler` in the persistent player scene and assign the same
+`PlayerActivityChannel`. Its optional progress visual and completion state keep presentation
+and player-owned effects out of the content object.
 
 For audio that exists only while input is held:
 

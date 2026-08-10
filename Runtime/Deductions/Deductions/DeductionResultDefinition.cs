@@ -1,13 +1,15 @@
 using System;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace QuietStatic.NightwatchTheatre.Deductions
+namespace QuietStatic.Toolkit.Deductions
 {
     /// <summary>Data-driven conclusion selected from the current gameplay flags.</summary>
+    [MovedFrom(true, "QuietStatic.NightwatchTheatre.Deductions", null, "DeductionResultDefinition")]
     [CreateAssetMenu(
         fileName = "Deduction Result",
-        menuName = "Quiet Static/Nightwatch Theatre/Deductions/Result Definition")]
+        menuName = "Quiet Static Toolkit/Deductions/Result Definition")]
     public sealed class DeductionResultDefinition : ScriptableObject
     {
         [Tooltip("Stable result ID used by game-specific ending logic and save data.")]

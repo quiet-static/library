@@ -33,8 +33,9 @@ should raise events or call handlers instead of storing direct manager
 references.
 
 `QuietStatic.Toolkit.State.GameStateManager` is the authoritative game-state
-owner. `QuietStatic.SettingsManager` is the authoritative settings owner; its
-UI references are optional so it can run without a settings menu being loaded.
+owner. `QuietStatic.SettingsManager` is the authoritative settings owner and
+does not reference scene UI. A loaded `SettingsMenuView` binds reusable UI
+controls to that state when a settings menu is open.
 The deprecated manager types are isolated in
 `QuietStatic.Compatibility.Runtime` and remain only for serialized compatibility.
 

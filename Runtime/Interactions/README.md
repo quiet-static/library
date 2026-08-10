@@ -100,16 +100,25 @@ The progress UnityEvent emits a normalized value every frame. Completion
 events can be wired to a scene handler that advances the project's clock; the
 content object does not need to reference a persistent time manager directly.
 
-`SeatedHoldSequence` can disable **Require Collider Focus** when a locked activity
+## Cross-scene player activities
+
+`HoldActivitySequence` can disable **Require Collider Focus** when a locked activity
 should consume held interaction input without continued aiming. In that mode it
 temporarily removes the hold from `Interactor` raycast selection and sends its
-prompt and progress through `InteractionUIChannel`; no separate eating collider
-is required.
+prompt and progress through `InteractionUIChannel`. Assign any component implementing
+`IHoldInteractInputSource`, or leave it empty to use the active `GameInputManager` as a
+compatibility fallback.
 
 The same sequence can publish an optional camera focus target and yaw/pitch ranges through
-`EatingSequenceChannel`. The persistent player handler applies a limited-look region to
-`CameraController` while keeping positional movement locked. Add `HoldAudioFeedback` beside
+`PlayerActivityChannel`. The persistent player handler applies a limited-look region to
+`CameraController` while keeping positional movement locked. `PlayerActivityHandler` may
+also scale an optional progress visual and activate an `ObjectStateDefinition` on
+completion. Add `HoldAudioFeedback` beside
 a hold and configure an `AudioEventPlayer` when looping audio should follow held input.
+
+New content should use `PlayerActivityContext`, `PlayerActivityChannel`,
+`HoldActivitySequence`, and `PlayerActivityHandler`. The former eating-named types are
+obsolete adapters retained only for source compatibility.
 
 ## Activated progress interactions
 

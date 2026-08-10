@@ -3,6 +3,7 @@
   "rootNamespace": "QuietStatic",
   "references": [
     "QuietStatic.Core.Runtime",
+    "Unity.TextMeshPro",
     "Unity.TextMeshPro.Editor",
     "Unity.InputSystem"
   ],

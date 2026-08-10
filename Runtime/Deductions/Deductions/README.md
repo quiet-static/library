@@ -1,4 +1,7 @@
-# Nightwatch Theatre Deductions
+# Deductions
+
+The reusable API lives in `QuietStatic.Toolkit.Deductions`; it has no dependency on a
+specific game's characters, evidence, endings, or scene names.
 
 Use the existing `DialogueTree` for questions and choices. Let each choice set one
 answer flag. A scene-level `DeductionCategoryController` observes those flags and clears
@@ -13,3 +16,7 @@ event to `DeductionEvaluator.Evaluate`, then wire **On Result Evaluated** to
 Keep story flags, dialogue trees, result assets, and scene transitions in the game
 project. The toolkit module owns only category exclusivity, result matching, and UI
 binding.
+
+`DeductionCategoryController` is optional. Use it when one answer flag per category must
+remain selected. `DeductionEvaluator.FindResult` can also be called directly for projects
+that provide their own flow or UI. Higher priority wins, and array order breaks ties.

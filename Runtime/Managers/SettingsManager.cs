@@ -1,8 +1,6 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
@@ -22,14 +20,14 @@ namespace QuietStatic
     }
 
     /// <summary>
-    /// Connects settings UI controls to audio, display, brightness, and mouse preferences.
+    /// Stores and applies audio, display, accessibility, and gameplay preferences.
     /// </summary>
     /// <remarks>
     /// Values are stored in <see cref="PlayerPrefs"/> and applied on startup. Place one instance
     /// in the persistent UI or System scene. Mixer parameters must match the documented names,
     /// and brightness requires a Volume profile containing a Color Adjustments override.
     /// </remarks>
-    [AddComponentMenu("Quiet Static Toolkit/Managers/Settings Manager UI")]
+    [AddComponentMenu("Quiet Static Toolkit/Managers/Settings Manager")]
     public class SettingsManager : MonoBehaviour
     {
         /// <summary>Gets the active settings UI manager.</summary>
@@ -48,30 +46,8 @@ namespace QuietStatic
         [Tooltip("Mixer containing exposed MasterVolume, MusicVolume, and SfxVolume parameters.")]
         [SerializeField] private AudioMixer audioMixer;
 
-        [Header("Audio Sliders")]
-        [Tooltip("Normalized zero-to-one master volume slider.")]
-        [SerializeField] private Slider masterVolumeSlider;
-        [Tooltip("Normalized zero-to-one music volume slider.")]
-        [SerializeField] private Slider musicVolumeSlider;
-        [Tooltip("Normalized zero-to-one sound-effects volume slider.")]
-        [SerializeField] private Slider sfxVolumeSlider;
-
-        [Header("Video")]
-        [Tooltip("Dropdown populated from Resolution Options at startup.")]
-        [SerializeField] private TMP_Dropdown resolutionDropdown;
-        [Tooltip("Toggle that enables one VSync interval when selected.")]
-        [SerializeField] private Toggle vSyncToggle;
-
-        [Header("Brightness")]
-        [Tooltip("Post-exposure slider. Requires Color Adjustments on a loaded Volume profile.")]
-        [SerializeField] private Slider brightnessSlider;
-
         private Volume globalVolume;
         private ColorAdjustments colorAdjustments;
-
-        [Header("Gameplay")]
-        [Tooltip("Normalized look sensitivity control broadcast to player look systems.")]
-        [SerializeField] private Slider mouseSensitivitySlider;
 
         [Header("Resolution Options")]
         [Tooltip("Ordered resolutions displayed by the resolution dropdown.")]
@@ -147,54 +123,8 @@ namespace QuietStatic
 
         private void Start()
         {
-            SetupResolutionDropdown();
             SetupBrightnessVolume();
             LoadSettings();
-            HookupUIEvents();
-        }
-
-        private void HookupUIEvents()
-        {
-            if (masterVolumeSlider != null)
-                masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
-
-            if (musicVolumeSlider != null)
-                musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
-
-            if (sfxVolumeSlider != null)
-                sfxVolumeSlider.onValueChanged.AddListener(SetSfxVolume);
-
-            if (brightnessSlider != null)
-                brightnessSlider.onValueChanged.AddListener(SetBrightness);
-
-            if (resolutionDropdown != null)
-                resolutionDropdown.onValueChanged.AddListener(SetResolution);
-
-            if (vSyncToggle != null)
-                vSyncToggle.onValueChanged.AddListener(SetVSync);
-
-            if (mouseSensitivitySlider != null)
-                mouseSensitivitySlider.onValueChanged.AddListener(SetMouseSensitivity);
-        }
-
-        private void SetupResolutionDropdown()
-        {
-            if (resolutionDropdown == null ||
-                resolutionOptions == null ||
-                resolutionOptions.Length == 0)
-            {
-                return;
-            }
-
-            resolutionDropdown.ClearOptions();
-
-            for (int i = 0; i < resolutionOptions.Length; i++)
-            {
-                ResolutionOption option = resolutionOptions[i];
-                resolutionDropdown.options.Add(new TMP_Dropdown.OptionData(option.GetLabel()));
-            }
-
-            resolutionDropdown.RefreshShownValue();
         }
 
         private void LoadSettings()
@@ -210,27 +140,6 @@ namespace QuietStatic
             float mouseSensitivity = PlayerPrefs.GetFloat(MouseSensitivityKey, 1f);
             float ambienceVolume = PlayerPrefs.GetFloat(AmbienceVolumeKey, 1f);
             float dialogueVolume = PlayerPrefs.GetFloat(DialogueVolumeKey, 1f);
-
-            if (masterVolumeSlider != null)
-                masterVolumeSlider.SetValueWithoutNotify(masterVolume);
-
-            if (musicVolumeSlider != null)
-                musicVolumeSlider.SetValueWithoutNotify(musicVolume);
-
-            if (sfxVolumeSlider != null)
-                sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
-
-            if (brightnessSlider != null)
-                brightnessSlider.SetValueWithoutNotify(brightness);
-
-            if (resolutionDropdown != null)
-                resolutionDropdown.SetValueWithoutNotify(resolutionIndex);
-
-            if (vSyncToggle != null)
-                vSyncToggle.SetIsOnWithoutNotify(vSync);
-
-            if (mouseSensitivitySlider != null)
-                mouseSensitivitySlider.SetValueWithoutNotify(mouseSensitivity);
 
             ApplyMasterVolume(masterVolume);
             ApplyMusicVolume(musicVolume);

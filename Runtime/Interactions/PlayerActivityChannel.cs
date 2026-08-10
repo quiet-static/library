@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace QuietStatic.Toolkit.Interactions
 {
-    /// <summary>Context used to position the player and constrain camera look while eating.</summary>
-    public readonly struct EatingSequenceContext
+    /// <summary>Context used to position the player and constrain camera look during an activity.</summary>
+    public readonly struct PlayerActivityContext
     {
-        public EatingSequenceContext(
+        public PlayerActivityContext(
             Transform playerAnchor,
             Transform cameraFocusTarget,
             float horizontalLookRange,
@@ -28,31 +28,31 @@ namespace QuietStatic.Toolkit.Interactions
     }
 
     /// <summary>
-    /// Carries a seated eating sequence from a world-scene interaction to the
+    /// Carries a seated progress activity from a world-scene interaction to the
     /// persistent player scene without either scene directly referencing the other.
     /// </summary>
     [CreateAssetMenu(
-        fileName = "EatingSequenceChannel",
-        menuName = "Quiet Static Toolkit/Interactions/Eating Sequence Channel")]
-    public sealed class EatingSequenceChannel : ScriptableObject
+        fileName = "PlayerActivityChannel",
+        menuName = "Quiet Static Toolkit/Interactions/Player Activity Channel")]
+    public class PlayerActivityChannel : ScriptableObject
     {
         /// <summary>
-        /// Raised when the player enters the seated eating state. The argument is the
+        /// Raised when the player enters the seated activity. The argument is the
         /// world-space anchor where the player should be positioned, or null when no
         /// repositioning is requested.
         /// </summary>
         public event Action<Transform> Began;
 
         /// <summary>Raised with the complete seated position and camera configuration.</summary>
-        public event Action<EatingSequenceContext> ContextBegan;
+        public event Action<PlayerActivityContext> ContextBegan;
 
-        /// <summary>Raised with normalized eating progress.</summary>
+        /// <summary>Raised with normalized activity progress.</summary>
         public event Action<float> ProgressChanged;
 
-        /// <summary>Raised when all food has been consumed.</summary>
+        /// <summary>Raised when the activity is complete.</summary>
         public event Action Completed;
 
-        /// <summary>Raised if the seated eating state ends without completion.</summary>
+        /// <summary>Raised if the activity ends without completion.</summary>
         public event Action Cancelled;
 
         /// <summary>Begins the seated eating state without repositioning the player.</summary>
@@ -75,7 +75,7 @@ namespace QuietStatic.Toolkit.Interactions
             float verticalLookRange,
             bool snapCameraToFocus = true)
         {
-            var context = new EatingSequenceContext(
+            var context = new PlayerActivityContext(
                 playerAnchor,
                 cameraFocusTarget,
                 horizontalLookRange,

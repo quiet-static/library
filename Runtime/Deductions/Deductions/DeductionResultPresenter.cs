@@ -1,11 +1,13 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace QuietStatic.NightwatchTheatre.Deductions
+namespace QuietStatic.Toolkit.Deductions
 {
     /// <summary>Presents a deduction result without owning evaluation or ending flow.</summary>
-    [AddComponentMenu("Quiet Static/Nightwatch Theatre/Deductions/Result Presenter")]
+    [MovedFrom(true, "QuietStatic.NightwatchTheatre.Deductions", null, "DeductionResultPresenter")]
+    [AddComponentMenu("Quiet Static Toolkit/Deductions/Result Presenter")]
     public sealed class DeductionResultPresenter : MonoBehaviour
     {
         [Tooltip("Optional root shown when a result is presented.")]

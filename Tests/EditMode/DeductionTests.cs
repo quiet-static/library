@@ -1,6 +1,6 @@
 using System.Reflection;
 using NUnit.Framework;
-using QuietStatic.NightwatchTheatre.Deductions;
+using QuietStatic.Toolkit.Deductions;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 
