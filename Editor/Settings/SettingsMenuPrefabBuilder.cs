@@ -22,6 +22,7 @@ namespace QuietStatic.Toolkit.Editor.Settings
             bool hasCurrentSettingsLayout = settingsPrefab != null &&
                                             settingsPrefab.transform.Find("Master volume") != null;
             if (hasCurrentSettingsLayout &&
+                File.Exists($"{Output}/TitleMenu.prefab") &&
                 File.Exists($"{Output}/PauseMenu.prefab") &&
                 File.Exists($"{Output}/InputRebindControl.prefab")) return;
             EditorApplication.delayCall += BuildAll;
@@ -39,13 +40,17 @@ namespace QuietStatic.Toolkit.Editor.Settings
             PrefabUtility.SaveAsPrefabAsset(rebind, $"{Output}/InputRebindControl.prefab");
             Object.DestroyImmediate(rebind);
 
+            GameObject title = BuildTitleMenu();
+            PrefabUtility.SaveAsPrefabAsset(title, $"{Output}/TitleMenu.prefab");
+            Object.DestroyImmediate(title);
+
             GameObject pause = BuildPauseMenu();
             PrefabUtility.SaveAsPrefabAsset(pause, $"{Output}/PauseMenu.prefab");
             Object.DestroyImmediate(pause);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             GameLogger.Log(nameof(SettingsMenuPrefabBuilder), null,
-                "Created reusable SettingsMenu and PauseMenu prefabs.");
+                "Created reusable SettingsMenu, TitleMenu, and PauseMenu prefabs.");
         }
 
         private static GameObject BuildSettingsMenu()
@@ -85,6 +90,8 @@ namespace QuietStatic.Toolkit.Editor.Settings
             layout.spacing = 18;
             layout.childControlHeight = false;
             layout.childForceExpandHeight = false;
+            ContentSizeFitter mainFitter = main.AddComponent<ContentSizeFitter>();
+            mainFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             AddTitle(main.transform, "PAUSED");
             Button resume = AddButton(main.transform, "Resume");
             Button settingsButton = AddButton(main.transform, "Settings");
@@ -103,6 +110,45 @@ namespace QuietStatic.Toolkit.Editor.Settings
             Set(serialized, "gameQuitter", quitter);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             UnityEventTools.AddPersistentListener(resume.onClick, view.Resume);
+            UnityEventTools.AddPersistentListener(settingsButton.onClick, view.ShowSettingsPage);
+            UnityEventTools.AddPersistentListener(
+                settings.GetComponent<SettingsMenuView>().BackRequested,
+                view.ShowMainPage);
+            UnityEventTools.AddPersistentListener(exit.onClick, view.ExitGame);
+            return root;
+        }
+
+        private static GameObject BuildTitleMenu()
+        {
+            GameObject root = Panel("TitleMenu", new Color(0f, 0f, 0f, 0.72f));
+            root.AddComponent<CanvasGroup>();
+            GameObject main = Panel("MainPage", new Color(0.04f, 0.045f, 0.055f, 0.98f));
+            main.transform.SetParent(root.transform, false);
+            VerticalLayoutGroup layout = main.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(48, 48, 48, 48);
+            layout.spacing = 18;
+            layout.childControlHeight = false;
+            layout.childForceExpandHeight = false;
+            ContentSizeFitter mainFitter = main.AddComponent<ContentSizeFitter>();
+            mainFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            AddTitle(main.transform, "GAME TITLE");
+            Button start = AddButton(main.transform, "Start Game");
+            Button settingsButton = AddButton(main.transform, "Settings");
+            Button exit = AddButton(main.transform, "Exit Game");
+
+            GameObject settings = BuildSettingsMenu();
+            settings.name = "SettingsPage";
+            settings.transform.SetParent(root.transform, false);
+            settings.SetActive(false);
+
+            GameQuitter quitter = root.AddComponent<GameQuitter>();
+            TitleMenuView view = root.AddComponent<TitleMenuView>();
+            SerializedObject serialized = new(view);
+            Set(serialized, "mainPage", main);
+            Set(serialized, "settingsPage", settings);
+            Set(serialized, "gameQuitter", quitter);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            UnityEventTools.AddPersistentListener(start.onClick, view.StartGame);
             UnityEventTools.AddPersistentListener(settingsButton.onClick, view.ShowSettingsPage);
             UnityEventTools.AddPersistentListener(
                 settings.GetComponent<SettingsMenuView>().BackRequested,
