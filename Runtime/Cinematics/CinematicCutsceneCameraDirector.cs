@@ -37,6 +37,10 @@ namespace QuietStatic.Toolkit.Cinematics
         public class CinematicShot
         {
             [Header("Shot Identity")]
+            [Tooltip("Stable ID used by dropdown-backed shot references. Keep this value unchanged after other components reference it.")]
+            /// <summary>Stable scene-local ID used to reference this shot.</summary>
+            public string shotId;
+
             [Tooltip("Friendly name used to identify this shot in the Inspector and debug logs.")]
             /// <summary>Designer-facing label for this shot.</summary>
             public string shotName;
@@ -73,7 +77,7 @@ namespace QuietStatic.Toolkit.Cinematics
         [SerializeField] private CutsceneCameraIdle idleMotion;
 
         [Header("Shots")]
-        [Tooltip("Ordered list of cinematic shots. Other scripts reference shots by their index in this list.")]
+        [Tooltip("Cinematic shots addressable by stable Shot ID. Shot Name is used as a compatibility fallback when Shot ID is empty.")]
         [SerializeField] private List<CinematicShot> shots = new List<CinematicShot>();
 
         [Header("Startup")]
@@ -95,6 +99,18 @@ namespace QuietStatic.Toolkit.Cinematics
         /// The current shot index, or -1 if no shot has been applied yet.
         /// </value>
         public int CurrentShotIndex => currentShotIndex;
+
+        /// <summary>Gets the stable ID of the most recently applied shot.</summary>
+        /// <value>The current shot ID, or an empty string if no shot is active.</value>
+        public string CurrentShotId => GetShotId(currentShotIndex);
+
+        /// <summary>Gets the number of shots configured on this director.</summary>
+        public int ShotCount => shots?.Count ?? 0;
+
+        /// <summary>Gets the camera whose lens settings are controlled by this director.</summary>
+        public Camera CutsceneCamera => cutsceneCamera != null
+            ? cutsceneCamera
+            : GetComponent<Camera>();
 
         /// <summary>
         /// Attempts to auto-fill camera-related dependencies when the component is added
@@ -127,10 +143,17 @@ namespace QuietStatic.Toolkit.Cinematics
         /// </summary>
         private void Start()
         {
-            if (playFirstShotOnStart && shots.Count > 0)
+            if (playFirstShotOnStart && ShotCount > 0)
             {
                 CutToShot(0);
             }
+        }
+
+        /// <summary>Plays a shot by stable ID.</summary>
+        /// <param name="shotId">Stable ID configured on the requested shot.</param>
+        public void PlayShot(string shotId)
+        {
+            CutToShot(shotId);
         }
 
         /// <summary>
@@ -146,37 +169,185 @@ namespace QuietStatic.Toolkit.Cinematics
             CutToShot(shotIndex);
         }
 
+        /// <summary>Immediately moves and rotates the cutscene camera to a shot by stable ID.</summary>
+        /// <param name="shotId">Stable ID configured on the requested shot.</param>
+        /// <remarks>
+        /// Shot names are accepted only as a compatibility fallback for entries whose Shot ID is
+        /// empty. New references should always use an explicit stable ID.
+        /// </remarks>
+        public void CutToShot(string shotId)
+        {
+            if (!TryGetShotIndex(shotId, out int shotIndex))
+            {
+                GameLogger.Warning(
+                    nameof(CutToShot),
+                    this,
+                    $"Unknown cinematic shot ID: '{shotId}'"
+                );
+                return;
+            }
+
+            CutToShot(shotIndex);
+        }
+
         /// <summary>
         /// Immediately moves and rotates the cutscene camera to the requested shot.
         /// </summary>
         /// <param name="shotIndex">Index of the shot to apply from the configured shot list.</param>
         public void CutToShot(int shotIndex)
         {
-            if (!IsValidShotIndex(shotIndex))
-            {
-                GameLogger.Warning(
-                    "CutToShot",
-                    this,
-                    $"Invalid cinematic shot index: {shotIndex}"
-                );
-                return;
-            }
-
-            CinematicShot shot = shots[shotIndex];
-
-            if (!IsUsableShot(shot))
+            if (!TryApplyShot(shotIndex, true))
             {
                 return;
             }
 
             currentShotIndex = shotIndex;
-            ApplyShot(shot);
+            CinematicShot shot = shots[shotIndex];
 
             GameLogger.Log(
                 "CutToShot",
                 this,
-                $"Cut to cinematic shot {shotIndex}: {shot.shotName}"
+                $"Cut to cinematic shot '{GetShotId(shotIndex)}' ({shot.shotName})"
             );
+        }
+
+        /// <summary>
+        /// Applies a shot pose for editor preview without changing the current runtime shot.
+        /// </summary>
+        /// <param name="shotId">Stable ID configured on the requested shot.</param>
+        /// <returns>True when the shot was found, usable, and applied.</returns>
+        public bool PreviewShot(string shotId)
+        {
+            if (!TryGetShotIndex(shotId, out int shotIndex))
+            {
+                return false;
+            }
+
+            return PreviewShot(shotIndex);
+        }
+
+        /// <summary>
+        /// Applies a shot pose for editor preview without changing the current runtime shot.
+        /// </summary>
+        /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
+        /// <returns>True when the shot is usable and was applied.</returns>
+        public bool PreviewShot(int shotIndex)
+        {
+            return TryApplyShot(shotIndex, false);
+        }
+
+        /// <summary>Checks whether a configured shot has enough data to be applied.</summary>
+        /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
+        /// <returns>True when the shot exists and has a focus target or camera marker.</returns>
+        public bool IsShotUsable(int shotIndex)
+        {
+            return IsValidShotIndex(shotIndex) &&
+                   IsUsableShot(shots[shotIndex], false);
+        }
+
+        /// <summary>Gets the explicit stable ID assigned to a configured shot.</summary>
+        /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
+        /// <returns>The trimmed Shot ID, or an empty string when none is assigned.</returns>
+        public string GetExplicitShotId(int shotIndex)
+        {
+            if (!IsValidShotIndex(shotIndex) || shots[shotIndex] == null)
+            {
+                return string.Empty;
+            }
+
+            return shots[shotIndex].shotId?.Trim() ?? string.Empty;
+        }
+
+        /// <summary>Gets the stable ID used to reference a configured shot.</summary>
+        /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
+        /// <returns>
+        /// The explicit Shot ID, the shot name for legacy entries without an ID, or an empty
+        /// string when the index or entry is invalid.
+        /// </returns>
+        public string GetShotId(int shotIndex)
+        {
+            if (!IsValidShotIndex(shotIndex))
+            {
+                return string.Empty;
+            }
+
+            CinematicShot shot = shots[shotIndex];
+            if (shot == null)
+            {
+                return string.Empty;
+            }
+
+            string explicitId = GetExplicitShotId(shotIndex);
+            return !string.IsNullOrEmpty(explicitId)
+                ? explicitId
+                : shot.shotName?.Trim() ?? string.Empty;
+        }
+
+        /// <summary>Gets a designer-facing label for a configured shot.</summary>
+        /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
+        /// <returns>A friendly shot name with a deterministic fallback.</returns>
+        public string GetShotDisplayName(int shotIndex)
+        {
+            if (!IsValidShotIndex(shotIndex) || shots[shotIndex] == null)
+            {
+                return $"Shot {shotIndex + 1}";
+            }
+
+            CinematicShot shot = shots[shotIndex];
+            if (!string.IsNullOrWhiteSpace(shot.shotName))
+            {
+                return shot.shotName.Trim();
+            }
+
+            string id = GetShotId(shotIndex);
+            return !string.IsNullOrEmpty(id) ? id : $"Shot {shotIndex + 1}";
+        }
+
+        /// <summary>Resolves a stable shot ID to its current list index.</summary>
+        /// <param name="shotId">Stable ID to find.</param>
+        /// <param name="shotIndex">Receives the matching list index, or -1 when not found.</param>
+        /// <returns>True when a matching shot exists.</returns>
+        public bool TryGetShotIndex(string shotId, out int shotIndex)
+        {
+            shotIndex = -1;
+            if (string.IsNullOrWhiteSpace(shotId))
+            {
+                return false;
+            }
+
+            string requestedId = shotId.Trim();
+            for (int index = 0; index < ShotCount; index++)
+            {
+                if (string.Equals(
+                        GetExplicitShotId(index),
+                        requestedId,
+                        StringComparison.Ordinal))
+                {
+                    shotIndex = index;
+                    return true;
+                }
+            }
+
+            // Legacy entries without an explicit ID remain addressable by Shot Name. Explicit
+            // IDs are resolved first so a compatibility name can never shadow a stable ID.
+            for (int index = 0; index < ShotCount; index++)
+            {
+                if (!string.IsNullOrEmpty(GetExplicitShotId(index)) || shots[index] == null)
+                {
+                    continue;
+                }
+
+                if (string.Equals(
+                        shots[index].shotName?.Trim(),
+                        requestedId,
+                        StringComparison.Ordinal))
+                {
+                    shotIndex = index;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -214,9 +385,10 @@ namespace QuietStatic.Toolkit.Cinematics
             transform.position = targetPosition;
             transform.rotation = targetRotation;
 
-            if (cutsceneCamera != null && shot.changeFieldOfView)
+            Camera camera = CutsceneCamera;
+            if (camera != null && shot.changeFieldOfView)
             {
-                cutsceneCamera.fieldOfView = shot.fieldOfView;
+                camera.fieldOfView = shot.fieldOfView;
             }
 
             RefreshIdleMotionBase();
@@ -229,25 +401,31 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <returns>
         /// True if the shot can be used; otherwise, false.
         /// </returns>
-        private bool IsUsableShot(CinematicShot shot)
+        private bool IsUsableShot(CinematicShot shot, bool logWarning = true)
         {
             if (shot == null)
             {
-                GameLogger.Warning(
-                    "IsUsableShot",
-                    this,
-                    "Cinematic shot is null."
-                );
+                if (logWarning)
+                {
+                    GameLogger.Warning(
+                        "IsUsableShot",
+                        this,
+                        "Cinematic shot is null."
+                    );
+                }
                 return false;
             }
 
             if (shot.focusTarget == null && shot.cameraPositionMarker == null)
             {
-                GameLogger.Warning(
-                    "IsUsableShot",
-                    this,
-                    $"Cinematic shot '{shot.shotName}' has no focus target or camera position marker."
-                );
+                if (logWarning)
+                {
+                    GameLogger.Warning(
+                        "IsUsableShot",
+                        this,
+                        $"Cinematic shot '{shot.shotName}' has no focus target or camera position marker."
+                    );
+                }
 
                 return false;
             }
@@ -315,7 +493,32 @@ namespace QuietStatic.Toolkit.Cinematics
         /// </returns>
         private bool IsValidShotIndex(int shotIndex)
         {
-            return shotIndex >= 0 && shotIndex < shots.Count;
+            return shotIndex >= 0 && shotIndex < ShotCount;
+        }
+
+        private bool TryApplyShot(int shotIndex, bool logWarning)
+        {
+            if (!IsValidShotIndex(shotIndex))
+            {
+                if (logWarning)
+                {
+                    GameLogger.Warning(
+                        "CutToShot",
+                        this,
+                        $"Invalid cinematic shot index: {shotIndex}"
+                    );
+                }
+                return false;
+            }
+
+            CinematicShot shot = shots[shotIndex];
+            if (!IsUsableShot(shot, logWarning))
+            {
+                return false;
+            }
+
+            ApplyShot(shot);
+            return true;
         }
 
         /// <summary>
@@ -327,9 +530,12 @@ namespace QuietStatic.Toolkit.Cinematics
         /// </remarks>
         private void RefreshIdleMotionBase()
         {
-            if (idleMotion != null)
+            CutsceneCameraIdle currentIdleMotion = idleMotion != null
+                ? idleMotion
+                : GetComponent<CutsceneCameraIdle>();
+            if (currentIdleMotion != null)
             {
-                idleMotion.RefreshBaseTransform();
+                currentIdleMotion.RefreshBaseTransform();
             }
         }
     }

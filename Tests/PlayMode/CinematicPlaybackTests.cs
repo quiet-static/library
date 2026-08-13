@@ -137,6 +137,42 @@ namespace QuietStatic.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator Sequence_AppliesDropdownSelectedCameraShotByStableId()
+        {
+            GameObject cameraObject = Track(new GameObject("Cinematic Camera"));
+            CinematicCutsceneCameraDirector director =
+                cameraObject.AddComponent<CinematicCutsceneCameraDirector>();
+            Transform marker = Track(new GameObject("Wide Shot Marker")).transform;
+            marker.SetPositionAndRotation(
+                new Vector3(2f, 3f, 4f),
+                Quaternion.Euler(8f, 35f, 0f));
+            SetField(director, "shots", new List<CinematicCutsceneCameraDirector.CinematicShot>
+            {
+                new()
+                {
+                    shotId = "shot.wide",
+                    shotName = "Wide",
+                    cameraPositionMarker = marker,
+                },
+            });
+            CutsceneSequenceRunner runner = CreateSequenceRunner(
+                new CutsceneSequenceRunner.Step
+                {
+                    cameraDirector = director,
+                    cameraShotId = "shot.wide",
+                });
+
+            runner.Play();
+            yield return null;
+
+            Assert.That(director.CurrentShotId, Is.EqualTo("shot.wide"));
+            Assert.That(cameraObject.transform.position, Is.EqualTo(marker.position));
+            Assert.That(
+                Quaternion.Angle(cameraObject.transform.rotation, marker.rotation),
+                Is.LessThan(0.001f));
+        }
+
+        [UnityTest]
         public IEnumerator ScenePlayer_RunsBeatsInOrderAndAppliesShot()
         {
             CinematicDefinition definition = CreateDefinition(
@@ -151,6 +187,8 @@ namespace QuietStatic.Tests.PlayMode
                     id = "close",
                 });
             GameObject cameraObject = Track(new GameObject("Camera Rig"));
+            CutsceneCameraIdle idleMotion =
+                cameraObject.AddComponent<CutsceneCameraIdle>();
             GameObject poseObject = Track(new GameObject("Arrival Pose"));
             poseObject.transform.SetPositionAndRotation(
                 new Vector3(3f, 4f, 5f),
@@ -186,14 +224,18 @@ namespace QuietStatic.Tests.PlayMode
                 "start:close",
                 "finish:close",
             }));
+            Assert.That(player.IsRunning, Is.False);
+            Assert.That(player.CurrentBeatIndex, Is.EqualTo(-1));
+
+            idleMotion.SetIdleEnabled(false);
+            idleMotion.ResetIdle();
+            yield return null;
             Assert.That(cameraObject.transform.position, Is.EqualTo(poseObject.transform.position));
             Assert.That(
                 Quaternion.Angle(
                     cameraObject.transform.rotation,
                     poseObject.transform.rotation),
                 Is.LessThan(0.001f));
-            Assert.That(player.IsRunning, Is.False);
-            Assert.That(player.CurrentBeatIndex, Is.EqualTo(-1));
         }
 
         [UnityTest]
@@ -235,6 +277,43 @@ namespace QuietStatic.Tests.PlayMode
 
             Assert.That(player.IsRunning, Is.False);
             Assert.That(finishedBeatCount, Is.EqualTo(1));
+        }
+
+        [UnityTest]
+        public IEnumerator ScenePlayer_CanAwaitSceneAuthoredSequenceRunner()
+        {
+            CinematicDefinition definition = CreateDefinition(
+                "scene-authored",
+                new CinematicDefinition.Beat
+                {
+                    id = "sequence",
+                    activityId = "runner",
+                });
+            CutsceneSequenceRunner runner = CreateSequenceRunner(
+                new CutsceneSequenceRunner.Step
+                {
+                    waitAfterStep = 0.05f,
+                });
+            CinematicScenePlayer player = CreateScenePlayer(definition);
+            SetField(player, "activities", new List<CinematicScenePlayer.ActivityBinding>
+            {
+                new CinematicScenePlayer.ActivityBinding
+                {
+                    id = "runner",
+                    component = runner,
+                },
+            });
+
+            player.Play();
+            yield return null;
+
+            Assert.That(runner.IsRunning, Is.True);
+            Assert.That(player.IsRunning, Is.True);
+
+            yield return new WaitUntil(() => !player.IsRunning);
+
+            Assert.That(runner.IsRunning, Is.False);
+            Assert.That(player.IsRunning, Is.False);
         }
 
         [UnityTest]

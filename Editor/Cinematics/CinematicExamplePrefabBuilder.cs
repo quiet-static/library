@@ -15,7 +15,7 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
     {
         private const string Root = "Assets/QuietStatic Examples/Cinematics and Readables";
 
-        [MenuItem("Tools/Narrative/Generate Cinematic & Readable Examples")]
+        [MenuItem("Tools/Quiet Static/Cinematics/Generate Cinematic & Readable Examples")]
         public static void Generate()
         {
             GenerateExamples(true);
@@ -82,8 +82,18 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
             SerializedObject serializedDirector = new(director);
             SerializedProperty shots = serializedDirector.FindProperty("shots");
             shots.arraySize = 2;
-            ConfigureShot(shots.GetArrayElementAtIndex(0), "Wide", pose, 50f);
-            ConfigureShot(shots.GetArrayElementAtIndex(1), "Close", closePose, 38f);
+            ConfigureShot(
+                shots.GetArrayElementAtIndex(0),
+                "example.wide",
+                "Wide",
+                pose,
+                50f);
+            ConfigureShot(
+                shots.GetArrayElementAtIndex(1),
+                "example.close",
+                "Close",
+                closePose,
+                38f);
             serializedDirector.ApplyModifiedPropertiesWithoutUndo();
 
             Set(nodeCues, "dialogueRunner", dialogue);
@@ -93,8 +103,8 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
             steps.arraySize = 1;
             SerializedProperty step = steps.GetArrayElementAtIndex(0);
             step.FindPropertyRelative("name").stringValue = "Opening Shot";
-            step.FindPropertyRelative("cameraTransform").objectReferenceValue = cameraRig;
-            step.FindPropertyRelative("cameraPose").objectReferenceValue = pose;
+            step.FindPropertyRelative("cameraDirector").objectReferenceValue = director;
+            step.FindPropertyRelative("cameraShotId").stringValue = "example.wide";
             step.FindPropertyRelative("dialogueRunner").objectReferenceValue = dialogue;
             step.FindPropertyRelative("waitAfterStep").floatValue = 1f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -107,10 +117,12 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
 
         private static void ConfigureShot(
             SerializedProperty shot,
+            string id,
             string name,
             Transform marker,
             float fieldOfView)
         {
+            shot.FindPropertyRelative("shotId").stringValue = id;
             shot.FindPropertyRelative("shotName").stringValue = name;
             shot.FindPropertyRelative("cameraPositionMarker").objectReferenceValue = marker;
             shot.FindPropertyRelative("changeFieldOfView").boolValue = true;

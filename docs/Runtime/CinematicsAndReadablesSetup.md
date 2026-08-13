@@ -2,7 +2,7 @@
 
 ## Generate the examples
 
-Choose **Tools > Narrative > Generate Cinematic & Readable Examples**. The generator creates
+Choose **Tools > Quiet Static > Cinematics > Generate Cinematic & Readable Examples**. The generator creates
 shared channel assets, sample letter content, and four prefabs under
 `Assets/QuietStatic Examples/Cinematics and Readables`. Generation is repeatable and only
 updates assets with those example names.
@@ -10,13 +10,26 @@ updates assets with those example names.
 ## CutsceneSequenceRunner
 
 Add the runner to a scene object named after the cutscene. Add ordered Steps in the Inspector.
-For each step, optionally assign a camera rig and pose, dialogue runner or another
-`ICinematicWaitSource`, delays, and start/finish events. Assign a `ScreenFadeChannel` when
+For each step, optionally assign a camera director and select its named shot from the
+**Camera Shot** dropdown, then configure a dialogue runner or another
+`ICinematicWaitSource`, delays, and start/finish events. The direct camera-rig/pose pair
+remains supported for older sequences. Assign a `ScreenFadeChannel` when
 the fader is in another scene; otherwise assign a direct `ScreenFader`. Call `Play()` from
 an interaction/event, or enable Play On Start. `Stop()` and `PlayStep(index)` are primarily
 useful to debug tools.
 
-Use **Tools > Narrative > Cutscene Explorer** to create a starter runner, search loaded
+On `CinematicCutsceneCameraDirector`, give each entry a stable **Shot ID** and a friendly
+**Shot Name**. Reordering the list then does not retarget steps or dialogue cues. To frame
+a shot without entering Play Mode, select it under **Editor Shot Preview** and choose
+**Move Camera to Selected Shot**. The same undoable **Move** action appears beside every
+shot dropdown. For a generic UnityEvent, add `CutsceneCameraShotTrigger`, select its shot,
+and wire the event to `Run()`.
+
+Existing dialogue cues keep serialized shot indexes for compatibility and label them as
+legacy references. After assigning explicit Shot IDs, use the cue's **Migrate** button to
+replace the index with its stable ID.
+
+Use **Tools > Quiet Static > Cinematics > Cutscene Explorer** to create a starter runner, search loaded
 scenes, select its object, and preview the sequence or one step during Play Mode.
 
 ## CutsceneTransitionPlayer

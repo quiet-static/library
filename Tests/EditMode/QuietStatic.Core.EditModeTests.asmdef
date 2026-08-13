@@ -3,6 +3,7 @@
   "rootNamespace": "QuietStatic.Tests.EditMode",
   "references": [
     "QuietStatic.Core.Runtime",
+    "QuietStatic.Core.Editor",
     "Unity.InputSystem"
   ],
   "optionalUnityReferences": [

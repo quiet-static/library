@@ -22,10 +22,15 @@ namespace QuietStatic.Toolkit.Cinematics
             [Tooltip("Stable DialogueTree node ID that activates this cue. Matching is case-sensitive.")]
             public string nodeId;
 
-            [Tooltip("Optional camera director used to apply Shot Index.")]
+            [Tooltip("Optional camera director that owns the selectable shot.")]
             public CinematicCutsceneCameraDirector cameraDirector;
 
-            [Tooltip("Shot index passed to the camera director. Set to -1 to leave the camera unchanged.")]
+            [Tooltip("Stable camera shot selected from the assigned director. Leave empty to keep the current shot.")]
+            [CinematicShotId(nameof(cameraDirector), nameof(shotIndex))]
+            public string cameraShotId;
+
+            [HideInInspector]
+            [Tooltip("Legacy shot-index reference retained for compatibility with existing scenes.")]
             public int shotIndex = -1;
 
             [Tooltip("Optional preconfigured character actions to run as this node appears.")]
@@ -56,7 +61,12 @@ namespace QuietStatic.Toolkit.Cinematics
             foreach (Cue cue in cues)
             {
                 if (cue == null || !string.Equals(cue.nodeId, node.id, StringComparison.Ordinal)) continue;
-                if (cue.cameraDirector != null && cue.shotIndex >= 0)
+                if (cue.cameraDirector != null &&
+                    !string.IsNullOrWhiteSpace(cue.cameraShotId))
+                {
+                    cue.cameraDirector.CutToShot(cue.cameraShotId);
+                }
+                else if (cue.cameraDirector != null && cue.shotIndex >= 0)
                 {
                     cue.cameraDirector.CutToShot(cue.shotIndex);
                 }

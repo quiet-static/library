@@ -22,7 +22,7 @@ namespace QuietStatic.Toolkit.Cinematics
     /// Game-specific behavior should usually be placed in the step UnityEvents rather than
     /// hardcoded into this runner.
     /// </remarks>
-    public class CutsceneSequenceRunner : MonoBehaviour
+    public class CutsceneSequenceRunner : MonoBehaviour, ICinematicWaitSource
     {
         /// <summary>Raised whenever a sequence begins.</summary>
         public static event Action OnSequenceStarted;
@@ -56,11 +56,20 @@ namespace QuietStatic.Toolkit.Cinematics
             public UnityEvent onStepFinished;
 
             [Header("Camera")]
-            [Tooltip("The camera or camera rig transform that should be moved for this step. Leave empty if this step does not move a camera.")]
+            [Tooltip("Optional camera director that owns a dropdown-selected shot for this step. This takes precedence over the legacy Camera Transform and Camera Pose fields.")]
+            /// <summary>Optional director used to apply a named camera shot.</summary>
+            public CinematicCutsceneCameraDirector cameraDirector;
+
+            [Tooltip("Stable camera shot selected from the assigned director.")]
+            [CinematicShotId(nameof(cameraDirector))]
+            /// <summary>Stable ID of the director-owned shot applied by this step.</summary>
+            public string cameraShotId;
+
+            [Tooltip("Legacy camera or camera rig transform moved directly for this step. Prefer Camera Director and Camera Shot for new sequences.")]
             /// <summary>Optional camera or rig moved by this step.</summary>
             public Transform cameraTransform;
 
-            [Tooltip("The pose transform whose position and rotation should be copied onto the camera transform.")]
+            [Tooltip("Legacy pose copied onto Camera Transform. Prefer Camera Director and Camera Shot for new sequences.")]
             /// <summary>Transform supplying the desired camera pose.</summary>
             public Transform cameraPose;
 
@@ -337,15 +346,22 @@ namespace QuietStatic.Toolkit.Cinematics
         }
 
         /// <summary>
-        /// Moves the configured camera transform to the configured camera pose for a step.
+        /// Applies the configured named camera shot or legacy camera pose for a step.
         /// </summary>
-        /// <param name="step">The step containing the camera transform and pose.</param>
+        /// <param name="step">The step containing a named shot or legacy camera pose.</param>
         /// <remarks>
-        /// If either camera reference is missing, this method safely does nothing so the same
-        /// step type can be used for non-camera beats.
+        /// A director-owned shot takes precedence. If it is not configured, the legacy camera
+        /// transform and pose pair remains supported for existing sequences.
         /// </remarks>
         private static void ApplyCameraPose(Step step)
         {
+            if (step.cameraDirector != null &&
+                !string.IsNullOrWhiteSpace(step.cameraShotId))
+            {
+                step.cameraDirector.CutToShot(step.cameraShotId);
+                return;
+            }
+
             if (step.cameraTransform == null || step.cameraPose == null)
             {
                 return;
@@ -355,6 +371,13 @@ namespace QuietStatic.Toolkit.Cinematics
                 step.cameraPose.position,
                 step.cameraPose.rotation
             );
+
+            CutsceneCameraIdle idleMotion =
+                step.cameraTransform.GetComponent<CutsceneCameraIdle>();
+            if (idleMotion != null)
+            {
+                idleMotion.RefreshBaseTransform();
+            }
         }
     }
 

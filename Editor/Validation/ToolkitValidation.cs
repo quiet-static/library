@@ -93,6 +93,10 @@ namespace QuietStatic.Toolkit.Editor.Validation
                 {
                     ValidateCutscene(cutscene, issues);
                 }
+                else if (component is CinematicCutsceneCameraDirector cameraDirector)
+                {
+                    ValidateCameraDirector(cameraDirector, issues);
+                }
             }
 
             ValidateFlagReferences(knownFlags, databases.Length > 0, issues);
@@ -710,13 +714,63 @@ namespace QuietStatic.Toolkit.Editor.Validation
             for (int index = 0; index < steps.arraySize; index++)
             {
                 SerializedProperty step = steps.GetArrayElementAtIndex(index);
+                var cameraDirector = step.FindPropertyRelative("cameraDirector")
+                    ?.objectReferenceValue as CinematicCutsceneCameraDirector;
+                string cameraShotId = step.FindPropertyRelative("cameraShotId")
+                    ?.stringValue;
+                bool hasDirector = cameraDirector != null;
+                bool hasShotId = !string.IsNullOrWhiteSpace(cameraShotId);
                 bool hasCamera = step.FindPropertyRelative("cameraTransform")?.objectReferenceValue != null;
                 bool hasPose = step.FindPropertyRelative("cameraPose")?.objectReferenceValue != null;
-                if (hasCamera != hasPose)
+
+                if (hasDirector != hasShotId)
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Error, "Cutscenes",
+                        $"Step {index} must assign both Camera Director and Camera Shot.", cutscene));
+                }
+                else if (hasDirector &&
+                         !cameraDirector.TryGetShotIndex(cameraShotId, out _))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Error, "Cutscenes",
+                        $"Step {index} references unknown camera shot '{cameraShotId}'.", cutscene));
+                }
+
+                if (!hasDirector && hasCamera != hasPose)
                 {
                     issues.Add(new ValidationIssue(
                         ValidationSeverity.Error, "Cutscenes",
                         $"Step {index} must assign both Camera Transform and Camera Pose.", cutscene));
+                }
+                else if (hasDirector && hasShotId && (hasCamera || hasPose))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Warning, "Cutscenes",
+                        $"Step {index} has a named camera shot, so its legacy Camera Transform and Camera Pose fields are ignored.", cutscene));
+                }
+            }
+        }
+
+        private static void ValidateCameraDirector(
+            CinematicCutsceneCameraDirector director,
+            ICollection<ValidationIssue> issues)
+        {
+            var knownIds = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < director.ShotCount; index++)
+            {
+                string id = director.GetExplicitShotId(index);
+                if (string.IsNullOrEmpty(id))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Warning, "Cutscenes",
+                        $"Camera director shot {index} needs an explicit Shot ID before dropdowns can reference it.", director));
+                }
+                else if (!knownIds.Add(id))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Error, "Cutscenes",
+                        $"Camera director contains duplicate Shot ID '{id}'.", director));
                 }
             }
         }

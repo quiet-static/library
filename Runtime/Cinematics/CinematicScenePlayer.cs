@@ -172,7 +172,13 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             ShotBinding shot = Find(shots, id, item => item.id);
             if (shot?.cameraTransform != null && shot.pose != null)
+            {
                 shot.cameraTransform.SetPositionAndRotation(shot.pose.position, shot.pose.rotation);
+
+                CutsceneCameraIdle idleMotion =
+                    shot.cameraTransform.GetComponent<CutsceneCameraIdle>();
+                if (idleMotion != null) idleMotion.RefreshBaseTransform();
+            }
         }
 
         private void ApplyAnimations(IReadOnlyList<CinematicDefinition.CharacterAnimation> commands)
