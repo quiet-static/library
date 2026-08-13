@@ -64,6 +64,9 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public DialogueTree.Node CurrentNode { get; private set; }
 
+        /// <summary>Gets the dialogue tree currently assigned to this runner.</summary>
+        public DialogueTree Tree => dialogueTree;
+
         /// <summary>
         /// Gets whether this runner is currently traversing dialogue.
         /// </summary>

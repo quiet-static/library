@@ -1,16 +1,17 @@
 # Dialogue
 
-`DialogueTree` stores branching content, `DialogueRunner` advances through it, and
-`DialogueEventPlayer` provides UnityEvent-friendly playback entry points.
+`DialogueTree` stores branching content, `DialogueRunner` owns traversal state,
+`DialogueManager` coordinates the persistent runner with UI, and
+`DialogueEventPlayer` provides scene-local UnityEvent entry points.
 
 ```text
-NPC
-├── DialogueRunner
-└── Interactable
-    └── On Succeeded → DialogueEventPlayer.Play
+Systems
+|-- DialogueManager
+|   `-- DialogueRunner
+`-- DialogueUIManager
 
-UI
-└── Dialogue View
+Scene object
+`-- DialogueEventPlayer
 ```
 
 Create a tree through **Assets > Create > Quiet Static Toolkit > Dialogue**. Configure

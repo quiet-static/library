@@ -16,6 +16,8 @@ namespace QuietStatic.Tests.PlayMode
         private Action<DialogueRunner> startedHandler;
         private Action<DialogueRunner, DialogueTree.Node> nodeChangedHandler;
         private Action<DialogueRunner> endedHandler;
+        private Action<UnityEngine.Object, Transform> managerStartedHandler;
+        private Action<UnityEngine.Object> managerEndedHandler;
 
         [UnityTearDown]
         public IEnumerator TearDown()
@@ -23,9 +25,13 @@ namespace QuietStatic.Tests.PlayMode
             DialogueRunner.OnDialogueStarted -= startedHandler;
             DialogueRunner.OnNodeChanged -= nodeChangedHandler;
             DialogueRunner.OnDialogueEnded -= endedHandler;
+            DialogueManager.OnDialogueStarted -= managerStartedHandler;
+            DialogueManager.OnDialogueEnded -= managerEndedHandler;
             startedHandler = null;
             nodeChangedHandler = null;
             endedHandler = null;
+            managerStartedHandler = null;
+            managerEndedHandler = null;
 
             for (int i = createdObjects.Count - 1; i >= 0; i--)
             {
@@ -109,6 +115,44 @@ namespace QuietStatic.Tests.PlayMode
             var secondObject = Track(new GameObject("Second Flag Manager"));
             FlagManager second = secondObject.AddComponent<FlagManager>();
             Assert.That(FlagManager.Instance, Is.SameAs(second));
+        }
+
+        [UnityTest]
+        public IEnumerator Manager_DerivesActiveTreeAndStateFromItsRunner()
+        {
+            DialogueTree tree = Track(CreateTree(
+                new DialogueTree.Node
+                {
+                    id = "only",
+                    nextNodeIndex = -1
+                }));
+            var managerObject = Track(new GameObject("Dialogue Manager"));
+            DialogueRunner runner = managerObject.AddComponent<DialogueRunner>();
+            DialogueManager manager = managerObject.AddComponent<DialogueManager>();
+            var lifecycle = new List<string>();
+
+            managerStartedHandler = (startedTree, _) =>
+                lifecycle.Add($"started:{startedTree.name}");
+            managerEndedHandler = endedTree =>
+                lifecycle.Add($"ended:{endedTree.name}");
+            DialogueManager.OnDialogueStarted += managerStartedHandler;
+            DialogueManager.OnDialogueEnded += managerEndedHandler;
+
+            Assert.That(manager.StartDialogue(tree), Is.True);
+            Assert.That(manager.IsDialogueActive, Is.True);
+            Assert.That(manager.CurrentDialogueTree, Is.SameAs(tree));
+            Assert.That(runner.IsRunning, Is.True);
+
+            manager.AdvanceDialogue();
+
+            Assert.That(manager.IsDialogueActive, Is.False);
+            Assert.That(manager.CurrentDialogueTree, Is.Null);
+            Assert.That(runner.IsRunning, Is.False);
+            CollectionAssert.AreEqual(
+                new[] { $"started:{tree.name}", $"ended:{tree.name}" },
+                lifecycle);
+
+            yield return null;
         }
 
         private static DialogueTree CreateTree(params DialogueTree.Node[] nodes)

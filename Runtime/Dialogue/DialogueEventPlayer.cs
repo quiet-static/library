@@ -5,6 +5,7 @@
  */
 
 using System;
+using QuietStatic.Toolkit.Cinematics;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,7 +17,7 @@ namespace QuietStatic.Toolkit.Dialogue
     /// Scene objects and NPCs may supply dialogue context dynamically without holding
     /// direct references to the manager in the Systems scene.
     /// </summary>
-    public class DialogueEventPlayer : MonoBehaviour
+    public class DialogueEventPlayer : MonoBehaviour, ICinematicWaitSource
     {
         /// <summary>
         /// Gets or sets whether optional collider triggers may start dialogue.
@@ -63,28 +64,16 @@ namespace QuietStatic.Toolkit.Dialogue
         [SerializeField] private UnityEvent onDialogueEnded;
 
         /// <summary>
-        /// Raised after this wrapper successfully starts dialogue.
-        /// Arguments are the tree, focus target, and speaker.
-        /// </summary>
-        public event Action<DialogueTree, Transform, Transform> DialogueStarted;
-
-        /// <summary>
         /// Raised when dialogue started by this wrapper ends.
         /// Arguments are the ended tree and its speaker.
         /// </summary>
         public event Action<DialogueTree, Transform> DialogueEnded;
 
-        /// <summary>Gets the dialogue tree most recently started by this component.</summary>
-        public DialogueTree ActiveTree { get; private set; }
+        private DialogueTree activeTree;
+        private Transform activeSpeaker;
 
-        /// <summary>Gets the camera focus target used by the active dialogue.</summary>
-        public Transform ActiveFocusTarget { get; private set; }
-
-        /// <summary>Gets the speaker transform used by the active dialogue.</summary>
-        public Transform ActiveSpeaker { get; private set; }
-
-        /// <summary>Gets whether this component currently owns a running dialogue.</summary>
-        public bool IsPlaying => ActiveTree != null;
+        /// <summary>Gets whether dialogue started by this wrapper is still active.</summary>
+        public bool IsRunning => activeTree != null;
 
         /// <summary>Gets whether the optional collider trigger has already fired.</summary>
         public bool HasTriggered { get; private set; }
@@ -110,6 +99,12 @@ namespace QuietStatic.Toolkit.Dialogue
             TryStartDefaultDialogue();
         }
 
+        /// <summary>Starts the configured dialogue through the cinematic wait-source contract.</summary>
+        public void Play()
+        {
+            StartDialogue();
+        }
+
         /// <summary>
         /// Attempts to start the dialogue configured in this component's Inspector.
         /// </summary>
@@ -127,32 +122,26 @@ namespace QuietStatic.Toolkit.Dialogue
             Transform requestedFocusTarget,
             Transform requestedSpeaker)
         {
-            if (tree == null || DialogueManager.Instance == null || IsPlaying || !CanStartDialogue)
+            if (tree == null || DialogueManager.Instance == null || activeTree != null || !CanStartDialogue)
             {
                 return false;
             }
 
-            bool started = DialogueManager.Instance.StartDialogue(
-                tree,
-                requestedFocusTarget,
-                requestedSpeaker
-            );
+            bool started = DialogueManager.Instance.StartDialogue(tree, requestedFocusTarget);
 
             if (!started)
             {
                 return false;
             }
 
-            ActiveTree = tree;
-            ActiveFocusTarget = requestedFocusTarget;
-            ActiveSpeaker = requestedSpeaker;
+            activeTree = tree;
+            activeSpeaker = requestedSpeaker;
 
-            if (ActiveFocusTarget != null && CameraManager.Instance != null)
+            if (requestedFocusTarget != null && CameraManager.Instance != null)
             {
-                CameraManager.Instance.BeginFocus(ActiveFocusTarget);
+                CameraManager.Instance.BeginFocus(requestedFocusTarget);
             }
 
-            DialogueStarted?.Invoke(ActiveTree, ActiveFocusTarget, ActiveSpeaker);
             onDialogueStarted?.Invoke();
             return true;
         }
@@ -224,17 +213,16 @@ namespace QuietStatic.Toolkit.Dialogue
 
         private void HandleDialogueEnded(UnityEngine.Object endedDialogue)
         {
-            if (ActiveTree == null || endedDialogue != ActiveTree)
+            if (activeTree == null || endedDialogue != activeTree)
             {
                 return;
             }
 
-            DialogueTree endedTree = ActiveTree;
-            Transform endedSpeaker = ActiveSpeaker;
+            DialogueTree endedTree = activeTree;
+            Transform endedSpeaker = activeSpeaker;
 
-            ActiveTree = null;
-            ActiveFocusTarget = null;
-            ActiveSpeaker = null;
+            activeTree = null;
+            activeSpeaker = null;
 
             if (CameraManager.Instance != null)
             {

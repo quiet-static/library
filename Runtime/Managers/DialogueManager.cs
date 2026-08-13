@@ -27,7 +27,7 @@ namespace QuietStatic.Toolkit.Dialogue
     /// 
     /// It is responsible for:
     /// - Starting dialogue from a DialogueTree.
-    /// - Tracking whether dialogue is active.
+    /// - Exposing the assigned runner's active dialogue state.
     /// - Passing node data from DialogueRunner to DialogueUIManager.
     /// - Forwarding player advance and choice input to DialogueRunner.
     /// - Raising high-level dialogue lifecycle events.
@@ -49,11 +49,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// Raised when dialogue ends.
         /// </summary>
         public static event Action<UnityEngine.Object> OnDialogueEnded;
-
-        /// <summary>
-        /// Raised whenever dialogue activity changes.
-        /// </summary>
-        public static event Action<UnityEngine.Object, bool> OnDialogueStateChanged;
 
         [Serializable]
         public class DialogueStartedEvent : UnityEvent<UnityEngine.Object, Transform>
@@ -83,22 +78,16 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Gets whether a dialogue session is currently active.
         /// </summary>
-        public bool IsDialogueActive { get; private set; }
+        public bool IsDialogueActive =>
+            dialogueRunner != null && dialogueRunner.IsRunning;
 
         /// <summary>
         /// Gets the dialogue tree currently being played.
         /// </summary>
-        public DialogueTree CurrentDialogueTree { get; private set; }
+        public DialogueTree CurrentDialogueTree =>
+            IsDialogueActive ? dialogueRunner.Tree : null;
 
-        /// <summary>
-        /// Gets the optional focus target associated with the active dialogue.
-        /// </summary>
-        public Transform CurrentFocusTarget { get; private set; }
-
-        /// <summary>
-        /// Gets the optional speaker transform associated with the active dialogue.
-        /// </summary>
-        public Transform CurrentSpeaker { get; private set; }
+        private Transform currentFocusTarget;
 
         /// <summary>
         /// Initializes references and subscribes to UI choice events.
@@ -130,6 +119,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         private void OnEnable()
         {
+            DialogueRunner.OnDialogueStarted += HandleRunnerStarted;
             DialogueRunner.OnNodeChanged += HandleNodeChanged;
             DialogueRunner.OnDialogueEnded += HandleRunnerEnded;
 
@@ -145,6 +135,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         private void OnDisable()
         {
+            DialogueRunner.OnDialogueStarted -= HandleRunnerStarted;
             DialogueRunner.OnNodeChanged -= HandleNodeChanged;
             DialogueRunner.OnDialogueEnded -= HandleRunnerEnded;
 
@@ -160,13 +151,8 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         /// <param name="dialogueTree">Dialogue tree to play.</param>
         /// <param name="focusTarget">Optional world-space target for cameras or other systems.</param>
-        /// <param name="speaker">Optional speaker transform associated with the session.</param>
         /// <returns>True if dialogue started successfully; otherwise, false.</returns>
-        public bool StartDialogue(
-            DialogueTree dialogueTree,
-            Transform focusTarget = null,
-            Transform speaker = null
-        )
+        public bool StartDialogue(DialogueTree dialogueTree, Transform focusTarget = null)
         {
             if (dialogueTree == null)
             {
@@ -198,19 +184,17 @@ namespace QuietStatic.Toolkit.Dialogue
                 return false;
             }
 
-            CurrentDialogueTree = dialogueTree;
-            CurrentFocusTarget = focusTarget;
-            CurrentSpeaker = speaker;
-            IsDialogueActive = true;
-
-            OnDialogueStateChanged?.Invoke(CurrentDialogueTree, true);
-            OnDialogueStarted?.Invoke(CurrentDialogueTree, CurrentFocusTarget);
-            onDialogueStarted?.Invoke(CurrentDialogueTree, CurrentFocusTarget);
-
-            dialogueRunner.SetTree(CurrentDialogueTree);
+            currentFocusTarget = focusTarget;
+            dialogueRunner.SetTree(dialogueTree);
             dialogueRunner.StartDialogue();
 
-            return true;
+            if (dialogueRunner.IsRunning)
+            {
+                return true;
+            }
+
+            currentFocusTarget = null;
+            return false;
         }
 
         /// <summary>
@@ -251,16 +235,24 @@ namespace QuietStatic.Toolkit.Dialogue
                 return false;
             }
 
-            if (dialogueRunner != null && dialogueRunner.IsRunning)
-            {
-                dialogueRunner.EndDialogue();
-            }
-            else
-            {
-                FinishDialogueState();
-            }
+            dialogueRunner.EndDialogue();
 
             return true;
+        }
+
+        /// <summary>
+        /// Raises the high-level session events after the assigned runner becomes active.
+        /// </summary>
+        private void HandleRunnerStarted(DialogueRunner runner)
+        {
+            if (runner != dialogueRunner)
+            {
+                return;
+            }
+
+            DialogueTree startedDialogue = runner.Tree;
+            OnDialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
+            onDialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
         }
 
         /// <summary>
@@ -313,25 +305,15 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            FinishDialogueState();
+            FinishDialogueState(runner.Tree);
         }
 
         /// <summary>
         /// Clears dialogue state, hides UI, and raises dialogue-ended events.
         /// </summary>
-        private void FinishDialogueState()
+        private void FinishDialogueState(DialogueTree endedDialogue)
         {
-            if (!IsDialogueActive)
-            {
-                return;
-            }
-
-            DialogueTree endedDialogue = CurrentDialogueTree;
-
-            IsDialogueActive = false;
-            CurrentDialogueTree = null;
-            CurrentFocusTarget = null;
-            CurrentSpeaker = null;
+            currentFocusTarget = null;
 
             if (dialogueUIManager == null)
             {
@@ -343,7 +325,6 @@ namespace QuietStatic.Toolkit.Dialogue
                 dialogueUIManager.HideDialogueUI();
             }
 
-            OnDialogueStateChanged?.Invoke(endedDialogue, false);
             OnDialogueEnded?.Invoke(endedDialogue);
             onDialogueEnded?.Invoke(endedDialogue);
         }
