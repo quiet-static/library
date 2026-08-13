@@ -71,3 +71,15 @@ interactable's **On Interaction Succeeded** (or a hold/progress interactable's
 **On Completed**) to `SceneTransitionHandler.Transition()`. The string-parameter
 `TransitionToConnection` and `TransitionToScene` methods are also available for dynamic
 UnityEvents, buttons, animation events, and Timeline signals.
+
+## Scene modes
+
+Add one `SceneModeDefinition` to each content scene to declare whether the scene is for
+normal play or a cutscene and which game state should become active. Keep one
+`SceneModeManager` in the persistent Systems scene; it reads the definition whenever the
+active scene changes and applies the configured game state.
+
+Add `SceneModeCameraHandler` to play and cutscene cameras that share a loaded scene set.
+Each handler enables its camera and optional audio listener only for its configured mode.
+When a content scene is opened directly without the persistent manager, the handler uses
+that scene's local definition so isolated scene testing still selects the correct camera.

@@ -38,7 +38,8 @@ System (loaded once, persistent)
 │   ├── FlagManager
 │   ├── DialogueManager
 │   └── CutsceneManager
-└── SceneFlowManager
+├── SceneFlowManager
+└── SceneModeManager
 
 UI (persistent)
 ├── UIControllers
@@ -50,6 +51,7 @@ Player (persistent when appropriate)
 └── Player
 
 Content scene (replaceable)
+├── SceneModeDefinition
 ├── Environment
 ├── Interactables
 ├── SpawnPoints
