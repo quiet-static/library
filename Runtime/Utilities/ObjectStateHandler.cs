@@ -47,9 +47,6 @@ namespace QuietStatic.Toolkit.Utilities
         [Serializable]
         public sealed class StateChangedUnityEvent : UnityEvent<ObjectStateDefinition> { }
 
-        /// <summary>Raised after the selected state changes.</summary>
-        public event Action<ObjectStateDefinition> StateChanged;
-
         [Header("States")]
         [Tooltip("State definitions and the scene objects that represent each one.")]
         [SerializeField] private StateBinding[] states;
@@ -187,7 +184,6 @@ namespace QuietStatic.Toolkit.Utilities
 
             if (notify && changed)
             {
-                StateChanged?.Invoke(CurrentState);
                 onStateChanged?.Invoke(CurrentState);
             }
         }
@@ -228,7 +224,6 @@ namespace QuietStatic.Toolkit.Utilities
 
             if (notify && changed)
             {
-                StateChanged?.Invoke(null);
                 onStateChanged?.Invoke(null);
             }
         }

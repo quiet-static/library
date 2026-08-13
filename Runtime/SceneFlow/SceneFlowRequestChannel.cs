@@ -12,7 +12,7 @@ namespace QuietStatic.Toolkit.SceneFlow
     }
 
     /// <summary>Typed cross-scene scene-flow command.</summary>
-    public readonly struct SceneFlowCommand : ICrossSceneCommand
+    public readonly struct SceneFlowCommand
     {
         /// <summary>Creates a scene-flow command.</summary>
         public SceneFlowCommand(

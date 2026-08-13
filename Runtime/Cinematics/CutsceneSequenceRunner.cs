@@ -24,6 +24,12 @@ namespace QuietStatic.Toolkit.Cinematics
     /// </remarks>
     public class CutsceneSequenceRunner : MonoBehaviour
     {
+        /// <summary>Raised whenever a sequence begins.</summary>
+        public static event Action OnSequenceStarted;
+
+        /// <summary>Raised whenever a sequence ends or is stopped.</summary>
+        public static event Action OnSequenceEnded;
+
         /// <summary>
         /// One ordered unit of work inside a cutscene sequence.
         /// </summary>
@@ -171,7 +177,7 @@ namespace QuietStatic.Toolkit.Cinematics
             if (IsRunning)
             {
                 IsRunning = false;
-                ToolkitEvents.RaiseCutsceneEnded();
+                OnSequenceEnded?.Invoke();
             }
         }
 
@@ -198,7 +204,7 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             IsRunning = true;
             onSequenceStarted?.Invoke();
-            ToolkitEvents.RaiseCutsceneStarted();
+            OnSequenceStarted?.Invoke();
 
             if (steps != null)
             {
@@ -216,7 +222,7 @@ namespace QuietStatic.Toolkit.Cinematics
             }
 
             onSequenceFinished?.Invoke();
-            ToolkitEvents.RaiseCutsceneEnded();
+            OnSequenceEnded?.Invoke();
             IsRunning = false;
             CurrentStepIndex = -1;
             activeRoutine = null;
@@ -226,9 +232,9 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             IsRunning = true;
             CurrentStepIndex = stepIndex;
-            ToolkitEvents.RaiseCutsceneStarted();
+            OnSequenceStarted?.Invoke();
             yield return PlayStepRoutine(steps[stepIndex]);
-            ToolkitEvents.RaiseCutsceneEnded();
+            OnSequenceEnded?.Invoke();
             CurrentStepIndex = -1;
             IsRunning = false;
             activeRoutine = null;

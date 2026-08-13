@@ -1,24 +1,4 @@
-# Event bus
-
-`EventBus<T>` is a small typed publish/subscribe utility for custom data events that
-implement `IEvent`.
-
-```csharp
-public readonly struct AlarmRaised : IEvent
-{
-    public AlarmRaised(string room) => Room = room;
-    public string Room { get; }
-}
-
-EventBus<AlarmRaised>.Subscribe(HandleAlarm);
-EventBus<AlarmRaised>.Publish(new AlarmRaised("Kitchen"));
-EventBus<AlarmRaised>.Unsubscribe(HandleAlarm);
-```
-
-Always unsubscribe when the listener is disabled or destroyed. Use `ToolkitEvents` for
-the built-in broad notifications and UnityEvents for explicit scene-local wiring.
-
-## Cross-scene commands
+# Cross-scene commands
 
 Commands and notifications have different ownership:
 
@@ -26,8 +6,9 @@ Commands and notifications have different ownership:
   composed scene hierarchy.
 - Use a `CrossSceneCommandChannel` asset when content and receiver scenes must not
   hold references to one another.
-- Use `ToolkitEvents` or `EventBus<T>` for observations that may have many consumers
-  and do not ask an authoritative system to perform work.
+- Use events on the authoritative runtime component for observations that may have
+  many consumers and do not ask that system to perform work. Always unsubscribe when
+  the listener is disabled or destroyed.
 
 Concrete command channels retain UnityEvent-friendly methods such as
 `ShowMessage`, `RequestSave`, and `TransitionToScene`. Internally each method emits

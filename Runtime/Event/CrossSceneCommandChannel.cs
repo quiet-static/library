@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace QuietStatic
 {
-    /// <summary>Marker contract for payloads sent as cross-scene commands.</summary>
-    public interface ICrossSceneCommand { }
-
     /// <summary>
     /// Non-generic base for ScriptableObject channels that bridge scene content and
     /// persistent systems.
@@ -18,7 +15,6 @@ namespace QuietStatic
     /// <typeparam name="TCommand">Payload describing the requested operation.</typeparam>
     public abstract class CrossSceneCommandChannel<TCommand> :
         CrossSceneCommandChannel
-        where TCommand : ICrossSceneCommand
     {
         /// <summary>Raised synchronously whenever a caller dispatches a command.</summary>
         public event Action<TCommand> CommandRequested;
@@ -91,7 +87,6 @@ namespace QuietStatic
         {
             if (channel == null)
             {
-                channel = null;
                 return;
             }
 

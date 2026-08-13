@@ -36,13 +36,6 @@ namespace QuietStatic.Toolkit.Interactions
         menuName = "Quiet Static Toolkit/Interactions/Player Activity Channel")]
     public class PlayerActivityChannel : ScriptableObject
     {
-        /// <summary>
-        /// Raised when the player enters the seated activity. The argument is the
-        /// world-space anchor where the player should be positioned, or null when no
-        /// repositioning is requested.
-        /// </summary>
-        public event Action<Transform> Began;
-
         /// <summary>Raised with the complete seated position and camera configuration.</summary>
         public event Action<PlayerActivityContext> ContextBegan;
 
@@ -81,7 +74,6 @@ namespace QuietStatic.Toolkit.Interactions
                 horizontalLookRange,
                 verticalLookRange,
                 snapCameraToFocus);
-            Began?.Invoke(playerAnchor);
             ContextBegan?.Invoke(context);
         }
 

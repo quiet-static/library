@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using QuietStatic.Toolkit.Core;
 using QuietStatic.Toolkit.State;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -13,7 +12,6 @@ namespace QuietStatic.Tests.EditMode
         private GameObject managerObject;
         private GameStateManager manager;
         private Action<string, string> stateChangedHandler;
-        private Action<string> toolkitStateChangedHandler;
 
         [SetUp]
         public void SetUp()
@@ -30,31 +28,22 @@ namespace QuietStatic.Tests.EditMode
                 GameStateManager.OnGameStateChanged -= stateChangedHandler;
             }
 
-            if (toolkitStateChangedHandler != null)
-            {
-                ToolkitEvents.StateChanged -= toolkitStateChangedHandler;
-            }
-
             UnityEngine.Object.DestroyImmediate(managerObject);
         }
 
         [Test]
-        public void SetState_TrimsAndPublishesThroughCanonicalEvents()
+        public void SetState_TrimsAndPublishesCanonicalEvent()
         {
             string reportedPreviousState = null;
             string reportedCurrentState = null;
-            string reportedToolkitState = null;
 
             stateChangedHandler = (previousState, currentState) =>
             {
                 reportedPreviousState = previousState;
                 reportedCurrentState = currentState;
             };
-            toolkitStateChangedHandler =
-                currentState => reportedToolkitState = currentState;
 
             GameStateManager.OnGameStateChanged += stateChangedHandler;
-            ToolkitEvents.StateChanged += toolkitStateChangedHandler;
 
             bool changed = manager.SetState("  Playing  ");
 
@@ -62,7 +51,6 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(manager.CurrentState, Is.EqualTo("Playing"));
             Assert.That(reportedPreviousState, Is.EqualTo("Starting"));
             Assert.That(reportedCurrentState, Is.EqualTo("Playing"));
-            Assert.That(reportedToolkitState, Is.EqualTo("Playing"));
         }
 
         [Test]
@@ -99,7 +87,6 @@ namespace QuietStatic.Tests.EditMode
         public void SetState_ReentrantTransitionPublishesEachStateInOrder()
         {
             List<string> managerStates = new List<string>();
-            List<string> toolkitStates = new List<string>();
 
             stateChangedHandler = (_, currentState) =>
             {
@@ -110,11 +97,8 @@ namespace QuietStatic.Tests.EditMode
                     manager.SetState("Paused");
                 }
             };
-            toolkitStateChangedHandler =
-                currentState => toolkitStates.Add(currentState);
 
             GameStateManager.OnGameStateChanged += stateChangedHandler;
-            ToolkitEvents.StateChanged += toolkitStateChangedHandler;
 
             bool changed = manager.SetState("Playing");
 
@@ -122,10 +106,6 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(manager.CurrentState, Is.EqualTo("Paused"));
             Assert.That(
                 managerStates,
-                Is.EqualTo(new[] { "Playing", "Paused" })
-            );
-            Assert.That(
-                toolkitStates,
                 Is.EqualTo(new[] { "Playing", "Paused" })
             );
         }

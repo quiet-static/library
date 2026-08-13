@@ -25,26 +25,6 @@ namespace QuietStatic
     /// </remarks>
     public class InteractionUIManager : ToolkitSingleton<InteractionUIManager>
     {
-        /// <summary>
-        /// Raised whenever a temporary message is shown.
-        /// </summary>
-        public static event Action<string> OnMessageShown;
-
-        /// <summary>
-        /// Raised whenever the temporary message is hidden.
-        /// </summary>
-        public static event Action OnMessageHidden;
-
-        /// <summary>
-        /// Raised whenever the interaction prompt is shown or changed.
-        /// </summary>
-        public static event Action<string> OnPromptShown;
-
-        /// <summary>
-        /// Raised whenever the interaction prompt is hidden.
-        /// </summary>
-        public static event Action OnPromptHidden;
-
         [Serializable]
         public class StringUnityEvent : UnityEvent<string>
         {
@@ -137,12 +117,10 @@ namespace QuietStatic
 
             if (string.IsNullOrWhiteSpace(text))
             {
-                OnPromptHidden?.Invoke();
                 onPromptHidden?.Invoke();
                 return;
             }
 
-            OnPromptShown?.Invoke(text);
             onPromptShown?.Invoke(text);
         }
 
@@ -157,7 +135,6 @@ namespace QuietStatic
                 promptText.gameObject.SetActive(false);
             }
 
-            OnPromptHidden?.Invoke();
             onPromptHidden?.Invoke();
         }
 
@@ -226,7 +203,6 @@ namespace QuietStatic
                 return;
             }
 
-            OnMessageShown?.Invoke(text);
             onMessageShown?.Invoke(text);
 
             if (seconds > 0f)
@@ -250,7 +226,6 @@ namespace QuietStatic
                 messageText.gameObject.SetActive(false);
             }
 
-            OnMessageHidden?.Invoke();
             onMessageHidden?.Invoke();
         }
 

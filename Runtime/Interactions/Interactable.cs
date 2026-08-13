@@ -23,9 +23,6 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Raised after an enabled interactable fails its requirements.</summary>
         public static event Action<Interactable, Interactor> OnInteractionFailed;
 
-        /// <summary>Raised when an interactable's runtime enabled state changes.</summary>
-        public static event Action<Interactable, bool> OnInteractionEnabledChanged;
-
         [Header("Interaction Display")]
         [Tooltip("Name or prompt shown to the player.")]
         [SerializeField] private string displayName = "Interact";
@@ -101,7 +98,7 @@ namespace QuietStatic.Toolkit.Interactions
             return true;
         }
 
-        /// <summary>Changes whether this object accepts attempts and notifies global listeners.</summary>
+        /// <summary>Changes whether this object accepts interaction attempts.</summary>
         /// <param name="isEnabled">New interaction state.</param>
         public void SetEnabled(bool isEnabled)
         {
@@ -111,7 +108,6 @@ namespace QuietStatic.Toolkit.Interactions
             }
 
             IsEnabled = isEnabled;
-            OnInteractionEnabledChanged?.Invoke(this, IsEnabled);
         }
 
         private void HandleSuccessfulInteraction(Interactor interactor)

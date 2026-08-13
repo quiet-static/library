@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using QuietStatic.Toolkit.Core;
 using QuietStatic.Toolkit.Input;
@@ -90,9 +89,6 @@ namespace QuietStatic
 
         /// <summary>Number of independently owned blocks currently active.</summary>
         public int ActiveBlockCount => inputBlocks.Count;
-
-        /// <summary>Raised whenever the combined temporary block mask changes.</summary>
-        public static event Action<InputBlockGroups> OnInputBlocksChanged;
 
         /// <summary>
         /// Initializes the singleton and ensures no input group is active by default.
@@ -323,14 +319,8 @@ namespace QuietStatic
                 combined |= claim.Groups;
             }
 
-            bool changed = combined != BlockedGroups;
             BlockedGroups = combined;
             ApplyDesiredMode();
-
-            if (changed)
-            {
-                OnInputBlocksChanged?.Invoke(BlockedGroups);
-            }
         }
 
         private void ApplyDesiredMode()

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Utilities
@@ -11,7 +10,7 @@ namespace QuietStatic.Toolkit.Utilities
     }
 
     /// <summary>Typed cross-scene object-state command.</summary>
-    public readonly struct ObjectStateCommand : ICrossSceneCommand
+    public readonly struct ObjectStateCommand
     {
         /// <summary>Creates an object-state command.</summary>
         public ObjectStateCommand(
@@ -44,12 +43,6 @@ namespace QuietStatic.Toolkit.Utilities
     public sealed class ObjectStateChannel :
         CrossSceneCommandChannel<ObjectStateCommand>
     {
-        /// <summary>Raised when a caller requests that listeners activate a state.</summary>
-        public event Action<ObjectStateDefinition> StateActivationRequested;
-
-        /// <summary>Raised when a caller requests that listeners clear their active state.</summary>
-        public event Action StateClearRequested;
-
         /// <summary>
         /// Requests that enabled listeners activate the supplied state definition.
         /// </summary>
@@ -69,14 +62,12 @@ namespace QuietStatic.Toolkit.Utilities
             Dispatch(new ObjectStateCommand(
                 ObjectStateCommandType.Activate,
                 state));
-            StateActivationRequested?.Invoke(state);
         }
 
         /// <summary>Requests that enabled listeners disable every configured state object.</summary>
         public void ClearState()
         {
             Dispatch(new ObjectStateCommand(ObjectStateCommandType.Clear));
-            StateClearRequested?.Invoke();
         }
     }
 }

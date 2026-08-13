@@ -51,21 +51,6 @@ namespace QuietStatic.Toolkit.Saving
         [Tooltip("Invoked when loading fails. Passes the slot index and error message.")]
         [SerializeField] private SaveErrorUnityEvent onLoadFailed = new SaveErrorUnityEvent();
 
-        /// <summary>Raised after a slot is saved successfully.</summary>
-        public static event Action<int> Saved;
-
-        /// <summary>Raised after a slot is restored successfully.</summary>
-        public static event Action<int> Loaded;
-
-        /// <summary>Raised after a slot and its backup are deleted.</summary>
-        public static event Action<int> Deleted;
-
-        /// <summary>Raised when saving fails, with the slot and error message.</summary>
-        public static event Action<int, string> SaveFailed;
-
-        /// <summary>Raised when loading fails, with the slot and error message.</summary>
-        public static event Action<int, string> LoadFailed;
-
         /// <summary>Whether a save restoration is currently running.</summary>
         public bool IsLoading { get; private set; }
 
@@ -113,7 +98,6 @@ namespace QuietStatic.Toolkit.Saving
                 SaveGameData data = CaptureData(arrivalSpawnId);
                 string json = JsonUtility.ToJson(data, true);
                 WriteAtomically(GetSlotPath(slot), json);
-                Saved?.Invoke(slot);
                 onSaved.Invoke(slot);
                 return true;
             }
@@ -172,7 +156,6 @@ namespace QuietStatic.Toolkit.Saving
                     File.Delete(backupPath);
                 }
 
-                Deleted?.Invoke(slot);
                 onDeleted.Invoke(slot);
                 return true;
             }
@@ -318,7 +301,6 @@ namespace QuietStatic.Toolkit.Saving
             }
 
             IsLoading = false;
-            Loaded?.Invoke(slot);
             onLoaded.Invoke(slot);
         }
 
@@ -529,14 +511,12 @@ namespace QuietStatic.Toolkit.Saving
 
         private void RaiseSaveFailed(int slot, string message)
         {
-            SaveFailed?.Invoke(slot, message);
             onSaveFailed.Invoke(slot, message);
             GameLogger.Warning("SaveSlot", this, message);
         }
 
         private void RaiseLoadFailed(int slot, string message)
         {
-            LoadFailed?.Invoke(slot, message);
             onLoadFailed.Invoke(slot, message);
             GameLogger.Warning("LoadSlot", this, message);
         }

@@ -37,31 +37,25 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void SaveRequestChannel_ForwardsAllSlotRequests()
+        public void SaveRequestChannel_ForwardsAllTypedSlotCommands()
         {
             SaveRequestChannel channel =
                 ScriptableObject.CreateInstance<SaveRequestChannel>();
-            int savedSlot = -1;
-            int loadedSlot = -1;
-            int deletedSlot = -1;
-            string spawnId = null;
-
-            channel.SaveRequested += (slot, spawn) =>
-            {
-                savedSlot = slot;
-                spawnId = spawn;
-            };
-            channel.LoadRequested += slot => loadedSlot = slot;
-            channel.DeleteRequested += slot => deletedSlot = slot;
+            var commands = new List<SaveCommand>();
+            channel.CommandRequested += commands.Add;
 
             channel.RequestSave(2, "Kitchen");
             channel.RequestLoad(3);
             channel.RequestDelete(4);
 
-            Assert.That(savedSlot, Is.EqualTo(2));
-            Assert.That(spawnId, Is.EqualTo("Kitchen"));
-            Assert.That(loadedSlot, Is.EqualTo(3));
-            Assert.That(deletedSlot, Is.EqualTo(4));
+            Assert.That(commands, Has.Count.EqualTo(3));
+            Assert.That(commands[0].Type, Is.EqualTo(SaveCommandType.Save));
+            Assert.That(commands[0].Slot, Is.EqualTo(2));
+            Assert.That(commands[0].ArrivalSpawnId, Is.EqualTo("Kitchen"));
+            Assert.That(commands[1].Type, Is.EqualTo(SaveCommandType.Load));
+            Assert.That(commands[1].Slot, Is.EqualTo(3));
+            Assert.That(commands[2].Type, Is.EqualTo(SaveCommandType.Delete));
+            Assert.That(commands[2].Slot, Is.EqualTo(4));
 
             Object.DestroyImmediate(channel);
         }

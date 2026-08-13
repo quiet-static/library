@@ -18,34 +18,13 @@ namespace QuietStatic
     /// Instead, it:
     /// - Tracks whether a cutscene is active
     /// - Optionally fades to black before beginning and ending
-    /// - Raises C# events for global listeners
-    /// - Raises UnityEvents for scene-local behavior
+    /// - Raises serialized UnityEvents for scene-local behavior
     ///
-    /// Game-specific systems should subscribe to these events and handle transitions,
+    /// Game-specific systems should connect to these callbacks and handle transitions,
     /// scene loading, flags, dialogue, player spawning, and progression rules.
     /// </remarks>
     public class CutsceneManager : ToolkitSingleton<CutsceneManager>
     {
-        /// <summary>
-        /// Raised when any cutscene is ready to begin, after the optional fade-to-black.
-        /// </summary>
-        public static event Action<string> OnCutsceneStarted;
-
-        /// <summary>
-        /// Raised when any cutscene is ending, after the optional fade-to-black.
-        /// </summary>
-        /// <remarks>
-        /// At this point, <see cref="IsPlayingCutscene"/> has already been set to false,
-        /// so listeners may safely begin another cutscene if needed.
-        /// </remarks>
-        public static event Action<string> OnCutsceneEnded;
-
-        /// <summary>
-        /// Raised whenever the active cutscene state changes.
-        /// First parameter is the cutscene id; second parameter is whether it is active.
-        /// </summary>
-        public static event Action<string, bool> OnCutsceneStateChanged;
-
         [Serializable]
         public class StringEvent : UnityEvent<string>
         {
@@ -205,8 +184,6 @@ namespace QuietStatic
             isEndingCutscene = false;
             CurrentCutsceneId = cutsceneId;
 
-            OnCutsceneStateChanged?.Invoke(cutsceneId, true);
-
             yield return FadeToBlackRoutine();
 
             if (preventReplay)
@@ -214,7 +191,6 @@ namespace QuietStatic
                 playedCutsceneIds.Add(cutsceneId);
             }
 
-            OnCutsceneStarted?.Invoke(cutsceneId);
             onCutsceneStarted?.Invoke(cutsceneId);
         }
 
@@ -233,8 +209,6 @@ namespace QuietStatic
             isEndingCutscene = false;
             CurrentCutsceneId = string.Empty;
 
-            OnCutsceneStateChanged?.Invoke(cutsceneId, false);
-            OnCutsceneEnded?.Invoke(cutsceneId);
             onCutsceneEnded?.Invoke(cutsceneId);
 
             FadeToClear();

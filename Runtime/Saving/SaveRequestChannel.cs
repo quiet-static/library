@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Saving
@@ -12,7 +11,7 @@ namespace QuietStatic.Toolkit.Saving
     }
 
     /// <summary>Typed cross-scene save-slot command.</summary>
-    public readonly struct SaveCommand : ICrossSceneCommand
+    public readonly struct SaveCommand
     {
         /// <summary>Creates a save-slot command.</summary>
         public SaveCommand(
@@ -44,15 +43,6 @@ namespace QuietStatic.Toolkit.Saving
     public sealed class SaveRequestChannel :
         CrossSceneCommandChannel<SaveCommand>
     {
-        /// <summary>Raised when a save request is dispatched.</summary>
-        public event Action<int, string> SaveRequested;
-
-        /// <summary>Raised when a load request is dispatched.</summary>
-        public event Action<int> LoadRequested;
-
-        /// <summary>Raised when a delete request is dispatched.</summary>
-        public event Action<int> DeleteRequested;
-
         /// <summary>Requests a save in the supplied slot.</summary>
         public void RequestSave(int slot, string arrivalSpawnId = "")
         {
@@ -60,21 +50,18 @@ namespace QuietStatic.Toolkit.Saving
                 SaveCommandType.Save,
                 slot,
                 arrivalSpawnId));
-            SaveRequested?.Invoke(slot, arrivalSpawnId);
         }
 
         /// <summary>Requests that the supplied slot be loaded.</summary>
         public void RequestLoad(int slot)
         {
             Dispatch(new SaveCommand(SaveCommandType.Load, slot));
-            LoadRequested?.Invoke(slot);
         }
 
         /// <summary>Requests deletion of the supplied slot.</summary>
         public void RequestDelete(int slot)
         {
             Dispatch(new SaveCommand(SaveCommandType.Delete, slot));
-            DeleteRequested?.Invoke(slot);
         }
     }
 }

@@ -18,15 +18,6 @@ namespace QuietStatic.Toolkit.Interactions
     {
         [Serializable] public sealed class FloatUnityEvent : UnityEvent<float> { }
 
-        /// <summary>Raised after the timed process starts.</summary>
-        public event Action Started;
-
-        /// <summary>Raised whenever normalized progress changes.</summary>
-        public event Action<float> ProgressChanged;
-
-        /// <summary>Raised when progress reaches one.</summary>
-        public event Action Completed;
-
         [Header("Interaction Display")]
         [Tooltip("Prompt shown while the player looks at an available interaction.")]
         [SerializeField] private string hoverPrompt = "Press E to start";
@@ -152,7 +143,6 @@ namespace QuietStatic.Toolkit.Interactions
             IsRunning = true;
             ConfigureProgressDisplay();
             ShowProgress(true);
-            Started?.Invoke();
             onStarted?.Invoke();
             return true;
         }
@@ -166,7 +156,6 @@ namespace QuietStatic.Toolkit.Interactions
 
             if (!Mathf.Approximately(previous, Progress))
             {
-                ProgressChanged?.Invoke(Progress);
                 onProgressChanged?.Invoke(Progress);
             }
 
@@ -195,7 +184,6 @@ namespace QuietStatic.Toolkit.Interactions
         {
             IsRunning = false;
             SetCompletionFlags();
-            Completed?.Invoke();
             onCompleted?.Invoke();
 
             if (disableAfterCompletion)

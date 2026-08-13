@@ -30,12 +30,6 @@ namespace QuietStatic.Toolkit.Jumpscare
         /// </summary>
         public static event Action<JumpscareEvent> OnJumpscareFinished;
 
-        /// <summary>
-        /// Raised when a jumpscare's running state changes.
-        /// The bool parameter is true while running and false when complete.
-        /// </summary>
-        public static event Action<JumpscareEvent, bool> OnJumpscareRunningChanged;
-
         [Header("Scare Target")]
         [Tooltip("Optional GameObject to enable when the jumpscare starts. This is usually the scare model, image, prop, or enemy reveal object.")]
         [SerializeField] private GameObject scareObject;
@@ -176,7 +170,7 @@ namespace QuietStatic.Toolkit.Jumpscare
 
         private IEnumerator PlayRoutine()
         {
-            SetRunning(true);
+            running = true;
             onAnticipation?.Invoke();
 
             if (startDelay > 0f)
@@ -262,22 +256,8 @@ namespace QuietStatic.Toolkit.Jumpscare
             OnJumpscareFinished?.Invoke(this);
             onFinished?.Invoke();
 
-            SetRunning(false);
+            running = false;
             sequenceRoutine = null;
-        }
-
-        /// <summary>
-        /// Updates the running state and notifies global listeners when it changes.
-        /// </summary>
-        private void SetRunning(bool isRunning)
-        {
-            if (running == isRunning)
-            {
-                return;
-            }
-
-            running = isRunning;
-            OnJumpscareRunningChanged?.Invoke(this, running);
         }
 
         private object Wait(float duration) => useUnscaledTime
@@ -355,7 +335,7 @@ namespace QuietStatic.Toolkit.Jumpscare
             if (sequenceRoutine != null) StopCoroutine(sequenceRoutine);
             sequenceRoutine = null;
             StopPresentationRoutines();
-            if (running) SetRunning(false);
+            running = false;
         }
     }
 }

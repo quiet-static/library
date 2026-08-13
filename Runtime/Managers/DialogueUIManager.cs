@@ -38,11 +38,6 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public event Action OnAdvanceRequested;
 
-        /// <summary>
-        /// Raised whenever dialogue UI visibility changes.
-        /// </summary>
-        public event Action<bool> OnDialogueVisibilityChanged;
-
         [Serializable]
         public class ChoiceSelectedEvent : UnityEvent<int>
         {
@@ -390,7 +385,6 @@ namespace QuietStatic.Toolkit.Dialogue
 
             ApplyCursorState(visible);
 
-            OnDialogueVisibilityChanged?.Invoke(visible);
             onDialogueVisibilityChanged?.Invoke(visible);
         }
 

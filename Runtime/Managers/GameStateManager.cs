@@ -128,7 +128,6 @@ namespace QuietStatic.Toolkit.State
 
             OnGameStateChanged?.Invoke(previousState, newState);
             onGameStateChanged?.Invoke(newState);
-            ToolkitEvents.RaiseStateChanged(newState);
         }
 
         /// <summary>

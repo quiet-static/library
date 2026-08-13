@@ -38,9 +38,6 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Tooltip("Invoked when the bootstrap cannot continue.")]
         [SerializeField] private UnityEvent onBootstrapFailed;
 
-        /// <summary>Raised when any bootstrapper cannot complete.</summary>
-        public static event Action<SceneBootstrapper, string> BootstrapFailed;
-
         /// <summary>Whether this component is currently loading its profile.</summary>
         public bool IsBootstrapping { get; private set; }
 
@@ -150,7 +147,6 @@ namespace QuietStatic.Toolkit.SceneFlow
             IsBootstrapping = false;
             GameLogger.Warning(nameof(SceneBootstrapper), this, FailureReason);
             onBootstrapFailed?.Invoke();
-            BootstrapFailed?.Invoke(this, FailureReason);
         }
     }
 }

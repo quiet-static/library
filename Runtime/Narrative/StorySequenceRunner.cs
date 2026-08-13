@@ -55,10 +55,6 @@ namespace QuietStatic.Toolkit.Narrative
         public IReadOnlyCollection<string> CompletedStageIds => completedStageIds;
         public string SaveId => $"quietstatic.story-sequence.{sequence?.Id ?? string.Empty}";
 
-        public static event Action<StorySequenceRunner, StorySequenceDefinition.Stage> StageEntered;
-        public static event Action<StorySequenceRunner, StorySequenceDefinition.Stage> StageCompleted;
-        public static event Action<StorySequenceRunner> SequenceCompleted;
-
         private void OnEnable()
         {
             FlagManager.OnFlagsChanged += EvaluateProgress;
@@ -112,7 +108,6 @@ namespace QuietStatic.Toolkit.Narrative
             }
 
             RequestSceneConnection(stage.SceneConnectionId);
-            StageEntered?.Invoke(this, stage);
             onStageEntered?.Invoke(stage.Id);
             applyingStageChange = false;
             EvaluateProgress();
@@ -137,12 +132,10 @@ namespace QuietStatic.Toolkit.Narrative
                 ObjectiveManager.Instance.CompleteActiveObjective();
             }
             SetFlags(completed.FlagsToSetOnComplete);
-            StageCompleted?.Invoke(this, completed);
             onStageCompleted?.Invoke(completed.Id);
 
             if (string.IsNullOrWhiteSpace(completed.NextStageId))
             {
-                SequenceCompleted?.Invoke(this);
                 onSequenceCompleted?.Invoke();
                 applyingStageChange = false;
                 return;

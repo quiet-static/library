@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Audio;
 using QuietStatic.Toolkit.Interactions;
@@ -11,24 +12,11 @@ namespace QuietStatic.Tests.EditMode
     public class RequestChannelTests
     {
         [Test]
-        public void InteractionUIChannel_ForwardsMessageAndPromptRequests()
+        public void InteractionUIChannel_ForwardsTypedMessageAndPromptRequests()
         {
             InteractionUIChannel channel = ScriptableObject.CreateInstance<InteractionUIChannel>();
-            string message = null;
-            string prompt = null;
-            bool promptHidden = false;
-            string progressLabel = null;
-            float progress = -1f;
-            bool progressHidden = false;
-            channel.MessageShowRequested += value => message = value;
-            channel.PromptShowRequested += value => prompt = value;
-            channel.PromptHideRequested += () => promptHidden = true;
-            channel.ProgressShowRequested += (label, value) =>
-            {
-                progressLabel = label;
-                progress = value;
-            };
-            channel.ProgressHideRequested += () => progressHidden = true;
+            var commands = new List<InteractionUICommand>();
+            channel.CommandRequested += commands.Add;
 
             channel.ShowMessage("Dinner is ready");
             channel.ShowPrompt("[E] Interact");
@@ -36,30 +24,31 @@ namespace QuietStatic.Tests.EditMode
             channel.ShowProgress("Eating", 0.4f);
             channel.HideProgress();
 
-            Assert.That(message, Is.EqualTo("Dinner is ready"));
-            Assert.That(prompt, Is.EqualTo("[E] Interact"));
-            Assert.That(promptHidden, Is.True);
-            Assert.That(progressLabel, Is.EqualTo("Eating"));
-            Assert.That(progress, Is.EqualTo(0.4f));
-            Assert.That(progressHidden, Is.True);
+            Assert.That(commands, Has.Count.EqualTo(5));
+            Assert.That(commands[0].Type, Is.EqualTo(InteractionUICommandType.ShowMessage));
+            Assert.That(commands[0].Text, Is.EqualTo("Dinner is ready"));
+            Assert.That(commands[1].Type, Is.EqualTo(InteractionUICommandType.ShowPrompt));
+            Assert.That(commands[1].Text, Is.EqualTo("[E] Interact"));
+            Assert.That(commands[2].Type, Is.EqualTo(InteractionUICommandType.HidePrompt));
+            Assert.That(commands[3].Type, Is.EqualTo(InteractionUICommandType.ShowProgress));
+            Assert.That(commands[3].Text, Is.EqualTo("Eating"));
+            Assert.That(commands[3].Progress, Is.EqualTo(0.4f));
+            Assert.That(commands[4].Type, Is.EqualTo(InteractionUICommandType.HideProgress));
             Object.DestroyImmediate(channel);
         }
 
         [Test]
-        public void PlayerActivityChannel_ForwardsAnchorAndLimitedLookContext()
+        public void PlayerActivityChannel_ForwardsLimitedLookContext()
         {
             PlayerActivityChannel channel =
                 ScriptableObject.CreateInstance<PlayerActivityChannel>();
             GameObject anchor = new("Player Anchor");
             GameObject focus = new("Camera Focus");
-            Transform legacyAnchor = null;
             PlayerActivityContext received = default;
-            channel.Began += value => legacyAnchor = value;
             channel.ContextBegan += value => received = value;
 
             channel.Begin(anchor.transform, focus.transform, 20f, 12f, true);
 
-            Assert.That(legacyAnchor, Is.SameAs(anchor.transform));
             Assert.That(received.PlayerAnchor, Is.SameAs(anchor.transform));
             Assert.That(received.CameraFocusTarget, Is.SameAs(focus.transform));
             Assert.That(received.HorizontalLookRange, Is.EqualTo(20f));
@@ -72,24 +61,24 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void AudioRequestChannel_ForwardsGlobalSfxRequests()
+        public void AudioRequestChannel_ForwardsTypedGlobalSfxRequests()
         {
             AudioRequestChannel channel = ScriptableObject.CreateInstance<AudioRequestChannel>();
-            int despawnCount = 0;
-            bool spawningEnabled = true;
-            channel.SpawnedSfxDespawnRequested += () => despawnCount++;
-            channel.SfxSpawningDisableRequested += () => spawningEnabled = false;
-            channel.SfxSpawningEnableRequested += () => spawningEnabled = true;
+            var commands = new List<AudioCommandType>();
+            channel.CommandRequested += command => commands.Add(command.Type);
 
             channel.DespawnSpawnedSfx();
             channel.DisableSfxSpawning();
-
-            Assert.That(despawnCount, Is.EqualTo(1));
-            Assert.That(spawningEnabled, Is.False);
-
             channel.EnableSfxSpawning();
 
-            Assert.That(spawningEnabled, Is.True);
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    AudioCommandType.DespawnSpawnedSfx,
+                    AudioCommandType.DisableSfxSpawning,
+                    AudioCommandType.EnableSfxSpawning
+                },
+                commands);
             Object.DestroyImmediate(channel);
         }
 
@@ -129,6 +118,13 @@ namespace QuietStatic.Tests.EditMode
                 stateCommand.Type,
                 Is.EqualTo(ObjectStateCommandType.Activate));
             Assert.That(stateCommand.State, Is.SameAs(state));
+
+            objectState.ClearState();
+
+            Assert.That(
+                stateCommand.Type,
+                Is.EqualTo(ObjectStateCommandType.Clear));
+            Assert.That(stateCommand.State, Is.Null);
 
             Object.DestroyImmediate(state);
             Object.DestroyImmediate(objectState);

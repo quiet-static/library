@@ -376,8 +376,6 @@ namespace QuietStatic.Toolkit.Flags
             OnFlagSet?.Invoke(flagId);
             onFlagSet?.Invoke(flagId);
             OnFlagsChanged?.Invoke();
-
-            ToolkitEvents.RaiseFlagSet(flagId);
         }
     }
 }

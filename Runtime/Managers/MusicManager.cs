@@ -57,16 +57,6 @@ namespace QuietStatic
         {
         }
 
-        /// <summary>
-        /// Raised when a new music clip begins playing.
-        /// </summary>
-        public static event Action<AudioClip> OnMusicStarted;
-
-        /// <summary>
-        /// Raised when music playback stops.
-        /// </summary>
-        public static event Action OnMusicStopped;
-
         [Header("Audio Source")]
         [Tooltip("Audio source used for background music. If empty, one is found on this GameObject.")]
         [SerializeField] private AudioSource musicSource;
@@ -208,7 +198,6 @@ namespace QuietStatic
             IsPaused = false;
             musicSource.Play();
 
-            OnMusicStarted?.Invoke(clip);
             onMusicStarted?.Invoke(clip);
         }
 
@@ -249,7 +238,6 @@ namespace QuietStatic
             musicSource.volume = defaultVolume;
             IsPaused = false;
 
-            OnMusicStopped?.Invoke();
             onMusicStopped?.Invoke();
         }
 
@@ -389,7 +377,6 @@ namespace QuietStatic
             IsPaused = false;
             musicSource.Play();
 
-            OnMusicStarted?.Invoke(newClip);
             onMusicStarted?.Invoke(newClip);
 
             yield return FadeVolumeTo(defaultVolume);
@@ -411,7 +398,6 @@ namespace QuietStatic
 
             fadeRoutine = null;
 
-            OnMusicStopped?.Invoke();
             onMusicStopped?.Invoke();
         }
 

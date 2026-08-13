@@ -16,11 +16,14 @@ namespace QuietStatic.Tests.EditMode
         {
             flagObject = new GameObject("Flags");
             flags = flagObject.AddComponent<FlagManager>();
+            SetField(flags, "persistBetweenScenes", false);
+            InvokeLifecycle(flags, "Awake");
         }
 
         [TearDown]
         public void TearDown()
         {
+            InvokeLifecycle(flags, "OnDestroy");
             Object.DestroyImmediate(flagObject);
         }
 
@@ -34,6 +37,7 @@ namespace QuietStatic.Tests.EditMode
                 new DeductionCategoryController.Category();
             SetField(category, "answerFlags", new[] { "suspect.sam", "suspect.coworker" });
             SetField(controller, "categories", new[] { category });
+            InvokeLifecycle(controller, "OnEnable");
 
             try
             {
@@ -45,6 +49,7 @@ namespace QuietStatic.Tests.EditMode
             }
             finally
             {
+                InvokeLifecycle(controller, "OnDisable");
                 Object.DestroyImmediate(controllerObject);
             }
         }
@@ -117,9 +122,44 @@ namespace QuietStatic.Tests.EditMode
 
         private static void SetField(object target, string name, object value)
         {
-            target.GetType()
-                .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.SetValue(target, value);
+            for (System.Type type = target.GetType(); type != null; type = type.BaseType)
+            {
+                FieldInfo field = type.GetField(
+                    name,
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic |
+                    BindingFlags.DeclaredOnly);
+                if (field == null)
+                {
+                    continue;
+                }
+
+                field.SetValue(target, value);
+                return;
+            }
+
+            Assert.Fail($"Missing field '{name}'.");
+        }
+
+        private static void InvokeLifecycle(object target, string methodName)
+        {
+            for (System.Type type = target.GetType(); type != null; type = type.BaseType)
+            {
+                MethodInfo method = type.GetMethod(
+                    methodName,
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic |
+                    BindingFlags.DeclaredOnly);
+                if (method == null)
+                {
+                    continue;
+                }
+
+                method.Invoke(target, null);
+                return;
+            }
+
+            Assert.Fail($"Missing lifecycle method '{methodName}'.");
         }
     }
 }

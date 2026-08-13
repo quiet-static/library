@@ -92,10 +92,13 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void StateChanged_IsOnlyRaisedForStateTransitions()
+        public void StateChangedUnityEvent_IsOnlyRaisedForStateTransitions()
         {
             int notificationCount = 0;
-            handler.StateChanged += _ => notificationCount++;
+            var stateChanged =
+                new ObjectStateHandler.StateChangedUnityEvent();
+            stateChanged.AddListener(_ => notificationCount++);
+            SetPrivateField("onStateChanged", stateChanged);
 
             handler.ActivateState(emptyDish);
             handler.ActivateState(emptyDish);
