@@ -24,7 +24,7 @@ namespace QuietStatic.Toolkit.Editor
         [Serializable] private sealed class Requirement { public string mode = "None"; public string[] flags; }
 
         /// <summary>Imports the selected content-catalog JSON.</summary>
-        [MenuItem("Tools/Narrative/Import Selected Content JSON")]
+        [MenuItem("Tools/Quiet Static/Importers/Import Selected Content JSON")]
         private static void ImportSelected()
         {
             try
@@ -40,7 +40,7 @@ namespace QuietStatic.Toolkit.Editor
             }
         }
 
-        [MenuItem("Tools/Narrative/Import Selected Content JSON", true)]
+        [MenuItem("Tools/Quiet Static/Importers/Import Selected Content JSON", true)]
         private static bool CanImportSelected() => Selection.activeObject is TextAsset asset &&
             AssetDatabase.GetAssetPath(asset).EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 

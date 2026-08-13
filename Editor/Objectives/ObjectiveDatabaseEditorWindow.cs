@@ -30,7 +30,7 @@ namespace QuietStatic.Toolkit.Editor.Objectives
         private readonly Dictionary<ObjectiveDefinition, IReadOnlyList<string>>
             references = new();
 
-        [MenuItem("Tools/Narrative/Objective Database")]
+        [MenuItem("Tools/Quiet Static/Objectives/Objective Database")]
         public static void Open()
         {
             GetWindow<ObjectiveDatabaseEditorWindow>("Objective Database");

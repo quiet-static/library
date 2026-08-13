@@ -24,7 +24,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         private bool showReferences = true;
         private readonly HashSet<string> expandedNodes = new(StringComparer.Ordinal);
 
-        [MenuItem("Tools/Narrative/Dialogue Browser")]
+        [MenuItem("Tools/Quiet Static/Dialogue/Dialogue Browser")]
         public static void Open()
         {
             GetWindow<DialogueBrowserWindow>("Dialogue Browser");

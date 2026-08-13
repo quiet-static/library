@@ -19,7 +19,7 @@ node text, choices, next indexes, and optional flags. Presentation should subscr
 runner events instead of being embedded in the tree or runner.
 
 Dialogue JSON authoring is also supported. Select a version 1 dialogue JSON file and
-choose **Tools > Narrative > Import Selected Dialogue JSON**. Generated trees are
+choose **Tools > Quiet Static > Dialogue > Import Selected Dialogue JSON**. Generated trees are
 written to `Assets/Generated/Dialogue` and updated in place on re-import. The JSON is
 the source of truth; stable node IDs are resolved to the runtime's existing indexes.
 

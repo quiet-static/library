@@ -15,7 +15,7 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
         private Vector2 scroll;
         private string filter = string.Empty;
 
-        [MenuItem("Tools/Narrative/Scene Flow Explorer")]
+        [MenuItem("Tools/Quiet Static/Scene Flow/Scene Flow Explorer")]
         public static void Open()
         {
             GetWindow<SceneFlowExplorerWindow>("Scene Flow");

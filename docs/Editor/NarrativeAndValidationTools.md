@@ -6,7 +6,7 @@ content during validation.
 
 ## Narrative validation
 
-Open **Tools > Narrative > Validate Narrative** and click **Scan**.
+Open **Tools > Quiet Static > Validation > Validate Narrative** and click **Scan**.
 
 The scan checks:
 
@@ -24,7 +24,7 @@ code-generated IDs cannot be discovered.
 
 ## Flag Database editor
 
-Open **Tools > Narrative > Flag Database**.
+Open **Tools > Quiet Static > Flags > Flag Database**.
 
 Choose a database, search by ID or description, then edit entries with normal Unity
 Undo support. **Refresh Usage** counts exact serialized references. **Find** opens the
@@ -39,7 +39,7 @@ by asset GUID; projects should normally configure one authoritative database.
 
 ## Dialogue Browser
 
-Open **Tools > Narrative > Dialogue Browser**.
+Open **Tools > Quiet Static > Dialogue > Dialogue Browser**.
 
 The browser provides a read-only, project-wide view of every `DialogueTree`. Search
 matches asset names, dialogue text, speaker names, choice text, and flags. Separate
@@ -57,7 +57,7 @@ invent parallel metadata or claim to validate those concepts.
 
 ## Objective Database explorer
 
-Open **Tools > Narrative > Objective Database**, or select an `ObjectiveDatabase` asset
+Open **Tools > Quiet Static > Objectives > Objective Database**, or select an `ObjectiveDatabase` asset
 and click **Open Objective Database Explorer** in its Inspector.
 
 The explorer searches objective asset names, stable IDs, titles, and descriptions. Each
@@ -73,7 +73,7 @@ opens the matching paths; runtime-created references cannot be detected.
 
 ## Interactable Explorer
 
-Open **Tools > Narrative > Interactable Explorer**.
+Open **Tools > Quiet Static > Interactions > Interactable Explorer**.
 
 The explorer indexes one-shot, hold, and autonomous-progress interaction targets without
 creating a runtime database or duplicating scene state. Choose loaded scenes, project
@@ -87,7 +87,7 @@ remains the source of truth.
 
 ## Dialogue Graph
 
-Open **Tools > Narrative > Dialogue Graph**, or select a `DialogueTree` and use
+Open **Tools > Quiet Static > Dialogue > Dialogue Graph**, or select a `DialogueTree` and use
 **Assets > Open in Dialogue Graph**.
 
 The initial graph is deliberately read-only. It loads the existing index-linked
@@ -104,7 +104,7 @@ runtime ordering or transitions.
 
 ## Scene setup validation
 
-Open **Tools > Validation > Validate Open Scenes**.
+Open **Tools > Quiet Static > Validation > Validate Open Scenes**.
 
 The scan checks missing scripts, duplicate Quiet Static manager types, AudioListener
 count, EventSystem presence, game-state database duplicates and references, and

@@ -52,13 +52,13 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         /// <summary>Returns whether the current selection is an importable JSON text asset.</summary>
-        [MenuItem("Tools/Narrative/Import Selected Dialogue JSON", true)]
+        [MenuItem("Tools/Quiet Static/Dialogue/Import Selected Dialogue JSON", true)]
         private static bool CanImportSelected() =>
             Selection.activeObject is TextAsset && AssetDatabase.GetAssetPath(Selection.activeObject)
                 .EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Imports the selected JSON into the default generated asset folder.</summary>
-        [MenuItem("Tools/Narrative/Import Selected Dialogue JSON")]
+        [MenuItem("Tools/Quiet Static/Dialogue/Import Selected Dialogue JSON")]
         private static void ImportSelected()
         {
             try

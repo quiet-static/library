@@ -19,7 +19,7 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
         private SceneFlowRequestChannel requestChannel;
         private Vector2 scroll;
 
-        [MenuItem("Tools/Narrative/Scene Flow Setup")]
+        [MenuItem("Tools/Quiet Static/Scene Flow/Scene Flow Setup")]
         public static void Open()
         {
             GetWindow<SceneFlowSetupWindow>("Scene Flow Setup");

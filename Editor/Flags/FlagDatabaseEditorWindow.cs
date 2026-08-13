@@ -21,7 +21,7 @@ namespace QuietStatic.Toolkit.Editor.Flags
         private string search = string.Empty;
         private readonly Dictionary<string, int> usageCounts = new(StringComparer.Ordinal);
 
-        [MenuItem("Tools/Narrative/Flag Database")]
+        [MenuItem("Tools/Quiet Static/Flags/Flag Database")]
         public static void Open()
         {
             GetWindow<FlagDatabaseEditorWindow>("Flag Database");
