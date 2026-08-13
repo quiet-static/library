@@ -34,17 +34,7 @@ persistent services exist but before content begins. The transition runs on the
 persistent manager, so unloading the bootstrap scene cannot cancel it.
 
 Keep `SceneFlowManager.Load Startup Scene On Awake` disabled when a bootstrap profile
-owns startup. Its legacy startup fields and `BootstrapScenes` remain available for
-smaller existing projects, but do not configure both startup authorities.
-
-```text
-Bootstrapper
-└── BootstrapScenes
-    ├── Persistent: System
-    ├── Persistent: UI
-    ├── Persistent: Player
-    └── Startup content: House
-```
+owns startup so only one component can initiate content loading.
 
 Use `SceneReference` fields instead of hand-typed scene names where available. Add every
 loadable scene to Build Settings. `SceneTransitionTrigger` should describe local trigger
@@ -53,18 +43,13 @@ behavior while `SceneFlowManager` owns the actual transition.
 Create a `SceneFlowRequestChannel` asset when replaceable content scenes need to issue
 commands to the persistent manager. Assign it to both the manager and transition
 triggers. The same channel also exposes UnityEvent-friendly additive load, unload, and
-active-scene commands. A trigger falls back to `SceneFlowManager`, then the legacy
-`SceneLoadService`, when no channel is assigned.
+active-scene commands. A trigger calls `SceneFlowManager` directly when no channel is
+assigned.
 
 For a full additive content transition, create a `SceneTransitionRequest`.
 The request can load support scenes and retain selected nonpersistent scenes
 for that transition. Await `SceneFlowManager.TransitionToSceneRoutine` before
 applying project-specific spawning, game-state, or narrative policy.
-
-`SceneLoadService` remains the smaller single/additive load primitive used by
-`BootstrapScenes` and simple triggers. Do not install two components that both
-own the same high-level transition policy; use `SceneFlowManager` as the
-content-stack authority when persistent scenes and cleanup are required.
 
 ## Faded transitions and connection maps
 

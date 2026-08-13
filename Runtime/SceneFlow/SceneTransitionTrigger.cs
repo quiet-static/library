@@ -9,7 +9,8 @@ namespace QuietStatic.Toolkit.SceneFlow
     /// <remarks>
     /// This component is intended for simple doorway, hallway, portal, or level-exit triggers.
     /// When an object enters the trigger, the component can optionally validate the object's tag,
-    /// invoke a UnityEvent, and then ask <see cref="SceneLoadService"/> to load the configured scene.
+    /// invoke a UnityEvent, and then request the configured scene through the persistent
+    /// <see cref="SceneFlowManager"/>.
     ///
     /// The target scene must still be included in Unity's Build Settings for runtime scene loading
     /// to succeed.
@@ -97,7 +98,7 @@ namespace QuietStatic.Toolkit.SceneFlow
         }
 
         /// <summary>
-        /// Requests the configured scene load through the shared <see cref="SceneLoadService"/>.
+        /// Requests the configured scene load through the scene-flow channel or manager.
         /// </summary>
         private bool TryLoadTargetScene()
         {
@@ -141,22 +142,6 @@ namespace QuietStatic.Toolkit.SceneFlow
                 else
                 {
                     SceneFlowManager.Instance.TransitionToScene(targetScene);
-                }
-
-                return true;
-            }
-
-            // Compatibility fallback for projects using the smaller legacy
-            // scene-loading service without a content-stack manager.
-            if (SceneLoadService.Instance != null)
-            {
-                if (additive)
-                {
-                    SceneLoadService.Instance.LoadAdditive(targetScene);
-                }
-                else
-                {
-                    SceneLoadService.Instance.LoadSingle(targetScene);
                 }
 
                 return true;
@@ -239,8 +224,7 @@ namespace QuietStatic.Toolkit.SceneFlow
                 return false;
             }
 
-            if (SceneFlowManager.Instance != null ||
-                SceneLoadService.Instance != null)
+            if (SceneFlowManager.Instance != null)
             {
                 return true;
             }

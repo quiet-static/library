@@ -27,7 +27,7 @@ The toolkit is designed around persistent system scenes and replaceable content 
 
 ```text
 Bootstrapper
-└── BootstrapScenes
+└── SceneBootstrapper (profile)
 
 System (loaded once, persistent)
 ├── SystemManagers
@@ -38,11 +38,7 @@ System (loaded once, persistent)
 │   ├── FlagManager
 │   ├── DialogueManager
 │   └── CutsceneManager
-└── system_callers
-    ├── SystemHandler
-    ├── GameplayHandler
-    ├── FlagHandler
-    └── AudioHandler
+└── SceneFlowManager
 
 UI (persistent)
 ├── UIControllers

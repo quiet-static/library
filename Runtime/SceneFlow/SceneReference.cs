@@ -35,7 +35,7 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// </summary>
         /// <remarks>
         /// This value is intended to be passed to scene loading systems such as
-        /// SceneManager or SceneLoadService. It may be empty if no scene has been
+        /// SceneManager or SceneFlowManager. It may be empty if no scene has been
         /// assigned in the Inspector.
         /// </remarks>
         public string SceneName => sceneName;

@@ -325,22 +325,6 @@ namespace QuietStatic
         }
 
         /// <summary>
-        /// Pauses Unity time.
-        /// </summary>
-        public void PauseTime()
-        {
-            Time.timeScale = 0f;
-        }
-
-        /// <summary>
-        /// Restores Unity time to normal speed.
-        /// </summary>
-        public void ResumeTime()
-        {
-            Time.timeScale = 1f;
-        }
-
-        /// <summary>
         /// Loads the target scene, sets it active, and optionally unloads all
         /// non-persistent scenes afterward.
         /// </summary>

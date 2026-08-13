@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 625ff6b1ec844288b0ca3045e1281f65, type: 3}
+  m_Name: SampleSceneBootstrapProfile
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile
+  persistentScenes:
+  - sceneName: System
+  - sceneName: UI
+  - sceneName: SceneOrchestrator
+  initialScene:
+    sceneName: House
+  additionalInitialScenes: []
+  initialScenesToKeep: []
+  unloadOtherScenes: 1
