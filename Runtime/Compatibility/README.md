@@ -14,9 +14,6 @@ types in `QuietStatic.Toolkit.Characters.Player`.
 Compatibility families are grouped by their former responsibility:
 
 - `LegacyCharacters` preserves the original player-component namespaces and GUIDs.
-- `LegacyManagers` preserves the former settings and enum-based game-state managers.
-- `LegacyPresentation` preserves the former Cinematics credits-scroller type.
-- `LegacySpawning` preserves the scene-local `SpawnService` API.
 
 New package prefabs, scenes, tests, and Runtime code must not reference these types.
 Project-specific migration code belongs in the consuming project. A bridge can be

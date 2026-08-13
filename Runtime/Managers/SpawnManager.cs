@@ -180,7 +180,7 @@ namespace QuietStatic
         /// </summary>
         /// <remarks>
         /// If neither point exists, the prefab is still instantiated at its authored
-        /// position and rotation for compatibility with the former SpawnService.
+        /// position and rotation so an optional spawn point cannot prevent spawning.
         /// </remarks>
         public GameObject Spawn(GameObject prefab, string spawnId)
         {

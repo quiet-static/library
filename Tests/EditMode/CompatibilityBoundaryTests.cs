@@ -43,11 +43,7 @@ namespace QuietStatic.Tests.EditMode
             {
                 "QuietStatic.Characters.AnimationController",
                 "QuietStatic.Characters.CharacterMotor",
-                "QuietStatic.Characters.MovementStateController",
-                "QuietStatic.Toolkit.Settings.SettingsManager",
-                "QuietStatic.Toolkit.Core.GameStateController",
-                "QuietStatic.Toolkit.Cinematics.CreditsScroller",
-                "QuietStatic.Toolkit.Spawning.SpawnService"
+                "QuietStatic.Characters.MovementStateController"
             };
 
             foreach (string typeName in legacyTypeNames)

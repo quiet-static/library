@@ -5,8 +5,6 @@ systems. They keep triggers, animation events, and UI buttons from referencing m
 
 ```text
 system_callers
-|-- SystemHandler
-|-- GameplayHandler
 |-- InteractionHandler
 |-- FlagHandler
 |-- ObjectiveHandler

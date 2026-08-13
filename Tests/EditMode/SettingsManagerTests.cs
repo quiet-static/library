@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -113,12 +114,11 @@ namespace QuietStatic.Tests.EditMode
                 );
             LogAssert.Expect(
                 LogType.Warning,
-                "SettingsManager could not find any Volume in the scene."
+                new Regex("Could not find any Volume in the scene\\.")
             );
             LogAssert.Expect(
                 LogType.Warning,
-                "SettingsManager cannot apply brightness because " +
-                "ColorAdjustments is null."
+                new Regex("Cannot apply brightness because ColorAdjustments is null\\.")
             );
 
             Assert.DoesNotThrow(() => InvokeLifecycle("Start"));

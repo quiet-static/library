@@ -5,11 +5,6 @@ instance in the persistent System scene. It owns saved values and applies them t
 audio, display, post-processing, accessibility, and gameplay systems; it does not own
 menu widgets. `SettingsMenuView` binds scene or prefab controls to its public setters.
 
-`QuietStatic.Toolkit.Settings.SettingsManager` is retained only so existing
-serialized components continue to load. It now lives in the dedicated
-Compatibility assembly. Do not add it to new scenes, and do not run both
-settings managers at the same time.
-
 ## Reusable accessibility menu
 
 The package includes `SettingsMenu.prefab`, `TitleMenu.prefab`, `PauseMenu.prefab`, and an

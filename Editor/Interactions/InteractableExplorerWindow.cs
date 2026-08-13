@@ -332,12 +332,12 @@ namespace QuietStatic.Toolkit.Editor.Interactions
             }
 
             GameObject owner = target.gameObject;
-            SeatedHoldSequence seatedSequence =
+            HoldActivitySequence activitySequence =
                 target is HoldInteractable
-                    ? owner.GetComponent<SeatedHoldSequence>()
+                    ? owner.GetComponent<HoldActivitySequence>()
                     : null;
-            bool requiresCrosshairTarget = seatedSequence == null ||
-                seatedSequence.RequiresColliderFocus;
+            bool requiresCrosshairTarget = activitySequence == null ||
+                activitySequence.RequiresColliderFocus;
             return new Entry
             {
                 Target = target,
