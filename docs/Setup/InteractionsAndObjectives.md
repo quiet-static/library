@@ -12,12 +12,12 @@
 ## Create an objective
 
 1. Add a stable entry to `ObjectiveDatabase` and create/assign an
-   `ObjectiveDefinition`.
+   `ObjectiveDefinition`. Configure its optional activation and completion flags.
 2. Keep `ObjectiveManager` in the persistent systems scene.
 3. Add `ObjectivePresenter` to the HUD and connect its text/status visuals.
 4. Use `ObjectiveHandler` from scene events rather than referencing the manager.
-5. Use `ObjectiveResolver` when a scene needs to choose text or behavior from current
-   progression flags.
+5. Order database entries from lowest to highest activation priority. The manager
+   selects the last eligible definition when progression flags change.
 
 Keep objective identity stable after save files exist. Change display text freely;
 do not casually rename IDs used by saves, dialogue, or story stages.

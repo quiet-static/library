@@ -19,7 +19,7 @@ namespace QuietStatic.Toolkit.Editor
         [Serializable] private sealed class Item
         {
             public string id; public string title; public string description; public string body;
-            public string closeLabel = "Close"; public Requirement completionRequirement;
+            public string closeLabel = "Close"; public Requirement activationRequirement; public Requirement completionRequirement;
         }
         [Serializable] private sealed class Requirement { public string mode = "None"; public string[] flags; }
 
@@ -94,6 +94,7 @@ namespace QuietStatic.Toolkit.Editor
                 serialized.FindProperty("id").stringValue = item.id.Trim();
                 serialized.FindProperty("title").stringValue = item.title ?? string.Empty;
                 serialized.FindProperty("description").stringValue = item.description ?? string.Empty;
+                WriteRequirement(serialized.FindProperty("activationRequirement"), item.activationRequirement);
                 WriteRequirement(serialized.FindProperty("completionRequirement"), item.completionRequirement);
                 serialized.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(definition); definitions[index] = definition;
             }

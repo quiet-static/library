@@ -12,7 +12,7 @@ namespace QuietStatic.Toolkit.Objectives
         menuName = "Quiet Static Toolkit/Objectives/Objective Database")]
     public sealed class ObjectiveDatabase : ScriptableObject
     {
-        [Tooltip("All reusable objectives known to this project.")]
+        [Tooltip("All reusable objectives known to this project, ordered from lowest to highest automatic-activation priority.")]
         [SerializeField] private ObjectiveDefinition[] objectives;
 
         /// <summary>Gets the configured objective definitions.</summary>

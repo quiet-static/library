@@ -299,6 +299,8 @@ namespace QuietStatic.Toolkit.Editor.Objectives
             SerializedProperty title = serializedObjective.FindProperty("title");
             SerializedProperty description =
                 serializedObjective.FindProperty("description");
+            SerializedProperty activationRequirement =
+                serializedObjective.FindProperty("activationRequirement");
             SerializedProperty completionRequirement =
                 serializedObjective.FindProperty("completionRequirement");
 
@@ -309,6 +311,7 @@ namespace QuietStatic.Toolkit.Editor.Objectives
                     "Save-game identifier. Renaming does not rewrite saved data."));
             EditorGUILayout.PropertyField(title);
             EditorGUILayout.PropertyField(description);
+            EditorGUILayout.PropertyField(activationRequirement, true);
             EditorGUILayout.PropertyField(completionRequirement, true);
 
             string normalizedId = id.stringValue?.Trim();

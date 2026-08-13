@@ -80,12 +80,8 @@ namespace QuietStatic.Toolkit.Editor.Validation
 
             foreach (Component component in FindOpenSceneComponents())
             {
-                if (component is ObjectiveResolver objective)
-                {
-                    ValidateObjective(objective, knownFlags, databases.Length > 0, issues);
-                }
-                else if (component is ObjectiveManager objectiveManager &&
-                         objectiveManager.Database == null)
+                if (component is ObjectiveManager objectiveManager &&
+                          objectiveManager.Database == null)
                 {
                     issues.Add(new ValidationIssue(
                         ValidationSeverity.Warning,
@@ -593,45 +589,6 @@ namespace QuietStatic.Toolkit.Editor.Validation
             }
         }
 
-        private static void ValidateObjective(
-            ObjectiveResolver objective,
-            HashSet<string> knownFlags,
-            bool validateFlags,
-            ICollection<ValidationIssue> issues)
-        {
-            var serialized = new SerializedObject(objective);
-            SerializedProperty entries = serialized.FindProperty("objectives");
-            for (int index = 0; entries != null && index < entries.arraySize; index++)
-            {
-                SerializedProperty entry = entries.GetArrayElementAtIndex(index);
-                ObjectiveDefinition definition =
-                    entry.FindPropertyRelative("definition")?.objectReferenceValue
-                        as ObjectiveDefinition;
-                if (definition == null &&
-                    string.IsNullOrWhiteSpace(
-                        entry.FindPropertyRelative("objectiveText")?.stringValue))
-                {
-                    issues.Add(new ValidationIssue(
-                        ValidationSeverity.Warning, "Objectives",
-                        $"Objective entry {index} has no definition or legacy display text.",
-                        objective));
-                }
-
-                SerializedProperty requirement = entry.FindPropertyRelative("requirement");
-                SerializedProperty mode = requirement?.FindPropertyRelative("mode");
-                SerializedProperty flags = requirement?.FindPropertyRelative("flags");
-                if (mode != null && mode.enumValueIndex != 0 && (flags == null || flags.arraySize == 0))
-                {
-                    issues.Add(new ValidationIssue(
-                        ValidationSeverity.Warning, "Objectives",
-                        $"Objective entry {index} has a requirement mode but no flags.", objective));
-                }
-
-                ValidateSerializedFlags(flags, knownFlags, validateFlags,
-                    $"Objective entry {index}", objective, issues);
-            }
-        }
-
         private static void ValidateObjectiveDatabase(
             ObjectiveDatabase database,
             HashSet<string> knownFlags,
@@ -686,32 +643,54 @@ namespace QuietStatic.Toolkit.Editor.Validation
                 }
 
                 var serialized = new SerializedObject(objective);
-                SerializedProperty requirement =
-                    serialized.FindProperty("completionRequirement");
-                SerializedProperty mode =
-                    requirement?.FindPropertyRelative("mode");
-                SerializedProperty flags =
-                    requirement?.FindPropertyRelative("flags");
-
-                if (mode != null &&
-                    mode.enumValueIndex != 0 &&
-                    (flags == null || flags.arraySize == 0))
-                {
-                    issues.Add(new ValidationIssue(
-                        ValidationSeverity.Warning,
-                        "Objectives",
-                        $"Objective '{objective.name}' has a completion mode but no flags.",
-                        objective));
-                }
-
-                ValidateSerializedFlags(
-                    flags,
+                ValidateObjectiveRequirement(
+                    serialized.FindProperty("activationRequirement"),
+                    "activation",
+                    objective,
                     knownFlags,
                     validateFlags,
-                    $"Objective '{objective.name}' completion",
+                    issues);
+                ValidateObjectiveRequirement(
+                    serialized.FindProperty("completionRequirement"),
+                    "completion",
                     objective,
+                    knownFlags,
+                    validateFlags,
                     issues);
             }
+        }
+
+        private static void ValidateObjectiveRequirement(
+            SerializedProperty requirement,
+            string label,
+            ObjectiveDefinition objective,
+            HashSet<string> knownFlags,
+            bool validateFlags,
+            ICollection<ValidationIssue> issues)
+        {
+            SerializedProperty mode =
+                requirement?.FindPropertyRelative("mode");
+            SerializedProperty flags =
+                requirement?.FindPropertyRelative("flags");
+
+            if (mode != null &&
+                mode.enumValueIndex != 0 &&
+                (flags == null || flags.arraySize == 0))
+            {
+                issues.Add(new ValidationIssue(
+                    ValidationSeverity.Warning,
+                    "Objectives",
+                    $"Objective '{objective.name}' has an {label} mode but no flags.",
+                    objective));
+            }
+
+            ValidateSerializedFlags(
+                flags,
+                knownFlags,
+                validateFlags,
+                $"Objective '{objective.name}' {label}",
+                objective,
+                issues);
         }
 
         private static void ValidateCutscene(

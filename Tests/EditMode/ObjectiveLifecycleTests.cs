@@ -64,14 +64,9 @@ namespace QuietStatic.Tests.EditMode
                 new[] { completed, active });
             CreateObjectiveManager(database);
 
-            int activatedCount = 0;
-            int completedCount = 0;
-            System.Action<ObjectiveDefinition> activatedHandler =
-                _ => activatedCount++;
-            System.Action<ObjectiveDefinition> completedHandler =
-                _ => completedCount++;
-            ObjectiveManager.OnObjectiveActivated += activatedHandler;
-            ObjectiveManager.OnObjectiveCompleted += completedHandler;
+            int lifecycleCount = 0;
+            System.Action lifecycleHandler = () => lifecycleCount++;
+            ObjectiveManager.OnObjectiveLifecycleChanged += lifecycleHandler;
 
             try
             {
@@ -92,8 +87,7 @@ namespace QuietStatic.Tests.EditMode
                 objectiveManager.ClearActiveObjective();
                 objectiveManager.RestoreSaveState(json);
 
-                Assert.That(activatedCount, Is.EqualTo(2));
-                Assert.That(completedCount, Is.EqualTo(1));
+                Assert.That(lifecycleCount, Is.EqualTo(5));
                 Assert.That(
                     objectiveManager.ActiveObjective,
                     Is.SameAs(active));
@@ -106,8 +100,7 @@ namespace QuietStatic.Tests.EditMode
             }
             finally
             {
-                ObjectiveManager.OnObjectiveActivated -= activatedHandler;
-                ObjectiveManager.OnObjectiveCompleted -= completedHandler;
+                ObjectiveManager.OnObjectiveLifecycleChanged -= lifecycleHandler;
                 Object.DestroyImmediate(database);
                 Object.DestroyImmediate(completed);
                 Object.DestroyImmediate(active);
@@ -158,6 +151,43 @@ namespace QuietStatic.Tests.EditMode
             Object.DestroyImmediate(objective);
         }
 
+        [Test]
+        public void FlagResolution_ActivatesHighestPriorityIncompleteObjective()
+        {
+            ObjectiveDefinition early =
+                CreateObjective("house.enter", "Enter the house");
+            ObjectiveDefinition later =
+                CreateObjective("house.find-key", "Find the key");
+            SetPrivateField(
+                early,
+                "activationRequirement",
+                CreateRequirement("house.entered"));
+            SetPrivateField(
+                later,
+                "activationRequirement",
+                CreateRequirement("key.available"));
+
+            ObjectiveDatabase database =
+                ScriptableObject.CreateInstance<ObjectiveDatabase>();
+            SetPrivateField(database, "objectives", new[] { early, later });
+
+            flagManagerObject = new GameObject("Flag Manager");
+            flagManager = flagManagerObject.AddComponent<FlagManager>();
+            CreateObjectiveManager(database);
+
+            flagManager.SetFlag("house.entered");
+            objectiveManager.RefreshObjectivesFromFlags(flagManager);
+            Assert.That(objectiveManager.ActiveObjective, Is.SameAs(early));
+
+            flagManager.SetFlag("key.available");
+            objectiveManager.RefreshObjectivesFromFlags(flagManager);
+            Assert.That(objectiveManager.ActiveObjective, Is.SameAs(later));
+
+            Object.DestroyImmediate(database);
+            Object.DestroyImmediate(early);
+            Object.DestroyImmediate(later);
+        }
+
         private void CreateObjectiveManager(
             ObjectiveDatabase database = null)
         {
@@ -177,6 +207,13 @@ namespace QuietStatic.Tests.EditMode
             SetPrivateField(objective, "id", id);
             SetPrivateField(objective, "title", title);
             return objective;
+        }
+
+        private static FlagRequirement CreateRequirement(string flagId)
+        {
+            return new FlagRequirement(
+                FlagRequirementMode.All,
+                new[] { flagId });
         }
 
         private static void SetPrivateField(

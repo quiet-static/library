@@ -22,7 +22,10 @@ namespace QuietStatic.Toolkit.Objectives
         [TextArea(2, 6)]
         [SerializeField] private string description;
 
-        [Header("Completion")]
+        [Header("Progression")]
+        [Tooltip("Optional flag condition that automatically activates this objective. Database order determines priority when multiple conditions are met.")]
+        [SerializeField] private FlagRequirement activationRequirement = new();
+
         [Tooltip("Optional flag condition that automatically completes this objective. None leaves completion to explicit commands.")]
         [SerializeField] private FlagRequirement completionRequirement = new();
 
@@ -34,6 +37,9 @@ namespace QuietStatic.Toolkit.Objectives
 
         /// <summary>Gets the optional longer description.</summary>
         public string Description => description ?? string.Empty;
+
+        /// <summary>Gets the optional automatic activation rule.</summary>
+        public FlagRequirement ActivationRequirement => activationRequirement;
 
         /// <summary>Gets the optional automatic completion rule.</summary>
         public FlagRequirement CompletionRequirement => completionRequirement;

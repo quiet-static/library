@@ -43,6 +43,9 @@ namespace QuietStatic.Toolkit.Objectives
         [SerializeField] private ObjectiveDatabase database;
 
         [Header("Lifecycle")]
+        [Tooltip("When enabled, the highest-priority database objective whose activation requirement is met becomes active.")]
+        [SerializeField] private bool autoActivateFromFlags = true;
+
         [Tooltip("When enabled, an active objective completes as soon as its configured flag requirement is met.")]
         [SerializeField] private bool autoCompleteFromFlags = true;
 
@@ -65,17 +68,7 @@ namespace QuietStatic.Toolkit.Objectives
         private readonly HashSet<string> completedObjectiveIds =
             new(StringComparer.Ordinal);
 
-        /// <summary>Raised after an objective becomes active.</summary>
-        public static event Action<ObjectiveDefinition> OnObjectiveActivated;
-
-        /// <summary>Raised when active-objective presentation should refresh.</summary>
-        public static event Action<ObjectiveDefinition> OnObjectiveUpdated;
-
-        /// <summary>Raised after an objective is marked complete.</summary>
-        public static event Action<ObjectiveDefinition> OnObjectiveCompleted;
-
-        /// <summary>Raised after an active objective is cleared without completion.</summary>
-        public static event Action<ObjectiveDefinition> OnObjectiveCleared;
+        private bool isRefreshingFromFlags;
 
         /// <summary>Raised after any objective lifecycle transition.</summary>
         public static event Action OnObjectiveLifecycleChanged;
@@ -97,13 +90,21 @@ namespace QuietStatic.Toolkit.Objectives
         {
             if (Instance == this)
             {
-                FlagManager.OnFlagsChanged += EvaluateActiveObjectiveCompletion;
+                FlagManager.OnFlagsChanged += RefreshObjectivesFromFlags;
             }
         }
 
         private void OnDisable()
         {
-            FlagManager.OnFlagsChanged -= EvaluateActiveObjectiveCompletion;
+            FlagManager.OnFlagsChanged -= RefreshObjectivesFromFlags;
+        }
+
+        private void Start()
+        {
+            if (Instance == this)
+            {
+                RefreshObjectivesFromFlags();
+            }
         }
 
         /// <summary>Returns whether the supplied objective has been completed.</summary>
@@ -142,7 +143,6 @@ namespace QuietStatic.Toolkit.Objectives
             }
 
             ActiveObjective = objective;
-            OnObjectiveActivated?.Invoke(objective);
             onObjectiveActivated?.Invoke(objective);
             OnObjectiveLifecycleChanged?.Invoke();
             EvaluateActiveObjectiveCompletion();
@@ -175,7 +175,6 @@ namespace QuietStatic.Toolkit.Objectives
                 ActiveObjective = null;
             }
 
-            OnObjectiveCompleted?.Invoke(objective);
             onObjectiveCompleted?.Invoke(objective);
             OnObjectiveLifecycleChanged?.Invoke();
             return true;
@@ -203,7 +202,6 @@ namespace QuietStatic.Toolkit.Objectives
                 return;
             }
 
-            OnObjectiveUpdated?.Invoke(ActiveObjective);
             onObjectiveUpdated?.Invoke(ActiveObjective);
             OnObjectiveLifecycleChanged?.Invoke();
         }
@@ -227,6 +225,68 @@ namespace QuietStatic.Toolkit.Objectives
                 ActiveObjective.IsCompletionMet(flagManager))
             {
                 CompleteActiveObjective();
+            }
+        }
+
+        /// <summary>
+        /// Completes the current objective when appropriate, then selects the
+        /// highest-priority incomplete database objective whose activation rule is met.
+        /// </summary>
+        public void RefreshObjectivesFromFlags()
+        {
+            RefreshObjectivesFromFlags(FlagManager.Instance);
+        }
+
+        /// <summary>
+        /// Refreshes automatic objective lifecycle against an explicit flag manager.
+        /// </summary>
+        /// <param name="flagManager">Flag state used for activation and completion rules.</param>
+        public void RefreshObjectivesFromFlags(FlagManager flagManager)
+        {
+            if (isRefreshingFromFlags)
+            {
+                return;
+            }
+
+            isRefreshingFromFlags = true;
+
+            try
+            {
+                EvaluateActiveObjectiveCompletion(flagManager);
+
+                if (!autoActivateFromFlags || database == null)
+                {
+                    return;
+                }
+
+                ObjectiveDefinition selected =
+                    FindHighestPriorityObjective(flagManager);
+
+                if (selected == ActiveObjective)
+                {
+                    return;
+                }
+
+                if (selected == null &&
+                    ActiveObjective != null &&
+                    (ActiveObjective.ActivationRequirement == null ||
+                     !ActiveObjective.ActivationRequirement.IsConfigured))
+                {
+                    return;
+                }
+
+                if (selected != null)
+                {
+                    ActivateObjective(selected);
+                }
+                else
+                {
+                    ClearActiveObjective();
+                }
+            }
+            finally
+            {
+                isRefreshingFromFlags = false;
             }
         }
 
@@ -278,18 +338,41 @@ namespace QuietStatic.Toolkit.Objectives
 
             if (previous != null && previous != ActiveObjective)
             {
-                OnObjectiveCleared?.Invoke(previous);
                 onObjectiveCleared?.Invoke(previous);
             }
 
             if (ActiveObjective != null)
             {
-                OnObjectiveUpdated?.Invoke(ActiveObjective);
                 onObjectiveUpdated?.Invoke(ActiveObjective);
             }
 
             OnObjectiveLifecycleChanged?.Invoke();
-            EvaluateActiveObjectiveCompletion();
+            RefreshObjectivesFromFlags();
+        }
+
+        private ObjectiveDefinition FindHighestPriorityObjective(
+            FlagManager flagManager)
+        {
+            IReadOnlyList<ObjectiveDefinition> objectives = database.Objectives;
+
+            for (int index = objectives.Count - 1; index >= 0; index--)
+            {
+                ObjectiveDefinition objective = objectives[index];
+
+                if (objective == null ||
+                    objective.ActivationRequirement == null ||
+                    !objective.ActivationRequirement.IsConfigured ||
+                    !objective.ActivationRequirement.IsMet(flagManager) ||
+                    (!allowReactivateCompleted && HasCompleted(objective)) ||
+                    objective.IsCompletionMet(flagManager))
+                {
+                    continue;
+                }
+
+                return objective;
+            }
+
+            return null;
         }
 
         private bool CanActivate(ObjectiveDefinition objective)
@@ -304,7 +387,6 @@ namespace QuietStatic.Toolkit.Objectives
 
         private void RaiseCleared(ObjectiveDefinition objective)
         {
-            OnObjectiveCleared?.Invoke(objective);
             onObjectiveCleared?.Invoke(objective);
             OnObjectiveLifecycleChanged?.Invoke();
         }

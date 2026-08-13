@@ -297,6 +297,7 @@ MonoBehaviour:
   persistBetweenScenes: 1
   destroyDuplicates: 1
   database: {fileID: 0}
+  autoActivateFromFlags: 1
   autoCompleteFromFlags: 1
   allowReactivateCompleted: 0
   onObjectiveActivated:
