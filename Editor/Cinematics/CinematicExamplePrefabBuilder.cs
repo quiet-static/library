@@ -1,4 +1,5 @@
 using QuietStatic.Toolkit.Cinematics;
+using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Interactions;
 using System;
 using UnityEditor;
@@ -64,9 +65,28 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
         {
             GameObject root = new("ExampleCutscene");
             CutsceneSequenceRunner runner = root.AddComponent<CutsceneSequenceRunner>();
-            Transform cameraRig = Child(root.transform, "Camera Rig");
-            Transform pose = Child(root.transform, "Shot 01 Pose");
+            CutsceneCharacterController characters = root.AddComponent<CutsceneCharacterController>();
+            DialogueNodeCinematicCue nodeCues = root.AddComponent<DialogueNodeCinematicCue>();
+            DialogueRunner dialogue = Child(root.transform, "Dialogue").gameObject.AddComponent<DialogueRunner>();
+            Transform cameraRig = Child(root.transform, "Cinematic Camera");
+            Camera camera = cameraRig.gameObject.AddComponent<Camera>();
+            cameraRig.gameObject.AddComponent<AudioListener>();
+            CinematicCutsceneCameraDirector director = cameraRig.gameObject.AddComponent<CinematicCutsceneCameraDirector>();
+            Transform markers = Child(root.transform, "Shot Markers");
+            Transform pose = Child(markers, "Shot 01 - Wide");
             pose.localPosition = new Vector3(0f, 1.6f, -3f);
+            Transform closePose = Child(markers, "Shot 02 - Close");
+            closePose.localPosition = new Vector3(0.8f, 1.7f, -1.8f);
+
+            Set(director, "cutsceneCamera", camera);
+            SerializedObject serializedDirector = new(director);
+            SerializedProperty shots = serializedDirector.FindProperty("shots");
+            shots.arraySize = 2;
+            ConfigureShot(shots.GetArrayElementAtIndex(0), "Wide", pose, 50f);
+            ConfigureShot(shots.GetArrayElementAtIndex(1), "Close", closePose, 38f);
+            serializedDirector.ApplyModifiedPropertiesWithoutUndo();
+
+            Set(nodeCues, "dialogueRunner", dialogue);
             SerializedObject serialized = new(runner);
             serialized.FindProperty("fadeChannel").objectReferenceValue = channel;
             SerializedProperty steps = serialized.FindProperty("steps");
@@ -75,9 +95,26 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
             step.FindPropertyRelative("name").stringValue = "Opening Shot";
             step.FindPropertyRelative("cameraTransform").objectReferenceValue = cameraRig;
             step.FindPropertyRelative("cameraPose").objectReferenceValue = pose;
+            step.FindPropertyRelative("dialogueRunner").objectReferenceValue = dialogue;
             step.FindPropertyRelative("waitAfterStep").floatValue = 1f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+
+            // Keep the controller in the starter hierarchy so designers can add reusable
+            // character entries and per-node CutsceneCharacterStepTrigger children.
+            _ = characters;
             SavePrefab(root, "ExampleCutscene.prefab");
+        }
+
+        private static void ConfigureShot(
+            SerializedProperty shot,
+            string name,
+            Transform marker,
+            float fieldOfView)
+        {
+            shot.FindPropertyRelative("shotName").stringValue = name;
+            shot.FindPropertyRelative("cameraPositionMarker").objectReferenceValue = marker;
+            shot.FindPropertyRelative("changeFieldOfView").boolValue = true;
+            shot.FindPropertyRelative("fieldOfView").floatValue = fieldOfView;
         }
 
         private static void CreateScreenFaderPrefab(ScreenFadeChannel channel)

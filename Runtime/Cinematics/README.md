@@ -58,6 +58,41 @@ the component to a sequence step's **Wait Source** field. The sequence calls
 animation, and presentation systems outside the toolkit assembly. Step waits
 use unscaled time by default and can be switched to scaled time on the runner.
 
-The former `QuietStatic.Toolkit.Cinematics.CreditsScroller` type lives only in
-the Compatibility assembly. New scenes should use
-`QuietStatic.Toolkit.UI.CreditsScroller`.
+For presentation changes on individual dialogue lines, add
+`DialogueNodeCinematicCue` beside the sequence. Assign the sequence's `DialogueRunner`,
+then add one cue per stable `DialogueTree.Node.id`. Each cue can cut to a configured
+camera-director shot, run a `CutsceneCharacterStepTrigger`, and invoke extra scene-local
+events. This keeps reusable dialogue assets free of scene camera and character references.
+
+Use `QuietStatic.Toolkit.UI.CreditsScroller` for credits presentation.
+
+## Definition-based cinematics
+
+For new scenes, create a `CinematicDefinition` asset and add it to a project-level
+`CinematicDatabase`. Each definition contains ordered beats, and each beat keeps camera,
+character animation, activity/dialogue, and timing data in independent tracks.
+
+Add one `CinematicScenePlayer` to the content scene. Its bindings map the stable IDs in the
+asset to scene-specific shot markers, camera rigs, Animators, and playable activities. The
+player is the convergence point: sequence events, typed beat-ID events, and optional
+per-beat UnityEvents are all configured there. This keeps reusable content out of scene
+objects while allowing local props, audio, lighting, and gameplay handlers to remain wired
+with UnityEvents.
+
+Use **Tools > Narrative > Cinematic Database** to create and search definitions, validate
+IDs, select assets, and find or play setups in loaded scenes. Existing
+`CutsceneSequenceRunner` scenes remain supported and can be migrated incrementally.
+
+### Several cinematics at one location
+
+Give the location's `CinematicScenePlayer` a Location ID, a `CinematicDatabase`, and a
+shared `CinematicLaunchChannel`. All definitions in that database can reuse the player's
+scene bindings. To enter the scene through a specific cinematic, configure a persistent
+`CinematicSceneLauncher` with the destination scene, matching Location ID, cinematic ID,
+launch channel, and scene-flow channel, then call `LaunchConfigured()`. `Launch(string)`
+allows a UnityEvent or code path to choose the cinematic dynamically.
+
+The launcher records the selection before requesting the transition. On load, only the
+player with the matching Location ID consumes it and resolves the cinematic by stable ID.
+For normal scene entry with no request, the player can either play its default definition
+or remain idle using `Play Default On Start`.
