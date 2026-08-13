@@ -33,13 +33,6 @@ namespace QuietStatic.Toolkit.Input
         [SerializeField] private string sprintActionName = "Sprint";
         [Tooltip("Button action used to interact with the current target.")]
         [SerializeField] private string interactActionName = "Interact";
-        [Tooltip("Button action used to request pause.")]
-        [SerializeField] private string pauseActionName = "Pause";
-
-        /// <summary>
-        /// Optional C# event raised when pause input is pressed.
-        /// </summary>
-        public static event Action OnPausePressed;
 
         /// <summary>
         /// Cached gameplay input state manager.
@@ -56,7 +49,6 @@ namespace QuietStatic.Toolkit.Input
         private InputAction jumpAction;
         private InputAction sprintAction;
         private InputAction interactAction;
-        private InputAction pauseAction;
 
         /// <summary>
         /// Resolves required input references.
@@ -84,7 +76,6 @@ namespace QuietStatic.Toolkit.Input
                 jumpAction = playerActionMap.FindAction(jumpActionName, true);
                 sprintAction = playerActionMap.FindAction(sprintActionName, true);
                 interactAction = playerActionMap.FindAction(interactActionName, true);
-                pauseAction = playerActionMap.FindAction(pauseActionName, true);
             }
             catch (Exception exception)
             {
@@ -108,11 +99,6 @@ namespace QuietStatic.Toolkit.Input
                 InputModeManager.Instance.RegisterGameplayInput(this);
             }
 
-            if (pauseAction != null)
-            {
-                pauseAction.performed += HandlePausePressed;
-            }
-
             if (playerActionMap != null)
             {
                 playerActionMap.Enable();
@@ -124,11 +110,6 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void OnDisable()
         {
-            if (pauseAction != null)
-            {
-                pauseAction.performed -= HandlePausePressed;
-            }
-
             if (playerActionMap != null)
             {
                 playerActionMap.Disable();
@@ -159,17 +140,6 @@ namespace QuietStatic.Toolkit.Input
 
             CaptureMovementInput();
             CaptureActionInput();
-        }
-
-        /// <summary>
-        /// Clears one-frame gameplay state after other gameplay components have read it.
-        /// </summary>
-        private void LateUpdate()
-        {
-            if (TryResolveInputManager())
-            {
-                inputManager.ClearFrameInput();
-            }
         }
 
         private bool TryResolveInputManager()
@@ -213,18 +183,5 @@ namespace QuietStatic.Toolkit.Input
             }
         }
 
-        /// <summary>
-        /// Handles pause input independently so pause can be raised immediately.
-        /// </summary>
-        private void HandlePausePressed(InputAction.CallbackContext context)
-        {
-            if (!context.performed)
-            {
-                return;
-            }
-
-            inputManager?.RaisePause();
-            OnPausePressed?.Invoke();
-        }
     }
 }

@@ -254,7 +254,6 @@ Typical input layer might include:
 ```cs
 IMovementInputSource
 ILookInputSource
-IInteractInputSource
 IJumpInputSource
 ```
 

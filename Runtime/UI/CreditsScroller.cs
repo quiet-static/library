@@ -96,7 +96,7 @@ namespace QuietStatic.Toolkit.UI
                 return;
             }
 
-            if (allowSkip && UnityEngine.Input.GetKeyDown(skipKey))
+            if (allowSkip && Input.KeyboardShortcut.WasPressedThisFrame(skipKey))
             {
                 FinishCredits();
                 return;

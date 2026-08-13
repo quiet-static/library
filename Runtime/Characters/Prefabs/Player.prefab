@@ -53,7 +53,6 @@ MonoBehaviour:
   jumpActionName: Jump
   sprintActionName: Sprint
   interactActionName: Interact
-  pauseActionName: Pause
 --- !u!114 &9081478794777903378
 MonoBehaviour:
   m_ObjectHideFlags: 0

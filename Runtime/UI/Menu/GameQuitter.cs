@@ -31,7 +31,7 @@ public class GameQuitter : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyUp(quitKey))
+        if (QuietStatic.Toolkit.Input.KeyboardShortcut.WasReleasedThisFrame(quitKey))
         {
             QuitGame();
         }
