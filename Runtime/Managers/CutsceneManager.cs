@@ -34,8 +34,15 @@ namespace QuietStatic
         [Tooltip("Optional screen fader used before cutscenes begin and end.")]
         [SerializeField] private ScreenFader fader;
 
+        [Tooltip("Optional cross-scene fade channel. Preferred over the direct fader when an active handler is available.")]
+        [SerializeField] private ScreenFadeChannel fadeChannel;
+
         [Tooltip("Whether this manager should fade to black before beginning and ending cutscenes.")]
         [SerializeField] private bool useScreenFade = true;
+
+        [Tooltip("Duration used for channel-driven fades.")]
+        [Min(0f)]
+        [SerializeField] private float fadeDuration = 0.25f;
 
         [Tooltip("How long to wait after requesting a fade to black before continuing.")]
         [Min(0f)]
@@ -219,7 +226,27 @@ namespace QuietStatic
         /// </summary>
         private IEnumerator FadeToBlackRoutine()
         {
-            if (!useScreenFade || fader == null)
+            if (!useScreenFade)
+            {
+                yield break;
+            }
+
+            if (fadeChannel != null && fadeChannel.HasReceiver)
+            {
+                yield return fadeChannel.FadeRoutine(
+                    ScreenFadeTarget.Black,
+                    fadeDuration);
+
+                float remainingWait = fadeWaitDuration - fadeDuration;
+                if (remainingWait > 0f)
+                {
+                    yield return new WaitForSecondsRealtime(remainingWait);
+                }
+
+                yield break;
+            }
+
+            if (fader == null)
             {
                 yield break;
             }
@@ -239,7 +266,20 @@ namespace QuietStatic
         /// </summary>
         private void FadeToClear()
         {
-            if (!useScreenFade || fader == null)
+            if (!useScreenFade)
+            {
+                return;
+            }
+
+            if (fadeChannel != null && fadeChannel.HasReceiver)
+            {
+                StartCoroutine(fadeChannel.FadeRoutine(
+                    ScreenFadeTarget.Clear,
+                    fadeDuration));
+                return;
+            }
+
+            if (fader == null)
             {
                 return;
             }

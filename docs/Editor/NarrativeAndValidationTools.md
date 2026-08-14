@@ -71,6 +71,29 @@ only removes the database reference and never deletes the definition asset. **Re
 References** scans direct serialized dependencies in project assets and the **Refs** button
 opens the matching paths; runtime-created references cannot be detected.
 
+Use **Export JSON** to migrate the selected database, its ordered definitions, and both
+activation and completion requirements to the narrative authorer. Original Unity asset
+paths are recorded so importing the edited JSON updates the same assets and preserves GUIDs.
+
+## Narrative authoring migration
+
+Selected flags, objectives, readables, and dialogue trees can be exported from their
+respective **Tools > Quiet Static** menus. The dialogue graph and flag/objective database
+windows also expose **Export JSON**. Dialogue export preserves both its linear fallback and
+conditional choices; missing legacy node IDs receive deterministic authoring IDs without
+changing the source asset.
+
+Choose **Tools > Quiet Static > Exporters > Export Project Narrative Authoring Snapshot...**
+to gather the project's narrative assets into one folder. Existing JSON is preserved by
+default to protect authorer-side edits. The public bulk API and command-line entry point can
+explicitly overwrite existing files when refreshing from Unity is intentional.
+
+Migration metadata may target only canonical `.asset` paths below `Assets`. Import preflight
+rejects traversal, wrong existing asset types, duplicate targets, and cross-document target
+collisions before changing assets. JSON without metadata continues to import below the
+normal generated folders. Batch import is available at **Tools > Quiet Static > Importers >
+Import Narrative Authorer Batch...**.
+
 ## Interactable Explorer
 
 Open **Tools > Quiet Static > Interactions > Interactable Explorer**.

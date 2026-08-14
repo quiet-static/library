@@ -85,6 +85,25 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                     Selection.activeObject = tree;
                     EditorGUIUtility.PingObject(tree);
                 }
+                if (GUILayout.Button("Export JSON", EditorStyles.toolbarButton, GUILayout.Width(85f)) &&
+                    tree != null)
+                {
+                    try
+                    {
+                        DialogueJsonExporter.ExportWithSavePanel(tree);
+                    }
+                    catch (Exception exception)
+                    {
+                        GameLogger.Error(
+                            nameof(DialogueGraphWindow),
+                            tree,
+                            $"Dialogue export failed: {exception.Message}");
+                        EditorUtility.DisplayDialog(
+                            "Dialogue Export Failed",
+                            exception.Message,
+                            "OK");
+                    }
+                }
 
                 GUILayout.FlexibleSpace();
                 GUILayout.Label("Read-only • drag background to pan", EditorStyles.miniLabel);

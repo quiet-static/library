@@ -70,6 +70,10 @@ namespace QuietStatic.Toolkit.Editor.Flags
                 {
                     RefreshUsage();
                 }
+                if (GUILayout.Button("Export JSON", EditorStyles.toolbarButton, GUILayout.Width(85f)))
+                {
+                    ExportJson();
+                }
                 if (GUILayout.Button("Add Flag", EditorStyles.toolbarButton, GUILayout.Width(75f)))
                 {
                     AddFlag();
@@ -228,6 +232,29 @@ namespace QuietStatic.Toolkit.Editor.Flags
                 }
             }
             Repaint();
+        }
+
+        private void ExportJson()
+        {
+            try
+            {
+                string path = FlagCatalogJsonExporter.ExportWithSavePanel(database);
+                if (path != null)
+                {
+                    GameLogger.Log(
+                        nameof(FlagDatabaseEditorWindow),
+                        database,
+                        $"Exported flag catalog to {path}.");
+                }
+            }
+            catch (Exception exception)
+            {
+                GameLogger.Error(
+                    nameof(FlagDatabaseEditorWindow),
+                    database,
+                    $"Flag catalog export failed: {exception.Message}");
+                EditorUtility.DisplayDialog("Flag Catalog Export Failed", exception.Message, "OK");
+            }
         }
 
         private void CreateDatabase()

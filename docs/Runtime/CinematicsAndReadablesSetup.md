@@ -75,6 +75,11 @@ Create it from **Create > Quiet Static Toolkit > Interactions > Readable Content
 the optional title, long-form body, and optional close-control label. Reuse the asset from
 any number of item instances. The example generator creates `ExampleLetter`.
 
+Select one or more readable assets and choose **Tools > Quiet Static > Readables > Export
+Selected Readable Content JSON...** to migrate them into one narrative-authorer catalog.
+The asset filename becomes its stable authoring ID, and round-trip metadata preserves the
+original Unity asset and GUID when the JSON is imported again.
+
 ## ReadableInteractionTrigger
 
 Add it to the same object as an `Interactable`. Assign the readable content asset and the

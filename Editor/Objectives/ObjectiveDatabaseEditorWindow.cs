@@ -136,6 +136,14 @@ namespace QuietStatic.Toolkit.Editor.Objectives
                 }
 
                 if (GUILayout.Button(
+                        "Export JSON",
+                        EditorStyles.toolbarButton,
+                        GUILayout.Width(85f)))
+                {
+                    ExportJson();
+                }
+
+                if (GUILayout.Button(
                         "Create Objective",
                         EditorStyles.toolbarButton,
                         GUILayout.Width(105f)))
@@ -431,6 +439,33 @@ namespace QuietStatic.Toolkit.Editor.Objectives
             AssetDatabase.SaveAssets();
             Selection.activeObject = database;
             Bind();
+        }
+
+        private void ExportJson()
+        {
+            try
+            {
+                string path = NarrativeContentJsonExporter
+                    .ExportObjectivesWithSavePanel(database);
+                if (path != null)
+                {
+                    GameLogger.Log(
+                        nameof(ObjectiveDatabaseEditorWindow),
+                        database,
+                        $"Exported objective catalog to {path}.");
+                }
+            }
+            catch (Exception exception)
+            {
+                GameLogger.Error(
+                    nameof(ObjectiveDatabaseEditorWindow),
+                    database,
+                    $"Objective catalog export failed: {exception.Message}");
+                EditorUtility.DisplayDialog(
+                    "Objective Catalog Export Failed",
+                    exception.Message,
+                    "OK");
+            }
         }
 
         private void CreateObjective()

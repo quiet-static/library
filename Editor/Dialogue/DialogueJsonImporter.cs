@@ -21,6 +21,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             public int schemaVersion;
             public string treeId;
+            public string unityAssetPath;
+            public string flagCatalog;
             public string startNode;
             public Node[] nodes;
         }
@@ -31,6 +33,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             public string id;
             public string speaker;
             public string text;
+            public string next = MissingNext;
             public string[] flagsToSetOnEnter;
             public Choice[] choices;
         }
@@ -89,19 +92,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 throw new ArgumentException("Output folder must be a project-relative path under Assets.", nameof(outputFolder));
 
             string sourcePath = AssetDatabase.GetAssetPath(source);
-            Document document;
-            try
-            {
-                document = JsonUtility.FromJson<Document>(source.text);
-            }
-            catch (Exception exception)
-            {
-                throw new ArgumentException($"{sourcePath}: invalid JSON: {exception.Message}", exception);
-            }
-
-            List<string> errors = Validate(document, sourcePath);
-            if (errors.Count > 0)
-                throw new ArgumentException(string.Join(Environment.NewLine, errors));
+            Document document = ParseAndValidate(source.text, sourcePath);
 
             Dictionary<string, int> indexes = document.nodes
                 .Select((node, index) => new { node.id, index })
@@ -111,9 +102,9 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 id = node.id,
                 speaker = node.speaker,
                 line = node.text,
-                nextNodeIndex = -1,
+                nextNodeIndex = ResolveNextIndex(node.next, indexes),
                 flagsToSetOnEnter = node.flagsToSetOnEnter ?? Array.Empty<string>(),
-                choices = node.choices.Select(choice => new DialogueTree.Choice
+                choices = (node.choices ?? Array.Empty<Choice>()).Select(choice => new DialogueTree.Choice
                 {
                     text = choice.text,
                     nextNodeIndex = string.IsNullOrEmpty(choice.next) ? -1 : indexes[choice.next],
@@ -122,9 +113,14 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 }).ToArray()
             }).ToArray();
 
-            EnsureFolder(outputFolder);
             string safeName = MakeSafeFileName(document.treeId);
-            string assetPath = $"{outputFolder.TrimEnd('/')}/{safeName}.asset";
+            string assetPath = document.unityAssetPath ??
+                               $"{outputFolder.TrimEnd('/')}/{safeName}.asset";
+            NarrativeJsonPathUtility.EnsureAssetFolderForPath(assetPath);
+            UnityEngine.Object existing = AssetDatabase.LoadMainAssetAtPath(assetPath);
+            if (existing != null && existing is not DialogueTree)
+                throw new ArgumentException(
+                    $"Cannot import DialogueTree to '{assetPath}' because it contains {existing.GetType().Name}.");
             DialogueTree tree = AssetDatabase.LoadAssetAtPath<DialogueTree>(assetPath);
             bool created = tree == null;
             if (created)
@@ -159,6 +155,35 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             }
         }
 
+        /// <summary>Fully validates dialogue JSON without creating or changing assets.</summary>
+        /// <param name="json">Dialogue authoring JSON.</param>
+        /// <param name="sourcePath">Path or label included in validation messages.</param>
+        public static void ValidateJson(string json, string sourcePath = "<input>") =>
+            ParseAndValidate(json, sourcePath);
+
+        private static Document ParseAndValidate(string json, string sourcePath)
+        {
+            if (json == null)
+                throw new ArgumentNullException(nameof(json));
+            sourcePath = string.IsNullOrWhiteSpace(sourcePath) ? "<input>" : sourcePath;
+            Document document;
+            try
+            {
+                document = JsonUtility.FromJson<Document>(json);
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException(
+                    $"{sourcePath}: invalid JSON: {exception.Message}",
+                    exception);
+            }
+
+            List<string> errors = Validate(document, sourcePath);
+            if (errors.Count > 0)
+                throw new ArgumentException(string.Join(Environment.NewLine, errors));
+            return document;
+        }
+
         private static List<string> Validate(Document document, string sourcePath)
         {
             var errors = new List<string>();
@@ -171,6 +196,13 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 errors.Add($"{sourcePath}: schemaVersion must be {SupportedSchemaVersion}.");
             if (string.IsNullOrWhiteSpace(document.treeId))
                 errors.Add($"{sourcePath}: treeId must be a non-empty string.");
+            else if (!string.Equals(document.treeId, document.treeId.Trim(), StringComparison.Ordinal))
+                errors.Add($"{sourcePath}: treeId must not have surrounding whitespace.");
+            NarrativeJsonPathUtility.ValidateUnityAssetPath(
+                document.unityAssetPath,
+                typeof(DialogueTree),
+                $"{sourcePath}: unityAssetPath",
+                errors);
             if (string.IsNullOrWhiteSpace(document.startNode))
                 errors.Add($"{sourcePath}: startNode must be a non-empty string.");
             if (document.nodes == null || document.nodes.Length == 0)
@@ -186,16 +218,15 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 string at = $"{sourcePath}: node[{nodeIndex}]";
                 if (node == null) { errors.Add($"{at} must be an object."); continue; }
                 if (string.IsNullOrWhiteSpace(node.id)) errors.Add($"{at}.id must be non-empty.");
-                else if (!ids.Add(node.id)) errors.Add($"{at}.id duplicates '{node.id}'.");
+                else
+                {
+                    if (!string.Equals(node.id, node.id.Trim(), StringComparison.Ordinal)) errors.Add($"{at}.id must not have surrounding whitespace.");
+                    if (!ids.Add(node.id.Trim())) errors.Add($"{at}.id duplicates '{node.id.Trim()}'.");
+                }
                 if (node.speaker == null) errors.Add($"{at}.speaker is required.");
                 if (node.text == null) errors.Add($"{at}.text is required.");
                 ValidateStrings(node.flagsToSetOnEnter, $"{at}.flagsToSetOnEnter", errors);
-                if (node.choices == null || node.choices.Length == 0)
-                {
-                    errors.Add($"{at}.choices must contain at least one choice.");
-                    continue;
-                }
-                for (int choiceIndex = 0; choiceIndex < node.choices.Length; choiceIndex++)
+                for (int choiceIndex = 0; choiceIndex < (node.choices?.Length ?? 0); choiceIndex++)
                 {
                     Choice choice = node.choices[choiceIndex];
                     string choiceAt = $"{at}.choice[{choiceIndex}]";
@@ -211,8 +242,10 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             for (int nodeIndex = 0; nodeIndex < document.nodes.Length; nodeIndex++)
             {
                 Node node = document.nodes[nodeIndex];
-                if (node?.choices == null) continue;
-                for (int choiceIndex = 0; choiceIndex < node.choices.Length; choiceIndex++)
+                if (node == null) continue;
+                if (node.next != MissingNext && !string.IsNullOrEmpty(node.next) && !ids.Contains(node.next))
+                    errors.Add($"{sourcePath}: node[{nodeIndex}].next references nonexistent node '{node.next}'.");
+                for (int choiceIndex = 0; choiceIndex < (node.choices?.Length ?? 0); choiceIndex++)
                 {
                     string next = node.choices[choiceIndex]?.next;
                     if (!string.IsNullOrEmpty(next) && next != MissingNext && !ids.Contains(next))
@@ -224,16 +257,26 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
 
         private static void ValidateStrings(string[] values, string at, ICollection<string> errors)
         {
-            if (values != null && values.Any(string.IsNullOrWhiteSpace))
+            if (values == null) return;
+            if (values.Any(string.IsNullOrWhiteSpace))
                 errors.Add($"{at} must contain only non-empty strings.");
+            if (values.Any(value => value != null && !string.Equals(value, value.Trim(), StringComparison.Ordinal)))
+                errors.Add($"{at} must not contain surrounding whitespace.");
+            if (values.Where(value => value != null).Select(value => value.Trim()).Distinct(StringComparer.Ordinal).Count() != values.Length)
+                errors.Add($"{at} must not contain duplicate IDs.");
         }
+
+        private static int ResolveNextIndex(
+            string next,
+            IReadOnlyDictionary<string, int> indexes) =>
+            string.IsNullOrEmpty(next) || next == MissingNext ? -1 : indexes[next];
 
         private static void WriteNode(SerializedProperty target, DialogueTree.Node node)
         {
             target.FindPropertyRelative("id").stringValue = node.id;
             target.FindPropertyRelative("speaker").stringValue = node.speaker;
             target.FindPropertyRelative("line").stringValue = node.line;
-            target.FindPropertyRelative("nextNodeIndex").intValue = -1;
+            target.FindPropertyRelative("nextNodeIndex").intValue = node.nextNodeIndex;
             WriteStrings(target.FindPropertyRelative("flagsToSetOnEnter"), node.flagsToSetOnEnter);
             SerializedProperty choices = target.FindPropertyRelative("choices");
             choices.arraySize = node.choices.Length;
