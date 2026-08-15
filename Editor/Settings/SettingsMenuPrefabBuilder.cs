@@ -19,6 +19,8 @@ namespace QuietStatic.Toolkit.Editor.Settings
         [InitializeOnLoadMethod]
         private static void BuildMissingPrefabs()
         {
+            if (Application.isBatchMode)
+                return;
             GameObject settingsPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Output}/SettingsMenu.prefab");
             GameObject titlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Output}/TitleMenu.prefab");
             bool hasCurrentSettingsLayout = settingsPrefab != null &&

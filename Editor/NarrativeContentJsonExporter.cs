@@ -20,11 +20,33 @@ namespace QuietStatic.Toolkit.Editor
             public string contentType = "objectives";
             public string catalogId;
             public string unityDatabasePath;
+            public string unityObjectiveImportMode;
             public ObjectiveItem[] items;
         }
 
         [Serializable]
         private sealed class ObjectiveItem
+        {
+            public string id;
+            public string title;
+            public string description;
+            public Requirement activationRequirement;
+            public Requirement completionRequirement;
+        }
+
+        [Serializable]
+        private sealed class PreservedObjectiveDocument
+        {
+            public int schemaVersion = 1;
+            public string contentType = "objectives";
+            public string catalogId;
+            public string unityDatabasePath;
+            public string unityObjectiveImportMode = "Preserve";
+            public PreservedObjectiveItem[] items;
+        }
+
+        [Serializable]
+        private sealed class PreservedObjectiveItem
         {
             public string id;
             public string title;
@@ -110,20 +132,40 @@ namespace QuietStatic.Toolkit.Editor
             return errors.AsReadOnly();
         }
 
-        /// <summary>Builds version-one objective-catalog JSON in database order.</summary>
+        /// <summary>
+        /// Builds version-one objective-catalog JSON in database order. By default Unity
+        /// replaces and groups the definition assets on import while preserving the database.
+        /// </summary>
         public static string BuildObjectivesJson(
             ObjectiveDatabase database,
-            string catalogId = null)
+            string catalogId = null,
+            bool replaceObjectiveAssets = true)
         {
             IReadOnlyList<string> errors = ValidateObjectives(database, catalogId);
             ThrowIfInvalid(errors);
 
+            string resolvedCatalogId = NarrativeJsonPathUtility.ResolveAssetIdentity(
+                database,
+                catalogId);
             string unityDatabasePath = NarrativeJsonPathUtility.GetUnityAssetPath(database);
+            if (!replaceObjectiveAssets)
+            {
+                var preservedDocument = new PreservedObjectiveDocument
+                {
+                    catalogId = resolvedCatalogId,
+                    unityDatabasePath = unityDatabasePath,
+                    items = database.Objectives.Select(BuildPreservedObjectiveItem).ToArray(),
+                };
+                return JsonUtility.ToJson(preservedDocument, true) + Environment.NewLine;
+            }
             var document = new ObjectiveDocument
             {
-                catalogId = NarrativeJsonPathUtility.ResolveAssetIdentity(database, catalogId),
+                catalogId = resolvedCatalogId,
                 unityDatabasePath = unityDatabasePath,
-                items = database.Objectives.Select(BuildObjectiveItem).ToArray(),
+                unityObjectiveImportMode = "Replace",
+                items = database.Objectives
+                    .Select(BuildObjectiveItem)
+                    .ToArray(),
             };
             return JsonUtility.ToJson(document, true) + Environment.NewLine;
         }
@@ -132,10 +174,11 @@ namespace QuietStatic.Toolkit.Editor
         public static string ExportObjectives(
             ObjectiveDatabase database,
             string outputPath,
-            string catalogId = null) =>
+            string catalogId = null,
+            bool replaceObjectiveAssets = true) =>
             NarrativeJsonPathUtility.WriteJson(
                 outputPath,
-                BuildObjectivesJson(database, catalogId));
+                BuildObjectivesJson(database, catalogId, replaceObjectiveAssets));
 
         /// <summary>Prompts for a destination and exports an objective database.</summary>
         public static string ExportObjectivesWithSavePanel(ObjectiveDatabase database)
@@ -258,14 +301,28 @@ namespace QuietStatic.Toolkit.Editor
 
         private static ObjectiveItem BuildObjectiveItem(ObjectiveDefinition objective)
         {
-            string path = NarrativeJsonPathUtility.GetUnityAssetPath(objective);
-            var item = new ObjectiveItem { unityAssetPath = path };
-            item.id = ReadObjectiveId(objective);
-            item.title = objective.Title;
-            item.description = objective.Description;
-            item.activationRequirement = BuildRequirement(objective.ActivationRequirement);
-            item.completionRequirement = BuildRequirement(objective.CompletionRequirement);
-            return item;
+            return new ObjectiveItem
+            {
+                id = ReadObjectiveId(objective),
+                title = objective.Title,
+                description = objective.Description,
+                activationRequirement = BuildRequirement(objective.ActivationRequirement),
+                completionRequirement = BuildRequirement(objective.CompletionRequirement),
+            };
+        }
+
+        private static PreservedObjectiveItem BuildPreservedObjectiveItem(
+            ObjectiveDefinition objective)
+        {
+            return new PreservedObjectiveItem
+            {
+                id = ReadObjectiveId(objective),
+                title = objective.Title,
+                description = objective.Description,
+                activationRequirement = BuildRequirement(objective.ActivationRequirement),
+                completionRequirement = BuildRequirement(objective.CompletionRequirement),
+                unityAssetPath = NarrativeJsonPathUtility.GetUnityAssetPath(objective),
+            };
         }
 
         private static ReadableItem BuildReadableItem(ReadableContentDefinition definition)

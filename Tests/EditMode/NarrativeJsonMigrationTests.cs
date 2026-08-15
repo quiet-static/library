@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor;
@@ -177,7 +178,9 @@ namespace QuietStatic.Tests.EditMode
             string databaseGuid = AssetDatabase.AssetPathToGUID(databasePath);
             string objectiveGuid = AssetDatabase.AssetPathToGUID(objectivePath);
 
-            string json = NarrativeContentJsonExporter.BuildObjectivesJson(database);
+            string json = NarrativeContentJsonExporter.BuildObjectivesJson(
+                database,
+                replaceObjectiveAssets: false);
 
             Assert.DoesNotThrow(() => NarrativeContentJsonImporter.ValidateJson(json));
             ObjectiveProbe probe = JsonUtility.FromJson<ObjectiveProbe>(json);
@@ -199,6 +202,185 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
             Assert.That(AssetDatabase.AssetPathToGUID(objectivePath), Is.EqualTo(objectiveGuid));
             Assert.That(AssetDatabase.IsValidFolder(root + "/Generated"), Is.False);
+        }
+
+        [Test]
+        public void ObjectiveImport_ReplaceRecreatesDefinitionsAndPreservesDatabaseGuid()
+        {
+            ObjectiveDefinition legacyKeep = CreateObjective(
+                "LegacyKeep.asset",
+                "keep",
+                "Legacy keep");
+            ObjectiveDefinition legacyStale = CreateObjective(
+                "LegacyStale.asset",
+                "stale",
+                "Legacy stale");
+            ObjectiveDatabase database = CreateObjectiveDatabase(legacyKeep, legacyStale);
+            string databasePath = AssetDatabase.GetAssetPath(database);
+            string databaseGuid = AssetDatabase.AssetPathToGUID(databasePath);
+            string legacyKeepPath = AssetDatabase.GetAssetPath(legacyKeep);
+            string legacyKeepGuid = AssetDatabase.AssetPathToGUID(legacyKeepPath);
+            string legacyStalePath = AssetDatabase.GetAssetPath(legacyStale);
+            string legacyStaleGuid = AssetDatabase.AssetPathToGUID(legacyStalePath);
+            string outputFolder = root + "/Generated";
+            string definitionsFolder = outputFolder + "/main/Definitions";
+            string keepPath = definitionsFolder + "/keep.asset";
+            string addedPath = definitionsFolder + "/added.asset";
+
+            ObjectiveDatabase first = (ObjectiveDatabase)NarrativeContentJsonImporter.Import(
+                WriteJson(
+                    "objectives-replace.json",
+                    ObjectiveReplacementJson(
+                        "main",
+                        databasePath,
+                        ("keep", "Regenerated keep"),
+                        ("added", "Regenerated added"))),
+                outputFolder);
+
+            Assert.That(first, Is.SameAs(database));
+            Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(legacyKeepPath), Is.Null);
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(legacyStalePath), Is.Null);
+            Assert.That(AssetDatabase.GUIDToAssetPath(legacyKeepGuid), Is.Empty);
+            Assert.That(AssetDatabase.GUIDToAssetPath(legacyStaleGuid), Is.Empty);
+            Assert.That(first.Objectives.Select(value => value.Id),
+                Is.EqualTo(new[] { "keep", "added" }));
+            Assert.That(first.Objectives.Select(AssetDatabase.GetAssetPath),
+                Is.EqualTo(new[] { keepPath, addedPath }));
+
+            string firstKeepGuid = AssetDatabase.AssetPathToGUID(keepPath);
+            string firstAddedGuid = AssetDatabase.AssetPathToGUID(addedPath);
+            Assert.That(firstKeepGuid, Is.Not.Empty);
+            Assert.That(firstAddedGuid, Is.Not.Empty);
+            Assert.That(firstKeepGuid, Is.Not.EqualTo(legacyKeepGuid));
+
+            ObjectiveDatabase second = (ObjectiveDatabase)NarrativeContentJsonImporter.Import(
+                WriteJson(
+                    "objectives-replace.json",
+                    ObjectiveReplacementJson(
+                        "main",
+                        databasePath,
+                        ("keep", "Regenerated again"))),
+                outputFolder);
+
+            Assert.That(second, Is.SameAs(database));
+            Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
+            Assert.That(second.Objectives.Count, Is.EqualTo(1));
+            Assert.That(second.Objectives[0].Id, Is.EqualTo("keep"));
+            Assert.That(second.Objectives[0].Title, Is.EqualTo("Regenerated again"));
+            Assert.That(AssetDatabase.GetAssetPath(second.Objectives[0]), Is.EqualTo(keepPath));
+            Assert.That(AssetDatabase.AssetPathToGUID(keepPath),
+                Is.Not.EqualTo(firstKeepGuid));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(addedPath), Is.Null);
+            Assert.That(AssetDatabase.GUIDToAssetPath(firstAddedGuid), Is.Empty);
+            Assert.That(
+                AssetDatabase.FindAssets(
+                    "t:ObjectiveDefinition",
+                    new[] { definitionsFolder }).Length,
+                Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ObjectiveImport_ReplaceRejectsItemUnityAssetPath()
+        {
+            string json = $@"{{
+  ""schemaVersion"":1,
+  ""contentType"":""objectives"",
+  ""catalogId"":""main"",
+  ""unityObjectiveImportMode"":""Replace"",
+  ""items"":[{{
+    ""id"":""keep"",
+    ""title"":""Keep"",
+    ""unityAssetPath"":""{root}/Legacy.asset""
+  }}]
+}}";
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+                NarrativeContentJsonImporter.ValidateJson(json));
+
+            StringAssert.Contains("unityAssetPath cannot be used", exception.Message);
+            StringAssert.Contains("Replace", exception.Message);
+        }
+
+        [Test]
+        public void ObjectiveImport_MissingModePreservesDefinitionGuid()
+        {
+            ObjectiveDefinition objective = CreateObjective(
+                "Preserved.asset",
+                "preserved",
+                "Before");
+            ObjectiveDatabase database = CreateObjectiveDatabase(objective);
+            string databasePath = AssetDatabase.GetAssetPath(database);
+            string objectivePath = AssetDatabase.GetAssetPath(objective);
+            string databaseGuid = AssetDatabase.AssetPathToGUID(databasePath);
+            string objectiveGuid = AssetDatabase.AssetPathToGUID(objectivePath);
+            string json = $@"{{
+  ""schemaVersion"":1,
+  ""contentType"":""objectives"",
+  ""catalogId"":""main"",
+  ""unityDatabasePath"":""{databasePath}"",
+  ""items"":[{{
+    ""id"":""preserved"",
+    ""title"":""After"",
+    ""unityAssetPath"":""{objectivePath}""
+  }}]
+}}";
+
+            ObjectiveDatabase imported = (ObjectiveDatabase)NarrativeContentJsonImporter.Import(
+                WriteJson("objectives-preserve.json", json),
+                root + "/Generated");
+
+            Assert.That(imported, Is.SameAs(database));
+            Assert.That(imported.Objectives[0], Is.SameAs(objective));
+            Assert.That(objective.Title, Is.EqualTo("After"));
+            Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
+            Assert.That(AssetDatabase.AssetPathToGUID(objectivePath), Is.EqualTo(objectiveGuid));
+            Assert.That(AssetDatabase.IsValidFolder(root + "/Generated"), Is.False);
+        }
+
+        [Test]
+        public void ObjectiveImport_ReplaceRejectsExternalReferenceBeforeMutation()
+        {
+            ObjectiveDefinition objective = CreateObjective(
+                "LegacyReferenced.asset",
+                "referenced",
+                "Original title");
+            ObjectiveDatabase database = CreateObjectiveDatabase(objective);
+            string objectivePath = AssetDatabase.GetAssetPath(objective);
+            string databasePath = AssetDatabase.GetAssetPath(database);
+            string prefabPath = CreateObjectiveHandlerPrefab(objective);
+            string objectiveGuid = AssetDatabase.AssetPathToGUID(objectivePath);
+            string databaseGuid = AssetDatabase.AssetPathToGUID(databasePath);
+            string outputFolder = root + "/Generated";
+            TextAsset source = WriteJson(
+                "objectives-blocked.json",
+                ObjectiveReplacementJson(
+                    "main",
+                    databasePath,
+                    ("referenced", "Replacement title")));
+            CollectionAssert.Contains(
+                AssetDatabase.GetDependencies(prefabPath, false),
+                objectivePath,
+                "The fixture must contain a direct serialized objective reference.");
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+                NarrativeContentJsonImporter.Import(source, outputFolder));
+
+            StringAssert.Contains(objectivePath, exception.Message);
+            StringAssert.Contains(prefabPath, exception.Message);
+            Assert.That(AssetDatabase.IsValidFolder(outputFolder), Is.False);
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDatabase>(databasePath),
+                Is.SameAs(database));
+            Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
+            Assert.That(database.Objectives.Count, Is.EqualTo(1));
+            Assert.That(database.Objectives[0], Is.SameAs(objective));
+            Assert.That(objective.Title, Is.EqualTo("Original title"));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(objectivePath),
+                Is.SameAs(objective));
+            Assert.That(AssetDatabase.AssetPathToGUID(objectivePath), Is.EqualTo(objectiveGuid));
+            CollectionAssert.Contains(
+                AssetDatabase.GetDependencies(prefabPath, false),
+                objectivePath);
         }
 
         [Test]
@@ -321,6 +503,21 @@ namespace QuietStatic.Tests.EditMode
             return objective;
         }
 
+        private ObjectiveDefinition CreateObjective(
+            string filename,
+            string id,
+            string title)
+        {
+            var objective = ScriptableObject.CreateInstance<ObjectiveDefinition>();
+            var serialized = new SerializedObject(objective);
+            serialized.FindProperty("id").stringValue = id;
+            serialized.FindProperty("title").stringValue = title;
+            serialized.FindProperty("description").stringValue = string.Empty;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.CreateAsset(objective, root + "/" + filename);
+            return objective;
+        }
+
         private FlagDatabase CreateFlagDatabase()
         {
             var database = ScriptableObject.CreateInstance<FlagDatabase>();
@@ -335,17 +532,59 @@ namespace QuietStatic.Tests.EditMode
             return database;
         }
 
-        private ObjectiveDatabase CreateObjectiveDatabase(ObjectiveDefinition objective)
+        private ObjectiveDatabase CreateObjectiveDatabase(
+            params ObjectiveDefinition[] definitions)
         {
             var database = ScriptableObject.CreateInstance<ObjectiveDatabase>();
             var serialized = new SerializedObject(database);
             SerializedProperty objectives = serialized.FindProperty("objectives");
-            objectives.arraySize = 1;
-            objectives.GetArrayElementAtIndex(0).objectReferenceValue = objective;
+            objectives.arraySize = definitions.Length;
+            for (int index = 0; index < definitions.Length; index++)
+                objectives.GetArrayElementAtIndex(index).objectReferenceValue =
+                    definitions[index];
             serialized.ApplyModifiedPropertiesWithoutUndo();
             AssetDatabase.CreateAsset(database, root + "/ObjectivesDB.asset");
             AssetDatabase.SaveAssets();
             return database;
+        }
+
+        private string CreateObjectiveHandlerPrefab(ObjectiveDefinition objective)
+        {
+            string path = root + "/ExternalObjectiveReference.prefab";
+            var gameObject = new GameObject("External Objective Reference");
+            try
+            {
+                var handler = gameObject.AddComponent<global::QuietStatic.ObjectiveHandler>();
+                var serialized = new SerializedObject(handler);
+                serialized.FindProperty("objective").objectReferenceValue = objective;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(gameObject, path);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(gameObject);
+            }
+            AssetDatabase.SaveAssets();
+            return path;
+        }
+
+        private static string ObjectiveReplacementJson(
+            string catalogId,
+            string databasePath,
+            params (string id, string title)[] items)
+        {
+            string itemJson = string.Join(
+                ",",
+                items.Select(item =>
+                    $@"{{""id"":""{item.id}"",""title"":""{item.title}""}}"));
+            return $@"{{
+  ""schemaVersion"":1,
+  ""contentType"":""objectives"",
+  ""catalogId"":""{catalogId}"",
+  ""unityDatabasePath"":""{databasePath}"",
+  ""unityObjectiveImportMode"":""Replace"",
+  ""items"":[{itemJson}]
+}}";
         }
 
         private ReadableContentDefinition CreateReadable()

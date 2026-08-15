@@ -5,7 +5,9 @@ using NUnit.Framework;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor;
 using QuietStatic.Toolkit.Flags;
+using QuietStatic.Toolkit.Objectives;
 using UnityEditor;
+using UnityEngine;
 
 namespace QuietStatic.Tests.EditMode
 {
@@ -107,6 +109,63 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(second.ImportedAssets[1], Is.SameAs(first.ImportedAssets[1]));
             Assert.That(AssetDatabase.AssetPathToGUID(flagPath), Is.EqualTo(flagGuid));
             Assert.That(AssetDatabase.AssetPathToGUID(dialoguePath), Is.EqualTo(dialogueGuid));
+        }
+
+        [Test]
+        public void Import_ReplaceObjectivesBlockedByExternalReferenceFailsBeforeFlagsChange()
+        {
+            EnsureAssetRoot();
+            ObjectiveDefinition objective = CreateObjective(
+                assetRoot + "/LegacyReferenced.asset",
+                "referenced",
+                "Original title");
+            ObjectiveDatabase database = CreateObjectiveDatabase(
+                assetRoot + "/ObjectivesDB.asset",
+                objective);
+            string objectivePath = AssetDatabase.GetAssetPath(objective);
+            string databasePath = AssetDatabase.GetAssetPath(database);
+            string prefabPath = CreateObjectiveHandlerPrefab(
+                assetRoot + "/ExternalObjectiveReference.prefab",
+                objective);
+            string objectiveGuid = AssetDatabase.AssetPathToGUID(objectivePath);
+            string databaseGuid = AssetDatabase.AssetPathToGUID(databasePath);
+            string flagPath = narrativeOutputFolder + "/story/story.asset";
+            Write(
+                "content/flags.json",
+                ContentJson(
+                    "flags",
+                    "story",
+                    @"{""id"":""ready"",""description"":""Ready""}"));
+            Write(
+                "content/objectives.json",
+                ObjectiveReplacementJson(databasePath));
+            WriteManifest(
+                ("content/flags.json", "flags"),
+                ("content/objectives.json", "objectives"));
+            CollectionAssert.Contains(
+                AssetDatabase.GetDependencies(prefabPath, false),
+                objectivePath,
+                "The fixture must contain a direct serialized objective reference.");
+
+            ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+                NarrativeBatchJsonImporter.Import(
+                    exportFolder,
+                    narrativeOutputFolder,
+                    dialogueOutputFolder));
+
+            StringAssert.Contains(objectivePath, exception.Message);
+            StringAssert.Contains(prefabPath, exception.Message);
+            Assert.That(AssetDatabase.IsValidFolder(narrativeOutputFolder), Is.False);
+            Assert.That(AssetDatabase.LoadAssetAtPath<FlagDatabase>(flagPath), Is.Null);
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDatabase>(databasePath),
+                Is.SameAs(database));
+            Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
+            Assert.That(database.Objectives.Count, Is.EqualTo(1));
+            Assert.That(database.Objectives[0], Is.SameAs(objective));
+            Assert.That(objective.Title, Is.EqualTo("Original title"));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(objectivePath),
+                Is.SameAs(objective));
+            Assert.That(AssetDatabase.AssetPathToGUID(objectivePath), Is.EqualTo(objectiveGuid));
         }
 
         [Test]
@@ -269,6 +328,72 @@ namespace QuietStatic.Tests.EditMode
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             File.WriteAllText(path, contents);
         }
+
+        private void EnsureAssetRoot()
+        {
+            if (!AssetDatabase.IsValidFolder(assetRoot))
+                AssetDatabase.CreateFolder("Assets", Path.GetFileName(assetRoot));
+        }
+
+        private static ObjectiveDefinition CreateObjective(
+            string path,
+            string id,
+            string title)
+        {
+            var objective = ScriptableObject.CreateInstance<ObjectiveDefinition>();
+            var serialized = new SerializedObject(objective);
+            serialized.FindProperty("id").stringValue = id;
+            serialized.FindProperty("title").stringValue = title;
+            serialized.FindProperty("description").stringValue = string.Empty;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.CreateAsset(objective, path);
+            return objective;
+        }
+
+        private static ObjectiveDatabase CreateObjectiveDatabase(
+            string path,
+            ObjectiveDefinition objective)
+        {
+            var database = ScriptableObject.CreateInstance<ObjectiveDatabase>();
+            var serialized = new SerializedObject(database);
+            SerializedProperty objectives = serialized.FindProperty("objectives");
+            objectives.arraySize = 1;
+            objectives.GetArrayElementAtIndex(0).objectReferenceValue = objective;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.CreateAsset(database, path);
+            AssetDatabase.SaveAssets();
+            return database;
+        }
+
+        private static string CreateObjectiveHandlerPrefab(
+            string path,
+            ObjectiveDefinition objective)
+        {
+            var gameObject = new GameObject("External Objective Reference");
+            try
+            {
+                var handler = gameObject.AddComponent<global::QuietStatic.ObjectiveHandler>();
+                var serialized = new SerializedObject(handler);
+                serialized.FindProperty("objective").objectReferenceValue = objective;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(gameObject, path);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(gameObject);
+            }
+            AssetDatabase.SaveAssets();
+            return path;
+        }
+
+        private static string ObjectiveReplacementJson(string databasePath) => $@"{{
+  ""schemaVersion"":1,
+  ""contentType"":""objectives"",
+  ""catalogId"":""main"",
+  ""unityDatabasePath"":""{databasePath}"",
+  ""unityObjectiveImportMode"":""Replace"",
+  ""items"":[{{""id"":""referenced"",""title"":""Replacement title""}}]
+}}";
 
         private static string ContentJson(string kind, string catalogId, string item = null)
         {

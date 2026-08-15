@@ -147,6 +147,7 @@ namespace QuietStatic.Toolkit.Editor
             public string contentType;
             public string unityAssetPath;
             public string unityDatabasePath;
+            public string unityObjectiveImportMode;
             public UnityTargetItemProbe[] items;
         }
 
@@ -312,7 +313,10 @@ namespace QuietStatic.Toolkit.Editor
                 if (kind == DocumentKind.Dialogue)
                     DialogueJsonImporter.ValidateJson(json, documentPath);
                 else
-                    NarrativeContentJsonImporter.ValidateJson(json, documentPath);
+                    NarrativeContentJsonImporter.PreflightImport(
+                        json,
+                        narrativeOutputFolder,
+                        documentPath);
                 Dictionary<string, string> identities = kind == DocumentKind.Dialogue
                     ? dialogueIdentities
                     : catalogIdentities;
@@ -630,12 +634,17 @@ namespace QuietStatic.Toolkit.Editor
             Type itemType = kind == DocumentKind.Objectives
                 ? typeof(ObjectiveDefinition)
                 : typeof(ReadableContentDefinition);
+            bool replaceObjectives =
+                kind == DocumentKind.Objectives &&
+                probe.unityObjectiveImportMode == "Replace";
             for (int index = 0; index < (probe.items?.Length ?? 0); index++)
             {
                 UnityTargetItemProbe item = probe.items[index];
                 RegisterUnityTarget(
-                    item?.unityAssetPath ??
-                    $"{catalogFolder}/{MakeSafeFileName(item?.id)}.asset",
+                    replaceObjectives
+                        ? $"{catalogFolder}/Definitions/{MakeSafeFileName(item?.id)}.asset"
+                        : item?.unityAssetPath ??
+                          $"{catalogFolder}/{MakeSafeFileName(item?.id)}.asset",
                     itemType,
                     $"{sourcePath}: items[{index}] target",
                     targets,
