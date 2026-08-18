@@ -23,6 +23,7 @@ namespace QuietStatic
     /// - Transitions to a target scene
     /// - Unloads non-persistent scenes during transitions
     /// - Sets the active Unity scene
+    /// - Delivers optional entry conditions to the destination scene
     /// - Raises events when transitions begin and end
     /// </remarks>
     [DefaultExecutionOrder(-1000)]
@@ -115,6 +116,11 @@ namespace QuietStatic
         protected override void Awake()
         {
             base.Awake();
+
+            if (Instance != this)
+            {
+                return;
+            }
 
             LoadPersistentScenes();
 
@@ -401,6 +407,8 @@ namespace QuietStatic
                 yield return UnloadScenesExceptRoutine(request);
             }
 
+            ApplyDestinationDefinition(request);
+
             if (CanFade(transitionFader))
             {
                 if (blackHoldDuration > 0f)
@@ -415,6 +423,38 @@ namespace QuietStatic
 
             isTransitioning = false;
             OnTransitionCompleted?.Invoke(targetSceneName);
+        }
+
+        /// <summary>
+        /// Applies destination-owned entry behavior while the transition remains
+        /// covered by its fade.
+        /// </summary>
+        private static void ApplyDestinationDefinition(
+            SceneTransitionRequest request)
+        {
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.ConditionId))
+            {
+                return;
+            }
+
+            Scene destination = SceneManager.GetSceneByName(
+                request.TargetSceneName);
+            SceneTransitionDefinition definition =
+                SceneTransitionDefinition.FindInScene(destination);
+            if (definition == null)
+            {
+                return;
+            }
+
+            try
+            {
+                definition.Apply(request.ConditionId);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, definition);
+            }
         }
 
         private ScreenFader ResolveScreenFader()
@@ -497,29 +537,51 @@ namespace QuietStatic
             }
 
             scenesCurrentlyLoading.Add(sceneName);
+            try
+            {
+                AsyncOperation operation = null;
+                Exception loadException = null;
+                try
+                {
+                    operation = SceneManager.LoadSceneAsync(
+                        sceneName,
+                        LoadSceneMode.Additive
+                    );
+                }
+                catch (Exception exception)
+                {
+                    loadException = exception;
+                }
 
-            AsyncOperation operation = SceneManager.LoadSceneAsync(
-                sceneName,
-                LoadSceneMode.Additive
-            );
+                if (loadException != null)
+                {
+                    GameLogger.Warning(
+                        nameof(LoadSceneAdditiveRoutine),
+                        this,
+                        $"{nameof(SceneFlowManager)} could not begin loading scene '{sceneName}'. " +
+                        loadException.Message
+                    );
+                    yield break;
+                }
 
-            if (operation == null)
+                if (operation == null)
+                {
+                    GameLogger.Warning(
+                        nameof(LoadSceneAdditiveRoutine),
+                        this,
+                        $"{nameof(SceneFlowManager)} could not begin loading scene '{sceneName}'."
+                    );
+                    yield break;
+                }
+
+                yield return operation;
+
+                OnSceneLoaded?.Invoke(sceneName);
+            }
+            finally
             {
                 scenesCurrentlyLoading.Remove(sceneName);
-
-                GameLogger.Warning(
-                    nameof(LoadSceneAdditiveRoutine),
-                    this,
-                    $"{nameof(SceneFlowManager)} could not begin loading scene '{sceneName}'."
-                );
-                yield break;
             }
-
-            yield return operation;
-
-            scenesCurrentlyLoading.Remove(sceneName);
-
-            OnSceneLoaded?.Invoke(sceneName);
         }
 
         /// <summary>

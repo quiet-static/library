@@ -124,7 +124,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
     {
         protected override string EmptyMessage => "No narrative issues were found.";
 
-        [MenuItem("Tools/Quiet Static/Validation/Validate Narrative")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Validation/Validate Narrative")]
         public static void Open()
         {
             GetWindow<NarrativeValidationWindow>("Narrative Validation");
@@ -141,7 +141,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
     {
         protected override string EmptyMessage => "No open-scene setup issues were found.";
 
-        [MenuItem("Tools/Quiet Static/Validation/Validate Open Scenes")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Validation/Validate Open Scenes")]
         public static void Open()
         {
             GetWindow<SceneSetupValidationWindow>("Scene Setup Validation");

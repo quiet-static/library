@@ -2,14 +2,18 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using QuietStatic;
+using QuietStatic.Toolkit.Editor;
 
 /// <summary>
 /// Extracts embedded model materials in batches and optionally remaps duplicates to existing assets.
 /// </summary>
 /// <remarks>
-/// Open from <c>Window &gt; Batch Extract Materials</c>, choose an Assets-relative destination,
-/// add model assets, review each extraction/remapping decision, and then apply. Model importer
-/// changes are saved and reimported, so use version control before processing large batches.
+/// Open from
+/// <c>Tools &gt; Quiet Static &gt; Asset Utilities &gt; Materials &gt; Batch Extract Materials</c>,
+/// choose an Assets-relative destination, add model assets, review each extraction/remapping
+/// decision, and then apply. Model importer changes are saved and reimported, so use version
+/// control before processing large batches.
 /// </remarks>
 public class BatchExtractMaterials : EditorWindow
 {
@@ -221,7 +225,7 @@ public class BatchExtractMaterials : EditorWindow
 
 	private Vector2 scrollPos;
 
-	[MenuItem( "Window/Batch Extract Materials" )]
+	[MenuItem( QuietStaticMenuPaths.MaterialUtilities + "Batch Extract Materials" )]
 	private static void Init()
 	{
 		BatchExtractMaterials window = GetWindow<BatchExtractMaterials>();
@@ -618,7 +622,7 @@ public class BatchExtractMaterials : EditorWindow
 			ModelImporter modelImporter = AssetImporter.GetAtPath( modelPath ) as ModelImporter;
 			if( !modelImporter )
 			{
-				QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+				GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
 					"Couldn't get ModelImporter from asset: " + AssetDatabase.GetAssetPath(data.model));
 				modelData.RemoveAt( i-- );
 				continue;
@@ -793,7 +797,7 @@ public class BatchExtractMaterials : EditorWindow
 					if( j < 0 )
 					{
 						// This can only occur if user reimports the model with more materials when 'inModelSelectionPhase' is false
-						QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+						GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
 							data.model.name + "." + name + " material has no matching data, skipped");
 						continue;
 					}
@@ -806,7 +810,7 @@ public class BatchExtractMaterials : EditorWindow
 							if( data.originalMaterials[j] && !AssetDatabase.IsMainAsset( data.originalMaterials[j] ) )
 								targetMaterial = data.originalMaterials[j];
 							else
-								QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+								GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
 									data.model.name + "." + name + " isn't extracted because either the material doesn't exist or it is already extracted");
 
 							break;
@@ -816,7 +820,7 @@ public class BatchExtractMaterials : EditorWindow
 							if( data.remappedMaterials[j] && ( data.originalMaterials[j] != data.remappedMaterials[j] || !AssetDatabase.IsMainAsset( data.remappedMaterials[j] ) ) )
 								targetMaterial = data.remappedMaterials[j];
 							else
-								QuietStatic.GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
+								GameLogger.Warning(nameof(BatchExtractMaterials), data.model,
 									data.model.name + "." + name + " isn't remapped because either the material doesn't exist or it is already extracted");
 
 							break;
@@ -875,3 +879,4 @@ public class BatchExtractMaterials : EditorWindow
 			dirtyModelImporters[i].SaveAndReimport();
 	}
 }
+

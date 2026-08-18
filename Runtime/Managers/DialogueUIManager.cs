@@ -111,7 +111,6 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            DontDestroyOnLoad(gameObject);
             WireChoiceButtons();
             WireContinueButton();
             HideDialogueUI();

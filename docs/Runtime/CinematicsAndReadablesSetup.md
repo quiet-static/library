@@ -2,7 +2,7 @@
 
 ## Generate the examples
 
-Choose **Tools > Quiet Static > Cinematics > Generate Cinematic & Readable Examples**. The generator creates
+Choose **Tools > Quiet Static > Toolkit > Cinematics > Generate Cinematic & Readable Examples**. The generator creates
 shared channel assets, sample letter content, and four prefabs under
 `Assets/QuietStatic Examples/Cinematics and Readables`. Generation is repeatable and only
 updates assets with those example names.
@@ -29,7 +29,7 @@ Existing dialogue cues keep serialized shot indexes for compatibility and label 
 legacy references. After assigning explicit Shot IDs, use the cue's **Migrate** button to
 replace the index with its stable ID.
 
-Use **Tools > Quiet Static > Cinematics > Cutscene Explorer** to create a starter runner, search loaded
+Use **Tools > Quiet Static > Toolkit > Cinematics > Cutscene Explorer** to create a starter runner, search loaded
 scenes, select its object, and preview the sequence or one step during Play Mode.
 
 ## CutsceneTransitionPlayer
@@ -75,7 +75,7 @@ Create it from **Create > Quiet Static Toolkit > Interactions > Readable Content
 the optional title, long-form body, and optional close-control label. Reuse the asset from
 any number of item instances. The example generator creates `ExampleLetter`.
 
-Select one or more readable assets and choose **Tools > Quiet Static > Readables > Export
+Select one or more readable assets and choose **Tools > Quiet Static > Toolkit > Readables > Export
 Selected Readable Content JSON...** to migrate them into one narrative-authorer catalog.
 The asset filename becomes its stable authoring ID, and round-trip metadata preserves the
 original Unity asset and GUID when the JSON is imported again.

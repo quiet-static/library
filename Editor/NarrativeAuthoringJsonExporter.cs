@@ -146,7 +146,7 @@ namespace QuietStatic.Toolkit.Editor
                 $"preserved {result.PreservedPaths.Count} existing file(s).");
         }
 
-        [MenuItem("Tools/Quiet Static/Exporters/Export Project Narrative Authoring Snapshot...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Exporters/Export Project Narrative Authoring Snapshot...")]
         private static void ExportProjectSnapshotFromMenu()
         {
             string folder = EditorUtility.OpenFolderPanel(

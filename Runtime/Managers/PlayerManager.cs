@@ -55,15 +55,5 @@ namespace QuietStatic
 
             OnPlayerChanged?.Invoke(previousPlayer, player);
         }
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            if (Instance != this)
-            {
-                return;
-            }
-        }
     }
 }

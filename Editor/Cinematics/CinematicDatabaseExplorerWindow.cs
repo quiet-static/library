@@ -15,7 +15,7 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
         private string search = string.Empty;
         private Vector2 scroll;
 
-        [MenuItem("Tools/Quiet Static/Cinematics/Cinematic Database")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Cinematics/Cinematic Database")]
         public static void Open() => GetWindow<CinematicDatabaseExplorerWindow>("Cinematic Database");
 
         private void OnEnable()

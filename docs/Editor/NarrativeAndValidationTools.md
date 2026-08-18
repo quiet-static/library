@@ -6,7 +6,7 @@ content during validation.
 
 ## Narrative validation
 
-Open **Tools > Quiet Static > Validation > Validate Narrative** and click **Scan**.
+Open **Tools > Quiet Static > Toolkit > Validation > Validate Narrative** and click **Scan**.
 
 The scan checks:
 
@@ -24,7 +24,7 @@ code-generated IDs cannot be discovered.
 
 ## Flag Database editor
 
-Open **Tools > Quiet Static > Flags > Flag Database**.
+Open **Tools > Quiet Static > Toolkit > Flags > Flag Database**.
 
 Choose a database, search by ID or description, then edit entries with normal Unity
 Undo support. **Refresh Usage** counts exact serialized references. **Find** opens the
@@ -39,7 +39,7 @@ by asset GUID; projects should normally configure one authoritative database.
 
 ## Dialogue Browser
 
-Open **Tools > Quiet Static > Dialogue > Dialogue Browser**.
+Open **Tools > Quiet Static > Toolkit > Dialogue > Dialogue Browser**.
 
 The browser provides a read-only, project-wide view of every `DialogueTree`. Search
 matches asset names, dialogue text, speaker names, choice text, and flags. Separate
@@ -57,7 +57,7 @@ invent parallel metadata or claim to validate those concepts.
 
 ## Objective Database explorer
 
-Open **Tools > Quiet Static > Objectives > Objective Database**, or select an `ObjectiveDatabase` asset
+Open **Tools > Quiet Static > Toolkit > Objectives > Objective Database**, or select an `ObjectiveDatabase` asset
 and click **Open Objective Database Explorer** in its Inspector.
 
 The explorer searches objective asset names, stable IDs, titles, and descriptions. Each
@@ -78,12 +78,12 @@ paths are recorded so importing the edited JSON updates the same assets and pres
 ## Narrative authoring migration
 
 Selected flags, objectives, readables, and dialogue trees can be exported from their
-respective **Tools > Quiet Static** menus. The dialogue graph and flag/objective database
+respective **Tools > Quiet Static > Toolkit** menus. The dialogue graph and flag/objective database
 windows also expose **Export JSON**. Dialogue export preserves both its linear fallback and
 conditional choices; missing legacy node IDs receive deterministic authoring IDs without
 changing the source asset.
 
-Choose **Tools > Quiet Static > Exporters > Export Project Narrative Authoring Snapshot...**
+Choose **Tools > Quiet Static > Toolkit > Exporters > Export Project Narrative Authoring Snapshot...**
 to gather the project's narrative assets into one folder. Existing JSON is preserved by
 default to protect authorer-side edits. The public bulk API and command-line entry point can
 explicitly overwrite existing files when refreshing from Unity is intentional.
@@ -91,12 +91,17 @@ explicitly overwrite existing files when refreshing from Unity is intentional.
 Migration metadata may target only canonical `.asset` paths below `Assets`. Import preflight
 rejects traversal, wrong existing asset types, duplicate targets, and cross-document target
 collisions before changing assets. JSON without metadata continues to import below the
-normal generated folders. Batch import is available at **Tools > Quiet Static > Importers >
-Import Narrative Authorer Batch...**.
+normal generated folders. Batch import is available at **Tools > Quiet Static > Toolkit > Importers >
+Import Narrative Authorer Batch...**. The command opens a read-only preview grouped by
+source document. Review every asset that will be created, updated in place, regenerated, or
+deleted, then explicitly confirm the import. Regenerated and deleted objective definitions
+are highlighted because their GUIDs can change. Confirmation runs preflight again; if a
+source or affected Unity asset changed while the window was open, the preview refreshes and
+must be reviewed again.
 
 ## Interactable Explorer
 
-Open **Tools > Quiet Static > Interactions > Interactable Explorer**.
+Open **Tools > Quiet Static > Toolkit > Interactions > Interactable Explorer**.
 
 The explorer indexes one-shot, hold, and autonomous-progress interaction targets without
 creating a runtime database or duplicating scene state. Choose loaded scenes, project
@@ -110,7 +115,7 @@ remains the source of truth.
 
 ## Dialogue Graph
 
-Open **Tools > Quiet Static > Dialogue > Dialogue Graph**, or select a `DialogueTree` and use
+Open **Tools > Quiet Static > Toolkit > Dialogue > Dialogue Graph**, or select a `DialogueTree` and use
 **Assets > Open in Dialogue Graph**.
 
 The initial graph is deliberately read-only. It loads the existing index-linked
@@ -127,7 +132,7 @@ runtime ordering or transitions.
 
 ## Scene setup validation
 
-Open **Tools > Quiet Static > Validation > Validate Open Scenes**.
+Open **Tools > Quiet Static > Toolkit > Validation > Validate Open Scenes**.
 
 The scan checks missing scripts, duplicate Quiet Static manager types, AudioListener
 count, EventSystem presence, game-state database duplicates and references, and

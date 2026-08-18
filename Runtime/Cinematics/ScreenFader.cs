@@ -198,39 +198,42 @@ namespace QuietStatic.Toolkit.Cinematics
         private IEnumerator FadeRoutine(float targetAlpha, float duration)
         {
             IsFading = true;
-
-            if (canvasGroup == null)
+            try
             {
-                IsFading = false;
-                yield break;
-            }
+                if (canvasGroup == null)
+                {
+                    yield break;
+                }
 
-            float startAlpha = canvasGroup.alpha;
+                float startAlpha = canvasGroup.alpha;
 
-            if (duration <= 0f)
-            {
+                if (duration <= 0f)
+                {
+                    SetAlpha(targetAlpha);
+                    yield break;
+                }
+
+                float elapsed = 0f;
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+
+                    float progress = Mathf.Clamp01(elapsed / duration);
+                    SetAlpha(Mathf.Lerp(startAlpha, targetAlpha, progress));
+
+                    yield return null;
+                }
+
                 SetAlpha(targetAlpha);
+            }
+            finally
+            {
+                // Direct callers can cancel this iterator by stopping their parent
+                // coroutine, so lifecycle state must not depend on reaching the end.
                 IsFading = false;
                 fadeRoutine = null;
-                yield break;
             }
-
-            float elapsed = 0f;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-
-                float progress = Mathf.Clamp01(elapsed / duration);
-                SetAlpha(Mathf.Lerp(startAlpha, targetAlpha, progress));
-
-                yield return null;
-            }
-
-            SetAlpha(targetAlpha);
-
-            IsFading = false;
-            fadeRoutine = null;
         }
     }
 
@@ -259,8 +262,18 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <summary>Gets whether the receiving handler completed the fade.</summary>
         public bool IsComplete { get; private set; }
 
+        /// <summary>Gets whether a newer request or disabled handler canceled this fade.</summary>
+        public bool WasCancelled { get; private set; }
+
         /// <summary>Marks this request complete. Intended for a screen-fade handler.</summary>
         public void Complete() => IsComplete = true;
+
+        /// <summary>Releases callers waiting on a fade that can no longer complete.</summary>
+        internal void Cancel()
+        {
+            WasCancelled = true;
+            IsComplete = true;
+        }
     }
 
     /// <summary>Routes completion-aware fade requests between separately loaded scenes.</summary>
@@ -304,7 +317,8 @@ namespace QuietStatic.Toolkit.Cinematics
         [Tooltip("Scene-local fader that performs requests. Auto-filled from this object.")]
         [SerializeField] private ScreenFader screenFader;
 
-        private Coroutine activeRequest;
+        private Coroutine activeRequestRoutine;
+        private ScreenFadeRequest activeRequest;
 
         private void Reset() => screenFader = GetComponent<ScreenFader>();
 
@@ -317,12 +331,18 @@ namespace QuietStatic.Toolkit.Cinematics
         private void OnDisable()
         {
             if (channel != null) channel.FadeRequested -= HandleFadeRequested;
+            CancelActiveRequest();
         }
 
         private void HandleFadeRequested(ScreenFadeRequest request)
         {
-            if (activeRequest != null) StopCoroutine(activeRequest);
-            activeRequest = StartCoroutine(PerformFade(request));
+            CancelActiveRequest();
+            activeRequest = request;
+            Coroutine startedRoutine = StartCoroutine(PerformFade(request));
+            if (!request.IsComplete)
+            {
+                activeRequestRoutine = startedRoutine;
+            }
         }
 
         private IEnumerator PerformFade(ScreenFadeRequest request)
@@ -335,6 +355,23 @@ namespace QuietStatic.Toolkit.Cinematics
                     : screenFader.FadeToClearRoutine(request.Duration);
             }
             request.Complete();
+            if (ReferenceEquals(activeRequest, request))
+            {
+                activeRequest = null;
+                activeRequestRoutine = null;
+            }
+        }
+
+        private void CancelActiveRequest()
+        {
+            if (activeRequestRoutine != null)
+            {
+                StopCoroutine(activeRequestRoutine);
+                screenFader?.StopActiveFade();
+            }
+
+            activeRequestRoutine = null;
+            activeRequest?.Cancel();
             activeRequest = null;
         }
     }

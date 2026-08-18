@@ -297,19 +297,7 @@ namespace QuietStatic
         private bool HasController()
         {
             ResolveReferences();
-
-            if (cameraController != null)
-            {
-                return true;
-            }
-
-            GameLogger.Warning(
-                nameof(CameraManager),
-                this,
-                $"{nameof(CameraManager)} cannot perform this action because no {nameof(CameraController)} is available."
-            );
-
-            return false;
+            return cameraController != null;
         }
     }
 }

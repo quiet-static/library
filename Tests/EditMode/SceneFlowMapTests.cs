@@ -38,6 +38,46 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(found, Is.True);
             Assert.That(request.TargetSceneName, Is.EqualTo("Street"));
             Assert.That(request.UnloadOtherScenes, Is.False);
+            Assert.That(request.ConditionId, Is.EqualTo("HouseToStreet"));
+        }
+
+        [Test]
+        public void TryCreateRequest_DistinguishesRoutesToTheSameDestination()
+        {
+            SetConnections(
+                CreateConnection("HouseToHub", "House", "Hub", true),
+                CreateConnection("CellarToHub", "Cellar", "Hub", true));
+
+            bool foundHouseRoute = map.TryCreateRequest(
+                "HouseToHub",
+                out SceneTransitionRequest houseRoute);
+            bool foundCellarRoute = map.TryCreateRequest(
+                "CellarToHub",
+                out SceneTransitionRequest cellarRoute);
+
+            Assert.That(foundHouseRoute, Is.True);
+            Assert.That(foundCellarRoute, Is.True);
+            Assert.That(houseRoute.TargetSceneName, Is.EqualTo("Hub"));
+            Assert.That(cellarRoute.TargetSceneName, Is.EqualTo("Hub"));
+            Assert.That(houseRoute.ConditionId, Is.EqualTo("HouseToHub"));
+            Assert.That(cellarRoute.ConditionId, Is.EqualTo("CellarToHub"));
+        }
+
+        [Test]
+        public void TryCreateRequest_NormalizesAuthoredConnectionId()
+        {
+            SetConnections(CreateConnection(
+                "  HouseToStreet  ",
+                "House",
+                "Street",
+                true));
+
+            bool found = map.TryCreateRequest(
+                "HouseToStreet",
+                out SceneTransitionRequest request);
+
+            Assert.That(found, Is.True);
+            Assert.That(request.ConditionId, Is.EqualTo("HouseToStreet"));
         }
 
         [Test]

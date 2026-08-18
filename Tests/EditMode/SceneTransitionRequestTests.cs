@@ -24,6 +24,21 @@ namespace QuietStatic.Tests.EditMode
                 request.AdditionalScenesToKeep,
                 Is.EqualTo(new[] { "Bootstrapper" })
             );
+            Assert.That(request.ConditionId, Is.Empty);
+        }
+
+        [TestCase(null, "")]
+        [TestCase("   ", "")]
+        [TestCase("  office.intro  ", "office.intro")]
+        public void Constructor_NormalizesOptionalConditionId(
+            string conditionId,
+            string expected)
+        {
+            SceneTransitionRequest request = new SceneTransitionRequest(
+                "Office",
+                conditionId: conditionId);
+
+            Assert.That(request.ConditionId, Is.EqualTo(expected));
         }
 
         [Test]

@@ -18,7 +18,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         private Vector2 pan = new(35f, 35f);
         private int selectedIndex = -1;
 
-        [MenuItem("Tools/Quiet Static/Dialogue/Dialogue Graph")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Dialogue Graph")]
         public static void Open()
         {
             DialogueGraphWindow window = GetWindow<DialogueGraphWindow>("Dialogue Graph");

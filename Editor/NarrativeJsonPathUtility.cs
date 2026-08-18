@@ -100,6 +100,19 @@ namespace QuietStatic.Toolkit.Editor
             }
         }
 
+        /// <summary>Returns whether a folder is Assets itself or a canonical descendant.</summary>
+        public static bool IsCanonicalAssetFolder(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) ||
+                !string.Equals(path, path.Trim(), StringComparison.Ordinal) ||
+                path.IndexOf('\\') >= 0)
+                return false;
+
+            string normalized = path.TrimEnd('/');
+            return !string.IsNullOrEmpty(normalized) &&
+                   IsCanonicalAssetPath(normalized + "/__folder_validation__.asset");
+        }
+
         public static void EnsureAssetFolderForPath(string assetPath)
         {
             string folder = Path.GetDirectoryName(assetPath)?.Replace('\\', '/');

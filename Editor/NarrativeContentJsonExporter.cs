@@ -271,18 +271,18 @@ namespace QuietStatic.Toolkit.Editor
             return string.IsNullOrEmpty(path) ? null : ExportReadables(values, path);
         }
 
-        [MenuItem("Tools/Quiet Static/Objectives/Export Selected Objective Database JSON...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Objectives/Export Selected Objective Database JSON...")]
         private static void ExportSelectedObjectives() =>
             RunMenuExport(
                 Selection.activeObject,
                 () => ExportObjectivesWithSavePanel(Selection.activeObject as ObjectiveDatabase),
                 "objective catalog");
 
-        [MenuItem("Tools/Quiet Static/Objectives/Export Selected Objective Database JSON...", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Objectives/Export Selected Objective Database JSON...", true)]
         private static bool CanExportSelectedObjectives() =>
             Selection.activeObject is ObjectiveDatabase;
 
-        [MenuItem("Tools/Quiet Static/Readables/Export Selected Readable Content JSON...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Readables/Export Selected Readable Content JSON...")]
         private static void ExportSelectedReadables()
         {
             ReadableContentDefinition[] definitions = Selection.objects
@@ -294,7 +294,7 @@ namespace QuietStatic.Toolkit.Editor
                 "readable catalog");
         }
 
-        [MenuItem("Tools/Quiet Static/Readables/Export Selected Readable Content JSON...", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Readables/Export Selected Readable Content JSON...", true)]
         private static bool CanExportSelectedReadables() =>
             Selection.objects.Length > 0 &&
             Selection.objects.All(value => value is ReadableContentDefinition);

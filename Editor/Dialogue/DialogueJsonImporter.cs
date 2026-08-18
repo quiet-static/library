@@ -55,13 +55,13 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         /// <summary>Returns whether the current selection is an importable JSON text asset.</summary>
-        [MenuItem("Tools/Quiet Static/Dialogue/Import Selected Dialogue JSON", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Import Selected Dialogue JSON", true)]
         private static bool CanImportSelected() =>
             Selection.activeObject is TextAsset && AssetDatabase.GetAssetPath(Selection.activeObject)
                 .EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Imports the selected JSON into the default generated asset folder.</summary>
-        [MenuItem("Tools/Quiet Static/Dialogue/Import Selected Dialogue JSON")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Import Selected Dialogue JSON")]
         private static void ImportSelected()
         {
             try
@@ -88,7 +88,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (string.IsNullOrWhiteSpace(outputFolder) || !outputFolder.StartsWith("Assets", StringComparison.Ordinal))
+            if (!NarrativeJsonPathUtility.IsCanonicalAssetFolder(outputFolder))
                 throw new ArgumentException("Output folder must be a project-relative path under Assets.", nameof(outputFolder));
 
             string sourcePath = AssetDatabase.GetAssetPath(source);
@@ -116,6 +116,14 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             string safeName = MakeSafeFileName(document.treeId);
             string assetPath = document.unityAssetPath ??
                                $"{outputFolder.TrimEnd('/')}/{safeName}.asset";
+            var targetErrors = new List<string>();
+            NarrativeJsonPathUtility.ValidateUnityAssetPath(
+                assetPath,
+                typeof(DialogueTree),
+                "Dialogue import target",
+                targetErrors);
+            if (targetErrors.Count > 0)
+                throw new ArgumentException(string.Join(Environment.NewLine, targetErrors));
             NarrativeJsonPathUtility.EnsureAssetFolderForPath(assetPath);
             UnityEngine.Object existing = AssetDatabase.LoadMainAssetAtPath(assetPath);
             if (existing != null && existing is not DialogueTree)
@@ -317,7 +325,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                  (condition.flags == null || condition.flags.Length == 0)))
                 return;
             if (string.IsNullOrWhiteSpace(condition.mode) ||
-                !Enum.TryParse(condition.mode, true, out FlagRequirementMode mode))
+                !Enum.TryParse(condition.mode, true, out FlagRequirementMode mode) ||
+                !Enum.IsDefined(typeof(FlagRequirementMode), mode))
             {
                 errors.Add($"{at}.mode must be None, All, Any, NotAll, or NotAny.");
                 return;
@@ -346,19 +355,6 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             }
             public FlagRequirementMode Mode { get; }
             public string[] Flags { get; }
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            string current = "Assets";
-            foreach (string segment in path.Replace('\\', '/').Split('/').Skip(1))
-            {
-                if (string.IsNullOrWhiteSpace(segment)) continue;
-                string child = $"{current}/{segment}";
-                if (!AssetDatabase.IsValidFolder(child))
-                    AssetDatabase.CreateFolder(current, segment);
-                current = child;
-            }
         }
 
         private static string MakeSafeFileName(string value)

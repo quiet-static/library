@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using QuietStatic.Toolkit.Editor.Dialogue;
 using QuietStatic.Toolkit.Dialogue;
-using QuietStatic.Toolkit.Flags;
-using QuietStatic.Toolkit.Interactions;
-using QuietStatic.Toolkit.Objectives;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,6 +51,22 @@ namespace QuietStatic.Toolkit.Editor
             Dialogue,
         }
 
+        /// <summary>The effect a reviewed batch import will have on a Unity asset.</summary>
+        public enum AssetChangeKind
+        {
+            /// <summary>No asset currently exists at the target path.</summary>
+            Create,
+
+            /// <summary>The existing asset will be updated in place and retain its GUID.</summary>
+            Update,
+
+            /// <summary>The existing asset will be replaced with a newly generated asset.</summary>
+            Regenerate,
+
+            /// <summary>The existing asset will be removed by a replacement import.</summary>
+            Delete,
+        }
+
         /// <summary>A preflighted source document, ordered for safe import.</summary>
         public sealed class Document
         {
@@ -86,20 +99,93 @@ namespace QuietStatic.Toolkit.Editor
             internal string Json { get; }
         }
 
+        /// <summary>One concrete Unity asset change resolved during batch preflight.</summary>
+        public sealed class AssetChange
+        {
+            internal AssetChange(
+                Document sourceDocument,
+                string contentId,
+                string assetPath,
+                Type assetType,
+                AssetChangeKind kind,
+                string existingAssetGuid,
+                Hash128 existingAssetDependencyHash,
+                int existingAssetDirtyCount)
+            {
+                SourceDocument = sourceDocument;
+                ContentId = contentId;
+                AssetPath = assetPath;
+                AssetType = assetType;
+                Kind = kind;
+                ExistingAssetGuid = existingAssetGuid;
+                ExistingAssetDependencyHash = existingAssetDependencyHash;
+                ExistingAssetDirtyCount = existingAssetDirtyCount;
+            }
+
+            /// <summary>The source document responsible for this change.</summary>
+            public Document SourceDocument { get; }
+
+            /// <summary>The catalog, tree, or item ID represented by the target asset.</summary>
+            public string ContentId { get; }
+
+            /// <summary>Canonical project-relative path of the affected Unity asset.</summary>
+            public string AssetPath { get; }
+
+            /// <summary>Expected Unity object type at <see cref="AssetPath"/>.</summary>
+            public Type AssetType { get; }
+
+            /// <summary>The preflighted effect on the asset.</summary>
+            public AssetChangeKind Kind { get; }
+
+            internal string ExistingAssetGuid { get; }
+            internal Hash128 ExistingAssetDependencyHash { get; }
+            internal int ExistingAssetDirtyCount { get; }
+        }
+
         /// <summary>An immutable, fully preflighted import plan.</summary>
         public sealed class Plan
         {
-            internal Plan(string manifestPath, IReadOnlyList<Document> documents)
+            internal Plan(
+                string manifestPath,
+                string narrativeOutputFolder,
+                string dialogueOutputFolder,
+                IReadOnlyList<Document> documents,
+                IReadOnlyList<AssetChange> assetChanges)
             {
                 ManifestPath = manifestPath;
+                NarrativeOutputFolder = narrativeOutputFolder;
+                DialogueOutputFolder = dialogueOutputFolder;
                 Documents = documents;
+                AssetChanges = assetChanges;
             }
 
             /// <summary>Absolute path to the validated manifest.</summary>
             public string ManifestPath { get; }
 
+            /// <summary>Normalized output folder used for narrative content without explicit targets.</summary>
+            public string NarrativeOutputFolder { get; }
+
+            /// <summary>Normalized output folder used for dialogue without explicit targets.</summary>
+            public string DialogueOutputFolder { get; }
+
             /// <summary>Documents in flags, objectives, readables, then dialogue order.</summary>
             public IReadOnlyList<Document> Documents { get; }
+
+            /// <summary>Every created, updated, regenerated, or deleted Unity asset.</summary>
+            public IReadOnlyList<AssetChange> AssetChanges { get; }
+        }
+
+        /// <summary>
+        /// Thrown when a source file or affected Unity asset changed after a plan was reviewed.
+        /// </summary>
+        public sealed class PreviewOutOfDateException : InvalidOperationException
+        {
+            internal PreviewOutOfDateException()
+                : base(
+                    "The narrative sources or affected Unity assets changed after this " +
+                    "preview was created. Refresh and review the import before confirming again.")
+            {
+            }
         }
 
         /// <summary>Imported assets paired with the plan that produced them.</summary>
@@ -142,19 +228,8 @@ namespace QuietStatic.Toolkit.Editor
         }
 
         [Serializable]
-        private sealed class UnityTargetProbe
+        private sealed class DialogueTargetProbe
         {
-            public string contentType;
-            public string unityAssetPath;
-            public string unityDatabasePath;
-            public string unityObjectiveImportMode;
-            public UnityTargetItemProbe[] items;
-        }
-
-        [Serializable]
-        private sealed class UnityTargetItemProbe
-        {
-            public string id;
             public string unityAssetPath;
         }
 
@@ -200,6 +275,34 @@ namespace QuietStatic.Toolkit.Editor
                 manifestOrFolderPath,
                 narrativeOutputFolder,
                 dialogueOutputFolder);
+            return ImportPreflightedPlan(plan);
+        }
+
+        /// <summary>
+        /// Imports a previously reviewed plan only when a fresh preflight produces the same
+        /// sources, targets, and asset operations.
+        /// </summary>
+        /// <param name="reviewedPlan">The exact plan shown to the user for confirmation.</param>
+        /// <returns>The freshly validated plan and its created or updated Unity assets.</returns>
+        /// <exception cref="PreviewOutOfDateException">
+        /// Thrown when files or affected Unity assets changed after the preview was built.
+        /// </exception>
+        public static Result ImportReviewedPlan(Plan reviewedPlan)
+        {
+            if (reviewedPlan == null)
+                throw new ArgumentNullException(nameof(reviewedPlan));
+
+            Plan currentPlan = Preflight(
+                reviewedPlan.ManifestPath,
+                reviewedPlan.NarrativeOutputFolder,
+                reviewedPlan.DialogueOutputFolder);
+            if (!PlansMatch(reviewedPlan, currentPlan))
+                throw new PreviewOutOfDateException();
+            return ImportPreflightedPlan(currentPlan);
+        }
+
+        private static Result ImportPreflightedPlan(Plan plan)
+        {
             List<SourceAsset> sources = PrepareSources(plan.Documents);
             var importedAssets = new List<UnityEngine.Object>(sources.Count);
 
@@ -210,8 +313,8 @@ namespace QuietStatic.Toolkit.Editor
                     Document document = plan.Documents[index];
                     TextAsset source = sources[index].Asset;
                     UnityEngine.Object imported = document.Kind == DocumentKind.Dialogue
-                        ? DialogueJsonImporter.Import(source, dialogueOutputFolder)
-                        : NarrativeContentJsonImporter.Import(source, narrativeOutputFolder);
+                        ? DialogueJsonImporter.Import(source, plan.DialogueOutputFolder)
+                        : NarrativeContentJsonImporter.Import(source, plan.NarrativeOutputFolder);
                     importedAssets.Add(imported);
                 }
 
@@ -273,6 +376,7 @@ namespace QuietStatic.Toolkit.Editor
             var catalogIdentities = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var unityTargets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var documents = new List<Document>(manifest.documents.Length);
+            var assetChanges = new List<AssetChange>();
 
             for (int index = 0; index < manifest.documents.Length; index++)
             {
@@ -310,10 +414,11 @@ namespace QuietStatic.Toolkit.Editor
                     kind,
                     documentPath,
                     nameof(manifestOrFolderPath));
+                IReadOnlyList<NarrativeContentJsonImporter.ImportTarget> contentTargets = null;
                 if (kind == DocumentKind.Dialogue)
                     DialogueJsonImporter.ValidateJson(json, documentPath);
                 else
-                    NarrativeContentJsonImporter.PreflightImport(
+                    contentTargets = NarrativeContentJsonImporter.GetImportTargets(
                         json,
                         narrativeOutputFolder,
                         documentPath);
@@ -337,25 +442,41 @@ namespace QuietStatic.Toolkit.Editor
                         nameof(manifestOrFolderPath));
                 }
                 identities.Add(assetName, documentPath);
-                RegisterEffectiveUnityTargets(
-                    json,
+                var document = new Document(
+                    entry.path,
+                    documentPath,
                     kind,
                     identity,
-                    documentPath,
-                    narrativeOutputFolder,
+                    json);
+                RegisterEffectiveUnityTargets(
+                    json,
+                    document,
+                    contentTargets,
                     dialogueOutputFolder,
                     unityTargets,
+                    assetChanges,
                     nameof(manifestOrFolderPath));
-                documents.Add(new Document(entry.path, documentPath, kind, identity, json));
+                documents.Add(document);
             }
 
             var ordered = new List<Document>(documents.Count);
             foreach (DocumentKind kind in ImportOrder)
                 ordered.AddRange(documents.Where(document => document.Kind == kind));
-            return new Plan(manifestPath, ordered.AsReadOnly());
+            var orderedChanges = new List<AssetChange>(assetChanges.Count);
+            foreach (Document document in ordered)
+            {
+                orderedChanges.AddRange(assetChanges.Where(
+                    change => ReferenceEquals(change.SourceDocument, document)));
+            }
+            return new Plan(
+                manifestPath,
+                narrativeOutputFolder,
+                dialogueOutputFolder,
+                ordered.AsReadOnly(),
+                orderedChanges.AsReadOnly());
         }
 
-        [MenuItem("Tools/Quiet Static/Importers/Import Narrative Authorer Batch...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Narrative Authorer Batch...")]
         private static void ImportFromMenu()
         {
             string sourcePath = GetSelectedSourcePath();
@@ -371,26 +492,16 @@ namespace QuietStatic.Toolkit.Editor
 
             try
             {
-                Result result = Import(sourcePath);
-                UnityEngine.Object selected = result.ImportedAssets.LastOrDefault();
-                if (selected != null)
-                {
-                    Selection.activeObject = selected;
-                    EditorGUIUtility.PingObject(selected);
-                }
-                GameLogger.Log(
-                    nameof(NarrativeBatchJsonImporter),
-                    selected,
-                    $"Imported {result.ImportedAssets.Count} narrative assets from {result.Plan.ManifestPath}.");
+                NarrativeBatchImportWindow.Open(sourcePath);
             }
             catch (Exception exception)
             {
                 GameLogger.Error(
                     nameof(NarrativeBatchJsonImporter),
                     Selection.activeObject,
-                    $"Narrative batch import failed: {exception.Message}");
+                    $"Narrative batch preview failed: {exception.Message}");
                 EditorUtility.DisplayDialog(
-                    "Narrative Batch Import Failed",
+                    "Narrative Batch Preview Failed",
                     exception.Message,
                     "OK");
             }
@@ -590,64 +701,52 @@ namespace QuietStatic.Toolkit.Editor
 
         private static void RegisterEffectiveUnityTargets(
             string json,
-            DocumentKind kind,
-            string identity,
-            string sourcePath,
-            string narrativeOutputFolder,
+            Document document,
+            IReadOnlyList<NarrativeContentJsonImporter.ImportTarget> contentTargets,
             string dialogueOutputFolder,
             IDictionary<string, string> targets,
+            ICollection<AssetChange> assetChanges,
             string parameterName)
         {
-            UnityTargetProbe probe = ParseJson<UnityTargetProbe>(
-                json,
-                sourcePath,
-                "Unity target probe");
-            if (kind == DocumentKind.Dialogue)
+            if (document.Kind == DocumentKind.Dialogue)
             {
+                DialogueTargetProbe probe = ParseJson<DialogueTargetProbe>(
+                    json,
+                    document.SourcePath,
+                    "Unity target probe");
                 RegisterUnityTarget(
                     probe.unityAssetPath ??
-                    $"{dialogueOutputFolder}/{MakeSafeFileName(identity)}.asset",
+                    $"{dialogueOutputFolder}/{MakeSafeFileName(document.Identity)}.asset",
                     typeof(DialogueTree),
-                    sourcePath + ": dialogue target",
+                    document,
+                    document.Identity,
+                    AssetChangeKind.Create,
+                    document.SourcePath + ": dialogue target",
                     targets,
+                    assetChanges,
                     parameterName);
                 return;
             }
 
-            string catalogFolder =
-                $"{narrativeOutputFolder}/{MakeSafeFileName(identity)}";
-            if (kind == DocumentKind.Flags || kind == DocumentKind.Objectives)
+            foreach (NarrativeContentJsonImporter.ImportTarget target in contentTargets)
             {
+                AssetChangeKind changeKind = target.Intent switch
+                {
+                    NarrativeContentJsonImporter.ImportTargetIntent.Regenerate =>
+                        AssetChangeKind.Regenerate,
+                    NarrativeContentJsonImporter.ImportTargetIntent.Delete =>
+                        AssetChangeKind.Delete,
+                    _ => AssetChangeKind.Create,
+                };
                 RegisterUnityTarget(
-                    probe.unityDatabasePath ??
-                    $"{catalogFolder}/{MakeSafeFileName(identity)}.asset",
-                    kind == DocumentKind.Flags
-                        ? typeof(FlagDatabase)
-                        : typeof(ObjectiveDatabase),
-                    sourcePath + ": catalog database target",
+                    target.AssetPath,
+                    target.AssetType,
+                    document,
+                    target.ContentId,
+                    changeKind,
+                    $"{document.SourcePath}: {target.ContentId} target",
                     targets,
-                    parameterName);
-            }
-            if (kind == DocumentKind.Flags)
-                return;
-
-            Type itemType = kind == DocumentKind.Objectives
-                ? typeof(ObjectiveDefinition)
-                : typeof(ReadableContentDefinition);
-            bool replaceObjectives =
-                kind == DocumentKind.Objectives &&
-                probe.unityObjectiveImportMode == "Replace";
-            for (int index = 0; index < (probe.items?.Length ?? 0); index++)
-            {
-                UnityTargetItemProbe item = probe.items[index];
-                RegisterUnityTarget(
-                    replaceObjectives
-                        ? $"{catalogFolder}/Definitions/{MakeSafeFileName(item?.id)}.asset"
-                        : item?.unityAssetPath ??
-                          $"{catalogFolder}/{MakeSafeFileName(item?.id)}.asset",
-                    itemType,
-                    $"{sourcePath}: items[{index}] target",
-                    targets,
+                    assetChanges,
                     parameterName);
             }
         }
@@ -655,8 +754,12 @@ namespace QuietStatic.Toolkit.Editor
         private static void RegisterUnityTarget(
             string path,
             Type expectedType,
+            Document document,
+            string contentId,
+            AssetChangeKind proposedKind,
             string location,
             IDictionary<string, string> targets,
+            ICollection<AssetChange> assetChanges,
             string parameterName)
         {
             if (string.IsNullOrEmpty(path))
@@ -678,6 +781,76 @@ namespace QuietStatic.Toolkit.Editor
                     parameterName);
             }
             targets.Add(path, location);
+            UnityEngine.Object existing = AssetDatabase.LoadMainAssetAtPath(path);
+            AssetChangeKind actualKind = proposedKind == AssetChangeKind.Create &&
+                                         existing != null
+                ? AssetChangeKind.Update
+                : proposedKind;
+            assetChanges.Add(new AssetChange(
+                document,
+                contentId,
+                path,
+                expectedType,
+                actualKind,
+                existing == null ? string.Empty : AssetDatabase.AssetPathToGUID(path),
+                existing == null ? default : AssetDatabase.GetAssetDependencyHash(path),
+                existing == null ? 0 : EditorUtility.GetDirtyCount(existing)));
+        }
+
+        private static bool PlansMatch(Plan reviewed, Plan current)
+        {
+            if (!string.Equals(reviewed.ManifestPath, current.ManifestPath, StringComparison.Ordinal) ||
+                !string.Equals(
+                    reviewed.NarrativeOutputFolder,
+                    current.NarrativeOutputFolder,
+                    StringComparison.Ordinal) ||
+                !string.Equals(
+                    reviewed.DialogueOutputFolder,
+                    current.DialogueOutputFolder,
+                    StringComparison.Ordinal) ||
+                reviewed.Documents.Count != current.Documents.Count ||
+                reviewed.AssetChanges.Count != current.AssetChanges.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < reviewed.Documents.Count; index++)
+            {
+                Document left = reviewed.Documents[index];
+                Document right = current.Documents[index];
+                if (!string.Equals(left.RelativePath, right.RelativePath, StringComparison.Ordinal) ||
+                    !string.Equals(left.SourcePath, right.SourcePath, StringComparison.Ordinal) ||
+                    left.Kind != right.Kind ||
+                    !string.Equals(left.Identity, right.Identity, StringComparison.Ordinal) ||
+                    !string.Equals(left.Json, right.Json, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+
+            for (int index = 0; index < reviewed.AssetChanges.Count; index++)
+            {
+                AssetChange left = reviewed.AssetChanges[index];
+                AssetChange right = current.AssetChanges[index];
+                if (!string.Equals(left.ContentId, right.ContentId, StringComparison.Ordinal) ||
+                    !string.Equals(left.AssetPath, right.AssetPath, StringComparison.Ordinal) ||
+                    left.AssetType != right.AssetType ||
+                    left.Kind != right.Kind ||
+                    !string.Equals(
+                        left.ExistingAssetGuid,
+                        right.ExistingAssetGuid,
+                        StringComparison.OrdinalIgnoreCase) ||
+                    left.ExistingAssetDependencyHash != right.ExistingAssetDependencyHash ||
+                    left.ExistingAssetDirtyCount != right.ExistingAssetDirtyCount ||
+                    !string.Equals(
+                        left.SourceDocument.RelativePath,
+                        right.SourceDocument.RelativePath,
+                        StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static string MakeSafeFileName(string value)

@@ -241,8 +241,8 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(AssetDatabase.AssetPathToGUID(databasePath), Is.EqualTo(databaseGuid));
             Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(legacyKeepPath), Is.Null);
             Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(legacyStalePath), Is.Null);
-            Assert.That(AssetDatabase.GUIDToAssetPath(legacyKeepGuid), Is.Empty);
-            Assert.That(AssetDatabase.GUIDToAssetPath(legacyStaleGuid), Is.Empty);
+            AssertAssetFilesDeleted(legacyKeepGuid);
+            AssertAssetFilesDeleted(legacyStaleGuid);
             Assert.That(first.Objectives.Select(value => value.Id),
                 Is.EqualTo(new[] { "keep", "added" }));
             Assert.That(first.Objectives.Select(AssetDatabase.GetAssetPath),
@@ -272,7 +272,7 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(AssetDatabase.AssetPathToGUID(keepPath),
                 Is.Not.EqualTo(firstKeepGuid));
             Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(addedPath), Is.Null);
-            Assert.That(AssetDatabase.GUIDToAssetPath(firstAddedGuid), Is.Empty);
+            AssertAssetFilesDeleted(firstAddedGuid);
             Assert.That(
                 AssetDatabase.FindAssets(
                     "t:ObjectiveDefinition",
@@ -585,6 +585,25 @@ namespace QuietStatic.Tests.EditMode
   ""unityObjectiveImportMode"":""Replace"",
   ""items"":[{itemJson}]
 }}";
+        }
+
+        private static void AssertAssetFilesDeleted(string guid)
+        {
+            // Unity 6 can retain a GUID-to-path cache entry for a loaded asset until
+            // the next editor update even after DeleteAsset succeeds. The importer's
+            // synchronous contract is that neither the asset nor its meta file remains.
+            string cachedPath = AssetDatabase.GUIDToAssetPath(guid);
+            if (string.IsNullOrEmpty(cachedPath))
+                return;
+
+            Assert.That(
+                File.Exists(cachedPath),
+                Is.False,
+                $"Deleted asset GUID still has a file at '{cachedPath}'.");
+            Assert.That(
+                File.Exists(cachedPath + ".meta"),
+                Is.False,
+                $"Deleted asset GUID still has a meta file at '{cachedPath}.meta'.");
         }
 
         private ReadableContentDefinition CreateReadable()

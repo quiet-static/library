@@ -34,7 +34,7 @@ namespace QuietStatic.Toolkit.Editor.Settings
             EditorApplication.delayCall += BuildAll;
         }
 
-        [MenuItem("Tools/Quiet Static/Builders/Build Settings and Pause Prefabs")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Builders/Build Settings and Pause Prefabs")]
         public static void BuildAll()
         {
             Directory.CreateDirectory(Output);

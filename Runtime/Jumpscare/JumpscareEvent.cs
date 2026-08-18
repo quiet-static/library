@@ -137,6 +137,7 @@ namespace QuietStatic.Toolkit.Jumpscare
         private Coroutine flashRoutine;
         private Coroutine shakeRoutine;
         private Vector3 shakeStartPosition;
+        private bool shakePositionCaptured;
 
         private void Reset()
         {
@@ -163,6 +164,7 @@ namespace QuietStatic.Toolkit.Jumpscare
             if (!running) return;
             if (sequenceRoutine != null) StopCoroutine(sequenceRoutine);
             sequenceRoutine = null;
+            if (fader != null) fader.SetClearInstant();
             StopPresentationRoutines();
             CleanupScare();
             FinishScare();
@@ -234,6 +236,7 @@ namespace QuietStatic.Toolkit.Jumpscare
             if (!reducedMotion && shakeTarget != null && shakeDuration > 0f && shakeAmplitude > 0f)
             {
                 shakeStartPosition = shakeTarget.localPosition;
+                shakePositionCaptured = true;
                 shakeRoutine = StartCoroutine(ShakeRoutine());
             }
         }
@@ -327,7 +330,13 @@ namespace QuietStatic.Toolkit.Jumpscare
 
         private void RestoreShakeTarget()
         {
+            if (!shakePositionCaptured)
+            {
+                return;
+            }
+
             if (shakeTarget != null) shakeTarget.localPosition = shakeStartPosition;
+            shakePositionCaptured = false;
         }
 
         private void OnDisable()

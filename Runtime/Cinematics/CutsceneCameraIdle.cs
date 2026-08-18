@@ -78,7 +78,7 @@ namespace QuietStatic.Toolkit.Cinematics
             {
                 targetPositionOffset = GetNoiseOffset(
                     positionSeed,
-                    currentTime * GetPositionFrequency(),
+                    currentTime * ResolveFrequency(positionFrequency),
                     positionAmplitude
                 );
             }
@@ -87,7 +87,7 @@ namespace QuietStatic.Toolkit.Cinematics
             {
                 targetRotationOffset = GetNoiseOffset(
                     rotationSeed,
-                    currentTime * GetRotationFrequency(),
+                    currentTime * ResolveFrequency(rotationFrequency),
                     rotationAmplitude
                 );
             }
@@ -176,14 +176,9 @@ namespace QuietStatic.Toolkit.Cinematics
             return Mathf.PerlinNoise(seed, time) * 2f - 1f;
         }
 
-        private float GetPositionFrequency()
+        private float ResolveFrequency(float configuredFrequency)
         {
-            return speed >= 0f ? speed : positionFrequency;
-        }
-
-        private float GetRotationFrequency()
-        {
-            return speed >= 0f ? speed : rotationFrequency;
+            return speed >= 0f ? speed : configuredFrequency;
         }
     }
 }

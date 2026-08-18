@@ -11,7 +11,6 @@ namespace QuietStatic.Tests.EditMode
     {
         private GameObject managerObject;
         private SettingsManager manager;
-        private Action<float> sensitivityChangedHandler;
 
         [SetUp]
         public void SetUp()
@@ -24,12 +23,6 @@ namespace QuietStatic.Tests.EditMode
         [TearDown]
         public void TearDown()
         {
-            if (sensitivityChangedHandler != null)
-            {
-                SettingsManager.OnMouseSensitivityChanged -=
-                    sensitivityChangedHandler;
-            }
-
             if (managerObject != null)
             {
                 InvokeLifecycle("OnDestroy");
@@ -41,18 +34,22 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void SetMouseSensitivity_UpdatesValueAndPublishesChange()
+        public void SetMouseSensitivity_UpdatesValueAndPublishesSettingId()
         {
-            float reportedSensitivity = -1f;
-            sensitivityChangedHandler =
-                sensitivity => reportedSensitivity = sensitivity;
-            SettingsManager.OnMouseSensitivityChanged +=
-                sensitivityChangedHandler;
+            GameSettingId? reported = null;
+            void Handle(GameSettingId setting) => reported = setting;
+            SettingsManager.OnSettingChanged += Handle;
+            try
+            {
+                manager.SetMouseSensitivity(0.75f);
 
-            manager.SetMouseSensitivity(0.75f);
-
-            Assert.That(manager.MouseSensitivity, Is.EqualTo(0.75f));
-            Assert.That(reportedSensitivity, Is.EqualTo(0.75f));
+                Assert.That(manager.MouseSensitivity, Is.EqualTo(0.75f));
+                Assert.That(reported, Is.EqualTo(GameSettingId.MouseSensitivity));
+            }
+            finally
+            {
+                SettingsManager.OnSettingChanged -= Handle;
+            }
         }
 
         [Test]

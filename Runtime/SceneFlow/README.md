@@ -9,7 +9,7 @@ The preferred startup authority is a `SceneBootstrapProfile`. It defines ordered
 persistent scenes, the first active content scene, optional initial support/retained
 scenes, and whether unrelated scenes (including the tiny bootstrap scene) unload.
 
-Open `Tools > Quiet Static > Scene Flow > Scene Flow Setup` to create a bootstrap profile, scene map,
+Open `Tools > Quiet Static > Toolkit > Scene Flow > Scene Flow Setup` to create a bootstrap profile, scene map,
 and request channel; locate and add referenced scenes to Build Settings; and create
 bootstrap or manager objects in the current scene.
 
@@ -47,9 +47,10 @@ active-scene commands. A trigger calls `SceneFlowManager` directly when no chann
 assigned.
 
 For a full additive content transition, create a `SceneTransitionRequest`.
-The request can load support scenes and retain selected nonpersistent scenes
-for that transition. Await `SceneFlowManager.TransitionToSceneRoutine` before
-applying project-specific spawning, game-state, or narrative policy.
+The request can load support scenes, retain selected nonpersistent scenes, and carry
+an optional transient condition ID for destination-owned entry behavior. This condition
+is not a saved gameplay flag. Await `SceneFlowManager.TransitionToSceneRoutine` when
+other persistent code needs to coordinate with the complete transition.
 
 ## Faded transitions and connection maps
 
@@ -59,11 +60,27 @@ and its support scenes, makes the target active, unloads the previous nonpersist
 content, and fades clear. Time scale does not affect either fade.
 
 Create a **Scene Flow Map** from `Assets > Create > Quiet Static Toolkit > Scene Flow`,
-then open `Tools > Quiet Static > Scene Flow > Scene Flow Explorer`. Each connection has a stable ID,
+then open `Tools > Quiet Static > Toolkit > Scene Flow > Scene Flow Explorer`. Each connection has a stable ID,
 source, destination, optional support/retained scenes, and cleanup policy. Scene fields
-select from enabled Build Settings scenes. Assign the map and connection ID to a
-`SceneTransitionTrigger` to use that configured route; the legacy target-scene fields
-remain supported for existing content.
+select from enabled Build Settings scenes. A mapped request carries its connection ID
+as the destination condition, so multiple routes into one scene remain distinguishable.
+Assign the map and connection ID to a `SceneTransitionTrigger` to use that configured
+route; the legacy target-scene fields remain supported for existing content and expose
+an optional direct condition ID.
+
+Add one `SceneTransitionDefinition` to a destination scene. Its ordered responses each
+contain a condition ID, an optional persistent `FlagRequirement`, and a UnityEvent. The
+first response whose exact condition and flag requirement match is invoked. A blank
+condition is ignored. Requests without a condition do not invoke the definition, which
+keeps existing transitions and save restoration unchanged. The definition's general
+entry event runs for every conditioned transition into the scene. Assign the same
+`SceneFlowMap` to the definition to select inbound connection IDs from its Inspector;
+custom IDs remain available for direct transitions.
+
+Destination responses run after the target becomes active and old content is unloaded,
+but before the transition fades clear. Use their UnityEvents for scene-owned setup such
+as choosing an entrance, placing a spawn target through `SpawnHandler`, starting local
+dialogue, or selecting route-specific presentation.
 
 For UnityEvents, add a `SceneTransitionHandler` to the event-owning scene object. Assign
 the map and select a connection, assign the request channel, then connect an

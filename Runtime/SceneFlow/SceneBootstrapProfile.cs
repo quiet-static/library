@@ -27,6 +27,9 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Tooltip("Other nonpersistent scenes retained during the initial transition.")]
         [SerializeField] private SceneReference[] initialScenesToKeep;
 
+        [Tooltip("Optional condition used by the initial scene to select its entry behavior.")]
+        [SerializeField] private string initialConditionId;
+
         [Tooltip("Unload the bootstrap scene and unrelated nonpersistent scenes after initial content is ready.")]
         [SerializeField] private bool unloadOtherScenes = true;
 
@@ -52,7 +55,8 @@ namespace QuietStatic.Toolkit.SceneFlow
                 InitialSceneName,
                 GetDistinctNames(additionalInitialScenes),
                 GetDistinctNames(initialScenesToKeep),
-                unloadOtherScenes);
+                unloadOtherScenes,
+                initialConditionId);
         }
 
         private IEnumerable<SceneReference> EnumerateAllReferences()

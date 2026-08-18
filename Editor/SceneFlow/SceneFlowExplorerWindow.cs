@@ -15,7 +15,7 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
         private Vector2 scroll;
         private string filter = string.Empty;
 
-        [MenuItem("Tools/Quiet Static/Scene Flow/Scene Flow Explorer")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Scene Flow/Scene Flow Explorer")]
         public static void Open()
         {
             GetWindow<SceneFlowExplorerWindow>("Scene Flow");
@@ -90,11 +90,20 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
                 string.IsNullOrWhiteSpace(connection.Id) ||
                 string.IsNullOrWhiteSpace(connection.FromSceneName) ||
                 string.IsNullOrWhiteSpace(connection.ToSceneName));
+            int duplicateIds = connections
+                .Where(connection =>
+                    connection != null &&
+                    !string.IsNullOrWhiteSpace(connection.Id))
+                .GroupBy(connection => connection.Id, StringComparer.Ordinal)
+                .Sum(group => Math.Max(0, group.Count() - 1));
 
             EditorGUILayout.HelpBox(
-                $"{uniqueScenes} scene(s), {connections.Count} connection(s), {invalid} incomplete. " +
+                $"{uniqueScenes} scene(s), {connections.Count} connection(s), " +
+                $"{invalid} incomplete, {duplicateIds} duplicate ID(s). " +
                 $"Directed endpoints: {sceneCount}.",
-                invalid > 0 ? MessageType.Warning : MessageType.Info);
+                invalid > 0 || duplicateIds > 0
+                    ? MessageType.Warning
+                    : MessageType.Info);
         }
 
         private void DrawConnections()

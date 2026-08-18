@@ -11,7 +11,7 @@ The runner also implements `ICinematicWaitSource`, so a definition-based
 `CinematicScenePlayer` can select and await a complete scene-authored runner as one
 activity. Keep the runner's **Play On Start** disabled when the scene player owns startup.
 
-Use **Tools > Quiet Static > Cinematics > Cutscene Explorer** to create a starter runner, browse all
+Use **Tools > Quiet Static > Toolkit > Cinematics > Cutscene Explorer** to create a starter runner, browse all
 cutscenes in loaded scenes, inspect their steps, select their objects, and preview a whole
 sequence or individual step in Play Mode. Scene references remain on the runner so camera
 poses, dialogue runners, and character controllers are explicit and safe to serialize.
@@ -93,7 +93,7 @@ per-beat UnityEvents are all configured there. This keeps reusable content out o
 objects while allowing local props, audio, lighting, and gameplay handlers to remain wired
 with UnityEvents.
 
-Use **Tools > Quiet Static > Cinematics > Cinematic Database** to create and search definitions, validate
+Use **Tools > Quiet Static > Toolkit > Cinematics > Cinematic Database** to create and search definitions, validate
 IDs, select assets, and find or play setups in loaded scenes. Existing
 `CutsceneSequenceRunner` scenes remain supported and can be migrated incrementally.
 

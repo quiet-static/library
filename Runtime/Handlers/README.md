@@ -25,4 +25,5 @@ another. Channels carry commands; handlers remain the convenient local UnityEven
 `SceneTransitionHandler` bridges successful interactions, buttons, animation events,
 and Timeline signals to the persistent scene-flow system. Prefer a configured
 `SceneFlowMap` connection and request channel; `Transition()` is the parameterless
-UnityEvent entry point.
+UnityEvent entry point. A mapped transition carries its connection ID into the
+destination definition; direct transitions can provide an optional custom condition ID.

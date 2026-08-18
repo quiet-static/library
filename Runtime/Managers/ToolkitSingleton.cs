@@ -49,6 +49,7 @@ namespace QuietStatic.Toolkit.Core
             {
                 if (destroyDuplicates)
                 {
+                    enabled = false;
                     Destroy(gameObject);
                 }
 

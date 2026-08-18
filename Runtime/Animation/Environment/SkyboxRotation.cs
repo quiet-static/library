@@ -35,14 +35,6 @@ namespace QuietStatic.Toolkit.Animation.Environment
         /// </summary>
         private void Update()
         {
-            RotateSkybox();
-        }
-
-        /// <summary>
-        /// Advances the stored rotation value and applies it to the active skybox material.
-        /// </summary>
-        private void RotateSkybox()
-        {
             if (RenderSettings.skybox == null)
             {
                 return;

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -45,9 +44,6 @@ namespace QuietStatic.Toolkit.UI
         [Header("Events")]
         [Tooltip("Invoked once when the credits content reaches or passes the configured end Y position.")]
         [SerializeField] private UnityEvent onCreditsFinished;
-
-        /// <summary>Raised once whenever any credits scroller finishes.</summary>
-        public static event Action OnCreditsEnd;
 
         /// <summary>
         /// Tracks whether the credits have already reached the end.
@@ -141,7 +137,6 @@ namespace QuietStatic.Toolkit.UI
             }
 
             finished = true;
-            OnCreditsEnd?.Invoke();
             onCreditsFinished?.Invoke();
         }
     }

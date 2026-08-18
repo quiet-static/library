@@ -16,7 +16,7 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Serializable]
         public sealed class Connection
         {
-            [Tooltip("Stable identifier used by triggers and UnityEvents.")]
+            [Tooltip("Stable identifier used by triggers, UnityEvents, and destination transition responses.")]
             [SerializeField] private string id;
 
             [Tooltip("Scene from which this connection can be taken.")]
@@ -35,7 +35,7 @@ namespace QuietStatic.Toolkit.SceneFlow
             [SerializeField] private bool unloadOtherScenes = true;
 
             /// <summary>Gets the stable connection ID.</summary>
-            public string Id => id;
+            public string Id => Normalize(id);
             /// <summary>Gets the source scene name.</summary>
             public string FromSceneName => fromScene?.SceneName ?? string.Empty;
             /// <summary>Gets the destination scene name.</summary>
@@ -43,14 +43,18 @@ namespace QuietStatic.Toolkit.SceneFlow
             /// <summary>Gets whether unrelated nonpersistent scenes unload after transition.</summary>
             public bool UnloadOtherScenes => unloadOtherScenes;
 
-            /// <summary>Builds the runtime request represented by this connection.</summary>
+            /// <summary>
+            /// Builds the runtime request represented by this connection. The
+            /// stable connection ID becomes its destination condition.
+            /// </summary>
             public SceneTransitionRequest CreateRequest()
             {
                 return new SceneTransitionRequest(
                     ToSceneName,
                     GetNames(additionalScenesToLoad),
                     GetNames(additionalScenesToKeep),
-                    unloadOtherScenes);
+                    unloadOtherScenes,
+                    Id);
             }
 
             private static IEnumerable<string> GetNames(
@@ -82,7 +86,8 @@ namespace QuietStatic.Toolkit.SceneFlow
         public bool TryGetConnection(string connectionId, out Connection connection)
         {
             connection = null;
-            if (string.IsNullOrWhiteSpace(connectionId) || connections == null)
+            string normalizedId = Normalize(connectionId);
+            if (string.IsNullOrEmpty(normalizedId) || connections == null)
             {
                 return false;
             }
@@ -91,15 +96,24 @@ namespace QuietStatic.Toolkit.SceneFlow
             {
                 if (candidate != null && string.Equals(
                         candidate.Id,
-                        connectionId.Trim(),
+                        normalizedId,
                         StringComparison.Ordinal))
                 {
+                    if (connection != null)
+                    {
+                        GameLogger.Warning(
+                            nameof(TryGetConnection),
+                            this,
+                            $"{nameof(SceneFlowMap)} contains more than one connection named '{normalizedId}'. " +
+                            "The first connection will be used.");
+                        return true;
+                    }
+
                     connection = candidate;
-                    return true;
                 }
             }
 
-            return false;
+            return connection != null;
         }
 
         /// <summary>Returns all connections leaving the named scene.</summary>
@@ -136,6 +150,13 @@ namespace QuietStatic.Toolkit.SceneFlow
 
             request = connection.CreateRequest();
             return true;
+        }
+
+        private static string Normalize(string value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? string.Empty
+                : value.Trim();
         }
     }
 }

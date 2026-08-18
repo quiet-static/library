@@ -101,8 +101,6 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            DontDestroyOnLoad(gameObject);
-
             if (dialogueRunner == null)
             {
                 dialogueRunner = GetComponent<DialogueRunner>();

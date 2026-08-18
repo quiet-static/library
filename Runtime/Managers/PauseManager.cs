@@ -55,10 +55,10 @@ namespace QuietStatic
             GameStateManager.Instance != null &&
             GameStateManager.Instance.IsInState(pausedState);
 
-        /// <summary>
-        /// Prevents duplicate pause-scene load or unload operations.
-        /// </summary>
-        private bool isChangingPauseScene;
+        private Coroutine pauseSceneRoutine;
+
+        /// <summary>Gets whether the additive pause scene is currently reconciling.</summary>
+        public bool IsChangingPauseScene => pauseSceneRoutine != null;
 
         protected override void Awake()
         {
@@ -117,7 +117,7 @@ namespace QuietStatic
 
             if (usePauseScene && !string.IsNullOrWhiteSpace(pauseSceneName))
             {
-                StartCoroutine(LoadPauseSceneRoutine());
+                ReconcilePauseScene();
             }
         }
 
@@ -142,7 +142,7 @@ namespace QuietStatic
 
             if (usePauseScene && !string.IsNullOrWhiteSpace(pauseSceneName))
             {
-                StartCoroutine(UnloadPauseSceneRoutine());
+                ReconcilePauseScene();
             }
         }
 
@@ -156,47 +156,41 @@ namespace QuietStatic
             RestoreGameplayCursor();
         }
 
-        private IEnumerator LoadPauseSceneRoutine()
+        private void ReconcilePauseScene()
         {
-            if (isChangingPauseScene || IsSceneLoaded(pauseSceneName))
+            if (pauseSceneRoutine != null ||
+                IsPaused == IsSceneLoaded(pauseSceneName))
             {
-                yield break;
+                return;
             }
 
-            isChangingPauseScene = true;
-
-            AsyncOperation operation = SceneManager.LoadSceneAsync(
-                pauseSceneName,
-                LoadSceneMode.Additive
-            );
-
-            if (operation != null)
-            {
-                yield return operation;
-            }
-
-            isChangingPauseScene = false;
+            pauseSceneRoutine = StartCoroutine(ReconcilePauseSceneRoutine());
         }
 
-        private IEnumerator UnloadPauseSceneRoutine()
+        private IEnumerator ReconcilePauseSceneRoutine()
         {
-            if (isChangingPauseScene || !IsSceneLoaded(pauseSceneName))
+            try
             {
-                yield break;
+                while (IsPaused != IsSceneLoaded(pauseSceneName))
+                {
+                    AsyncOperation operation = IsPaused
+                        ? SceneManager.LoadSceneAsync(
+                            pauseSceneName,
+                            LoadSceneMode.Additive)
+                        : SceneManager.UnloadSceneAsync(pauseSceneName);
+
+                    if (operation == null)
+                    {
+                        yield break;
+                    }
+
+                    yield return operation;
+                }
             }
-
-            isChangingPauseScene = true;
-
-            AsyncOperation operation = SceneManager.UnloadSceneAsync(
-                pauseSceneName
-            );
-
-            if (operation != null)
+            finally
             {
-                yield return operation;
+                pauseSceneRoutine = null;
             }
-
-            isChangingPauseScene = false;
         }
 
         private void ApplyPausedCursor()

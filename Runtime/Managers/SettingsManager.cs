@@ -33,9 +33,6 @@ namespace QuietStatic
         /// <summary>Gets the active settings UI manager.</summary>
         public static SettingsManager Instance { get; private set; }
 
-        /// <summary>Raised after the normalized mouse sensitivity changes.</summary>
-        public static event Action<float> OnMouseSensitivityChanged;
-
         /// <summary>Raised after any setting is applied, including during initial loading.</summary>
         public static event Action<GameSettingId> OnSettingChanged;
 
@@ -326,7 +323,6 @@ namespace QuietStatic
         private void ApplyMouseSensitivity(float value)
         {
             MouseSensitivity = value;
-            OnMouseSensitivityChanged?.Invoke(value);
             Notify(GameSettingId.MouseSensitivity);
         }
 

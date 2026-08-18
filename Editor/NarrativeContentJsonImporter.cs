@@ -17,6 +17,33 @@ namespace QuietStatic.Toolkit.Editor
         private const string ObjectiveImportModePreserve = "Preserve";
         private const string ObjectiveImportModeReplace = "Replace";
 
+        internal enum ImportTargetIntent
+        {
+            CreateOrUpdate,
+            Regenerate,
+            Delete,
+        }
+
+        internal sealed class ImportTarget
+        {
+            public ImportTarget(
+                string assetPath,
+                Type assetType,
+                string contentId,
+                ImportTargetIntent intent = ImportTargetIntent.CreateOrUpdate)
+            {
+                AssetPath = assetPath;
+                AssetType = assetType;
+                ContentId = contentId;
+                Intent = intent;
+            }
+
+            public string AssetPath { get; }
+            public Type AssetType { get; }
+            public string ContentId { get; }
+            public ImportTargetIntent Intent { get; }
+        }
+
         [Serializable] private sealed class Document
         {
             public int schemaVersion;
@@ -59,7 +86,7 @@ namespace QuietStatic.Toolkit.Editor
         }
 
         /// <summary>Imports the selected content-catalog JSON.</summary>
-        [MenuItem("Tools/Quiet Static/Importers/Import Selected Content JSON")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Selected Content JSON")]
         private static void ImportSelected()
         {
             try
@@ -75,7 +102,7 @@ namespace QuietStatic.Toolkit.Editor
             }
         }
 
-        [MenuItem("Tools/Quiet Static/Importers/Import Selected Content JSON", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Selected Content JSON", true)]
         private static bool CanImportSelected() => Selection.activeObject is TextAsset asset &&
             AssetDatabase.GetAssetPath(asset).EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
@@ -83,15 +110,17 @@ namespace QuietStatic.Toolkit.Editor
         public static UnityEngine.Object Import(TextAsset source, string outputFolder = DefaultOutputFolder)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            if (string.IsNullOrWhiteSpace(outputFolder) || !outputFolder.StartsWith("Assets", StringComparison.Ordinal))
+            if (!NarrativeJsonPathUtility.IsCanonicalAssetFolder(outputFolder))
                 throw new ArgumentException("Output folder must be under Assets.", nameof(outputFolder));
+            string sourcePath = AssetDatabase.GetAssetPath(source);
             Document document = ParseAndValidate(
                 source.text,
-                AssetDatabase.GetAssetPath(source));
+                sourcePath);
             string folder = $"{outputFolder.TrimEnd('/')}/{Safe(document.catalogId)}";
             ObjectiveReplacementPlan replacementPlan = IsObjectiveReplacement(document)
-                ? BuildObjectiveReplacementPlan(document, folder, AssetDatabase.GetAssetPath(source))
+                ? BuildObjectiveReplacementPlan(document, folder, sourcePath)
                 : null;
+            BuildImportTargets(document, folder, sourcePath, replacementPlan);
             UnityEngine.Object result = document.contentType switch
             {
                 "flags" => ImportFlags(document, folder),
@@ -123,14 +152,159 @@ namespace QuietStatic.Toolkit.Editor
             string outputFolder = DefaultOutputFolder,
             string sourcePath = "<input>")
         {
-            if (string.IsNullOrWhiteSpace(outputFolder) ||
-                !outputFolder.StartsWith("Assets", StringComparison.Ordinal))
+            GetImportTargets(json, outputFolder, sourcePath);
+        }
+
+        /// <summary>
+        /// Resolves every asset affected by an import while performing the same validation used
+        /// by the writer. This remains internal so batch preflight can present an exact preview
+        /// without duplicating content-import path or replacement ownership rules.
+        /// </summary>
+        internal static IReadOnlyList<ImportTarget> GetImportTargets(
+            string json,
+            string outputFolder = DefaultOutputFolder,
+            string sourcePath = "<input>")
+        {
+            if (!NarrativeJsonPathUtility.IsCanonicalAssetFolder(outputFolder))
                 throw new ArgumentException("Output folder must be under Assets.", nameof(outputFolder));
+
             Document document = ParseAndValidate(json, sourcePath);
-            if (!IsObjectiveReplacement(document))
-                return;
             string folder = $"{outputFolder.TrimEnd('/')}/{Safe(document.catalogId)}";
-            BuildObjectiveReplacementPlan(document, folder, sourcePath);
+            ObjectiveReplacementPlan replacementPlan = IsObjectiveReplacement(document)
+                ? BuildObjectiveReplacementPlan(document, folder, sourcePath)
+                : null;
+            return BuildImportTargets(
+                document,
+                folder,
+                sourcePath,
+                replacementPlan);
+        }
+
+        private static IReadOnlyList<ImportTarget> BuildImportTargets(
+            Document document,
+            string folder,
+            string sourcePath,
+            ObjectiveReplacementPlan replacementPlan)
+        {
+            var targets = new List<ImportTarget>();
+            switch (document.contentType)
+            {
+                case "flags":
+                    targets.Add(new ImportTarget(
+                        document.unityDatabasePath ??
+                        $"{folder}/{Safe(document.catalogId)}.asset",
+                        typeof(FlagDatabase),
+                        document.catalogId));
+                    break;
+
+                case "objectives" when replacementPlan != null:
+                    AddObjectiveReplacementTargets(
+                        document,
+                        replacementPlan,
+                        targets);
+                    break;
+
+                case "objectives":
+                    targets.Add(new ImportTarget(
+                        document.unityDatabasePath ??
+                        $"{folder}/{Safe(document.catalogId)}.asset",
+                        typeof(ObjectiveDatabase),
+                        document.catalogId));
+                    foreach (Item item in document.items)
+                    {
+                        targets.Add(new ImportTarget(
+                            item.unityAssetPath ??
+                            $"{folder}/{Safe(item.id)}.asset",
+                            typeof(ObjectiveDefinition),
+                            item.id));
+                    }
+                    break;
+
+                case "readables":
+                    foreach (Item item in document.items)
+                    {
+                        targets.Add(new ImportTarget(
+                            item.unityAssetPath ??
+                            $"{folder}/{Safe(item.id)}.asset",
+                            typeof(ReadableContentDefinition),
+                            item.id));
+                    }
+                    break;
+            }
+            ValidateImportTargets(targets, sourcePath);
+            return targets.AsReadOnly();
+        }
+
+        private static void AddObjectiveReplacementTargets(
+            Document document,
+            ObjectiveReplacementPlan plan,
+            ICollection<ImportTarget> targets)
+        {
+            targets.Add(new ImportTarget(
+                plan.DatabasePath,
+                typeof(ObjectiveDatabase),
+                document.catalogId));
+
+            var existingByPath = plan.ExistingObjectives.ToDictionary(
+                objective => objective.Path,
+                objective => objective,
+                StringComparer.OrdinalIgnoreCase);
+            var generatedPaths = new HashSet<string>(
+                plan.DefinitionPaths,
+                StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index < document.items.Length; index++)
+            {
+                string definitionPath = plan.DefinitionPaths[index];
+                targets.Add(new ImportTarget(
+                    definitionPath,
+                    typeof(ObjectiveDefinition),
+                    document.items[index].id,
+                    existingByPath.ContainsKey(definitionPath)
+                        ? ImportTargetIntent.Regenerate
+                        : ImportTargetIntent.CreateOrUpdate));
+            }
+
+            foreach (ExistingObjective existing in plan.ExistingObjectives)
+            {
+                if (generatedPaths.Contains(existing.Path))
+                    continue;
+                targets.Add(new ImportTarget(
+                    existing.Path,
+                    typeof(ObjectiveDefinition),
+                    existing.Id,
+                    ImportTargetIntent.Delete));
+            }
+        }
+
+        private static void ValidateImportTargets(
+            IEnumerable<ImportTarget> targets,
+            string sourcePath)
+        {
+            var claimedPaths = new Dictionary<string, ImportTarget>(
+                StringComparer.OrdinalIgnoreCase);
+            foreach (ImportTarget target in targets)
+            {
+                var errors = new List<string>();
+                NarrativeJsonPathUtility.ValidateUnityAssetPath(
+                    target.AssetPath,
+                    target.AssetType,
+                    $"{sourcePath}: target for '{target.ContentId}'",
+                    errors);
+                if (errors.Count > 0)
+                    throw new ArgumentException(string.Join(Environment.NewLine, errors));
+
+                if (claimedPaths.TryGetValue(
+                        target.AssetPath,
+                        out ImportTarget existingTarget))
+                {
+                    throw new ArgumentException(
+                        $"{sourcePath}: targets '{existingTarget.ContentId}' " +
+                        $"({existingTarget.AssetType.Name}) and '{target.ContentId}' " +
+                        $"({target.AssetType.Name}) resolve to the same Unity asset path: " +
+                        target.AssetPath);
+                }
+                claimedPaths.Add(target.AssetPath, target);
+            }
         }
 
         private static Document ParseAndValidate(string json, string sourcePath)
@@ -365,7 +539,12 @@ namespace QuietStatic.Toolkit.Editor
             ICollection<string> errors)
         {
             if (requirement == null) return;
-            if (!Enum.TryParse(requirement.mode, true, out FlagRequirementMode mode)) { errors.Add($"Objective '{id}' has an invalid {label} requirement mode."); return; }
+            if (!Enum.TryParse(requirement.mode, true, out FlagRequirementMode mode) ||
+                !Enum.IsDefined(typeof(FlagRequirementMode), mode))
+            {
+                errors.Add($"Objective '{id}' has an invalid {label} requirement mode.");
+                return;
+            }
             if (mode != FlagRequirementMode.None && (requirement.flags == null || requirement.flags.Length == 0)) errors.Add($"Objective '{id}' {label} requirement needs flags.");
             if (requirement.flags == null) return;
             if (requirement.flags.Any(string.IsNullOrWhiteSpace)) errors.Add($"Objective '{id}' {label} requirement contains an empty flag.");

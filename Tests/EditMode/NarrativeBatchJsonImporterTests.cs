@@ -5,6 +5,7 @@ using NUnit.Framework;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor;
 using QuietStatic.Toolkit.Flags;
+using QuietStatic.Toolkit.Interactions;
 using QuietStatic.Toolkit.Objectives;
 using UnityEditor;
 using UnityEngine;
@@ -72,6 +73,66 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
+        public void Preflight_DescribesEveryAffectedAssetWithoutMutatingOutputs()
+        {
+            Write("dialogue/intro.json", DialogueJson("intro"));
+            Write(
+                "readables/notes.json",
+                ContentJson(
+                    "readables",
+                    "notes",
+                    @"{""id"":""note"",""title"":""Note"",""body"":""Body""}"));
+            Write(
+                "objectives/main.json",
+                ContentJson(
+                    "objectives",
+                    "main",
+                    @"{""id"":""first"",""title"":""First""},{""id"":""second"",""title"":""Second""}"));
+            Write("flags/story.json", ContentJson("flags", "story"));
+            WriteManifest(
+                ("dialogue/intro.json", "dialogue"),
+                ("readables/notes.json", "readables"),
+                ("objectives/main.json", "objectives"),
+                ("flags/story.json", "flags"));
+
+            NarrativeBatchJsonImporter.Plan plan = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    narrativeOutputFolder + "/story/story.asset",
+                    narrativeOutputFolder + "/main/main.asset",
+                    narrativeOutputFolder + "/main/first.asset",
+                    narrativeOutputFolder + "/main/second.asset",
+                    narrativeOutputFolder + "/notes/note.asset",
+                    dialogueOutputFolder + "/intro.asset",
+                },
+                plan.AssetChanges.Select(change => change.AssetPath));
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    typeof(FlagDatabase),
+                    typeof(ObjectiveDatabase),
+                    typeof(ObjectiveDefinition),
+                    typeof(ObjectiveDefinition),
+                    typeof(ReadableContentDefinition),
+                    typeof(DialogueTree),
+                },
+                plan.AssetChanges.Select(change => change.AssetType));
+            Assert.That(
+                plan.AssetChanges.All(
+                    change => change.Kind == NarrativeBatchJsonImporter.AssetChangeKind.Create),
+                Is.True);
+            Assert.That(
+                plan.AssetChanges.All(change => change.SourceDocument != null),
+                Is.True);
+            Assert.That(AssetDatabase.IsValidFolder(assetRoot), Is.False);
+        }
+
+        [Test]
         public void ImportFolder_ImportsFlagsBeforeDialogueAndPreservesAssetGuids()
         {
             Write("content/flags.json", ContentJson("flags", "authorer_flags",
@@ -100,10 +161,18 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(flagGuid, Is.Not.Empty);
             Assert.That(dialogueGuid, Is.Not.Empty);
 
-            NarrativeBatchJsonImporter.Result second = NarrativeBatchJsonImporter.Import(
-                Path.Combine(exportFolder, NarrativeBatchJsonImporter.ManifestFileName),
-                narrativeOutputFolder,
-                dialogueOutputFolder);
+            NarrativeBatchJsonImporter.Plan updatePlan =
+                NarrativeBatchJsonImporter.Preflight(
+                    exportFolder,
+                    narrativeOutputFolder,
+                    dialogueOutputFolder);
+            Assert.That(
+                updatePlan.AssetChanges.All(
+                    change => change.Kind == NarrativeBatchJsonImporter.AssetChangeKind.Update),
+                Is.True);
+
+            NarrativeBatchJsonImporter.Result second =
+                NarrativeBatchJsonImporter.ImportReviewedPlan(updatePlan);
 
             Assert.That(second.ImportedAssets[0], Is.SameAs(first.ImportedAssets[0]));
             Assert.That(second.ImportedAssets[1], Is.SameAs(first.ImportedAssets[1]));
@@ -166,6 +235,196 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(objectivePath),
                 Is.SameAs(objective));
             Assert.That(AssetDatabase.AssetPathToGUID(objectivePath), Is.EqualTo(objectiveGuid));
+        }
+
+        [Test]
+        public void Preflight_DescribesObjectiveRegenerationAndDeletionWithoutApplyingThem()
+        {
+            string regeneratedPath =
+                narrativeOutputFolder + "/main/Definitions/referenced.asset";
+            ObjectiveDefinition regenerated = CreateObjective(
+                regeneratedPath,
+                "referenced",
+                "Original title");
+            ObjectiveDefinition deleted = CreateObjective(
+                assetRoot + "/LegacyRemoved.asset",
+                "removed",
+                "Removed title");
+            ObjectiveDatabase database = CreateObjectiveDatabase(
+                assetRoot + "/ObjectivesDB.asset",
+                regenerated,
+                deleted);
+            string databasePath = AssetDatabase.GetAssetPath(database);
+            string regeneratedGuid = AssetDatabase.AssetPathToGUID(regeneratedPath);
+            string deletedPath = AssetDatabase.GetAssetPath(deleted);
+            string deletedGuid = AssetDatabase.AssetPathToGUID(deletedPath);
+            Write("content/objectives.json", ObjectiveReplacementJson(databasePath));
+            WriteManifest(("content/objectives.json", "objectives"));
+
+            NarrativeBatchJsonImporter.Plan plan = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+
+            Assert.That(plan.AssetChanges.Count, Is.EqualTo(3));
+            Assert.That(
+                plan.AssetChanges.Single(change => change.AssetPath == databasePath).Kind,
+                Is.EqualTo(NarrativeBatchJsonImporter.AssetChangeKind.Update));
+            Assert.That(
+                plan.AssetChanges.Single(change => change.AssetPath == regeneratedPath).Kind,
+                Is.EqualTo(NarrativeBatchJsonImporter.AssetChangeKind.Regenerate));
+            Assert.That(
+                plan.AssetChanges.Single(change => change.AssetPath == deletedPath).Kind,
+                Is.EqualTo(NarrativeBatchJsonImporter.AssetChangeKind.Delete));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(regeneratedPath),
+                Is.SameAs(regenerated));
+            Assert.That(AssetDatabase.AssetPathToGUID(regeneratedPath), Is.EqualTo(regeneratedGuid));
+            Assert.That(AssetDatabase.LoadAssetAtPath<ObjectiveDefinition>(deletedPath),
+                Is.SameAs(deleted));
+            Assert.That(AssetDatabase.AssetPathToGUID(deletedPath), Is.EqualTo(deletedGuid));
+        }
+
+        [Test]
+        public void ImportReviewedPlan_RejectsSourceChangesBeforeMutatingAssets()
+        {
+            Write("content/flags.json", ContentJson("flags", "story"));
+            WriteManifest(("content/flags.json", "flags"));
+            NarrativeBatchJsonImporter.Plan reviewed = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+            Write(
+                "content/flags.json",
+                ContentJson(
+                    "flags",
+                    "story",
+                    @"{""id"":""changed"",""description"":""Changed""}"));
+
+            Assert.Throws<NarrativeBatchJsonImporter.PreviewOutOfDateException>(() =>
+                NarrativeBatchJsonImporter.ImportReviewedPlan(reviewed));
+
+            Assert.That(AssetDatabase.IsValidFolder(assetRoot), Is.False);
+        }
+
+        [Test]
+        public void ImportReviewedPlan_RejectsTargetStateChangesBeforeWriting()
+        {
+            Write("content/flags.json", ContentJson("flags", "story"));
+            WriteManifest(("content/flags.json", "flags"));
+            NarrativeBatchJsonImporter.Plan reviewed = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+            string targetPath = narrativeOutputFolder + "/story/story.asset";
+            EnsureAssetFolderForPath(targetPath);
+            var existing = ScriptableObject.CreateInstance<FlagDatabase>();
+            AssetDatabase.CreateAsset(existing, targetPath);
+            AssetDatabase.SaveAssets();
+
+            Assert.Throws<NarrativeBatchJsonImporter.PreviewOutOfDateException>(() =>
+                NarrativeBatchJsonImporter.ImportReviewedPlan(reviewed));
+
+            Assert.That(AssetDatabase.LoadAssetAtPath<FlagDatabase>(targetPath),
+                Is.SameAs(existing));
+            Assert.That(existing.Flags == null || !existing.Flags.Any(), Is.True);
+        }
+
+        [Test]
+        public void ImportReviewedPlan_RejectsSameTypeTargetReplacementBeforeWriting()
+        {
+            Write("content/flags.json", ContentJson("flags", "story"));
+            WriteManifest(("content/flags.json", "flags"));
+            string targetPath = narrativeOutputFolder + "/story/story.asset";
+            EnsureAssetFolderForPath(targetPath);
+            var original = ScriptableObject.CreateInstance<FlagDatabase>();
+            AssetDatabase.CreateAsset(original, targetPath);
+            AssetDatabase.SaveAssets();
+            NarrativeBatchJsonImporter.Plan reviewed = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+            string originalGuid = AssetDatabase.AssetPathToGUID(targetPath);
+
+            string replacementPath = narrativeOutputFolder + "/story/replacement.asset";
+            var replacement = ScriptableObject.CreateInstance<FlagDatabase>();
+            AssetDatabase.CreateAsset(replacement, replacementPath);
+            string replacementGuid = AssetDatabase.AssetPathToGUID(replacementPath);
+            Assert.That(replacementGuid, Is.Not.EqualTo(originalGuid));
+            Assert.That(AssetDatabase.DeleteAsset(targetPath), Is.True);
+            Assert.That(AssetDatabase.MoveAsset(replacementPath, targetPath), Is.Empty);
+            AssetDatabase.SaveAssets();
+            Assert.That(AssetDatabase.AssetPathToGUID(targetPath), Is.EqualTo(replacementGuid));
+
+            Assert.Throws<NarrativeBatchJsonImporter.PreviewOutOfDateException>(() =>
+                NarrativeBatchJsonImporter.ImportReviewedPlan(reviewed));
+
+            Assert.That(AssetDatabase.LoadAssetAtPath<FlagDatabase>(targetPath),
+                Is.SameAs(replacement));
+            Assert.That(replacement.Flags == null || !replacement.Flags.Any(), Is.True);
+        }
+
+        [Test]
+        public void ImportReviewedPlan_RejectsTargetContentChangesBeforeWriting()
+        {
+            Write("content/flags.json", ContentJson("flags", "story"));
+            WriteManifest(("content/flags.json", "flags"));
+            string targetPath = narrativeOutputFolder + "/story/story.asset";
+            EnsureAssetFolderForPath(targetPath);
+            var existing = ScriptableObject.CreateInstance<FlagDatabase>();
+            AssetDatabase.CreateAsset(existing, targetPath);
+            AssetDatabase.SaveAssets();
+            NarrativeBatchJsonImporter.Plan reviewed = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+
+            var serialized = new SerializedObject(existing);
+            SerializedProperty flags = serialized.FindProperty("flags");
+            flags.arraySize = 1;
+            SerializedProperty flag = flags.GetArrayElementAtIndex(0);
+            flag.FindPropertyRelative("id").stringValue = "local.change";
+            flag.FindPropertyRelative("description").stringValue = "Local edit";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(existing);
+            AssetDatabase.SaveAssets();
+
+            Assert.Throws<NarrativeBatchJsonImporter.PreviewOutOfDateException>(() =>
+                NarrativeBatchJsonImporter.ImportReviewedPlan(reviewed));
+
+            FlagDatabase unchanged = AssetDatabase.LoadAssetAtPath<FlagDatabase>(targetPath);
+            Assert.That(unchanged.Flags.Select(value => value.id),
+                Is.EqualTo(new[] { "local.change" }));
+        }
+
+        [Test]
+        public void ImportReviewedPlan_RejectsUnsavedTargetContentChangesBeforeWriting()
+        {
+            Write("content/flags.json", ContentJson("flags", "story"));
+            WriteManifest(("content/flags.json", "flags"));
+            string targetPath = narrativeOutputFolder + "/story/story.asset";
+            EnsureAssetFolderForPath(targetPath);
+            var existing = ScriptableObject.CreateInstance<FlagDatabase>();
+            AssetDatabase.CreateAsset(existing, targetPath);
+            AssetDatabase.SaveAssets();
+            NarrativeBatchJsonImporter.Plan reviewed = NarrativeBatchJsonImporter.Preflight(
+                exportFolder,
+                narrativeOutputFolder,
+                dialogueOutputFolder);
+
+            var serialized = new SerializedObject(existing);
+            SerializedProperty flags = serialized.FindProperty("flags");
+            flags.arraySize = 1;
+            SerializedProperty flag = flags.GetArrayElementAtIndex(0);
+            flag.FindPropertyRelative("id").stringValue = "unsaved.change";
+            flag.FindPropertyRelative("description").stringValue = "Unsaved local edit";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(existing);
+
+            Assert.Throws<NarrativeBatchJsonImporter.PreviewOutOfDateException>(() =>
+                NarrativeBatchJsonImporter.ImportReviewedPlan(reviewed));
+
+            Assert.That(existing.Flags.Select(value => value.id),
+                Is.EqualTo(new[] { "unsaved.change" }));
         }
 
         [Test]
@@ -340,6 +599,7 @@ namespace QuietStatic.Tests.EditMode
             string id,
             string title)
         {
+            EnsureAssetFolderForPath(path);
             var objective = ScriptableObject.CreateInstance<ObjectiveDefinition>();
             var serialized = new SerializedObject(objective);
             serialized.FindProperty("id").stringValue = id;
@@ -352,17 +612,38 @@ namespace QuietStatic.Tests.EditMode
 
         private static ObjectiveDatabase CreateObjectiveDatabase(
             string path,
-            ObjectiveDefinition objective)
+            params ObjectiveDefinition[] objectivesToAdd)
         {
+            EnsureAssetFolderForPath(path);
             var database = ScriptableObject.CreateInstance<ObjectiveDatabase>();
             var serialized = new SerializedObject(database);
             SerializedProperty objectives = serialized.FindProperty("objectives");
-            objectives.arraySize = 1;
-            objectives.GetArrayElementAtIndex(0).objectReferenceValue = objective;
+            objectives.arraySize = objectivesToAdd.Length;
+            for (int index = 0; index < objectivesToAdd.Length; index++)
+            {
+                objectives.GetArrayElementAtIndex(index).objectReferenceValue =
+                    objectivesToAdd[index];
+            }
             serialized.ApplyModifiedPropertiesWithoutUndo();
             AssetDatabase.CreateAsset(database, path);
             AssetDatabase.SaveAssets();
             return database;
+        }
+
+        private static void EnsureAssetFolderForPath(string assetPath)
+        {
+            string folder = Path.GetDirectoryName(assetPath)?.Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(folder) || folder == "Assets")
+                return;
+
+            string current = "Assets";
+            foreach (string segment in folder.Split('/').Skip(1))
+            {
+                string child = current + "/" + segment;
+                if (!AssetDatabase.IsValidFolder(child))
+                    AssetDatabase.CreateFolder(current, segment);
+                current = child;
+            }
         }
 
         private static string CreateObjectiveHandlerPrefab(

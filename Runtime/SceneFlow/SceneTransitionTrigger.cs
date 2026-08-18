@@ -24,6 +24,9 @@ namespace QuietStatic.Toolkit.SceneFlow
         [Tooltip("If true, the target scene is loaded additively. If false, the target scene replaces the current scene.")]
         [SerializeField] private bool additive;
 
+        [Tooltip("Optional destination condition used by direct, non-additive transitions. Mapped transitions use their connection ID.")]
+        [SerializeField] private string conditionId;
+
         [Tooltip("Optional channel used to reach the persistent Scene Flow Manager.")]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 
@@ -130,7 +133,10 @@ namespace QuietStatic.Toolkit.SceneFlow
             {
                 return additive
                     ? requestChannel.TryLoadAdditive(targetScene)
-                    : requestChannel.TryTransitionToScene(targetScene);
+                    : requestChannel.RequestTransition(
+                        new SceneTransitionRequest(
+                            targetScene,
+                            conditionId: conditionId));
             }
 
             if (SceneFlowManager.Instance != null)
@@ -141,7 +147,10 @@ namespace QuietStatic.Toolkit.SceneFlow
                 }
                 else
                 {
-                    SceneFlowManager.Instance.TransitionToScene(targetScene);
+                    SceneFlowManager.Instance.TransitionToScene(
+                        new SceneTransitionRequest(
+                            targetScene,
+                            conditionId: conditionId));
                 }
 
                 return true;

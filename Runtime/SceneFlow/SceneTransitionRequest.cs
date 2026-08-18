@@ -7,9 +7,9 @@ namespace QuietStatic.Toolkit.SceneFlow
     /// Describes one generic additive scene transition.
     /// </summary>
     /// <remarks>
-    /// The request contains only scene-lifetime mechanics. Project-specific
-    /// behavior such as player spawning, game-state changes, story flags, and
-    /// named level catalogs should run before or after the request.
+    /// The request contains scene-lifetime mechanics plus an optional opaque
+    /// condition ID. The destination scene owns the meaning of that condition;
+    /// the scene-flow system only carries and delivers it.
     /// </remarks>
     public sealed class SceneTransitionRequest
     {
@@ -32,11 +32,16 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// <param name="unloadOtherScenes">
         /// Whether other nonpersistent scenes should be unloaded.
         /// </param>
+        /// <param name="conditionId">
+        /// Optional transient condition used by the destination scene to select
+        /// its entry behavior.
+        /// </param>
         public SceneTransitionRequest(
             string targetSceneName,
             IEnumerable<string> additionalScenesToLoad = null,
             IEnumerable<string> additionalScenesToKeep = null,
-            bool unloadOtherScenes = true)
+            bool unloadOtherScenes = true,
+            string conditionId = "")
         {
             TargetSceneName = Normalize(targetSceneName);
             this.additionalScenesToLoad =
@@ -44,6 +49,7 @@ namespace QuietStatic.Toolkit.SceneFlow
             this.additionalScenesToKeep =
                 CopyDistinctSceneNames(additionalScenesToKeep);
             UnloadOtherScenes = unloadOtherScenes;
+            ConditionId = Normalize(conditionId);
         }
 
         /// <summary>
@@ -67,6 +73,15 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// Gets whether unrelated nonpersistent scenes are unloaded.
         /// </summary>
         public bool UnloadOtherScenes { get; }
+
+        /// <summary>
+        /// Gets the transient condition interpreted by the destination scene.
+        /// </summary>
+        /// <remarks>
+        /// This is route context, not a persistent gameplay flag. An empty value
+        /// represents an ordinary, unconditioned transition.
+        /// </remarks>
+        public string ConditionId { get; }
 
         /// <summary>
         /// Returns whether this request explicitly retains a scene.

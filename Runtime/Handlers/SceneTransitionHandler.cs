@@ -31,6 +31,9 @@ namespace QuietStatic
         [Tooltip("Scene used by Transition() when no mapped connection is configured.")]
         [SerializeField] private SceneReference targetScene = new();
 
+        [Tooltip("Optional destination condition used by direct transitions. Mapped transitions use their connection ID.")]
+        [SerializeField] private string conditionId;
+
         [Header("Commands")]
         [Tooltip("Channel shared with the persistent Scene Flow Manager. Recommended for scene-owned handlers.")]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
@@ -99,7 +102,9 @@ namespace QuietStatic
                 return;
             }
 
-            Dispatch(new SceneTransitionRequest(sceneName));
+            Dispatch(new SceneTransitionRequest(
+                sceneName,
+                conditionId: conditionId));
         }
 
         private void Dispatch(SceneTransitionRequest request)

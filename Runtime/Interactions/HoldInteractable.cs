@@ -17,9 +17,6 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Raised whenever normalized progress changes.</summary>
         public event Action<float> ProgressChanged;
 
-        /// <summary>Raised the first time an enabled hold advances from zero.</summary>
-        public event Action Started;
-
         /// <summary>Raised once when the meter reaches one.</summary>
         public event Action Completed;
 
@@ -118,11 +115,6 @@ namespace QuietStatic.Toolkit.Interactions
                 IsBeingHeld = true;
                 HoldBegan?.Invoke();
                 onHoldBegan?.Invoke();
-            }
-
-            if (Progress <= 0f && deltaTime > 0f)
-            {
-                Started?.Invoke();
             }
 
             SetProgress(Progress + Mathf.Max(0f, deltaTime) / holdDuration);

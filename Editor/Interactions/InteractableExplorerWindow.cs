@@ -44,7 +44,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         private ExplorerScope scope = ExplorerScope.OpenScenes;
         private bool issuesOnly;
 
-        [MenuItem("Tools/Quiet Static/Interactions/Interactable Explorer")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Interactions/Interactable Explorer")]
         public static void Open()
         {
             GetWindow<InteractableExplorerWindow>("Interactables");

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using QuietStatic.Toolkit.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,8 +9,9 @@ using UnityEngine;
 /// Creates one material beside each selected texture and assigns that texture to a shader property.
 /// </summary>
 /// <remarks>
-/// Open from <c>Assets &gt; Bulk Material Creator</c>. Asset creation is not automatically
-/// reversible, so verify the shader, property name, and selection before confirming.
+/// Open from <c>Tools &gt; Quiet Static &gt; Asset Utilities &gt; Materials &gt; Bulk Material Creator</c>.
+/// Asset creation is not automatically reversible, so verify the shader, property name, and
+/// selection before confirming.
 /// </remarks>
 public class BulkMaterialCreator : ScriptableWizard
 {
@@ -23,7 +25,7 @@ public class BulkMaterialCreator : ScriptableWizard
     public Shader Shader;
 
     /// <summary>Opens the material creation wizard.</summary>
-    [MenuItem(itemName: "Assets/Bulk Material Creator")]
+    [MenuItem(itemName: QuietStaticMenuPaths.MaterialUtilities + "Bulk Material Creator")]
     public static void CreateWizard() => DisplayWizard(title: "Bulk Material Creator", klass: typeof(BulkMaterialCreator));
 
     public void OnWizardUpdate() { }

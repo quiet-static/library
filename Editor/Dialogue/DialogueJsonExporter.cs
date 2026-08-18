@@ -212,7 +212,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             return string.IsNullOrEmpty(path) ? null : Export(tree, path);
         }
 
-        [MenuItem("Tools/Quiet Static/Dialogue/Export Selected Dialogue Tree JSON...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Export Selected Dialogue Tree JSON...")]
         private static void ExportSelected()
         {
             var tree = Selection.activeObject as DialogueTree;
@@ -231,7 +231,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             }
         }
 
-        [MenuItem("Tools/Quiet Static/Dialogue/Export Selected Dialogue Tree JSON...", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Export Selected Dialogue Tree JSON...", true)]
         private static bool CanExportSelected() => Selection.activeObject is DialogueTree;
 
         private static string[] BuildNodeIds(

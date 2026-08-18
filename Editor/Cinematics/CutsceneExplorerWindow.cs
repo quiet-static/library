@@ -16,7 +16,7 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
         private Vector2 scroll;
         private string search = string.Empty;
 
-        [MenuItem("Tools/Quiet Static/Cinematics/Cutscene Explorer")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Cinematics/Cutscene Explorer")]
         public static void Open() => GetWindow<CutsceneExplorerWindow>("Cutscenes");
 
         private void OnEnable()

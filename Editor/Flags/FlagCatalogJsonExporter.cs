@@ -161,7 +161,7 @@ namespace QuietStatic.Toolkit.Editor.Flags
             return Export(database, outputPath);
         }
 
-        [MenuItem("Tools/Quiet Static/Flags/Export Selected Flag Database JSON...")]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Flags/Export Selected Flag Database JSON...")]
         private static void ExportSelectedFromMenu()
         {
             var database = Selection.activeObject as FlagDatabase;
@@ -196,7 +196,7 @@ namespace QuietStatic.Toolkit.Editor.Flags
             }
         }
 
-        [MenuItem("Tools/Quiet Static/Flags/Export Selected Flag Database JSON...", true)]
+        [MenuItem(QuietStaticMenuPaths.Toolkit + "Flags/Export Selected Flag Database JSON...", true)]
         private static bool CanExportSelectedFromMenu() =>
             Selection.activeObject is FlagDatabase;
 

@@ -31,14 +31,6 @@ namespace QuietStatic.Toolkit.Animation.Environment
         /// </remarks>
         private void Update()
         {
-            RotateObject();
-        }
-
-        /// <summary>
-        /// Applies this frame's rotation using the configured rotation speed and rotation space.
-        /// </summary>
-        private void RotateObject()
-        {
             transform.Rotate(rotationSpeed * Time.deltaTime, rotationSpace);
         }
     }
