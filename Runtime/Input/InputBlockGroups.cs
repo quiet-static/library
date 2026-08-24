@@ -10,7 +10,8 @@ namespace QuietStatic.Toolkit.Input
         Gameplay = 1 << 0,
         UI = 1 << 1,
         Cutscene = 1 << 2,
-        All = Gameplay | UI | Cutscene
+        Pause = 1 << 3,
+        All = Gameplay | UI | Cutscene | Pause
     }
 
     /// <summary>

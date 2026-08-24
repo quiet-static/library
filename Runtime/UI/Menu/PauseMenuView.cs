@@ -1,3 +1,4 @@
+using QuietStatic.Toolkit.Pause;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.UI.Menu
@@ -12,12 +13,15 @@ namespace QuietStatic.Toolkit.UI.Menu
         [SerializeField] private GameObject settingsPage;
         [Tooltip("Quit adapter invoked by ExitGame. Editor play mode is stopped safely.")]
         [SerializeField] private GameQuitter gameQuitter;
+        [Tooltip("Required channel used to resume gameplay from the pause overlay.")]
+        [RequiredCommandChannel]
+        [SerializeField] private PauseRequestChannel pauseRequestChannel;
 
         private void OnEnable() => ShowMainPage();
 
         public void ShowMainPage() => SetPages(true);
         public void ShowSettingsPage() => SetPages(false);
-        public void Resume() => PauseManager.Instance?.ResumeGame();
+        public void Resume() => pauseRequestChannel?.Resume();
         public void ExitGame() => gameQuitter?.QuitGame();
 
         private void SetPages(bool showMain)

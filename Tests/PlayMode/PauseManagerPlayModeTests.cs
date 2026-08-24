@@ -102,6 +102,7 @@ namespace QuietStatic.Tests.PlayMode
             GameObject pauseObject = Track(new GameObject("Pause Manager"));
             pauseObject.SetActive(false);
             pauseManager = pauseObject.AddComponent<PauseManager>();
+            SetField(pauseManager, "gameStateManager", gameState);
             SetField(pauseManager, "usePauseScene", false);
             SetField(pauseManager, "pauseTimeScale", pauseTimeScale);
             SetField(pauseManager, "manageCursor", false);

@@ -16,6 +16,10 @@ namespace QuietStatic
     /// </remarks>
     public class PauseManager : ToolkitSingleton<PauseManager>
     {
+        [Header("Services")]
+        [Tooltip("Authoritative game-state service in the same persistent System scene.")]
+        [SerializeField] private GameStateManager gameStateManager;
+
         [Header("State IDs")]
         [Tooltip("State required before the game can be paused.")]
         [GameStateId]
@@ -52,8 +56,7 @@ namespace QuietStatic
         /// Gets whether this manager currently considers the game paused.
         /// </summary>
         public bool IsPaused =>
-            GameStateManager.Instance != null &&
-            GameStateManager.Instance.IsInState(pausedState);
+            gameStateManager != null && gameStateManager.IsInState(pausedState);
 
         private Coroutine pauseSceneRoutine;
 
@@ -91,7 +94,7 @@ namespace QuietStatic
         /// </summary>
         public void PauseGame()
         {
-            if (GameStateManager.Instance == null)
+            if (gameStateManager == null)
             {
                 GameLogger.Warning(
                     "PauseGame",
@@ -101,12 +104,12 @@ namespace QuietStatic
                 return;
             }
 
-            if (!GameStateManager.Instance.IsInState(gameplayState))
+            if (!gameStateManager.IsInState(gameplayState))
             {
                 return;
             }
 
-            GameStateManager.Instance.SetState(pausedState);
+            gameStateManager.SetState(pausedState);
 
             if (pauseTimeScale)
             {
@@ -126,7 +129,7 @@ namespace QuietStatic
         /// </summary>
         public void ResumeGame()
         {
-            if (GameStateManager.Instance == null || !IsPaused)
+            if (gameStateManager == null || !IsPaused)
             {
                 return;
             }
@@ -136,7 +139,7 @@ namespace QuietStatic
                 Time.timeScale = 1f;
             }
 
-            GameStateManager.Instance.SetState(gameplayState);
+            gameStateManager.SetState(gameplayState);
 
             RestoreGameplayCursor();
 
