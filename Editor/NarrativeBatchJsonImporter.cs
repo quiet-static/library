@@ -476,8 +476,7 @@ namespace QuietStatic.Toolkit.Editor
                 orderedChanges.AsReadOnly());
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Narrative Authorer Batch...")]
-        private static void ImportFromMenu()
+        public static void OpenImportPreview()
         {
             string sourcePath = GetSelectedSourcePath();
             if (string.IsNullOrEmpty(sourcePath))

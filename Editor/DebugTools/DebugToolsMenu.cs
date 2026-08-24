@@ -17,9 +17,7 @@ namespace QuietStatic.Toolkit.DebugTools.Editor
     /// </remarks>
     public static class DebugToolsMenu
     {
-        private const string DebugToolsMenuRoot = "Tools/Quiet Static/Debug/";
-        private const string DashboardMenuPath = DebugToolsMenuRoot + "Create Debug Tools Dashboard";
-        private const string TeleportAreaMenuPath = DebugToolsMenuRoot + "Create Debug Teleport Area";
+        private const string DashboardMenuPath = "Tools/Quiet Static/Debug Dashboard";
         private const string GameObjectDashboardMenuPath = "GameObject/Quiet Static/Debug Tools Dashboard";
         private const string GameObjectTeleportAreaMenuPath = "GameObject/Quiet Static/Debug Teleport Area";
 
@@ -65,7 +63,6 @@ namespace QuietStatic.Toolkit.DebugTools.Editor
         /// <summary>
         /// Creates a teleport area below the current Hierarchy selection from the Tools menu.
         /// </summary>
-        [MenuItem(TeleportAreaMenuPath)]
         private static void CreateTeleportAreaFromToolsMenu()
         {
             CreateTeleportArea(Selection.activeGameObject);

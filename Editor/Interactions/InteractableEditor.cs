@@ -17,6 +17,12 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         {
             DrawDefaultInspector();
 
+            DrawLayerWarning();
+            DrawColliderWarning();
+        }
+
+        private void DrawLayerWarning()
+        {
             int interactablesLayer = LayerMask.NameToLayer(InteractablesLayerName);
             if (interactablesLayer < 0)
             {
@@ -36,6 +42,23 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                         MessageType.Warning);
                     return;
                 }
+            }
+        }
+
+        private void DrawColliderWarning()
+        {
+            foreach (Object selectedTarget in targets)
+            {
+                if (selectedTarget is not Interactable interactable ||
+                    InteractionTargetColliderUtility.HasRaycastCollider(interactable))
+                {
+                    continue;
+                }
+
+                EditorGUILayout.HelpBox(
+                    $"'{interactable.gameObject.name}' has no 3D Collider on this GameObject or an interaction-owned child, so the player's Interactor raycast cannot detect it. Add a Collider here or to a child; trigger and solid Colliders are both supported.",
+                    MessageType.Warning);
+                return;
             }
         }
     }

@@ -29,7 +29,6 @@ namespace QuietStatic.Toolkit.Editor.Samples
                 EditorApplication.delayCall += BuildAll;
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Builders/Build Documentation Sample Scenes")]
         public static void BuildAll()
         {
             Directory.CreateDirectory(DefinitionRoot);

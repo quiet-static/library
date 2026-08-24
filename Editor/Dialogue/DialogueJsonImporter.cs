@@ -33,6 +33,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             public string id;
             public string speaker;
             public string text;
+            public string[] presentationTags;
             public string next = MissingNext;
             public string[] flagsToSetOnEnter;
             public Choice[] choices;
@@ -55,13 +56,13 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         /// <summary>Returns whether the current selection is an importable JSON text asset.</summary>
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Import Selected Dialogue JSON", true)]
+        [MenuItem("Assets/Quiet Static/Import Dialogue JSON", true)]
         private static bool CanImportSelected() =>
             Selection.activeObject is TextAsset && AssetDatabase.GetAssetPath(Selection.activeObject)
                 .EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Imports the selected JSON into the default generated asset folder.</summary>
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Import Selected Dialogue JSON")]
+        [MenuItem("Assets/Quiet Static/Import Dialogue JSON")]
         private static void ImportSelected()
         {
             try
@@ -102,6 +103,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 id = node.id,
                 speaker = node.speaker,
                 line = node.text,
+                presentationTags = node.presentationTags ?? Array.Empty<string>(),
                 nextNodeIndex = ResolveNextIndex(node.next, indexes),
                 flagsToSetOnEnter = node.flagsToSetOnEnter ?? Array.Empty<string>(),
                 choices = (node.choices ?? Array.Empty<Choice>()).Select(choice => new DialogueTree.Choice
@@ -233,6 +235,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 }
                 if (node.speaker == null) errors.Add($"{at}.speaker is required.");
                 if (node.text == null) errors.Add($"{at}.text is required.");
+                ValidateStrings(node.presentationTags, $"{at}.presentationTags", errors);
                 ValidateStrings(node.flagsToSetOnEnter, $"{at}.flagsToSetOnEnter", errors);
                 for (int choiceIndex = 0; choiceIndex < (node.choices?.Length ?? 0); choiceIndex++)
                 {
@@ -283,6 +286,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             target.FindPropertyRelative("id").stringValue = node.id;
             target.FindPropertyRelative("speaker").stringValue = node.speaker;
+            WriteStrings(target.FindPropertyRelative("presentationTags"), node.presentationTags);
             target.FindPropertyRelative("line").stringValue = node.line;
             target.FindPropertyRelative("nextNodeIndex").intValue = node.nextNodeIndex;
             WriteStrings(target.FindPropertyRelative("flagsToSetOnEnter"), node.flagsToSetOnEnter);

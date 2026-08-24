@@ -18,7 +18,6 @@ namespace QuietStatic.Toolkit.Editor.Jumpscare
             if (!File.Exists(PrefabPath)) EditorApplication.delayCall += Build;
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Builders/Build Custom Jumpscare Prefab")]
         public static void Build()
         {
             Directory.CreateDirectory(Output);

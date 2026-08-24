@@ -86,7 +86,7 @@ namespace QuietStatic.Toolkit.Editor
         }
 
         /// <summary>Imports the selected content-catalog JSON.</summary>
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Selected Content JSON")]
+        [MenuItem("Assets/Quiet Static/Import Narrative Content JSON")]
         private static void ImportSelected()
         {
             try
@@ -102,7 +102,7 @@ namespace QuietStatic.Toolkit.Editor
             }
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Importers/Import Selected Content JSON", true)]
+        [MenuItem("Assets/Quiet Static/Import Narrative Content JSON", true)]
         private static bool CanImportSelected() => Selection.activeObject is TextAsset asset &&
             AssetDatabase.GetAssetPath(asset).EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 

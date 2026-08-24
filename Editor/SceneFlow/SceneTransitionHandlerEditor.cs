@@ -16,10 +16,9 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
             SerializedProperty requirement = serializedObject.FindProperty("requirement");
             SerializedProperty map = serializedObject.FindProperty("sceneFlowMap");
             SerializedProperty connectionId = serializedObject.FindProperty("connectionId");
-            SerializedProperty targetScene = serializedObject.FindProperty("targetScene");
-            SerializedProperty conditionId = serializedObject.FindProperty("conditionId");
             SerializedProperty channel = serializedObject.FindProperty("requestChannel");
             SerializedProperty onTransitionStarted = serializedObject.FindProperty("onTransitionStarted");
+            SerializedProperty onTransitionFailed = serializedObject.FindProperty("onTransitionFailed");
 
             EditorGUILayout.PropertyField(requirement);
             EditorGUILayout.Space();
@@ -31,29 +30,12 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
                 connectionId,
                 sourceSceneName);
 
-            bool usesMappedConnection =
-                !string.IsNullOrWhiteSpace(connectionId.stringValue);
-            if (!usesMappedConnection)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(targetScene);
-                EditorGUILayout.PropertyField(conditionId);
-            }
-
             EditorGUILayout.PropertyField(channel);
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(onTransitionStarted);
+            EditorGUILayout.PropertyField(onTransitionFailed);
 
-            if (!usesMappedConnection &&
-                string.IsNullOrWhiteSpace(
-                    targetScene.FindPropertyRelative("sceneName").stringValue))
-            {
-                EditorGUILayout.HelpBox(
-                    "Assign a map connection or a direct target scene.",
-                    MessageType.Warning);
-            }
-            else if (usesMappedConnection &&
-                     !IsAvailableConnection(
+            if (!IsAvailableConnection(
                          map.objectReferenceValue as SceneFlowMap,
                          connectionId.stringValue,
                          sourceSceneName))
@@ -100,7 +82,7 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
             string[] selectableIds = unavailable
                 ? ids.Concat(new[] { currentId }).ToArray()
                 : ids;
-            string[] options = new[] { "<Direct target scene>" }
+            string[] options = new[] { "<Select connection>" }
                 .Concat(ids)
                 .Concat(unavailable
                     ? new[] { $"{currentId} (Unavailable)" }

@@ -52,7 +52,7 @@ namespace QuietStatic.Toolkit.Editor
         /// <remarks>
         /// All JSON is built and importer-validated before the first file is written. Existing
         /// JSON is preserved by default so app-side authoring edits remain the source of
-        /// truth. Dialogue is written below dialogues/legacy and linked back to flags.json.
+        /// truth. Dialogue is written below dialogues/current and linked back to flags.json.
         /// </remarks>
         public static SnapshotResult ExportProjectSnapshot(
             string outputFolder,
@@ -99,7 +99,7 @@ namespace QuietStatic.Toolkit.Editor
                                  pending.Any(item => PathsEqual(item.Path, flagsPath))
                 ? "../../flags.json"
                 : null;
-            string dialogueFolder = Path.Combine(folder, "dialogues", "legacy");
+            string dialogueFolder = Path.Combine(folder, "dialogues", "current");
             var dialogueNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (DialogueTree dialogue in dialogueAssets)
             {
@@ -146,8 +146,7 @@ namespace QuietStatic.Toolkit.Editor
                 $"preserved {result.PreservedPaths.Count} existing file(s).");
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Exporters/Export Project Narrative Authoring Snapshot...")]
-        private static void ExportProjectSnapshotFromMenu()
+        public static void ExportProjectSnapshotWithFolderPanel()
         {
             string folder = EditorUtility.OpenFolderPanel(
                 "Export Project Narrative Authoring Snapshot",

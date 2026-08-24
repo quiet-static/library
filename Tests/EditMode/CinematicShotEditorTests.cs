@@ -178,7 +178,7 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void ExplicitShotIdTakesPrecedenceOverLegacyShotName()
+        public void ShotNameCannotSubstituteForAStableShotId()
         {
             CinematicCutsceneCameraDirector director = CreateDirector(
                 out _,
@@ -192,10 +192,7 @@ namespace QuietStatic.Tests.EditMode
 
             Assert.That(director.TryGetShotIndex("shot.shared", out int shotIndex), Is.True);
             Assert.That(shotIndex, Is.EqualTo(1));
-
-            director.CutToShot("shot.shared");
-
-            Assert.That(director.transform.position, Is.EqualTo(explicitMarker.position));
+            Assert.That(director.TryGetShotIndex("Explicit", out _), Is.False);
         }
 
         [Test]
@@ -228,9 +225,9 @@ namespace QuietStatic.Tests.EditMode
                 .FindPropertyRelative("cameraShotId");
 
             Assert.That(
-                CinematicShotIdDrawer.FindSibling(cueShot, "shotIndex")
+                CinematicShotIdDrawer.FindSibling(cueShot, "cameraDirector")
                     .propertyPath,
-                Is.EqualTo("cues.Array.data[0].shotIndex"));
+                Is.EqualTo("cues.Array.data[0].cameraDirector"));
         }
 
         private CinematicCutsceneCameraDirector CreateDirector(

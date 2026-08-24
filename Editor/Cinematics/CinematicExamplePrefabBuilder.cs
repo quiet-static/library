@@ -15,7 +15,6 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
     {
         private const string Root = "Assets/QuietStatic Examples/Cinematics and Readables";
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Cinematics/Generate Cinematic & Readable Examples")]
         public static void Generate()
         {
             GenerateExamples(true);

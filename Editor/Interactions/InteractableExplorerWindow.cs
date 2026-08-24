@@ -44,7 +44,6 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         private ExplorerScope scope = ExplorerScope.OpenScenes;
         private bool issuesOnly;
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Interactions/Interactable Explorer")]
         public static void Open()
         {
             GetWindow<InteractableExplorerWindow>("Interactables");
@@ -151,7 +150,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 if (entry.RequiresCrosshairTarget && !entry.HasCollider)
                 {
                     EditorGUILayout.HelpBox(
-                        "No enabled or disabled Collider exists under this interaction root.",
+                        "No 3D Collider exists on this target or an interaction-owned child. Trigger and solid Colliders are both supported.",
                         MessageType.Error);
                 }
 
@@ -353,7 +352,8 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 Requirement = DescribeRequirement(serializedTarget),
                 CompletionFlags = completionFlags,
                 RequiresCrosshairTarget = requiresCrosshairTarget,
-                HasCollider = owner.GetComponentsInChildren<Collider>(true).Length > 0,
+                HasCollider =
+                    InteractionTargetColliderUtility.HasRaycastCollider(target),
                 HasHighlighter = owner.GetComponentInChildren<InteractionHighlighter>(true) != null,
                 ConditionalMessages = owner.GetComponents<ConditionalInteractionMessage>()
             };

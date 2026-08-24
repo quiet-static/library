@@ -42,6 +42,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             public string id;
             public string speaker;
             public string text;
+            public string[] presentationTags;
             public string next;
             public string[] flagsToSetOnEnter;
             public Choice[] choices;
@@ -104,6 +105,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 }
 
                 ValidateTargetIndex(node.nextNodeIndex, nodes.Length, $"{at} nextNodeIndex", errors);
+                ValidateIds(node.presentationTags, $"{at} presentationTags", errors);
                 ValidateIds(node.flagsToSetOnEnter, $"{at} flagsToSetOnEnter", errors);
                 DialogueTree.Choice[] choices = node.choices ?? Array.Empty<DialogueTree.Choice>();
                 for (int choiceIndex = 0; choiceIndex < choices.Length; choiceIndex++)
@@ -133,8 +135,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         /// <summary>
-        /// Builds version-one authorer JSON while preserving both linear fallback and choices.
-        /// Missing legacy node IDs receive deterministic IDs without modifying the source asset.
+        /// Builds version-one authorer JSON while preserving both linear flow and choices.
+        /// Every source node must have an explicit stable ID.
         /// </summary>
         public static string BuildJson(
             DialogueTree tree,
@@ -152,6 +154,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 id = ids[index],
                 speaker = node.speaker ?? string.Empty,
                 text = node.line ?? string.Empty,
+                presentationTags = node.presentationTags ?? Array.Empty<string>(),
                 next = ResolveTargetId(node.nextNodeIndex, ids),
                 flagsToSetOnEnter = node.flagsToSetOnEnter ?? Array.Empty<string>(),
                 choices = (node.choices ?? Array.Empty<DialogueTree.Choice>())
@@ -212,7 +215,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             return string.IsNullOrEmpty(path) ? null : Export(tree, path);
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Export Selected Dialogue Tree JSON...")]
+        [MenuItem("Assets/Quiet Static/Export Dialogue Tree JSON...")]
         private static void ExportSelected()
         {
             var tree = Selection.activeObject as DialogueTree;
@@ -231,7 +234,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             }
         }
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Dialogue/Export Selected Dialogue Tree JSON...", true)]
+        [MenuItem("Assets/Quiet Static/Export Dialogue Tree JSON...", true)]
         private static bool CanExportSelected() => Selection.activeObject is DialogueTree;
 
         private static string[] BuildNodeIds(
@@ -244,7 +247,10 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             {
                 string id = nodes[index]?.id;
                 if (string.IsNullOrWhiteSpace(id))
+                {
+                    errors.Add($"Node at index {index} ID must be non-empty.");
                     continue;
+                }
                 if (!string.Equals(id, id.Trim(), StringComparison.Ordinal))
                     errors.Add($"Node at index {index} ID must not have surrounding whitespace.");
                 else if (!used.Add(id))
@@ -252,17 +258,6 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 ids[index] = id;
             }
 
-            for (int index = 0; index < nodes.Count; index++)
-            {
-                if (!string.IsNullOrWhiteSpace(ids[index]))
-                    continue;
-                string stem = $"node_{index + 1:000}";
-                string candidate = stem;
-                int suffix = 2;
-                while (!used.Add(candidate))
-                    candidate = stem + "_" + suffix++;
-                ids[index] = candidate;
-            }
             return ids;
         }
 

@@ -19,7 +19,7 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
         private SceneFlowRequestChannel requestChannel;
         private Vector2 scroll;
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Scene Flow/Scene Flow Setup")]
+        [MenuItem(QuietStaticMenuPaths.ProjectSetup, false, 3)]
         public static void Open()
         {
             GetWindow<SceneFlowSetupWindow>("Scene Flow Setup");
@@ -46,8 +46,26 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
             EditorGUILayout.Space();
             DrawSceneSetup();
             EditorGUILayout.Space();
+            DrawOptionalGenerators();
+            EditorGUILayout.Space();
             DrawValidation();
             EditorGUILayout.EndScrollView();
+        }
+
+        private static void DrawOptionalGenerators()
+        {
+            EditorGUILayout.LabelField("Optional Project Generators", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "These create maintained starter or sample assets. Review each generator's confirmation before applying it.",
+                MessageType.Info);
+            if (GUILayout.Button("Generate Cinematic and Readable Examples"))
+                QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder.Generate();
+            if (GUILayout.Button("Build Settings and Pause Prefabs"))
+                QuietStatic.Toolkit.Editor.Settings.SettingsMenuPrefabBuilder.BuildAll();
+            if (GUILayout.Button("Build Custom Jumpscare Prefab"))
+                QuietStatic.Toolkit.Editor.Jumpscare.JumpscarePrefabBuilder.Build();
+            if (GUILayout.Button("Build Documentation Sample Scenes"))
+                QuietStatic.Toolkit.Editor.Samples.DocumentationSampleSceneBuilder.BuildAll();
         }
 
         private void DrawAssetCreation()
