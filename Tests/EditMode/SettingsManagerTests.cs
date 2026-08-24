@@ -38,7 +38,7 @@ namespace QuietStatic.Tests.EditMode
         {
             GameSettingId? reported = null;
             void Handle(GameSettingId setting) => reported = setting;
-            SettingsManager.OnSettingChanged += Handle;
+            manager.SettingChanged += Handle;
             try
             {
                 manager.SetMouseSensitivity(0.75f);
@@ -48,7 +48,7 @@ namespace QuietStatic.Tests.EditMode
             }
             finally
             {
-                SettingsManager.OnSettingChanged -= Handle;
+                manager.SettingChanged -= Handle;
             }
         }
 
@@ -57,7 +57,7 @@ namespace QuietStatic.Tests.EditMode
         {
             GameSettingId? reported = null;
             void Handle(GameSettingId setting) => reported = setting;
-            SettingsManager.OnSettingChanged += Handle;
+            manager.SettingChanged += Handle;
             try
             {
                 manager.SetReducedFlashing(true);
@@ -66,7 +66,7 @@ namespace QuietStatic.Tests.EditMode
             }
             finally
             {
-                SettingsManager.OnSettingChanged -= Handle;
+                manager.SettingChanged -= Handle;
                 PlayerPrefs.DeleteKey("Settings_ReducedFlashing");
             }
         }

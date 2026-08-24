@@ -66,7 +66,7 @@ namespace QuietStatic.Tests.EditMode
 
             int lifecycleCount = 0;
             System.Action lifecycleHandler = () => lifecycleCount++;
-            ObjectiveManager.OnObjectiveLifecycleChanged += lifecycleHandler;
+            objectiveManager.ObjectiveLifecycleChanged += lifecycleHandler;
 
             try
             {
@@ -100,7 +100,7 @@ namespace QuietStatic.Tests.EditMode
             }
             finally
             {
-                ObjectiveManager.OnObjectiveLifecycleChanged -= lifecycleHandler;
+                objectiveManager.ObjectiveLifecycleChanged -= lifecycleHandler;
                 Object.DestroyImmediate(database);
                 Object.DestroyImmediate(completed);
                 Object.DestroyImmediate(active);

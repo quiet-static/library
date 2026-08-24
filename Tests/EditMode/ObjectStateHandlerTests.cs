@@ -115,7 +115,7 @@ namespace QuietStatic.Tests.EditMode
             handler.ActivateState(emptyDish);
             LogAssert.Expect(
                 LogType.Warning,
-                "WARNING: State Handler from ActivateState: " +
+                "[Warning] ActivateState: " +
                 "ObjectStateHandler has no binding for state 'Unknown'."
             );
 

@@ -36,7 +36,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.82}
   m_AnchorMax: {x: 0.5, y: 0.82}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 560, y: 96}
+  m_SizeDelta: {x: 560, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7289585074776526420
 CanvasRenderer:
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Minigames.InputSequenceView
   displayRoot: {fileID: 272935316183817285}
   sequenceText: {fileID: 9054521964424166830}
+  instructionText: Enter the sequence below
   completedColor: {r: 0.45, g: 0.8, b: 0.45, a: 1}
   currentColor: {r: 1, g: 1, b: 1, a: 1}
   upcomingColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
@@ -354,5 +355,4 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-
 

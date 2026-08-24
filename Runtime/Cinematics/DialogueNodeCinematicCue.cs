@@ -26,12 +26,8 @@ namespace QuietStatic.Toolkit.Cinematics
             public CinematicCutsceneCameraDirector cameraDirector;
 
             [Tooltip("Stable camera shot selected from the assigned director. Leave empty to keep the current shot.")]
-            [CinematicShotId(nameof(cameraDirector), nameof(shotIndex))]
+            [CinematicShotId(nameof(cameraDirector))]
             public string cameraShotId;
-
-            [HideInInspector]
-            [Tooltip("Legacy shot-index reference retained for compatibility with existing scenes.")]
-            public int shotIndex = -1;
 
             [Tooltip("Optional preconfigured character actions to run as this node appears.")]
             public CutsceneCharacterStepTrigger characterActions;
@@ -50,9 +46,21 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private void Reset() => dialogueRunner = GetComponentInChildren<DialogueRunner>(true);
 
-        private void OnEnable() => DialogueRunner.OnNodeChanged += HandleNodeChanged;
+        private void OnEnable()
+        {
+            if (dialogueRunner != null)
+            {
+                dialogueRunner.NodeChanged += HandleNodeChanged;
+            }
+        }
 
-        private void OnDisable() => DialogueRunner.OnNodeChanged -= HandleNodeChanged;
+        private void OnDisable()
+        {
+            if (dialogueRunner != null)
+            {
+                dialogueRunner.NodeChanged -= HandleNodeChanged;
+            }
+        }
 
         private void HandleNodeChanged(DialogueRunner source, DialogueTree.Node node)
         {
@@ -65,10 +73,6 @@ namespace QuietStatic.Toolkit.Cinematics
                     !string.IsNullOrWhiteSpace(cue.cameraShotId))
                 {
                     cue.cameraDirector.CutToShot(cue.cameraShotId);
-                }
-                else if (cue.cameraDirector != null && cue.shotIndex >= 0)
-                {
-                    cue.cameraDirector.CutToShot(cue.shotIndex);
                 }
                 cue.characterActions?.Run();
                 cue.onNodeEntered?.Invoke();

@@ -38,7 +38,7 @@ namespace QuietStatic.Toolkit.State
         /// Raised whenever the global state changes.
         /// The first parameter is the previous state and the second is the new state.
         /// </summary>
-        public static event Action<string, string> OnGameStateChanged;
+        public event Action<string, string> StateChanged;
 
         /// <summary>
         /// Gets the current high-level game state.
@@ -126,7 +126,7 @@ namespace QuietStatic.Toolkit.State
             string previousState = CurrentState;
             CurrentState = newState;
 
-            OnGameStateChanged?.Invoke(previousState, newState);
+            StateChanged?.Invoke(previousState, newState);
             onGameStateChanged?.Invoke(newState);
         }
 

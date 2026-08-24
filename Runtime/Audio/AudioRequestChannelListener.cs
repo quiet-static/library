@@ -9,7 +9,14 @@ namespace QuietStatic.Toolkit.Audio
     public sealed class AudioRequestChannelListener : MonoBehaviour
     {
         [Tooltip("Channel carrying global audio requests from gameplay scenes.")]
+        [RequiredCommandChannel(isReceiver: true)]
         [SerializeField] private AudioRequestChannel channel;
+
+        [Tooltip("Persistent music service that executes music commands.")]
+        [SerializeField] private MusicManager musicManager;
+
+        [Tooltip("Persistent sound-effects service that executes SFX commands.")]
+        [SerializeField] private SfxManager sfxManager;
 
         private CrossSceneChannelSubscription<AudioRequestChannel> subscription;
 
@@ -38,55 +45,65 @@ namespace QuietStatic.Toolkit.Audio
             }
         }
 
-        private static void Subscribe(AudioRequestChannel value)
+        private void Subscribe(AudioRequestChannel value)
         {
             value.CommandRequested += HandleCommand;
         }
 
-        private static void Unsubscribe(AudioRequestChannel value)
+        private void Unsubscribe(AudioRequestChannel value)
         {
             value.CommandRequested -= HandleCommand;
         }
 
-        private static void HandleCommand(AudioCommand command)
+        private void HandleCommand(AudioCommand command)
         {
             switch (command.Type)
             {
                 case AudioCommandType.PlayMusic:
-                    MusicManager.Instance?.PlayMusic(command.Clip);
+                    musicManager?.PlayMusic(command.Clip);
                     break;
                 case AudioCommandType.StopMusic:
-                    MusicManager.Instance?.StopMusic();
+                    musicManager?.StopMusic();
                     break;
                 case AudioCommandType.PlayMusicWithFade:
-                    MusicManager.Instance?.PlayMusicWithFade(command.Clip);
+                    musicManager?.PlayMusicWithFade(command.Clip);
                     break;
                 case AudioCommandType.StopMusicWithFade:
-                    MusicManager.Instance?.StopMusicWithFade();
+                    musicManager?.StopMusicWithFade();
                     break;
                 case AudioCommandType.SetMusicVolume:
-                    MusicManager.Instance?.SetVolume(command.Value);
+                    musicManager?.SetVolume(command.Value);
                     break;
                 case AudioCommandType.PauseSpawnedSfx:
-                    SfxManager.Instance?.PauseSpawnedSounds();
+                    sfxManager?.PauseSpawnedSounds();
                     break;
                 case AudioCommandType.ResumeSpawnedSfx:
-                    SfxManager.Instance?.ResumeSpawnedSounds();
+                    sfxManager?.ResumeSpawnedSounds();
                     break;
                 case AudioCommandType.DespawnSpawnedSfx:
-                    SfxManager.Instance?.DespawnSpawnedSounds();
+                    sfxManager?.DespawnSpawnedSounds();
                     break;
                 case AudioCommandType.EnableSfxSpawning:
-                    SfxManager.Instance?.EnableSpawning();
+                    sfxManager?.EnableSpawning();
                     break;
                 case AudioCommandType.DisableSfxSpawning:
-                    SfxManager.Instance?.DisableSpawning();
+                    sfxManager?.DisableSpawning();
                     break;
                 case AudioCommandType.PauseMusic:
-                    MusicManager.Instance?.PauseMusic();
+                    musicManager?.PauseMusic();
                     break;
                 case AudioCommandType.ResumeMusic:
-                    MusicManager.Instance?.ResumeMusic();
+                    musicManager?.ResumeMusic();
+                    break;
+                case AudioCommandType.PlaySfxAtPosition:
+                    EventSound3D sound = sfxManager?.PlayAtPosition(
+                        command.Clip,
+                        command.Position,
+                        command.MinDistance,
+                        command.MaxDistance,
+                        command.Value,
+                        command.Loop);
+                    command.SoundCreated?.Invoke(sound);
                     break;
             }
         }

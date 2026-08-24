@@ -30,17 +30,10 @@ namespace QuietStatic.Tests.PlayMode
     public sealed class CinematicPlaybackTests
     {
         private readonly List<UnityEngine.Object> createdObjects = new();
-        private Action sequenceStartedHandler;
-        private Action sequenceEndedHandler;
 
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            CutsceneSequenceRunner.OnSequenceStarted -= sequenceStartedHandler;
-            CutsceneSequenceRunner.OnSequenceEnded -= sequenceEndedHandler;
-            sequenceStartedHandler = null;
-            sequenceEndedHandler = null;
-
             for (int index = createdObjects.Count - 1; index >= 0; index--)
             {
                 if (createdObjects[index] != null)
@@ -60,10 +53,8 @@ namespace QuietStatic.Tests.PlayMode
                 new CutsceneSequenceRunner.Step(),
                 new CutsceneSequenceRunner.Step());
             var lifecycle = new List<string>();
-            sequenceStartedHandler = () => lifecycle.Add("started");
-            sequenceEndedHandler = () => lifecycle.Add("ended");
-            CutsceneSequenceRunner.OnSequenceStarted += sequenceStartedHandler;
-            CutsceneSequenceRunner.OnSequenceEnded += sequenceEndedHandler;
+            runner.SequenceStarted += () => lifecycle.Add("started");
+            runner.SequenceEnded += () => lifecycle.Add("ended");
 
             runner.Play();
             for (int frame = 0; frame < 10 && runner.IsRunning; frame++)
@@ -92,8 +83,7 @@ namespace QuietStatic.Tests.PlayMode
             int endedCount = 0;
             finished.AddListener(() => finishedCount++);
             SetField(runner, "onSequenceFinished", finished);
-            sequenceEndedHandler = () => endedCount++;
-            CutsceneSequenceRunner.OnSequenceEnded += sequenceEndedHandler;
+            runner.SequenceEnded += () => endedCount++;
 
             runner.Play();
             yield return null;

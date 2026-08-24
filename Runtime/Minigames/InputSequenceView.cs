@@ -15,6 +15,9 @@ namespace QuietStatic.Toolkit.Minigames
         [Tooltip("Text element used to display the required inputs.")]
         [SerializeField] private TMP_Text sequenceText;
 
+        [Tooltip("Short instruction displayed above the active input sequence. Leave empty to hide it.")]
+        [SerializeField] private string instructionText = "Enter the sequence below";
+
         [Tooltip("Text color used for already completed steps.")]
         [SerializeField] private Color completedColor = new Color(0.45f, 0.8f, 0.45f);
 
@@ -38,6 +41,13 @@ namespace QuietStatic.Toolkit.Minigames
             }
 
             var builder = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(instructionText))
+            {
+                builder.Append("<size=70%>");
+                AppendEscaped(builder, instructionText.Trim());
+                builder.Append("</size>\n");
+            }
+
             for (int i = 0; i < definition.Count; i++)
             {
                 if (i > 0)

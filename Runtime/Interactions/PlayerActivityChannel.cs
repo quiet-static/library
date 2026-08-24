@@ -48,6 +48,12 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Raised if the activity ends without completion.</summary>
         public event Action Cancelled;
 
+        /// <summary>Gets the interaction-button state published by the persistent player service.</summary>
+        public bool InteractHeld { get; private set; }
+
+        /// <summary>Publishes the current interaction-button state for the active world activity.</summary>
+        public void SetInteractHeld(bool interactHeld) => InteractHeld = interactHeld;
+
         /// <summary>Begins the seated eating state without repositioning the player.</summary>
         public void Begin() => Begin(null);
 
@@ -85,6 +91,10 @@ namespace QuietStatic.Toolkit.Interactions
         public void Complete() => Completed?.Invoke();
 
         /// <summary>Cancels the seated eating state.</summary>
-        public void Cancel() => Cancelled?.Invoke();
+        public void Cancel()
+        {
+            InteractHeld = false;
+            Cancelled?.Invoke();
+        }
     }
 }

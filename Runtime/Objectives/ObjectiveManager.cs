@@ -69,9 +69,10 @@ namespace QuietStatic.Toolkit.Objectives
             new(StringComparer.Ordinal);
 
         private bool isRefreshingFromFlags;
+        private FlagManager observedFlags;
 
         /// <summary>Raised after any objective lifecycle transition.</summary>
-        public static event Action OnObjectiveLifecycleChanged;
+        public event Action ObjectiveLifecycleChanged;
 
         /// <summary>Gets the currently active objective, if any.</summary>
         public ObjectiveDefinition ActiveObjective { get; private set; }
@@ -90,20 +91,45 @@ namespace QuietStatic.Toolkit.Objectives
         {
             if (Instance == this)
             {
-                FlagManager.OnFlagsChanged += RefreshObjectivesFromFlags;
+                ObserveActiveFlagManager();
             }
         }
 
         private void OnDisable()
         {
-            FlagManager.OnFlagsChanged -= RefreshObjectivesFromFlags;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged -= RefreshObjectivesFromFlags;
+                observedFlags = null;
+            }
         }
 
         private void Start()
         {
             if (Instance == this)
             {
+                ObserveActiveFlagManager();
                 RefreshObjectivesFromFlags();
+            }
+        }
+
+        private void ObserveActiveFlagManager()
+        {
+            FlagManager activeFlags = FlagManager.Instance;
+            if (observedFlags == activeFlags)
+            {
+                return;
+            }
+
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged -= RefreshObjectivesFromFlags;
+            }
+
+            observedFlags = activeFlags;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged += RefreshObjectivesFromFlags;
             }
         }
 
@@ -144,7 +170,7 @@ namespace QuietStatic.Toolkit.Objectives
 
             ActiveObjective = objective;
             onObjectiveActivated?.Invoke(objective);
-            OnObjectiveLifecycleChanged?.Invoke();
+            ObjectiveLifecycleChanged?.Invoke();
             EvaluateActiveObjectiveCompletion();
             return true;
         }
@@ -176,7 +202,7 @@ namespace QuietStatic.Toolkit.Objectives
             }
 
             onObjectiveCompleted?.Invoke(objective);
-            OnObjectiveLifecycleChanged?.Invoke();
+            ObjectiveLifecycleChanged?.Invoke();
             return true;
         }
 
@@ -203,7 +229,7 @@ namespace QuietStatic.Toolkit.Objectives
             }
 
             onObjectiveUpdated?.Invoke(ActiveObjective);
-            OnObjectiveLifecycleChanged?.Invoke();
+            ObjectiveLifecycleChanged?.Invoke();
         }
 
         /// <summary>
@@ -346,7 +372,7 @@ namespace QuietStatic.Toolkit.Objectives
                 onObjectiveUpdated?.Invoke(ActiveObjective);
             }
 
-            OnObjectiveLifecycleChanged?.Invoke();
+            ObjectiveLifecycleChanged?.Invoke();
             RefreshObjectivesFromFlags();
         }
 
@@ -388,7 +414,7 @@ namespace QuietStatic.Toolkit.Objectives
         private void RaiseCleared(ObjectiveDefinition objective)
         {
             onObjectiveCleared?.Invoke(objective);
-            OnObjectiveLifecycleChanged?.Invoke();
+            ObjectiveLifecycleChanged?.Invoke();
         }
     }
 }

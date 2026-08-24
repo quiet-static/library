@@ -27,8 +27,11 @@ namespace QuietStatic.Tests.EditMode
         [TearDown]
         public void TearDown()
         {
-            FlagManager.OnFlagSet -= flagSetHandler;
-            FlagManager.OnFlagsChanged -= flagsChangedHandler;
+            if (manager != null)
+            {
+                manager.FlagSet -= flagSetHandler;
+                manager.FlagsChanged -= flagsChangedHandler;
+            }
             flagSetHandler = null;
             flagsChangedHandler = null;
 
@@ -54,8 +57,8 @@ namespace QuietStatic.Tests.EditMode
             int changedCount = 0;
             flagSetHandler = setFlags.Add;
             flagsChangedHandler = () => changedCount++;
-            FlagManager.OnFlagSet += flagSetHandler;
-            FlagManager.OnFlagsChanged += flagsChangedHandler;
+            manager.FlagSet += flagSetHandler;
+            manager.FlagsChanged += flagsChangedHandler;
 
             manager.SetFlag("  clue.found  ");
             manager.SetFlag("clue.found");
@@ -80,7 +83,7 @@ namespace QuietStatic.Tests.EditMode
             manager.SetFlag(" known ");
             LogAssert.Expect(
                 LogType.Warning,
-                "WARNING: Flags from AddFlagSilently: [FlagManager] Cannot set " +
+                "[Warning] AddFlagSilently: [FlagManager] Cannot set " +
                 "unknown flag 'unknown'. Add it to the assigned FlagDatabase first.");
             manager.SetFlag("unknown");
 
@@ -102,7 +105,7 @@ namespace QuietStatic.Tests.EditMode
             CreateManager(dependencies: new[] { second, first });
             var setFlags = new List<string>();
             flagSetHandler = setFlags.Add;
-            FlagManager.OnFlagSet += flagSetHandler;
+            manager.FlagSet += flagSetHandler;
 
             manager.SetFlag("start");
 
@@ -131,11 +134,11 @@ namespace QuietStatic.Tests.EditMode
                 new[] { CreateDependency("complete", "start") });
             var setFlags = new List<string>();
             flagSetHandler = setFlags.Add;
-            FlagManager.OnFlagSet += flagSetHandler;
+            manager.FlagSet += flagSetHandler;
 
             LogAssert.Expect(
                 LogType.Warning,
-                "WARNING: Flags from AddFlagSilently: [FlagManager] Cannot set " +
+                "[Warning] AddFlagSilently: [FlagManager] Cannot set " +
                 "unknown flag 'unknown'. Add it to the assigned FlagDatabase first.");
             manager.RestoreFlags(new[] { " start ", "start", "unknown", "" });
 

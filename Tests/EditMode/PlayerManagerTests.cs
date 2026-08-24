@@ -26,7 +26,7 @@ namespace QuietStatic.Tests.EditMode
         {
             if (playerChangedHandler != null)
             {
-                PlayerManager.OnPlayerChanged -= playerChangedHandler;
+                manager.PlayerChanged -= playerChangedHandler;
             }
 
             UnityEngine.Object.DestroyImmediate(secondPlayer);
@@ -48,7 +48,7 @@ namespace QuietStatic.Tests.EditMode
                 reportedNewPlayer = newPlayer;
                 notificationCount++;
             };
-            PlayerManager.OnPlayerChanged += playerChangedHandler;
+            manager.PlayerChanged += playerChangedHandler;
 
             manager.SetPlayer(secondPlayer);
 
@@ -65,7 +65,7 @@ namespace QuietStatic.Tests.EditMode
 
             int notificationCount = 0;
             playerChangedHandler = (_, _) => notificationCount++;
-            PlayerManager.OnPlayerChanged += playerChangedHandler;
+            manager.PlayerChanged += playerChangedHandler;
 
             manager.SetPlayer(firstPlayer);
 
@@ -87,7 +87,7 @@ namespace QuietStatic.Tests.EditMode
                 reportedNewPlayer = newPlayer;
                 notificationCount++;
             };
-            PlayerManager.OnPlayerChanged += playerChangedHandler;
+            manager.PlayerChanged += playerChangedHandler;
 
             manager.SetPlayer(null);
 
@@ -117,7 +117,7 @@ namespace QuietStatic.Tests.EditMode
                 reportedNewPlayer = newPlayer;
                 notificationCount++;
             };
-            PlayerManager.OnPlayerChanged += playerChangedHandler;
+            manager.PlayerChanged += playerChangedHandler;
 
             manager.SetPlayer(null);
 

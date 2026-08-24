@@ -2,7 +2,8 @@
   "name": "QuietStatic.Core.PlayModeTests",
   "rootNamespace": "QuietStatic.Tests.PlayMode",
   "references": [
-    "QuietStatic.Core.Runtime"
+    "QuietStatic.Core.Runtime",
+    "Unity.InputSystem"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

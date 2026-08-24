@@ -2,10 +2,8 @@ using System;
 using System.Collections;
 using QuietStatic.Toolkit.Flags;
 using QuietStatic.Toolkit.UI;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace QuietStatic.Toolkit.Interactions
 {
@@ -39,16 +37,6 @@ namespace QuietStatic.Toolkit.Interactions
 
         [Tooltip("Parent used for an instantiated progress bar. Defaults to this object.")]
         [SerializeField] private Transform progressBarAnchor;
-
-        [Header("Legacy World-Space UI")]
-        [Tooltip("Child of a World Space Canvas containing this interaction's progress UI.")]
-        [SerializeField] private GameObject progressRoot;
-
-        [Tooltip("Slider on the World Space Canvas. It is driven from zero to one.")]
-        [SerializeField] private Slider progressSlider;
-
-        [Tooltip("Optional text displayed alongside the world-space progress bar.")]
-        [SerializeField] private TMP_Text progressLabel;
 
         [Tooltip("Text written to the optional progress label when the process starts.")]
         [SerializeField] private string progressName = "Progress";
@@ -212,17 +200,6 @@ namespace QuietStatic.Toolkit.Interactions
                 runtimeProgressBar.Configure(progressName, Progress);
             }
 
-            if (progressSlider != null)
-            {
-                progressSlider.minValue = 0f;
-                progressSlider.maxValue = 1f;
-            }
-
-            if (progressLabel != null)
-            {
-                progressLabel.text = progressName ?? string.Empty;
-            }
-
             UpdateProgressDisplay();
         }
 
@@ -233,10 +210,6 @@ namespace QuietStatic.Toolkit.Interactions
                 runtimeProgressBar.SetProgress(Progress);
             }
 
-            if (progressSlider != null)
-            {
-                progressSlider.value = Progress;
-            }
         }
 
         private void ShowProgress(bool visible)
@@ -246,10 +219,6 @@ namespace QuietStatic.Toolkit.Interactions
                 runtimeProgressBar.SetVisible(visible);
             }
 
-            if (progressRoot != null && progressRoot != gameObject)
-            {
-                progressRoot.SetActive(visible);
-            }
         }
 
         private void ResolveProgressBar()

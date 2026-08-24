@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Minigames;
+using QuietStatic.Toolkit.Pause;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -145,6 +146,63 @@ namespace QuietStatic.Tests.EditMode
             UnityEngine.Object.DestroyImmediate(firstChannel);
         }
 
+        [Test]
+        public void PauseInputHandler_DisablePreservesExternallyEnabledAction()
+        {
+            var inputAsset = ScriptableObject.CreateInstance<InputActionAsset>();
+            InputAction action = inputAsset.AddActionMap("UI").AddAction("Pause");
+            InputActionReference actionReference = InputActionReference.Create(action);
+            var owner = new GameObject("Pause input ownership test");
+            owner.SetActive(false);
+            PauseInputHandler handler = owner.AddComponent<PauseInputHandler>();
+            handler.SetPauseAction(actionReference);
+            action.Enable();
+
+            owner.SetActive(true);
+            InvokePrivate(handler, "OnEnable");
+            owner.SetActive(false);
+            InvokePrivate(handler, "OnDisable");
+
+            Assert.That(action.enabled, Is.True);
+
+            action.Disable();
+            UnityEngine.Object.DestroyImmediate(owner);
+            UnityEngine.Object.DestroyImmediate(actionReference);
+            UnityEngine.Object.DestroyImmediate(inputAsset);
+        }
+
+        [Test]
+        public void PauseInputHandler_RebindsActiveActionAndReleasesOwnedActions()
+        {
+            var inputAsset = ScriptableObject.CreateInstance<InputActionAsset>();
+            InputActionMap map = inputAsset.AddActionMap("UI");
+            InputAction firstAction = map.AddAction("Pause First");
+            InputAction secondAction = map.AddAction("Pause Second");
+            InputActionReference firstReference = InputActionReference.Create(firstAction);
+            InputActionReference secondReference = InputActionReference.Create(secondAction);
+            var owner = new GameObject("Pause input rebinding test");
+            owner.SetActive(false);
+            PauseInputHandler handler = owner.AddComponent<PauseInputHandler>();
+            handler.SetPauseAction(firstReference);
+
+            owner.SetActive(true);
+            InvokePrivate(handler, "OnEnable");
+            Assert.That(firstAction.enabled, Is.True);
+
+            handler.SetPauseAction(secondReference);
+
+            Assert.That(firstAction.enabled, Is.False);
+            Assert.That(secondAction.enabled, Is.True);
+            owner.SetActive(false);
+            InvokePrivate(handler, "OnDisable");
+            Assert.That(secondAction.enabled, Is.False);
+
+            UnityEngine.Object.DestroyImmediate(owner);
+            UnityEngine.Object.DestroyImmediate(firstReference);
+            UnityEngine.Object.DestroyImmediate(secondReference);
+            UnityEngine.Object.DestroyImmediate(inputAsset);
+        }
+
         private static void ReportFinished(
             InputSequenceRequestChannel channel,
             InputSequenceDefinition definition,
@@ -183,9 +241,11 @@ namespace QuietStatic.Tests.EditMode
 
         private static void InvokePrivate(object target, string name)
         {
-            typeof(InputSequenceMinigameActivator)
-                .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.Invoke(target, null);
+            MethodInfo method = target.GetType().GetMethod(
+                name,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null, $"Missing method '{name}'.");
+            method.Invoke(target, null);
         }
     }
 }

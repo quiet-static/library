@@ -18,6 +18,7 @@ namespace QuietStatic.Toolkit.Cinematics
 
         [Header("Channels")]
         [SerializeField] private CinematicLaunchChannel launchChannel;
+        [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel sceneFlowChannel;
 
         [Header("Events")]
@@ -38,12 +39,8 @@ namespace QuietStatic.Toolkit.Cinematics
             }
 
             var request = new SceneTransitionRequest(targetScene.SceneName);
-            bool accepted = sceneFlowChannel != null
-                ? sceneFlowChannel.RequestTransition(request)
-                : SceneFlowManager.Instance != null && !SceneFlowManager.Instance.IsTransitioning;
-
-            if (accepted && sceneFlowChannel == null)
-                SceneFlowManager.Instance.TransitionToScene(request);
+            bool accepted = sceneFlowChannel != null &&
+                            sceneFlowChannel.RequestTransition(request);
 
             if (!accepted)
             {

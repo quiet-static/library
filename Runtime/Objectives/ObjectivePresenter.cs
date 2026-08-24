@@ -48,15 +48,47 @@ namespace QuietStatic.Toolkit.Objectives
             displayLabel = labels.Length == 1 ? labels[0] : null;
         }
 
+        private ObjectiveManager observedManager;
+
         private void OnEnable()
         {
-            ObjectiveManager.OnObjectiveLifecycleChanged += Refresh;
+            ObserveActiveManager();
+            Refresh();
+        }
+
+        private void Start()
+        {
+            ObserveActiveManager();
             Refresh();
         }
 
         private void OnDisable()
         {
-            ObjectiveManager.OnObjectiveLifecycleChanged -= Refresh;
+            if (observedManager != null)
+            {
+                observedManager.ObjectiveLifecycleChanged -= Refresh;
+                observedManager = null;
+            }
+        }
+
+        private void ObserveActiveManager()
+        {
+            ObjectiveManager activeManager = ObjectiveManager.Instance;
+            if (observedManager == activeManager)
+            {
+                return;
+            }
+
+            if (observedManager != null)
+            {
+                observedManager.ObjectiveLifecycleChanged -= Refresh;
+            }
+
+            observedManager = activeManager;
+            if (observedManager != null)
+            {
+                observedManager.ObjectiveLifecycleChanged += Refresh;
+            }
         }
 
         /// <summary>Refreshes labels from the authoritative objective manager.</summary>

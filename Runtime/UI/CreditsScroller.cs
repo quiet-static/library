@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace QuietStatic.Toolkit.UI
 {
@@ -19,13 +18,11 @@ namespace QuietStatic.Toolkit.UI
     {
         [Header("Scroll Target")]
         [Tooltip("The UI RectTransform that should move upward. If left empty, Reset tries to use this object's RectTransform.")]
-        [FormerlySerializedAs("creditsContent")]
         [SerializeField] private RectTransform content;
 
         [Header("Scroll Settings")]
         [Tooltip("How quickly the credits content moves upward in anchored-position units per second.")]
         [Min(0f)]
-        [FormerlySerializedAs("scrollSpeed")]
         [SerializeField] private float speed = 40f;
 
         [Tooltip("The anchored Y position assigned when this component starts.")]

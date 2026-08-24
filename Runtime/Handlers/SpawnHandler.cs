@@ -18,6 +18,25 @@ namespace QuietStatic
         [Tooltip("Optional prefab instantiated by Spawn Configured Prefab.")]
         [SerializeField] private GameObject prefab;
 
+        [Tooltip("Move the configured target when this scene object starts. Enable this for scenes that support direct Play Mode entry without a scene-flow arrival condition.")]
+        [SerializeField] private bool moveOnStart;
+
+        /// <summary>
+        /// Applies the configured spawn during direct scene entry when requested.
+        /// </summary>
+        /// <remarks>
+        /// Spawn targets can register later in the same initialization pass, so this
+        /// runs at Start rather than Awake. Scene-flow arrivals may safely move the
+        /// same target again through <see cref="MoveConfiguredTarget"/>.
+        /// </remarks>
+        private void Start()
+        {
+            if (moveOnStart)
+            {
+                MoveConfiguredTarget();
+            }
+        }
+
         /// <summary>Moves the configured target to the configured spawn point.</summary>
         public void MoveConfiguredTarget()
         {

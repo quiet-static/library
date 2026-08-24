@@ -20,8 +20,6 @@ namespace QuietStatic.Tests.PlayMode
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            JumpscareEvent.OnJumpscareStarted -= startedHandler;
-            JumpscareEvent.OnJumpscareFinished -= finishedHandler;
             startedHandler = null;
             finishedHandler = null;
 
@@ -63,8 +61,8 @@ namespace QuietStatic.Tests.PlayMode
             SetField(sequence, "onFinished", Event(() => lifecycle.Add("local-finished")));
             startedHandler = _ => lifecycle.Add("global-started");
             finishedHandler = _ => lifecycle.Add("global-finished");
-            JumpscareEvent.OnJumpscareStarted += startedHandler;
-            JumpscareEvent.OnJumpscareFinished += finishedHandler;
+            sequence.JumpscareStarted += startedHandler;
+            sequence.JumpscareFinished += finishedHandler;
 
             sequence.Play();
 

@@ -14,7 +14,7 @@ namespace QuietStatic.Toolkit.Cinematics
     /// Runs a small, reusable cutscene sequence made from ordered steps.
     /// </summary>
     /// <remarks>
-    /// Each step can invoke UnityEvents, move a camera to a pose, optionally fade in or out,
+    /// Each step can invoke UnityEvents, select a director-owned camera shot, optionally fade in or out,
     /// start a dialogue runner, wait for dialogue to finish, wait an additional amount of time,
     /// and then invoke completion events.
     ///
@@ -24,11 +24,11 @@ namespace QuietStatic.Toolkit.Cinematics
     /// </remarks>
     public class CutsceneSequenceRunner : MonoBehaviour, ICinematicWaitSource
     {
-        /// <summary>Raised whenever a sequence begins.</summary>
-        public static event Action OnSequenceStarted;
+        /// <summary>Raised by this runner whenever its sequence begins.</summary>
+        public event Action SequenceStarted;
 
-        /// <summary>Raised whenever a sequence ends or is stopped.</summary>
-        public static event Action OnSequenceEnded;
+        /// <summary>Raised by this runner whenever its sequence completes or is stopped.</summary>
+        public event Action SequenceEnded;
 
         /// <summary>
         /// One ordered unit of work inside a cutscene sequence.
@@ -56,7 +56,7 @@ namespace QuietStatic.Toolkit.Cinematics
             public UnityEvent onStepFinished;
 
             [Header("Camera")]
-            [Tooltip("Optional camera director that owns a dropdown-selected shot for this step. This takes precedence over the legacy Camera Transform and Camera Pose fields.")]
+            [Tooltip("Optional camera director that owns a dropdown-selected shot for this step.")]
             /// <summary>Optional director used to apply a named camera shot.</summary>
             public CinematicCutsceneCameraDirector cameraDirector;
 
@@ -64,14 +64,6 @@ namespace QuietStatic.Toolkit.Cinematics
             [CinematicShotId(nameof(cameraDirector))]
             /// <summary>Stable ID of the director-owned shot applied by this step.</summary>
             public string cameraShotId;
-
-            [Tooltip("Legacy camera or camera rig transform moved directly for this step. Prefer Camera Director and Camera Shot for new sequences.")]
-            /// <summary>Optional camera or rig moved by this step.</summary>
-            public Transform cameraTransform;
-
-            [Tooltip("Legacy pose copied onto Camera Transform. Prefer Camera Director and Camera Shot for new sequences.")]
-            /// <summary>Transform supplying the desired camera pose.</summary>
-            public Transform cameraPose;
 
             [Header("Dialogue")]
             [Tooltip("Optional dialogue runner to start during this step. The sequence waits until this runner is finished before continuing.")]
@@ -186,7 +178,7 @@ namespace QuietStatic.Toolkit.Cinematics
             if (IsRunning)
             {
                 IsRunning = false;
-                OnSequenceEnded?.Invoke();
+                SequenceEnded?.Invoke();
             }
         }
 
@@ -213,7 +205,7 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             IsRunning = true;
             onSequenceStarted?.Invoke();
-            OnSequenceStarted?.Invoke();
+            SequenceStarted?.Invoke();
 
             if (steps != null)
             {
@@ -231,7 +223,7 @@ namespace QuietStatic.Toolkit.Cinematics
             }
 
             onSequenceFinished?.Invoke();
-            OnSequenceEnded?.Invoke();
+            SequenceEnded?.Invoke();
             IsRunning = false;
             CurrentStepIndex = -1;
             activeRoutine = null;
@@ -241,9 +233,9 @@ namespace QuietStatic.Toolkit.Cinematics
         {
             IsRunning = true;
             CurrentStepIndex = stepIndex;
-            OnSequenceStarted?.Invoke();
+            SequenceStarted?.Invoke();
             yield return PlayStepRoutine(steps[stepIndex]);
-            OnSequenceEnded?.Invoke();
+            SequenceEnded?.Invoke();
             CurrentStepIndex = -1;
             IsRunning = false;
             activeRoutine = null;
@@ -346,37 +338,15 @@ namespace QuietStatic.Toolkit.Cinematics
         }
 
         /// <summary>
-        /// Applies the configured named camera shot or legacy camera pose for a step.
+        /// Applies the configured camera shot for a step.
         /// </summary>
-        /// <param name="step">The step containing a named shot or legacy camera pose.</param>
-        /// <remarks>
-        /// A director-owned shot takes precedence. If it is not configured, the legacy camera
-        /// transform and pose pair remains supported for existing sequences.
-        /// </remarks>
+        /// <param name="step">The step containing an optional director-owned shot.</param>
         private static void ApplyCameraPose(Step step)
         {
             if (step.cameraDirector != null &&
                 !string.IsNullOrWhiteSpace(step.cameraShotId))
             {
                 step.cameraDirector.CutToShot(step.cameraShotId);
-                return;
-            }
-
-            if (step.cameraTransform == null || step.cameraPose == null)
-            {
-                return;
-            }
-
-            step.cameraTransform.SetPositionAndRotation(
-                step.cameraPose.position,
-                step.cameraPose.rotation
-            );
-
-            CutsceneCameraIdle idleMotion =
-                step.cameraTransform.GetComponent<CutsceneCameraIdle>();
-            if (idleMotion != null)
-            {
-                idleMotion.RefreshBaseTransform();
             }
         }
     }
@@ -388,7 +358,8 @@ namespace QuietStatic.Toolkit.Cinematics
     public sealed class CutsceneTransitionPlayer : MonoBehaviour
     {
         [Header("Scene Flow")]
-        [Tooltip("Optional scene-flow channel. The active SceneFlowManager is used when empty.")]
+        [Tooltip("Required scene-flow channel used to submit the transition.")]
+        [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 
         [Header("Configured Launch")]
@@ -411,11 +382,20 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <summary>Gets whether this coordinator is awaiting a destination scene.</summary>
         public bool IsPending => !string.IsNullOrEmpty(pendingScene);
 
-        private void OnEnable() => SceneFlowManager.OnTransitionCompleted += HandleTransitionCompleted;
+        private void OnEnable()
+        {
+            if (requestChannel != null)
+            {
+                requestChannel.TransitionCompleted += HandleTransitionCompleted;
+            }
+        }
 
         private void OnDisable()
         {
-            SceneFlowManager.OnTransitionCompleted -= HandleTransitionCompleted;
+            if (requestChannel != null)
+            {
+                requestChannel.TransitionCompleted -= HandleTransitionCompleted;
+            }
             ClearPending();
         }
 
@@ -435,20 +415,8 @@ namespace QuietStatic.Toolkit.Cinematics
             pendingScene = sceneName.Trim();
             pendingCutscene = runnerName.Trim();
             SceneTransitionRequest request = new(pendingScene);
-            bool accepted;
-            if (requestChannel != null)
-            {
-                accepted = requestChannel.RequestTransition(request);
-            }
-            else if (SceneFlowManager.Instance != null && !SceneFlowManager.Instance.IsTransitioning)
-            {
-                SceneFlowManager.Instance.TransitionToScene(request);
-                accepted = true;
-            }
-            else
-            {
-                accepted = false;
-            }
+            bool accepted = requestChannel != null &&
+                            requestChannel.RequestTransition(request);
 
             if (!accepted)
             {

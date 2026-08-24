@@ -78,6 +78,7 @@ namespace QuietStatic
         private readonly Dictionary<int, InputBlockClaim> inputBlocks = new();
         private int nextBlockToken = 1;
         private string desiredMode = "None";
+        private GameStateManager observedGameState;
 
         /// <summary>
         /// Gets the currently active input mode.
@@ -110,7 +111,11 @@ namespace QuietStatic
         /// </summary>
         private void OnEnable()
         {
-            GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+            observedGameState = GameStateManager.Instance;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged += HandleGameStateChanged;
+            }
 
             if (refreshOnEnable)
             {
@@ -123,7 +128,11 @@ namespace QuietStatic
         /// </summary>
         private void OnDisable()
         {
-            GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged -= HandleGameStateChanged;
+                observedGameState = null;
+            }
         }
 
         /// <summary>

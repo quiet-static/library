@@ -11,7 +11,7 @@ The runner also implements `ICinematicWaitSource`, so a definition-based
 `CinematicScenePlayer` can select and await a complete scene-authored runner as one
 activity. Keep the runner's **Play On Start** disabled when the scene player owns startup.
 
-Use **Tools > Quiet Static > Toolkit > Cinematics > Cutscene Explorer** to create a starter runner, browse all
+Use **Cutscenes** in **Tools > Quiet Static > Workspace** to create a starter runner, browse all
 cutscenes in loaded scenes, inspect their steps, select their objects, and preview a whole
 sequence or individual step in Play Mode. Scene references remain on the runner so camera
 poses, dialogue runners, and character controllers are explicit and safe to serialize.
@@ -21,11 +21,9 @@ For director-owned camera shots, give every shot a stable **Shot ID** and a frie
 after their **Camera Director** is assigned, and store the stable ID rather than the
 shot's list index. Use the adjacent **Move** button, or the director's **Editor Shot
 Preview** section, to move the cutscene camera to that shot in Edit Mode; the transform
-and optional field-of-view change are undoable. `CutToShot(int)` remains available for
-older serialized UnityEvents. For new arbitrary UnityEvents, configure a
-`CutsceneCameraShotTrigger` and invoke its parameterless `Run()` method.
-Older dialogue cues display their legacy index explicitly; assign Shot IDs and click
-**Migrate** beside the cue to replace that index with the stable ID.
+and optional field-of-view change are undoable. For arbitrary UnityEvents, configure a
+`CutsceneCameraShotTrigger` and invoke its parameterless `Run()` method. Dialogue cues
+and sequence steps reference shots exclusively through explicit stable Shot IDs.
 
 For scene-to-cutscene launches, add `CutsceneTransitionPlayer` to the persistent Systems
 scene. Configure a destination scene and runner GameObject name, then call
@@ -93,7 +91,7 @@ per-beat UnityEvents are all configured there. This keeps reusable content out o
 objects while allowing local props, audio, lighting, and gameplay handlers to remain wired
 with UnityEvents.
 
-Use **Tools > Quiet Static > Toolkit > Cinematics > Cinematic Database** to create and search definitions, validate
+Use the Cinematics tab in **Tools > Quiet Static > Workspace** to create and search definitions, validate
 IDs, select assets, and find or play setups in loaded scenes. Existing
 `CutsceneSequenceRunner` scenes remain supported and can be migrated incrementally.
 

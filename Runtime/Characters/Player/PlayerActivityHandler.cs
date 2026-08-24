@@ -2,7 +2,6 @@ using QuietStatic.Toolkit.Interactions;
 using QuietStatic.Toolkit.Cameras;
 using QuietStatic.Toolkit.Utilities;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace QuietStatic.Toolkit.Characters.Player
 {
@@ -14,7 +13,6 @@ namespace QuietStatic.Toolkit.Characters.Player
     {
         [Header("Sequence")]
         [Tooltip("Activity lifecycle published by a world-scene interaction.")]
-        [FormerlySerializedAs("channel")]
         [SerializeField] private PlayerActivityChannel activityChannel;
 
         [Header("Player")]
@@ -26,7 +24,6 @@ namespace QuietStatic.Toolkit.Characters.Player
 
         [Header("Progress Visual")]
         [Tooltip("Optional visual scaled down as activity progress increases.")]
-        [FormerlySerializedAs("foodVisual")]
         [SerializeField] private Transform progressVisual;
 
         [Tooltip("Fraction of the original scale remaining immediately before completion.")]
@@ -34,11 +31,9 @@ namespace QuietStatic.Toolkit.Characters.Player
         [SerializeField] private float finalScale = 0.05f;
 
         [Tooltip("Optional state channel updated when the activity completes.")]
-        [FormerlySerializedAs("handStateChannel")]
         [SerializeField] private ObjectStateChannel completionStateChannel;
 
         [Tooltip("State selected after the activity completes.")]
-        [FormerlySerializedAs("emptyPlateState")]
         [SerializeField] private ObjectStateDefinition completedState;
 
         private Vector3 originalVisualScale;
@@ -87,6 +82,15 @@ namespace QuietStatic.Toolkit.Characters.Player
             }
 
             RestoreMovement();
+        }
+
+        private void Update()
+        {
+            if (activityChannel != null)
+            {
+                activityChannel.SetInteractHeld(GameInputManager.Instance != null &&
+                                                GameInputManager.Instance.InteractHeld);
+            }
         }
 
         private void HandleBegan(PlayerActivityContext context)

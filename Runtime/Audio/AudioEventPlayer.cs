@@ -18,6 +18,10 @@ namespace QuietStatic.Toolkit.Audio
         }
 
         [Header("Clips")]
+        [Tooltip("Required channel used to submit playback to the persistent audio receiver.")]
+        [RequiredCommandChannel]
+        [SerializeField] private AudioRequestChannel requestChannel;
+
         [Tooltip("Main audio to play")]
         [SerializeField] private AudioClip clip;
 
@@ -118,14 +122,14 @@ namespace QuietStatic.Toolkit.Audio
 
         private EventSound3D PlayClip(AudioClip selectedClip, bool loop)
         {
-            if (selectedClip == null || SfxManager.Instance == null)
+            if (selectedClip == null || requestChannel == null)
             {
                 return null;
             }
 
             Transform origin = objectTransform != null ? objectTransform : transform;
 
-            return SfxManager.Instance.PlayAtPosition(
+            return requestChannel.PlayAtPosition(
                 selectedClip,
                 origin.position,
                 minDistance,
@@ -134,6 +138,9 @@ namespace QuietStatic.Toolkit.Audio
                 loop
             );
         }
+
+        /// <summary>Assigns the persistent audio command channel.</summary>
+        public void SetRequestChannel(AudioRequestChannel value) => requestChannel = value;
 
         private AudioClip GetInOrderClip()
         {

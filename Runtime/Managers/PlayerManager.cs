@@ -25,7 +25,7 @@ namespace QuietStatic
         /// argument is the newly registered player. Either argument can be null.
         /// Reassigning the current player does not raise this event.
         /// </remarks>
-        public static event Action<GameObject, GameObject> OnPlayerChanged;
+        public event Action<GameObject, GameObject> PlayerChanged;
 
         /// <summary>
         /// Gets the configured active player root, or null when none is assigned.
@@ -53,7 +53,7 @@ namespace QuietStatic
             GameObject previousPlayer = player;
             player = newPlayer;
 
-            OnPlayerChanged?.Invoke(previousPlayer, player);
+            PlayerChanged?.Invoke(previousPlayer, player);
         }
     }
 }

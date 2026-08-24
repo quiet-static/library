@@ -62,17 +62,17 @@ namespace QuietStatic.Toolkit.Flags
         /// <summary>
         /// Raised when a new flag is successfully added.
         /// </summary>
-        public static event Action<string> OnFlagSet;
+        public event Action<string> FlagSet;
 
         /// <summary>
         /// Raised when an active flag is removed.
         /// </summary>
-        public static event Action<string> OnFlagCleared;
+        public event Action<string> FlagCleared;
 
         /// <summary>
         /// Raised whenever the active flag collection changes.
         /// </summary>
-        public static event Action OnFlagsChanged;
+        public event Action FlagsChanged;
 
         /// <summary>
         /// Stores currently active runtime flag IDs.
@@ -217,9 +217,9 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            OnFlagCleared?.Invoke(normalizedFlagId);
+            FlagCleared?.Invoke(normalizedFlagId);
             onFlagCleared?.Invoke(normalizedFlagId);
-            OnFlagsChanged?.Invoke();
+            FlagsChanged?.Invoke();
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace QuietStatic.Toolkit.Flags
             }
 
             activeFlags.Clear();
-            OnFlagsChanged?.Invoke();
+            FlagsChanged?.Invoke();
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace QuietStatic.Toolkit.Flags
             }
 
             ApplyDependencies();
-            OnFlagsChanged?.Invoke();
+            FlagsChanged?.Invoke();
         }
 
         /// <summary>
@@ -373,9 +373,9 @@ namespace QuietStatic.Toolkit.Flags
         /// </summary>
         private void RaiseFlagSetEvents(string flagId)
         {
-            OnFlagSet?.Invoke(flagId);
+            FlagSet?.Invoke(flagId);
             onFlagSet?.Invoke(flagId);
-            OnFlagsChanged?.Invoke();
+            FlagsChanged?.Invoke();
         }
     }
 }

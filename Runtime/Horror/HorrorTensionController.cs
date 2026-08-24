@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using QuietStatic.Toolkit.Audio;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
@@ -21,6 +22,10 @@ namespace QuietStatic.Toolkit.Horror
         [Tooltip("Reevaluate the highest-priority state whenever flags change.")]
         [SerializeField] private bool reactToFlagChanges = true;
 
+        [Tooltip("Required channel used for global music commands.")]
+        [RequiredCommandChannel]
+        [SerializeField] private AudioRequestChannel audioRequestChannel;
+
         [Header("Effects")]
         [Tooltip("Two-dimensional source used for one-shot state-entry stingers.")]
         [SerializeField] private AudioSource entrySfxSource;
@@ -38,7 +43,7 @@ namespace QuietStatic.Toolkit.Horror
         private Coroutine overlayRoutine;
         public HorrorTensionDefinition.State CurrentState { get; private set; }
         public string CurrentStateId => CurrentState?.Id ?? string.Empty;
-        public static event Action<HorrorTensionController, string, string> StateChanged;
+        public event Action<HorrorTensionController, string, string> TensionStateChanged;
 
         private void Awake()
         {
@@ -48,14 +53,24 @@ namespace QuietStatic.Toolkit.Horror
             entrySfxSource.spatialBlend = 0f;
         }
 
+        private FlagManager observedFlags;
+
         private void OnEnable()
         {
-            FlagManager.OnFlagsChanged += HandleFlagsChanged;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged += HandleFlagsChanged;
+            }
         }
 
         private void OnDisable()
         {
-            FlagManager.OnFlagsChanged -= HandleFlagsChanged;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged -= HandleFlagsChanged;
+                observedFlags = null;
+            }
         }
 
         private IEnumerator Start()
@@ -99,24 +114,28 @@ namespace QuietStatic.Toolkit.Horror
             PlayEntrySfx(state);
             StartOverlayTransition(state);
             onStateEntered?.Invoke(state.Id);
-            StateChanged?.Invoke(this, previous, state.Id);
+            TensionStateChanged?.Invoke(this, previous, state.Id);
         }
 
-        private static void ApplyMusic(HorrorTensionDefinition.State state)
+        private void ApplyMusic(HorrorTensionDefinition.State state)
         {
-            if (MusicManager.Instance == null) return;
+            if (audioRequestChannel == null) return;
             switch (state.MusicAction)
             {
                 case TensionMusicAction.Play when state.Music != null:
-                    if (state.FadeMusic) MusicManager.Instance.PlayMusicWithFade(state.Music);
-                    else MusicManager.Instance.PlayMusic(state.Music);
+                    if (state.FadeMusic) audioRequestChannel.PlayWithFade(state.Music);
+                    else audioRequestChannel.PlayMusic(state.Music);
                     break;
                 case TensionMusicAction.Stop:
-                    if (state.FadeMusic) MusicManager.Instance.StopMusicWithFade();
-                    else MusicManager.Instance.StopMusic();
+                    if (state.FadeMusic) audioRequestChannel.StopWithFade();
+                    else audioRequestChannel.StopMusic();
                     break;
             }
         }
+
+        /// <summary>Assigns the persistent audio command channel.</summary>
+        public void SetAudioRequestChannel(AudioRequestChannel value) =>
+            audioRequestChannel = value;
 
         private void PlayEntrySfx(HorrorTensionDefinition.State state)
         {

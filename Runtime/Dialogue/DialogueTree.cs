@@ -8,6 +8,7 @@
  */
 
 using System;
+using System.Linq;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 
@@ -72,6 +73,11 @@ namespace QuietStatic.Toolkit.Dialogue
             /// <summary>Player-facing dialogue line.</summary>
             public string line;
 
+            [Header("Presentation")]
+            [Tooltip("Optional tags consumed by dialogue presentation, such as Player. Tags do not affect dialogue flow.")]
+            /// <summary>Presentation tags associated with this node.</summary>
+            public string[] presentationTags;
+
             [Header("Choices")]
             [Tooltip("Optional response choices. Leave empty for normal linear dialogue.")]
             /// <summary>Optional responses available from this node.</summary>
@@ -91,6 +97,12 @@ namespace QuietStatic.Toolkit.Dialogue
             /// Gets whether this node has at least one response choice.
             /// </summary>
             public bool HasChoices => choices != null && choices.Length > 0;
+
+            /// <summary>Returns whether this node contains a presentation tag.</summary>
+            public bool HasPresentationTag(string tag) =>
+                !string.IsNullOrWhiteSpace(tag) &&
+                presentationTags != null &&
+                presentationTags.Any(value => string.Equals(value, tag, StringComparison.OrdinalIgnoreCase));
 
             /// <summary>
             /// Gets the display text for every response choice.

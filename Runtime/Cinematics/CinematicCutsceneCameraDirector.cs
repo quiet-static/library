@@ -77,7 +77,7 @@ namespace QuietStatic.Toolkit.Cinematics
         [SerializeField] private CutsceneCameraIdle idleMotion;
 
         [Header("Shots")]
-        [Tooltip("Cinematic shots addressable by stable Shot ID. Shot Name is used as a compatibility fallback when Shot ID is empty.")]
+        [Tooltip("Cinematic shots addressable by required stable Shot IDs.")]
         [SerializeField] private List<CinematicShot> shots = new List<CinematicShot>();
 
         [Header("Startup")]
@@ -156,25 +156,8 @@ namespace QuietStatic.Toolkit.Cinematics
             CutToShot(shotId);
         }
 
-        /// <summary>
-        /// Plays a shot by index.
-        /// </summary>
-        /// <remarks>
-        /// This method is kept for compatibility with older cutscene sequence code.
-        /// It currently behaves the same as <see cref="CutToShot"/>.
-        /// </remarks>
-        /// <param name="shotIndex">Index of the shot to apply from the configured shot list.</param>
-        public void PlayShot(int shotIndex)
-        {
-            CutToShot(shotIndex);
-        }
-
         /// <summary>Immediately moves and rotates the cutscene camera to a shot by stable ID.</summary>
         /// <param name="shotId">Stable ID configured on the requested shot.</param>
-        /// <remarks>
-        /// Shot names are accepted only as a compatibility fallback for entries whose Shot ID is
-        /// empty. New references should always use an explicit stable ID.
-        /// </remarks>
         public void CutToShot(string shotId)
         {
             if (!TryGetShotIndex(shotId, out int shotIndex))
@@ -261,8 +244,7 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <summary>Gets the stable ID used to reference a configured shot.</summary>
         /// <param name="shotIndex">Zero-based index into the configured shot list.</param>
         /// <returns>
-        /// The explicit Shot ID, the shot name for legacy entries without an ID, or an empty
-        /// string when the index or entry is invalid.
+        /// The explicit Shot ID, or an empty string when the index or entry is invalid.
         /// </returns>
         public string GetShotId(int shotIndex)
         {
@@ -271,16 +253,7 @@ namespace QuietStatic.Toolkit.Cinematics
                 return string.Empty;
             }
 
-            CinematicShot shot = shots[shotIndex];
-            if (shot == null)
-            {
-                return string.Empty;
-            }
-
-            string explicitId = GetExplicitShotId(shotIndex);
-            return !string.IsNullOrEmpty(explicitId)
-                ? explicitId
-                : shot.shotName?.Trim() ?? string.Empty;
+            return GetExplicitShotId(shotIndex);
         }
 
         /// <summary>Gets a designer-facing label for a configured shot.</summary>
@@ -320,25 +293,6 @@ namespace QuietStatic.Toolkit.Cinematics
             {
                 if (string.Equals(
                         GetExplicitShotId(index),
-                        requestedId,
-                        StringComparison.Ordinal))
-                {
-                    shotIndex = index;
-                    return true;
-                }
-            }
-
-            // Legacy entries without an explicit ID remain addressable by Shot Name. Explicit
-            // IDs are resolved first so a compatibility name can never shadow a stable ID.
-            for (int index = 0; index < ShotCount; index++)
-            {
-                if (!string.IsNullOrEmpty(GetExplicitShotId(index)) || shots[index] == null)
-                {
-                    continue;
-                }
-
-                if (string.Equals(
-                        shots[index].shotName?.Trim(),
                         requestedId,
                         StringComparison.Ordinal))
                 {

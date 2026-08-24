@@ -23,7 +23,10 @@ namespace QuietStatic.Toolkit.Interactions
         private void Awake() => target = GetComponent<Interactable>();
         private void OnEnable()
         {
-            Interactable.OnInteractionSucceeded += HandleInteraction;
+            if (target != null)
+            {
+                target.InteractionSucceeded += HandleInteraction;
+            }
             if (channel != null)
             {
                 channel.ReadableOpened += HandleReadableOpened;
@@ -33,7 +36,10 @@ namespace QuietStatic.Toolkit.Interactions
 
         private void OnDisable()
         {
-            Interactable.OnInteractionSucceeded -= HandleInteraction;
+            if (target != null)
+            {
+                target.InteractionSucceeded -= HandleInteraction;
+            }
             if (channel != null)
             {
                 channel.ReadableOpened -= HandleReadableOpened;

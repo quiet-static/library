@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Audio
@@ -16,7 +17,8 @@ namespace QuietStatic.Toolkit.Audio
         EnableSfxSpawning,
         DisableSfxSpawning,
         PauseMusic,
-        ResumeMusic
+        ResumeMusic,
+        PlaySfxAtPosition
     }
 
     /// <summary>Typed cross-scene audio command.</summary>
@@ -26,11 +28,21 @@ namespace QuietStatic.Toolkit.Audio
         public AudioCommand(
             AudioCommandType type,
             AudioClip clip = null,
-            float value = 0f)
+            float value = 0f,
+            Vector3 position = default,
+            float minDistance = 1f,
+            float maxDistance = 15f,
+            bool loop = false,
+            Action<EventSound3D> soundCreated = null)
         {
             Type = type;
             Clip = clip;
             Value = value;
+            Position = position;
+            MinDistance = minDistance;
+            MaxDistance = maxDistance;
+            Loop = loop;
+            SoundCreated = soundCreated;
         }
 
         /// <summary>Requested audio operation.</summary>
@@ -41,6 +53,21 @@ namespace QuietStatic.Toolkit.Audio
 
         /// <summary>Optional numeric argument used by volume commands.</summary>
         public float Value { get; }
+
+        /// <summary>World position used by positional sound commands.</summary>
+        public Vector3 Position { get; }
+
+        /// <summary>Full-volume distance used by positional sound commands.</summary>
+        public float MinDistance { get; }
+
+        /// <summary>Maximum audible distance used by positional sound commands.</summary>
+        public float MaxDistance { get; }
+
+        /// <summary>Whether a positional sound repeats until stopped.</summary>
+        public bool Loop { get; }
+
+        /// <summary>Optional synchronous completion callback receiving the spawned sound.</summary>
+        public Action<EventSound3D> SoundCreated { get; }
     }
 
     /// <summary>
@@ -116,6 +143,28 @@ namespace QuietStatic.Toolkit.Audio
         public void ResumeMusic()
         {
             Dispatch(new AudioCommand(AudioCommandType.ResumeMusic));
+        }
+
+        /// <summary>Requests a positional sound and returns the receiver-created instance.</summary>
+        public EventSound3D PlayAtPosition(
+            AudioClip clip,
+            Vector3 position,
+            float minDistance = 1f,
+            float maxDistance = 15f,
+            float volume = 1f,
+            bool loop = false)
+        {
+            EventSound3D created = null;
+            Dispatch(new AudioCommand(
+                AudioCommandType.PlaySfxAtPosition,
+                clip,
+                volume,
+                position,
+                minDistance,
+                maxDistance,
+                loop,
+                sound => created = sound));
+            return created;
         }
     }
 }

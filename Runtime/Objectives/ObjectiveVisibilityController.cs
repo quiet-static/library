@@ -26,15 +26,47 @@ namespace QuietStatic.Toolkit.Objectives
             objectiveRoot = gameObject;
         }
 
+        private GameStateManager observedGameState;
+
         private void OnEnable()
         {
-            GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+            ObserveActiveGameState();
+            RefreshVisibility();
+        }
+
+        private void Start()
+        {
+            ObserveActiveGameState();
             RefreshVisibility();
         }
 
         private void OnDisable()
         {
-            GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged -= HandleGameStateChanged;
+                observedGameState = null;
+            }
+        }
+
+        private void ObserveActiveGameState()
+        {
+            GameStateManager activeGameState = GameStateManager.Instance;
+            if (observedGameState == activeGameState)
+            {
+                return;
+            }
+
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged -= HandleGameStateChanged;
+            }
+
+            observedGameState = activeGameState;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged += HandleGameStateChanged;
+            }
         }
 
         /// <summary>

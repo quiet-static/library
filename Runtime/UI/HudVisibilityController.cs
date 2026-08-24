@@ -35,15 +35,25 @@ namespace QuietStatic.Toolkit.UI
             hudRoot = gameObject;
         }
 
+        private GameStateManager observedGameState;
+
         private void OnEnable()
         {
-            GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+            observedGameState = GameStateManager.Instance;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged += HandleGameStateChanged;
+            }
             RefreshVisibility();
         }
 
         private void OnDisable()
         {
-            GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged -= HandleGameStateChanged;
+                observedGameState = null;
+            }
         }
 
         /// <summary>

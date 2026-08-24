@@ -25,7 +25,7 @@ namespace QuietStatic.Tests.EditMode
         {
             if (stateChangedHandler != null)
             {
-                GameStateManager.OnGameStateChanged -= stateChangedHandler;
+                manager.StateChanged -= stateChangedHandler;
             }
 
             UnityEngine.Object.DestroyImmediate(managerObject);
@@ -43,7 +43,7 @@ namespace QuietStatic.Tests.EditMode
                 reportedCurrentState = currentState;
             };
 
-            GameStateManager.OnGameStateChanged += stateChangedHandler;
+            manager.StateChanged += stateChangedHandler;
 
             bool changed = manager.SetState("  Playing  ");
 
@@ -60,7 +60,7 @@ namespace QuietStatic.Tests.EditMode
 
             int notificationCount = 0;
             stateChangedHandler = (_, _) => notificationCount++;
-            GameStateManager.OnGameStateChanged += stateChangedHandler;
+            manager.StateChanged += stateChangedHandler;
 
             bool changed = manager.SetState("Playing");
 
@@ -73,7 +73,7 @@ namespace QuietStatic.Tests.EditMode
         {
             LogAssert.Expect(
                 LogType.Warning,
-                "WARNING: Game State Manager from SetState: " +
+                "[Warning] SetState: " +
                 "GameStateManager cannot switch to an empty state."
             );
 
@@ -98,7 +98,7 @@ namespace QuietStatic.Tests.EditMode
                 }
             };
 
-            GameStateManager.OnGameStateChanged += stateChangedHandler;
+            manager.StateChanged += stateChangedHandler;
 
             bool changed = manager.SetState("Playing");
 

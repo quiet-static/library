@@ -16,6 +16,11 @@ namespace QuietStatic.Toolkit.Audio
     [DisallowMultipleComponent]
     public class AudioHandler : MonoBehaviour
     {
+        [Header("Requests")]
+        [Tooltip("Required channel used for all persistent audio commands.")]
+        [RequiredCommandChannel]
+        [SerializeField] private AudioRequestChannel requestChannel;
+
         public enum SfxDialogueAction
         {
             KeepPlaying,
@@ -53,92 +58,104 @@ namespace QuietStatic.Toolkit.Audio
         private bool resumeSfxAfterDialogue;
         private bool resumeMusicAfterDialogue;
         private bool restoreSfxSpawningAfterDialogue;
+        private DialogueManager observedDialogue;
 
         private void OnEnable()
         {
-            DialogueManager.OnDialogueStarted += HandleDialogueStarted;
-            DialogueManager.OnDialogueEnded += HandleDialogueEnded;
+            observedDialogue = DialogueManager.Instance;
+            if (observedDialogue != null)
+            {
+                observedDialogue.DialogueStarted += HandleDialogueStarted;
+                observedDialogue.DialogueEnded += HandleDialogueEnded;
+            }
         }
 
         private void OnDisable()
         {
-            DialogueManager.OnDialogueStarted -= HandleDialogueStarted;
-            DialogueManager.OnDialogueEnded -= HandleDialogueEnded;
+            if (observedDialogue != null)
+            {
+                observedDialogue.DialogueStarted -= HandleDialogueStarted;
+                observedDialogue.DialogueEnded -= HandleDialogueEnded;
+                observedDialogue = null;
+            }
             RestorePausedAudio();
         }
 
         /// <summary>Starts a music clip immediately.</summary>
         public void PlayMusic(AudioClip clip)
         {
-            MusicManager.Instance?.PlayMusic(clip);
+            requestChannel?.PlayMusic(clip);
         }
 
         /// <summary>Stops the current music immediately.</summary>
         public void StopMusic()
         {
-            MusicManager.Instance?.StopMusic();
+            requestChannel?.StopMusic();
         }
 
         /// <summary>Transitions to a music clip using the manager's configured fade.</summary>
         public void PlayWithFade(AudioClip clip)
         {
-            MusicManager.Instance?.PlayMusicWithFade(clip);
+            requestChannel?.PlayWithFade(clip);
         }
 
         /// <summary>Stops the current music using the manager's configured fade.</summary>
         public void StopWithFade()
         {
-            MusicManager.Instance?.StopMusicWithFade();
+            requestChannel?.StopWithFade();
         }
 
         /// <summary>Sets normalized music volume.</summary>
         /// <param name="volume">Linear volume, normally from zero to one.</param>
         public void SetVolume(float volume)
         {
-            MusicManager.Instance?.SetVolume(volume);
+            requestChannel?.SetVolume(volume);
         }
 
         /// <summary>Pauses all currently playing EventSound3D instances spawned by SfxManager.</summary>
         public void PauseSpawnedSfx()
         {
-            SfxManager.Instance?.PauseSpawnedSounds();
+            requestChannel?.PauseSpawnedSfx();
         }
 
         /// <summary>Resumes sounds paused by the last SfxManager pause request.</summary>
         public void ResumeSpawnedSfx()
         {
-            SfxManager.Instance?.ResumeSpawnedSounds();
+            requestChannel?.ResumeSpawnedSfx();
         }
 
         /// <summary>Stops and despawns all EventSound3D instances spawned by SfxManager.</summary>
         public void DespawnSpawnedSfx()
         {
-            SfxManager.Instance?.DespawnSpawnedSounds();
+            requestChannel?.DespawnSpawnedSfx();
         }
 
         /// <summary>Allows SfxManager to accept future EventSound3D spawn requests.</summary>
         public void EnableSfxSpawning()
         {
-            SfxManager.Instance?.EnableSpawning();
+            requestChannel?.EnableSfxSpawning();
         }
 
         /// <summary>Prevents SfxManager from accepting future EventSound3D spawn requests.</summary>
         public void DisableSfxSpawning()
         {
-            SfxManager.Instance?.DisableSpawning();
+            requestChannel?.DisableSfxSpawning();
         }
 
         /// <summary>Pauses background music while preserving its playback position.</summary>
         public void PauseMusic()
         {
-            MusicManager.Instance?.PauseMusic();
+            requestChannel?.PauseMusic();
         }
 
         /// <summary>Resumes background music when it is paused.</summary>
         public void ResumeMusic()
         {
-            MusicManager.Instance?.ResumeMusic();
+            requestChannel?.ResumeMusic();
         }
+
+        /// <summary>Assigns the persistent audio request channel.</summary>
+        public void SetRequestChannel(AudioRequestChannel value) => requestChannel = value;
 
         private void HandleDialogueStarted(Object dialogue, Transform focusTarget)
         {
@@ -151,38 +168,32 @@ namespace QuietStatic.Toolkit.Audio
             resumeMusicAfterDialogue = false;
             restoreSfxSpawningAfterDialogue = false;
 
-            if (SfxManager.Instance != null)
+            if (blockNewSfxDuringDialogue)
             {
-                if (blockNewSfxDuringDialogue && SfxManager.Instance.IsSpawningEnabled)
-                {
-                    SfxManager.Instance.DisableSpawning();
-                    restoreSfxSpawningAfterDialogue = true;
-                }
-
-                switch (sfxOnDialogueStarted)
-                {
-                    case SfxDialogueAction.Pause:
-                        SfxManager.Instance.PauseSpawnedSounds();
-                        resumeSfxAfterDialogue = true;
-                        break;
-                    case SfxDialogueAction.Despawn:
-                        SfxManager.Instance.DespawnSpawnedSounds();
-                        break;
-                }
+                requestChannel?.DisableSfxSpawning();
+                restoreSfxSpawningAfterDialogue = true;
             }
 
-            if (MusicManager.Instance != null)
+            switch (sfxOnDialogueStarted)
             {
-                switch (musicOnDialogueStarted)
-                {
-                    case MusicDialogueAction.Pause:
-                        resumeMusicAfterDialogue = MusicManager.Instance.IsPlaying;
-                        MusicManager.Instance.PauseMusic();
-                        break;
-                    case MusicDialogueAction.Stop:
-                        MusicManager.Instance.StopMusic();
-                        break;
-                }
+                case SfxDialogueAction.Pause:
+                    requestChannel?.PauseSpawnedSfx();
+                    resumeSfxAfterDialogue = true;
+                    break;
+                case SfxDialogueAction.Despawn:
+                    requestChannel?.DespawnSpawnedSfx();
+                    break;
+            }
+
+            switch (musicOnDialogueStarted)
+            {
+                case MusicDialogueAction.Pause:
+                    resumeMusicAfterDialogue = true;
+                    requestChannel?.PauseMusic();
+                    break;
+                case MusicDialogueAction.Stop:
+                    requestChannel?.StopMusic();
+                    break;
             }
 
             onDialogueAudioStarted?.Invoke();
@@ -203,17 +214,17 @@ namespace QuietStatic.Toolkit.Audio
         {
             if (resumeSfxAfterDialogue)
             {
-                SfxManager.Instance?.ResumeSpawnedSounds();
+                requestChannel?.ResumeSpawnedSfx();
             }
 
             if (resumeMusicAfterDialogue)
             {
-                MusicManager.Instance?.ResumeMusic();
+                requestChannel?.ResumeMusic();
             }
 
             if (restoreSfxSpawningAfterDialogue)
             {
-                SfxManager.Instance?.EnableSpawning();
+                requestChannel?.EnableSfxSpawning();
             }
 
             resumeSfxAfterDialogue = false;

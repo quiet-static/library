@@ -13,21 +13,13 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <param name="directorFieldName">
         /// Name of the sibling serialized field containing the camera director.
         /// </param>
-        /// <param name="legacyIndexFieldName">
-        /// Optional sibling integer field used to display and migrate an older index reference.
-        /// </param>
-        public CinematicShotIdAttribute(
-            string directorFieldName,
-            string legacyIndexFieldName = null)
+        public CinematicShotIdAttribute(string directorFieldName)
         {
             DirectorFieldName = directorFieldName;
-            LegacyIndexFieldName = legacyIndexFieldName;
         }
 
         /// <summary>Gets the sibling camera-director field name.</summary>
         public string DirectorFieldName { get; }
 
-        /// <summary>Gets the optional sibling legacy-index field name.</summary>
-        public string LegacyIndexFieldName { get; }
     }
 }

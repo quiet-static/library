@@ -16,7 +16,6 @@ namespace QuietStatic.Tests.EditMode
         {
             flagObject = new GameObject("Flags");
             flags = flagObject.AddComponent<FlagManager>();
-            SetField(flags, "persistBetweenScenes", false);
             InvokeLifecycle(flags, "Awake");
         }
 

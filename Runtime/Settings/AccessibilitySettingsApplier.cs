@@ -22,18 +22,27 @@ namespace QuietStatic.Toolkit.Settings
         [SerializeField] private UnityEvent onHighContrastDisabled;
 
         private bool lastHighContrast;
+        private SettingsManager observedManager;
 
         private void OnEnable()
         {
-            SettingsManager.OnSettingChanged += HandleChanged;
-            SettingsManager.OnSettingsLoaded += Apply;
+            observedManager = SettingsManager.Instance;
+            if (observedManager != null)
+            {
+                observedManager.SettingChanged += HandleChanged;
+                observedManager.SettingsLoaded += Apply;
+            }
             Apply();
         }
 
         private void OnDisable()
         {
-            SettingsManager.OnSettingChanged -= HandleChanged;
-            SettingsManager.OnSettingsLoaded -= Apply;
+            if (observedManager != null)
+            {
+                observedManager.SettingChanged -= HandleChanged;
+                observedManager.SettingsLoaded -= Apply;
+                observedManager = null;
+            }
         }
 
         public void Apply()

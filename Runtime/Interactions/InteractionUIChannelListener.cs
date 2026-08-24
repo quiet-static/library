@@ -14,6 +14,9 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Channel carrying interaction UI requests from gameplay scenes.")]
         [SerializeField] private InteractionUIChannel channel;
 
+        [Tooltip("Persistent interaction UI service that executes received commands.")]
+        [SerializeField] private InteractionUIManager interactionUIManager;
+
         private CrossSceneChannelSubscription<InteractionUIChannel> subscription;
 
         private CrossSceneChannelSubscription<InteractionUIChannel> Subscription =>
@@ -42,41 +45,41 @@ namespace QuietStatic.Toolkit.Interactions
             }
         }
 
-        private static void Subscribe(InteractionUIChannel value)
+        private void Subscribe(InteractionUIChannel value)
         {
             value.CommandRequested += HandleCommand;
         }
 
-        private static void Unsubscribe(InteractionUIChannel value)
+        private void Unsubscribe(InteractionUIChannel value)
         {
             value.CommandRequested -= HandleCommand;
         }
 
-        private static void HandleCommand(InteractionUICommand command)
+        private void HandleCommand(InteractionUICommand command)
         {
             switch (command.Type)
             {
                 case InteractionUICommandType.ShowPrompt:
-                    InteractionUIManager.Instance?.ShowPrompt(command.Text);
+                    interactionUIManager?.ShowPrompt(command.Text);
                     break;
                 case InteractionUICommandType.HidePrompt:
-                    InteractionUIManager.Instance?.HidePrompt();
+                    interactionUIManager?.HidePrompt();
                     break;
                 case InteractionUICommandType.ShowMessage:
-                    InteractionUIManager.Instance?.ShowMessage(command.Text);
+                    interactionUIManager?.ShowMessage(command.Text);
                     break;
                 case InteractionUICommandType.ShowTimedMessage:
-                    InteractionUIManager.Instance?.ShowMessageForSeconds(
+                    interactionUIManager?.ShowMessageForSeconds(
                         command.Text,
                         command.Seconds);
                     break;
                 case InteractionUICommandType.ShowProgress:
-                    InteractionUIManager.Instance?.ShowProgress(
+                    interactionUIManager?.ShowProgress(
                         command.Text,
                         command.Progress);
                     break;
                 case InteractionUICommandType.HideProgress:
-                    InteractionUIManager.Instance?.HideProgress();
+                    interactionUIManager?.HideProgress();
                     break;
             }
         }

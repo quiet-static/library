@@ -32,6 +32,10 @@ namespace QuietStatic.Toolkit.Narrative
         [Tooltip("Optional map used by stage scene-connection IDs.")]
         [SerializeField] private SceneFlowMap sceneFlowMap;
 
+        [Tooltip("Required channel used to submit stage scene transitions.")]
+        [RequiredCommandChannel]
+        [SerializeField] private SceneFlowRequestChannel requestChannel;
+
         [Header("Startup")]
         [Tooltip("Begin at the definition's starting stage during Start.")]
         [SerializeField] private bool startOnStart = true;
@@ -55,14 +59,24 @@ namespace QuietStatic.Toolkit.Narrative
         public IReadOnlyCollection<string> CompletedStageIds => completedStageIds;
         public string SaveId => $"quietstatic.story-sequence.{sequence?.Id ?? string.Empty}";
 
+        private FlagManager observedFlags;
+
         private void OnEnable()
         {
-            FlagManager.OnFlagsChanged += EvaluateProgress;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged += EvaluateProgress;
+            }
         }
 
         private void OnDisable()
         {
-            FlagManager.OnFlagsChanged -= EvaluateProgress;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged -= EvaluateProgress;
+                observedFlags = null;
+            }
         }
 
         private void Start()
@@ -204,7 +218,13 @@ namespace QuietStatic.Toolkit.Narrative
             {
                 return;
             }
-            SceneFlowManager.Instance?.TransitionToScene(request);
+            if (requestChannel == null || !requestChannel.RequestTransition(request))
+            {
+                GameLogger.Warning(
+                    nameof(RequestSceneConnection),
+                    this,
+                    "Story sequence scene transition requires an active request-channel receiver.");
+            }
         }
 
         private static void SetFlags(IEnumerable<string> flagIds)

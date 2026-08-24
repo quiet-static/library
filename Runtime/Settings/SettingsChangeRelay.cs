@@ -23,8 +23,25 @@ namespace QuietStatic.Toolkit.Settings
         [Tooltip("Invoked after every settings change, before the matching binding.")]
         [SerializeField] private UnityEvent onAnySettingChanged;
 
-        private void OnEnable() => SettingsManager.OnSettingChanged += HandleChanged;
-        private void OnDisable() => SettingsManager.OnSettingChanged -= HandleChanged;
+        private SettingsManager observedManager;
+
+        private void OnEnable()
+        {
+            observedManager = SettingsManager.Instance;
+            if (observedManager != null)
+            {
+                observedManager.SettingChanged += HandleChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (observedManager != null)
+            {
+                observedManager.SettingChanged -= HandleChanged;
+                observedManager = null;
+            }
+        }
 
         private void HandleChanged(GameSettingId setting)
         {

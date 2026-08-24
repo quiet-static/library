@@ -74,9 +74,6 @@ MonoBehaviour:
   progressBarPrefab: {fileID: 100003, guid: 0dea3986b1984882852a22a203bc8d27, type: 3}
   progressBarInstance: {fileID: 0}
   progressBarAnchor: {fileID: 300011}
-  progressRoot: {fileID: 0}
-  progressSlider: {fileID: 0}
-  progressLabel: {fileID: 0}
   progressName: Progress
   hideProgressWhenComplete: 1
   completionDisplayTime: 0.25

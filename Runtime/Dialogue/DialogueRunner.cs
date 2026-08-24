@@ -30,17 +30,17 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Raised whenever any DialogueRunner starts.
         /// </summary>
-        public static event Action<DialogueRunner> OnDialogueStarted;
+        public event Action<DialogueRunner> DialogueStarted;
 
         /// <summary>
         /// Raised whenever any DialogueRunner changes to a new node.
         /// </summary>
-        public static event Action<DialogueRunner, DialogueTree.Node> OnNodeChanged;
+        public event Action<DialogueRunner, DialogueTree.Node> NodeChanged;
 
         /// <summary>
         /// Raised whenever any DialogueRunner ends.
         /// </summary>
-        public static event Action<DialogueRunner> OnDialogueEnded;
+        public event Action<DialogueRunner> DialogueEnded;
 
         [Header("Dialogue")]
         [Tooltip("Dialogue tree this runner should play.")]
@@ -113,7 +113,7 @@ namespace QuietStatic.Toolkit.Dialogue
 
             IsRunning = true;
 
-            OnDialogueStarted?.Invoke(this);
+            DialogueStarted?.Invoke(this);
             onDialogueStarted?.Invoke();
 
             GoToNode(dialogueTree.StartNodeIndex);
@@ -196,7 +196,7 @@ namespace QuietStatic.Toolkit.Dialogue
             CurrentNode = null;
             currentNodeIndex = -1;
 
-            OnDialogueEnded?.Invoke(this);
+            DialogueEnded?.Invoke(this);
             onDialogueEnded?.Invoke();
         }
 
@@ -232,7 +232,7 @@ namespace QuietStatic.Toolkit.Dialogue
 
             SetFlags(CurrentNode.flagsToSetOnEnter);
 
-            OnNodeChanged?.Invoke(this, CurrentNode);
+            NodeChanged?.Invoke(this, CurrentNode);
             onNodeChanged?.Invoke();
         }
 

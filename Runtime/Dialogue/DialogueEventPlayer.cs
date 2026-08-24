@@ -71,6 +71,7 @@ namespace QuietStatic.Toolkit.Dialogue
 
         private DialogueTree activeTree;
         private Transform activeSpeaker;
+        private DialogueManager observedManager;
 
         /// <summary>Gets whether dialogue started by this wrapper is still active.</summary>
         public bool IsRunning => activeTree != null;
@@ -83,12 +84,30 @@ namespace QuietStatic.Toolkit.Dialogue
 
         private void OnEnable()
         {
-            DialogueManager.OnDialogueEnded += HandleDialogueEnded;
+            bool managerChanged = SubscribeToManager();
+            if (activeTree != null &&
+                (managerChanged ||
+                 observedManager == null ||
+                 observedManager.CurrentDialogueTree != activeTree))
+            {
+                CompleteActiveDialogue();
+            }
         }
 
         private void OnDisable()
         {
-            DialogueManager.OnDialogueEnded -= HandleDialogueEnded;
+            // Keep observing a dialogue this wrapper started. Manager events are
+            // still delivered to disabled behaviours, so this preserves exact
+            // session identity even if another wrapper later starts the same tree.
+            if (activeTree == null)
+            {
+                UnsubscribeFromManager();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromManager();
         }
 
         /// <summary>
@@ -122,12 +141,18 @@ namespace QuietStatic.Toolkit.Dialogue
             Transform requestedFocusTarget,
             Transform requestedSpeaker)
         {
-            if (tree == null || DialogueManager.Instance == null || activeTree != null || !CanStartDialogue)
+            SubscribeToManager();
+            if (tree == null ||
+                observedManager == null ||
+                activeTree != null ||
+                !CanStartDialogue)
             {
                 return false;
             }
 
-            bool started = DialogueManager.Instance.StartDialogue(tree, requestedFocusTarget);
+            bool started = observedManager.StartDialogue(
+                tree,
+                requestedFocusTarget);
 
             if (!started)
             {
@@ -218,6 +243,16 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
+            CompleteActiveDialogue();
+        }
+
+        private void CompleteActiveDialogue()
+        {
+            if (activeTree == null)
+            {
+                return;
+            }
+
             DialogueTree endedTree = activeTree;
             Transform endedSpeaker = activeSpeaker;
 
@@ -231,6 +266,41 @@ namespace QuietStatic.Toolkit.Dialogue
 
             DialogueEnded?.Invoke(endedTree, endedSpeaker);
             onDialogueEnded?.Invoke();
+
+            if (!isActiveAndEnabled)
+            {
+                UnsubscribeFromManager();
+            }
+        }
+
+        private bool SubscribeToManager()
+        {
+            DialogueManager manager = DialogueManager.Instance;
+            if (ReferenceEquals(observedManager, manager))
+            {
+                return false;
+            }
+
+            UnsubscribeFromManager();
+            observedManager = manager;
+            if (observedManager != null)
+            {
+                observedManager.DialogueEnded += HandleDialogueEnded;
+            }
+
+            return true;
+        }
+
+        private void UnsubscribeFromManager()
+        {
+            DialogueManager manager = observedManager;
+            observedManager = null;
+            if (manager == null)
+            {
+                return;
+            }
+
+            manager.DialogueEnded -= HandleDialogueEnded;
         }
     }
 }

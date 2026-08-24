@@ -22,11 +22,6 @@ namespace QuietStatic.Tests.PlayMode
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            DialogueRunner.OnDialogueStarted -= startedHandler;
-            DialogueRunner.OnNodeChanged -= nodeChangedHandler;
-            DialogueRunner.OnDialogueEnded -= endedHandler;
-            DialogueManager.OnDialogueStarted -= managerStartedHandler;
-            DialogueManager.OnDialogueEnded -= managerEndedHandler;
             startedHandler = null;
             nodeChangedHandler = null;
             endedHandler = null;
@@ -82,9 +77,9 @@ namespace QuietStatic.Tests.PlayMode
             nodeChangedHandler = (_, node) => lifecycle.Add($"node:{node.id}");
             endedHandler = _ => lifecycle.Add("ended");
 
-            DialogueRunner.OnDialogueStarted += startedHandler;
-            DialogueRunner.OnNodeChanged += nodeChangedHandler;
-            DialogueRunner.OnDialogueEnded += endedHandler;
+            runner.DialogueStarted += startedHandler;
+            runner.NodeChanged += nodeChangedHandler;
+            runner.DialogueEnded += endedHandler;
 
             runner.StartDialogue();
             runner.Choose(0);
@@ -135,8 +130,8 @@ namespace QuietStatic.Tests.PlayMode
                 lifecycle.Add($"started:{startedTree.name}");
             managerEndedHandler = endedTree =>
                 lifecycle.Add($"ended:{endedTree.name}");
-            DialogueManager.OnDialogueStarted += managerStartedHandler;
-            DialogueManager.OnDialogueEnded += managerEndedHandler;
+            manager.DialogueStarted += managerStartedHandler;
+            manager.DialogueEnded += managerEndedHandler;
 
             Assert.That(manager.StartDialogue(tree), Is.True);
             Assert.That(manager.IsDialogueActive, Is.True);
@@ -152,6 +147,51 @@ namespace QuietStatic.Tests.PlayMode
                 new[] { $"started:{tree.name}", $"ended:{tree.name}" },
                 lifecycle);
 
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator DisabledEventPlayer_DoesNotAdoptALaterRunOfTheSameTree()
+        {
+            DialogueTree tree = Track(CreateTree(
+                new DialogueTree.Node
+                {
+                    id = "only",
+                    nextNodeIndex = -1,
+                }));
+            var managerObject = Track(new GameObject("Dialogue Manager"));
+            managerObject.AddComponent<DialogueRunner>();
+            DialogueManager manager =
+                managerObject.AddComponent<DialogueManager>();
+            var firstObject = Track(new GameObject("First Dialogue Player"));
+            DialogueEventPlayer first =
+                firstObject.AddComponent<DialogueEventPlayer>();
+            var secondObject = Track(new GameObject("Second Dialogue Player"));
+            DialogueEventPlayer second =
+                secondObject.AddComponent<DialogueEventPlayer>();
+            int firstEnded = 0;
+            int secondEnded = 0;
+            first.DialogueEnded += (_, _) => firstEnded++;
+            second.DialogueEnded += (_, _) => secondEnded++;
+
+            Assert.That(
+                first.TryStartDialogue(tree, null, null),
+                Is.True);
+            first.enabled = false;
+            Assert.That(manager.StopDialogue(), Is.True);
+
+            Assert.That(first.IsRunning, Is.False);
+            Assert.That(firstEnded, Is.EqualTo(1));
+            Assert.That(
+                second.TryStartDialogue(tree, null, null),
+                Is.True);
+            first.enabled = true;
+            Assert.That(manager.StopDialogue(), Is.True);
+
+            Assert.That(firstEnded, Is.EqualTo(1));
+            Assert.That(secondEnded, Is.EqualTo(1));
+            Assert.That(first.IsRunning, Is.False);
+            Assert.That(second.IsRunning, Is.False);
             yield return null;
         }
 

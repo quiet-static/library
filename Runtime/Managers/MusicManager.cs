@@ -62,6 +62,9 @@ namespace QuietStatic
         [SerializeField] private AudioSource musicSource;
 
         [Header("State Music")]
+        [Tooltip("Authoritative game-state service in the same persistent System scene.")]
+        [SerializeField] private GameStateManager gameStateManager;
+
         [Tooltip("Optional music rules applied when the global game state changes.")]
         [SerializeField] private StateMusicEntry[] stateMusicEntries;
 
@@ -145,12 +148,18 @@ namespace QuietStatic
 
         private void OnEnable()
         {
-            GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+            if (gameStateManager != null)
+            {
+                gameStateManager.StateChanged += HandleGameStateChanged;
+            }
         }
 
         private void OnDisable()
         {
-            GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+            if (gameStateManager != null)
+            {
+                gameStateManager.StateChanged -= HandleGameStateChanged;
+            }
         }
 
         /// <summary>
@@ -162,10 +171,10 @@ namespace QuietStatic
 
             bool playedMappedStateMusic = false;
 
-            if (GameStateManager.Instance != null)
+            if (gameStateManager != null)
             {
                 playedMappedStateMusic = TryPlayMusicForState(
-                    GameStateManager.Instance.CurrentState
+                    gameStateManager.CurrentState
                 );
             }
 

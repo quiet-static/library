@@ -43,12 +43,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Raised when dialogue begins.
         /// </summary>
-        public static event Action<UnityEngine.Object, Transform> OnDialogueStarted;
+        public event Action<UnityEngine.Object, Transform> DialogueStarted;
 
         /// <summary>
         /// Raised when dialogue ends.
         /// </summary>
-        public static event Action<UnityEngine.Object> OnDialogueEnded;
+        public event Action<UnityEngine.Object> DialogueEnded;
 
         [Serializable]
         public class DialogueStartedEvent : UnityEvent<UnityEngine.Object, Transform>
@@ -65,7 +65,7 @@ namespace QuietStatic.Toolkit.Dialogue
         [SerializeField] private DialogueRunner dialogueRunner;
 
         [Header("UI")]
-        [Tooltip("Dialogue UI manager used to display speaker names, dialogue text, and choices. If empty, DialogueUIManager.Instance is used.")]
+        [Tooltip("Dialogue UI service in the same persistent Player scene.")]
         [SerializeField] private DialogueUIManager dialogueUIManager;
 
         [Header("Unity Events")]
@@ -106,10 +106,6 @@ namespace QuietStatic.Toolkit.Dialogue
                 dialogueRunner = GetComponent<DialogueRunner>();
             }
 
-            if (dialogueUIManager == null)
-            {
-                dialogueUIManager = DialogueUIManager.Instance;
-            }
         }
 
         /// <summary>
@@ -117,9 +113,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         private void OnEnable()
         {
-            DialogueRunner.OnDialogueStarted += HandleRunnerStarted;
-            DialogueRunner.OnNodeChanged += HandleNodeChanged;
-            DialogueRunner.OnDialogueEnded += HandleRunnerEnded;
+            if (dialogueRunner != null)
+            {
+                dialogueRunner.DialogueStarted += HandleRunnerStarted;
+                dialogueRunner.NodeChanged += HandleNodeChanged;
+                dialogueRunner.DialogueEnded += HandleRunnerEnded;
+            }
 
             if (dialogueUIManager != null)
             {
@@ -133,9 +132,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         private void OnDisable()
         {
-            DialogueRunner.OnDialogueStarted -= HandleRunnerStarted;
-            DialogueRunner.OnNodeChanged -= HandleNodeChanged;
-            DialogueRunner.OnDialogueEnded -= HandleRunnerEnded;
+            if (dialogueRunner != null)
+            {
+                dialogueRunner.DialogueStarted -= HandleRunnerStarted;
+                dialogueRunner.NodeChanged -= HandleNodeChanged;
+                dialogueRunner.DialogueEnded -= HandleRunnerEnded;
+            }
 
             if (dialogueUIManager != null)
             {
@@ -249,7 +251,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             DialogueTree startedDialogue = runner.Tree;
-            OnDialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
+            DialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
             onDialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
         }
 
@@ -267,11 +269,6 @@ namespace QuietStatic.Toolkit.Dialogue
 
             if (dialogueUIManager == null)
             {
-                dialogueUIManager = DialogueUIManager.Instance;
-            }
-
-            if (dialogueUIManager == null)
-            {
                 return;
             }
 
@@ -280,14 +277,16 @@ namespace QuietStatic.Toolkit.Dialogue
                 dialogueUIManager.ShowChoices(
                     node.speaker,
                     node.line,
-                    dialogueRunner.GetAvailableChoiceTexts()
+                    dialogueRunner.GetAvailableChoiceTexts(),
+                    node.presentationTags
                 );
             }
             else
             {
                 dialogueUIManager.ShowLine(
                     node.speaker,
-                    node.line
+                    node.line,
+                    node.presentationTags
                 );
             }
         }
@@ -313,17 +312,12 @@ namespace QuietStatic.Toolkit.Dialogue
         {
             currentFocusTarget = null;
 
-            if (dialogueUIManager == null)
-            {
-                dialogueUIManager = DialogueUIManager.Instance;
-            }
-
             if (dialogueUIManager != null)
             {
                 dialogueUIManager.HideDialogueUI();
             }
 
-            OnDialogueEnded?.Invoke(endedDialogue);
+            DialogueEnded?.Invoke(endedDialogue);
             onDialogueEnded?.Invoke(endedDialogue);
         }
     }

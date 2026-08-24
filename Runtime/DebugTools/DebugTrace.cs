@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.DebugTools
@@ -27,13 +28,32 @@ namespace QuietStatic.Toolkit.DebugTools
             /// <param name="category">Normalized diagnostic category.</param>
             /// <param name="message">Normalized diagnostic message.</param>
             /// <param name="context">Optional Unity object retained until the entry is removed.</param>
-            public Entry(int frame, float time, string category, string message, UnityEngine.Object context)
+            public Entry(
+                int frame,
+                float time,
+                string category,
+                string message,
+                UnityEngine.Object context,
+                string scene = "",
+                string source = "",
+                string eventType = "",
+                string payload = "",
+                string receiver = "",
+                string outcome = "",
+                string correlationId = "")
             {
                 Frame = frame;
                 Time = time;
                 Category = category;
                 Message = message;
                 Context = context;
+                Scene = scene;
+                Source = source;
+                EventType = eventType;
+                Payload = payload;
+                Receiver = receiver;
+                Outcome = outcome;
+                CorrelationId = correlationId;
             }
 
             /// <summary>Gets the Unity frame in which this entry was recorded.</summary>
@@ -53,11 +73,22 @@ namespace QuietStatic.Toolkit.DebugTools
             /// Unity's null checks because a retained object can be destroyed before this entry is.
             /// </summary>
             public UnityEngine.Object Context { get; }
+            public string Scene { get; }
+            public string Source { get; }
+            public string EventType { get; }
+            public string Payload { get; }
+            public string Receiver { get; }
+            public string Outcome { get; }
+            public string CorrelationId { get; }
         }
 
         private const int DefaultCapacity = 100;
         private static readonly List<Entry> entries = new(DefaultCapacity);
         private static int capacity = DefaultCapacity;
+        private static int nextCorrelationId;
+
+        /// <summary>Gets whether trace recording is active.</summary>
+        public static bool Enabled { get; private set; }
 
         /// <summary>
         /// Gets a read-only view of the trace in oldest-to-newest order.
@@ -79,6 +110,16 @@ namespace QuietStatic.Toolkit.DebugTools
             Trim();
         }
 
+        /// <summary>Enables or disables recording. Disabling does not discard retained entries.</summary>
+        public static void SetEnabled(bool value) => Enabled = value;
+
+        /// <summary>Creates a compact process-local correlation identifier.</summary>
+        public static string BeginCorrelation()
+        {
+            nextCorrelationId++;
+            return $"cmd-{nextCorrelationId:x8}";
+        }
+
         /// <summary>
         /// Records a diagnostic event without writing to the Unity Console. Blank categories
         /// and messages receive defaults; nonblank values are trimmed. The optional context is
@@ -89,6 +130,11 @@ namespace QuietStatic.Toolkit.DebugTools
         /// <param name="context">Optional Unity object associated with the event.</param>
         public static void Record(string category, string message, UnityEngine.Object context = null)
         {
+            if (!Enabled)
+            {
+                return;
+            }
+
             Entry entry = new(
                 Time.frameCount,
                 Time.realtimeSinceStartup,
@@ -97,6 +143,42 @@ namespace QuietStatic.Toolkit.DebugTools
                 context);
 
             entries.Add(entry);
+            Trim();
+        }
+
+        /// <summary>Records a structured command lifecycle entry.</summary>
+        public static void RecordCommand(
+            string correlationId,
+            string source,
+            string commandType,
+            string payload,
+            string receiver,
+            string outcome,
+            UnityEngine.Object context = null)
+        {
+            if (!Enabled)
+            {
+                return;
+            }
+
+            string scene = context is Component component
+                ? component.gameObject.scene.name
+                : context is GameObject gameObject
+                    ? gameObject.scene.name
+                    : SceneManager.GetActiveScene().name;
+            entries.Add(new Entry(
+                Time.frameCount,
+                Time.realtimeSinceStartup,
+                "Command",
+                $"{commandType}: {outcome}",
+                context,
+                scene,
+                source ?? string.Empty,
+                commandType ?? string.Empty,
+                payload ?? string.Empty,
+                receiver ?? string.Empty,
+                outcome ?? string.Empty,
+                correlationId ?? string.Empty));
             Trim();
         }
 

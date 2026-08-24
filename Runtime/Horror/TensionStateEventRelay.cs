@@ -22,20 +22,33 @@ namespace QuietStatic.Toolkit.Horror
             public void Exit() => onExited?.Invoke();
         }
 
-        [Tooltip("Optional controller filter. Leave empty to hear every tension controller.")]
+        [Tooltip("Tension controller whose state changes drive these bindings.")]
         [SerializeField] private HorrorTensionController controller;
         [Tooltip("State IDs mapped to scene-specific enter and exit responses.")]
         [SerializeField] private Binding[] bindings;
 
-        private void OnEnable() => HorrorTensionController.StateChanged += HandleChanged;
-        private void OnDisable() => HorrorTensionController.StateChanged -= HandleChanged;
+        private void OnEnable()
+        {
+            if (controller != null)
+            {
+                controller.TensionStateChanged += HandleChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (controller != null)
+            {
+                controller.TensionStateChanged -= HandleChanged;
+            }
+        }
 
         private void HandleChanged(
             HorrorTensionController changedController,
             string previous,
             string current)
         {
-            if (controller != null && changedController != controller) return;
+            if (changedController != controller) return;
             if (bindings == null) return;
             foreach (Binding binding in bindings)
             {

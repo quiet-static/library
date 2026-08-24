@@ -18,10 +18,10 @@ namespace QuietStatic.Toolkit.Interactions
     public class Interactable : MonoBehaviour, IInteractionTarget
     {
         /// <summary>Raised after any interactable completes successfully.</summary>
-        public static event Action<Interactable, Interactor> OnInteractionSucceeded;
+        public event Action<Interactable, Interactor> InteractionSucceeded;
 
         /// <summary>Raised after an enabled interactable fails its requirements.</summary>
-        public static event Action<Interactable, Interactor> OnInteractionFailed;
+        public event Action<Interactable, Interactor> InteractionFailed;
 
         [Header("Interaction Display")]
         [Tooltip("Name or prompt shown to the player.")]
@@ -113,7 +113,7 @@ namespace QuietStatic.Toolkit.Interactions
         private void HandleSuccessfulInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnSuccess);
-            OnInteractionSucceeded?.Invoke(this, interactor);
+            InteractionSucceeded?.Invoke(this, interactor);
             onInteractionSucceeded?.Invoke();
 
             if (disableAfterSuccess)
@@ -125,7 +125,7 @@ namespace QuietStatic.Toolkit.Interactions
         private void HandleFailedInteraction(Interactor interactor)
         {
             SetFlags(flagsToSetOnFailure);
-            OnInteractionFailed?.Invoke(this, interactor);
+            InteractionFailed?.Invoke(this, interactor);
             onInteractionFailed?.Invoke();
         }
 

@@ -22,9 +22,8 @@ namespace QuietStatic.Toolkit.DebugTools
     /// <remarks>
     /// The dashboard uses Unity's immediate-mode GUI so it has no prefab or Canvas dependency and
     /// remains available while debugging incomplete scenes. Expensive scene/object discovery is
-    /// performed only while the corresponding visible window is being drawn. The first live instance
-    /// becomes the process-wide dashboard and later scene copies remove themselves; the persistence
-    /// option also carries that instance across scene unloads. The component temporarily owns two
+    /// performed only while the corresponding visible window is being drawn. The owning support
+    /// scene controls its lifetime. The component temporarily owns two
     /// pieces of global state: cursor presentation
     /// while visible and the dialogue-trigger setting for its lifetime. Cursor state is restored
     /// when the overlay hides or the component is disabled; the captured dialogue-trigger setting
@@ -38,18 +37,12 @@ namespace QuietStatic.Toolkit.DebugTools
         private const float Megabyte = 1024f * 1024f;
         private const float TitleBarHeight = 24f;
 
-        // Used only to reject duplicate live dashboards; other systems do not access it.
-        private static DebugDashboard instance;
-
         [Header("Visibility")]
         [Tooltip("Show the overlay when this component first starts.")]
         [SerializeField] private bool visibleOnStart = true;
 
         [Tooltip("Keyboard shortcut used to show or hide the entire debug overlay.")]
         [SerializeField] private KeyCode toggleKey = KeyCode.F3;
-
-        [Tooltip("Move this GameObject to DontDestroyOnLoad so it survives scene unloads. Keep it on a scene-root GameObject.")]
-        [SerializeField] private bool persistBetweenScenes = true;
 
         [Tooltip("Show and unlock the cursor while the dashboard is visible, then restore its previous state.")]
         [SerializeField] private bool unlockCursorWhileVisible = true;
@@ -81,7 +74,8 @@ namespace QuietStatic.Toolkit.DebugTools
         [Tooltip("Optional configured scene graph shown above the low-level Build Settings controls when a SceneFlowManager is available.")]
         [SerializeField] private SceneFlowMap sceneFlowMap;
 
-        [Tooltip("Optional scene-flow request channel. It needs an active receiver; direct SceneFlowManager calls are used only when this field is empty.")]
+        [Tooltip("Scene-flow command channel used by every dashboard scene operation.")]
+        [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel sceneFlowRequestChannel;
 
         [Tooltip("Show connections from every source scene instead of only connections leaving the active scene.")]
@@ -126,6 +120,7 @@ namespace QuietStatic.Toolkit.DebugTools
         private bool flagWindowOpen;
         private bool performanceWindowOpen;
         private bool logWindowOpen;
+        private string traceFilter = string.Empty;
         private bool teleportWindowOpen;
         private bool cutsceneWindowOpen;
         // Performance values are sampled with unscaled time so pause menus and timeScale changes do
@@ -168,18 +163,9 @@ namespace QuietStatic.Toolkit.DebugTools
         /// <summary>Gets the requested overlay visibility state, independent of component activation.</summary>
         public bool IsVisible => isVisible;
 
-        /// <summary>Establishes the singleton dashboard and initializes its runtime tool state.</summary>
+        /// <summary>Initializes runtime tool state owned by this dashboard's support scene.</summary>
         private void Awake()
         {
-            if (instance != null && instance != this)
-            {
-                // A persistent copy already owns the overlay and global settings. Removing the whole
-                // GameObject also removes its required monitor instead of leaving a partial duplicate.
-                Destroy(gameObject);
-                return;
-            }
-
-            instance = this;
             originalDialogueTriggerState = DialogueEventPlayer.TriggerStartsEnabled;
             ownsDialogueTriggerState = true;
 
@@ -198,11 +184,8 @@ namespace QuietStatic.Toolkit.DebugTools
             teleportWindowOpen = showTeleport;
             cutsceneWindowOpen = showCutscenes;
             DebugTrace.SetCapacity(traceCapacity);
+            DebugTrace.SetEnabled(true);
 
-            if (persistBetweenScenes)
-            {
-                DontDestroyOnLoad(gameObject);
-            }
         }
 
         /// <summary>Starts performance sampling and applies the configured initial visibility.</summary>
@@ -229,7 +212,7 @@ namespace QuietStatic.Toolkit.DebugTools
 
         /// <summary>
         /// Restores any owned cursor state and the captured dialogue-trigger state, then releases
-        /// this object as the singleton dashboard.
+        /// this dashboard's shared debug state.
         /// </summary>
         private void OnDestroy()
         {
@@ -239,10 +222,7 @@ namespace QuietStatic.Toolkit.DebugTools
                 // Do not leave a debug-session toggle active after the dashboard/Play Mode exits.
                 DialogueEventPlayer.TriggerStartsEnabled = originalDialogueTriggerState;
             }
-            if (instance == this)
-            {
-                instance = null;
-            }
+            DebugTrace.SetEnabled(false);
         }
 
         /// <summary>Accumulates unscaled frame-time statistics for the performance windows.</summary>
@@ -632,6 +612,12 @@ namespace QuietStatic.Toolkit.DebugTools
             }
             else
             {
+                if (sceneFlowRequestChannel == null || !sceneFlowRequestChannel.HasReceivers)
+                {
+                    GUILayout.Label(
+                        "Scene commands unavailable: assign a channel with an active receiver.",
+                        dimStyle);
+                }
                 DrawConfiguredSceneConnections(flow);
 
                 // Build Settings provide an authoritative fallback even when no SceneFlowMap was
@@ -646,7 +632,9 @@ namespace QuietStatic.Toolkit.DebugTools
                 DrawHeader("CUSTOM SCENE NAME");
                 GUILayout.BeginHorizontal();
                 customScene = GUILayout.TextField(customScene ?? string.Empty);
-                GUI.enabled = !string.IsNullOrWhiteSpace(customScene) && !flow.IsTransitioning;
+                GUI.enabled = CanRequestSceneFlow() &&
+                              !string.IsNullOrWhiteSpace(customScene) &&
+                              !flow.IsTransitioning;
                 if (GUILayout.Button("Transition", GUILayout.Width(82f)))
                 {
                     RequestDebugTransition(
@@ -655,7 +643,7 @@ namespace QuietStatic.Toolkit.DebugTools
                 }
                 if (GUILayout.Button("Additive", GUILayout.Width(70f)))
                 {
-                    flow.LoadSceneAdditive(customScene.Trim());
+                    sceneFlowRequestChannel?.TryLoadAdditive(customScene.Trim());
                 }
                 GUI.enabled = true;
                 GUILayout.EndHorizontal();
@@ -675,26 +663,26 @@ namespace QuietStatic.Toolkit.DebugTools
             GUILayout.BeginHorizontal();
             // '*' marks Unity's active scene, '+' an additively loaded non-active scene.
             GUILayout.Label($"{(active ? "*" : loaded ? "+" : " ")} {sceneName}");
-            GUI.enabled = !flow.IsTransitioning && !active;
+            GUI.enabled = CanRequestSceneFlow() && !flow.IsTransitioning && !active;
             if (GUILayout.Button("Go", GUILayout.Width(42f)))
             {
                 RequestDebugTransition(
                     new SceneTransitionRequest(sceneName),
                     $"build scene '{sceneName}'");
             }
-            GUI.enabled = !flow.IsTransitioning && !loaded;
+            GUI.enabled = CanRequestSceneFlow() && !flow.IsTransitioning && !loaded;
             if (GUILayout.Button("Load", GUILayout.Width(48f)))
             {
-                flow.LoadSceneAdditive(sceneName);
+                sceneFlowRequestChannel?.TryLoadAdditive(sceneName);
             }
-            GUI.enabled = loaded && !active;
+            GUI.enabled = CanRequestSceneFlow() && loaded && !active;
             if (GUILayout.Button("Active", GUILayout.Width(52f)))
             {
-                flow.SetActiveScene(sceneName);
+                sceneFlowRequestChannel?.TrySetActive(sceneName);
             }
             if (GUILayout.Button("Unload", GUILayout.Width(58f)))
             {
-                flow.UnloadScene(sceneName);
+                sceneFlowRequestChannel?.TryUnload(sceneName);
             }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
@@ -743,7 +731,8 @@ namespace QuietStatic.Toolkit.DebugTools
                 GUILayout.Label(
                     $"{connection.FromSceneName}  ->  {connection.ToSceneName}\n{connection.Id}",
                     isCurrentSource ? GUI.skin.label : dimStyle);
-                GUI.enabled = !flow.IsTransitioning &&
+                GUI.enabled = CanRequestSceneFlow() &&
+                              !flow.IsTransitioning &&
                               (isCurrentSource || showAllSceneConnections) &&
                               !string.IsNullOrWhiteSpace(connection.ToSceneName);
                 string buttonLabel = isCurrentSource ? "Travel" : "Force";
@@ -792,40 +781,15 @@ namespace QuietStatic.Toolkit.DebugTools
                    value.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        /// <summary>Sends a transition through the configured channel or the manager fallback.</summary>
+        /// <summary>Sends a transition through the configured command channel.</summary>
         /// <param name="request">Fully configured scene-flow request to dispatch.</param>
         /// <param name="description">Human-readable source included in the diagnostic trace.</param>
         private void RequestDebugTransition(
             SceneTransitionRequest request,
             string description)
         {
-            bool accepted;
-            if (sceneFlowRequestChannel != null)
-            {
-                // Prefer the same decoupled request path that scene objects use when it is assigned.
-                accepted = sceneFlowRequestChannel.RequestTransition(request);
-            }
-            else if (SceneFlowManager.Instance != null)
-            {
-                // Direct access keeps the standalone debug dashboard useful in partially wired scenes.
-                try
-                {
-                    SceneFlowManager.Instance.TransitionToScene(request);
-                    accepted = true;
-                }
-                catch (System.Exception exception)
-                {
-                    Debug.LogError(
-                        "DebugTools dashboard failed while requesting a scene transition.",
-                        this);
-                    Debug.LogException(exception, this);
-                    accepted = false;
-                }
-            }
-            else
-            {
-                accepted = false;
-            }
+            bool accepted = sceneFlowRequestChannel != null &&
+                            sceneFlowRequestChannel.RequestTransition(request);
 
             DebugTrace.Record(
                 "Scene Flow",
@@ -834,6 +798,9 @@ namespace QuietStatic.Toolkit.DebugTools
                     : $"Could not request transition via {description}; no receiver is available.",
                 this);
         }
+
+        private bool CanRequestSceneFlow() =>
+            sceneFlowRequestChannel != null && sceneFlowRequestChannel.HasReceivers;
 
         /// <summary>Draws game state and a snapshot of every loaded Unity scene.</summary>
         private void DrawRuntimeState()
@@ -1051,6 +1018,7 @@ namespace QuietStatic.Toolkit.DebugTools
                 DebugTrace.Clear();
             }
             GUILayout.EndHorizontal();
+            traceFilter = GUILayout.TextField(traceFilter ?? string.Empty);
 
             logScroll = GUILayout.BeginScrollView(logScroll);
             IReadOnlyList<DebugTrace.Entry> entries = DebugTrace.Entries;
@@ -1065,13 +1033,37 @@ namespace QuietStatic.Toolkit.DebugTools
                 for (int i = entries.Count - 1; i >= 0; i--)
                 {
                     DebugTrace.Entry entry = entries[i];
+                    if (!MatchesTraceFilter(entry))
+                    {
+                        continue;
+                    }
+                    string correlation = string.IsNullOrEmpty(entry.CorrelationId)
+                        ? string.Empty
+                        : $" [{entry.CorrelationId}]";
                     GUILayout.Label(
-                        $"-{now - entry.Time,6:0.00}s  f{entry.Frame,-6} [{entry.Category}] {entry.Message}",
+                        $"-{now - entry.Time,6:0.00}s  f{entry.Frame,-6} [{entry.Category}]{correlation} {entry.Message}",
                         eventStyle);
                 }
             }
             GUILayout.EndScrollView();
             GUI.DragWindow(new Rect(0f, 0f, logWindowRect.width - 34f, TitleBarHeight));
+        }
+
+        private bool MatchesTraceFilter(DebugTrace.Entry entry)
+        {
+            if (string.IsNullOrWhiteSpace(traceFilter))
+            {
+                return true;
+            }
+
+            string filter = traceFilter.Trim();
+            return ContainsIgnoreCase(entry.Category, filter) ||
+                   ContainsIgnoreCase(entry.Message, filter) ||
+                   ContainsIgnoreCase(entry.Source, filter) ||
+                   ContainsIgnoreCase(entry.EventType, filter) ||
+                   ContainsIgnoreCase(entry.Receiver, filter) ||
+                   ContainsIgnoreCase(entry.Outcome, filter) ||
+                   ContainsIgnoreCase(entry.CorrelationId, filter);
         }
 
         /// <summary>Draws a title-bar close button aligned to the current window's right edge.</summary>

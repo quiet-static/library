@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using QuietStatic;
 using QuietStatic.Toolkit.Cinematics;
 using QuietStatic.Toolkit.Dialogue;
@@ -29,6 +30,14 @@ namespace QuietStatic.Toolkit.DebugTools
         [SerializeField] private bool captureInfoLogs;
 
         private bool isMonitoring;
+        private readonly List<CutsceneSequenceRunner> observedCutscenes = new();
+        private readonly List<DialogueRunner> observedDialogueRunners = new();
+        private readonly List<Interactable> observedInteractables = new();
+        private readonly List<JumpscareEvent> observedJumpscares = new();
+        private GameStateManager observedGameState;
+        private ObjectiveManager observedObjectives;
+        private FlagManager observedFlags;
+        private SceneFlowManager observedSceneFlow;
 
         /// <summary>Connects the monitor to every supported global notification source.</summary>
         private void OnEnable()
@@ -80,44 +89,192 @@ namespace QuietStatic.Toolkit.DebugTools
         {
             // Keep this list paired one-for-one with DisconnectCallbacks. Most publishers are static,
             // so a missed unsubscribe can retain this monitor after its scene or GameObject is gone.
-            FlagManager.OnFlagSet += OnFlagSet;
-            FlagManager.OnFlagCleared += OnFlagCleared;
-            GameStateManager.OnGameStateChanged += OnStateChanged;
-            ObjectiveManager.OnObjectiveLifecycleChanged += OnObjectiveChanged;
-            CutsceneSequenceRunner.OnSequenceStarted += OnSequenceStarted;
-            CutsceneSequenceRunner.OnSequenceEnded += OnSequenceEnded;
-            Interactable.OnInteractionSucceeded += OnInteractionSucceeded;
-            Interactable.OnInteractionFailed += OnInteractionFailed;
-            DialogueRunner.OnNodeChanged += OnDialogueNodeChanged;
-            JumpscareEvent.OnJumpscareStarted += OnJumpscareStarted;
-            JumpscareEvent.OnJumpscareFinished += OnJumpscareFinished;
-            SceneFlowManager.OnTransitionStarted += OnTransitionStarted;
-            SceneFlowManager.OnTransitionCompleted += OnTransitionCompleted;
-            SceneFlowManager.OnSceneLoaded += OnSceneLoaded;
-            SceneFlowManager.OnSceneUnloaded += OnSceneUnloaded;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet += OnFlagSet;
+                observedFlags.FlagCleared += OnFlagCleared;
+            }
+            observedGameState = GameStateManager.Instance;
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged += OnStateChanged;
+            }
+            observedObjectives = ObjectiveManager.Instance;
+            if (observedObjectives != null)
+            {
+                observedObjectives.ObjectiveLifecycleChanged += OnObjectiveChanged;
+            }
+            ConnectCutsceneRunners();
+            SceneManager.sceneLoaded += OnUnitySceneLoaded;
+            ConnectInteractables();
+            ConnectDialogueRunners();
+            ConnectJumpscares();
+            observedSceneFlow = SceneFlowManager.Instance;
+            if (observedSceneFlow != null)
+            {
+                observedSceneFlow.TransitionStarted += OnTransitionStarted;
+                observedSceneFlow.TransitionCompleted += OnTransitionCompleted;
+                observedSceneFlow.SceneLoaded += OnSceneLoaded;
+                observedSceneFlow.SceneUnloaded += OnSceneUnloaded;
+            }
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             Application.logMessageReceived += OnLogMessageReceived;
         }
 
         private void DisconnectCallbacks()
         {
-            FlagManager.OnFlagSet -= OnFlagSet;
-            FlagManager.OnFlagCleared -= OnFlagCleared;
-            GameStateManager.OnGameStateChanged -= OnStateChanged;
-            ObjectiveManager.OnObjectiveLifecycleChanged -= OnObjectiveChanged;
-            CutsceneSequenceRunner.OnSequenceStarted -= OnSequenceStarted;
-            CutsceneSequenceRunner.OnSequenceEnded -= OnSequenceEnded;
-            Interactable.OnInteractionSucceeded -= OnInteractionSucceeded;
-            Interactable.OnInteractionFailed -= OnInteractionFailed;
-            DialogueRunner.OnNodeChanged -= OnDialogueNodeChanged;
-            JumpscareEvent.OnJumpscareStarted -= OnJumpscareStarted;
-            JumpscareEvent.OnJumpscareFinished -= OnJumpscareFinished;
-            SceneFlowManager.OnTransitionStarted -= OnTransitionStarted;
-            SceneFlowManager.OnTransitionCompleted -= OnTransitionCompleted;
-            SceneFlowManager.OnSceneLoaded -= OnSceneLoaded;
-            SceneFlowManager.OnSceneUnloaded -= OnSceneUnloaded;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet -= OnFlagSet;
+                observedFlags.FlagCleared -= OnFlagCleared;
+                observedFlags = null;
+            }
+            if (observedGameState != null)
+            {
+                observedGameState.StateChanged -= OnStateChanged;
+                observedGameState = null;
+            }
+            if (observedObjectives != null)
+            {
+                observedObjectives.ObjectiveLifecycleChanged -= OnObjectiveChanged;
+                observedObjectives = null;
+            }
+            SceneManager.sceneLoaded -= OnUnitySceneLoaded;
+            DisconnectCutsceneRunners();
+            DisconnectInteractables();
+            DisconnectDialogueRunners();
+            DisconnectJumpscares();
+            if (observedSceneFlow != null)
+            {
+                observedSceneFlow.TransitionStarted -= OnTransitionStarted;
+                observedSceneFlow.TransitionCompleted -= OnTransitionCompleted;
+                observedSceneFlow.SceneLoaded -= OnSceneLoaded;
+                observedSceneFlow.SceneUnloaded -= OnSceneUnloaded;
+                observedSceneFlow = null;
+            }
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
             Application.logMessageReceived -= OnLogMessageReceived;
+        }
+
+        private void OnUnitySceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ConnectCutsceneRunners();
+            ConnectDialogueRunners();
+            ConnectInteractables();
+            ConnectJumpscares();
+        }
+
+        private void ConnectCutsceneRunners()
+        {
+            foreach (CutsceneSequenceRunner runner in
+                     Object.FindObjectsByType<CutsceneSequenceRunner>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (runner == null || observedCutscenes.Contains(runner))
+                {
+                    continue;
+                }
+
+                runner.SequenceStarted += OnSequenceStarted;
+                runner.SequenceEnded += OnSequenceEnded;
+                observedCutscenes.Add(runner);
+            }
+        }
+
+        private void DisconnectCutsceneRunners()
+        {
+            foreach (CutsceneSequenceRunner runner in observedCutscenes)
+            {
+                if (runner != null)
+                {
+                    runner.SequenceStarted -= OnSequenceStarted;
+                    runner.SequenceEnded -= OnSequenceEnded;
+                }
+            }
+
+            observedCutscenes.Clear();
+        }
+
+        private void ConnectDialogueRunners()
+        {
+            foreach (DialogueRunner runner in
+                     Object.FindObjectsByType<DialogueRunner>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (runner == null || observedDialogueRunners.Contains(runner))
+                {
+                    continue;
+                }
+
+                runner.NodeChanged += OnDialogueNodeChanged;
+                observedDialogueRunners.Add(runner);
+            }
+        }
+
+        private void DisconnectDialogueRunners()
+        {
+            foreach (DialogueRunner runner in observedDialogueRunners)
+            {
+                if (runner != null)
+                {
+                    runner.NodeChanged -= OnDialogueNodeChanged;
+                }
+            }
+
+            observedDialogueRunners.Clear();
+        }
+
+        private void ConnectInteractables()
+        {
+            foreach (Interactable interactable in
+                     Object.FindObjectsByType<Interactable>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (interactable == null || observedInteractables.Contains(interactable)) continue;
+                interactable.InteractionSucceeded += OnInteractionSucceeded;
+                interactable.InteractionFailed += OnInteractionFailed;
+                observedInteractables.Add(interactable);
+            }
+        }
+
+        private void DisconnectInteractables()
+        {
+            foreach (Interactable interactable in observedInteractables)
+            {
+                if (interactable == null) continue;
+                interactable.InteractionSucceeded -= OnInteractionSucceeded;
+                interactable.InteractionFailed -= OnInteractionFailed;
+            }
+            observedInteractables.Clear();
+        }
+
+        private void ConnectJumpscares()
+        {
+            foreach (JumpscareEvent jumpscare in
+                     Object.FindObjectsByType<JumpscareEvent>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (jumpscare == null || observedJumpscares.Contains(jumpscare)) continue;
+                jumpscare.JumpscareStarted += OnJumpscareStarted;
+                jumpscare.JumpscareFinished += OnJumpscareFinished;
+                observedJumpscares.Add(jumpscare);
+            }
+        }
+
+        private void DisconnectJumpscares()
+        {
+            foreach (JumpscareEvent jumpscare in observedJumpscares)
+            {
+                if (jumpscare == null) continue;
+                jumpscare.JumpscareStarted -= OnJumpscareStarted;
+                jumpscare.JumpscareFinished -= OnJumpscareFinished;
+            }
+            observedJumpscares.Clear();
         }
 
         // These callbacks are deliberately thin adapters: gameplay publishers remain unaware of

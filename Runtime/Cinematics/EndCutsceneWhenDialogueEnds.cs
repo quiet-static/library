@@ -57,7 +57,15 @@ namespace QuietStatic.Toolkit.Cinematics
         /// </summary>
         private void OnEnable()
         {
-            DialogueRunner.OnDialogueEnded += HandleDialogueEnded;
+            if (runner == null)
+            {
+                runner = GetComponentInChildren<DialogueRunner>(true);
+            }
+
+            if (runner != null)
+            {
+                runner.DialogueEnded += HandleDialogueEnded;
+            }
         }
 
         /// <summary>
@@ -68,7 +76,10 @@ namespace QuietStatic.Toolkit.Cinematics
         /// </remarks>
         private void OnDisable()
         {
-            DialogueRunner.OnDialogueEnded -= HandleDialogueEnded;
+            if (runner != null)
+            {
+                runner.DialogueEnded -= HandleDialogueEnded;
+            }
         }
 
         /// <summary>

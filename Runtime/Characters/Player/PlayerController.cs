@@ -38,7 +38,7 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// <summary>
         /// Raised whenever this character should play a footstep sound.
         /// </summary>
-        public static event Action<PlayerController> OnFootstep;
+        public event Action<PlayerController> Footstep;
 
         private float footstepTimer;
 
@@ -137,7 +137,7 @@ namespace QuietStatic.Toolkit.Characters.Player
             }
 
             footstepTimer = 0f;
-            OnFootstep?.Invoke(this);
+            Footstep?.Invoke(this);
         }
 
         private void StopMovement()

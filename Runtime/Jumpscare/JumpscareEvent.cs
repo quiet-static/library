@@ -23,12 +23,12 @@ namespace QuietStatic.Toolkit.Jumpscare
         /// <summary>
         /// Raised when any jumpscare begins, after its optional delay has completed.
         /// </summary>
-        public static event Action<JumpscareEvent> OnJumpscareStarted;
+        public event Action<JumpscareEvent> JumpscareStarted;
 
         /// <summary>
         /// Raised when any jumpscare finishes its cleanup and fade sequence.
         /// </summary>
-        public static event Action<JumpscareEvent> OnJumpscareFinished;
+        public event Action<JumpscareEvent> JumpscareFinished;
 
         [Header("Scare Target")]
         [Tooltip("Optional GameObject to enable when the jumpscare starts. This is usually the scare model, image, prop, or enemy reveal object.")]
@@ -207,7 +207,7 @@ namespace QuietStatic.Toolkit.Jumpscare
         private void BeginScare()
         {
             // Global listeners first, then scene-local UnityEvent listeners.
-            OnJumpscareStarted?.Invoke(this);
+            JumpscareStarted?.Invoke(this);
             onStarted?.Invoke();
             onRevealed?.Invoke();
 
@@ -256,7 +256,7 @@ namespace QuietStatic.Toolkit.Jumpscare
         private void FinishScare()
         {
             // Global listeners first, then scene-local UnityEvent listeners.
-            OnJumpscareFinished?.Invoke(this);
+            JumpscareFinished?.Invoke(this);
             onFinished?.Invoke();
 
             running = false;

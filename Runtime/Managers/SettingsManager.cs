@@ -34,10 +34,10 @@ namespace QuietStatic
         public static SettingsManager Instance { get; private set; }
 
         /// <summary>Raised after any setting is applied, including during initial loading.</summary>
-        public static event Action<GameSettingId> OnSettingChanged;
+        public event Action<GameSettingId> SettingChanged;
 
         /// <summary>Raised once all saved preferences have been applied.</summary>
-        public static event Action OnSettingsLoaded;
+        public event Action SettingsLoaded;
 
         [Header("Audio Mixer")]
         [Tooltip("Mixer containing exposed MasterVolume, MusicVolume, and SfxVolume parameters.")]
@@ -155,7 +155,7 @@ namespace QuietStatic
             ApplyInteractionInputMode((InteractionInputMode)PlayerPrefs.GetInt(InteractionInputModeKey, 0));
             ApplyHighContrastPrompts(PlayerPrefs.GetInt(HighContrastPromptsKey, 0) == 1);
             ApplyContentWarning(PlayerPrefs.GetInt(ContentWarningKey, 1) == 1);
-            OnSettingsLoaded?.Invoke();
+            SettingsLoaded?.Invoke();
         }
 
         public void SetAmbienceVolume(float value) => SaveFloat(AmbienceVolumeKey, value, ApplyAmbienceVolume);
@@ -366,7 +366,7 @@ namespace QuietStatic
         private static T ClampEnum<T>(T value, T fallback) where T : struct, Enum =>
             Enum.IsDefined(typeof(T), value) ? value : fallback;
 
-        private static void Notify(GameSettingId id) => OnSettingChanged?.Invoke(id);
+        private void Notify(GameSettingId id) => SettingChanged?.Invoke(id);
 
         private static void SaveFloat(string key, float value, Action<float> apply)
         {

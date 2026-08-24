@@ -35,15 +35,24 @@ namespace QuietStatic.Toolkit.Deductions
         [SerializeField] private Category[] categories;
 
         private bool isUpdating;
+        private FlagManager observedFlags;
 
         private void OnEnable()
         {
-            FlagManager.OnFlagSet += HandleFlagSet;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet += HandleFlagSet;
+            }
         }
 
         private void OnDisable()
         {
-            FlagManager.OnFlagSet -= HandleFlagSet;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet -= HandleFlagSet;
+                observedFlags = null;
+            }
         }
 
         /// <summary>

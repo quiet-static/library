@@ -11,6 +11,10 @@ namespace QuietStatic.Toolkit.Audio
     public class PlayerFootsteps : MonoBehaviour
     {
         [Header("Dependencies")]
+        [Tooltip("Required channel used to submit footstep playback.")]
+        [RequiredCommandChannel]
+        [SerializeField] private AudioRequestChannel requestChannel;
+
         [Tooltip("Possible footstep clips. One is selected at random per step.")]
         [SerializeField] private AudioClip[] footstepClips;
 
@@ -39,12 +43,19 @@ namespace QuietStatic.Toolkit.Audio
 
         private void OnEnable()
         {
-            PlayerController.OnFootstep += HandleFootstep;
+            playerController = GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.Footstep += HandleFootstep;
+            }
         }
 
         private void OnDisable()
         {
-            PlayerController.OnFootstep -= HandleFootstep;
+            if (playerController != null)
+            {
+                playerController.Footstep -= HandleFootstep;
+            }
         }
 
         /// <summary>
@@ -67,12 +78,12 @@ namespace QuietStatic.Toolkit.Audio
         {
             AudioClip clip = GetRandomClip();
 
-            if (clip == null || SfxManager.Instance == null)
+            if (clip == null || requestChannel == null)
             {
                 return;
             }
 
-            SfxManager.Instance.PlayAtPosition(
+            requestChannel.PlayAtPosition(
                 clip,
                 soundOrigin.position,
                 1f,
@@ -81,6 +92,9 @@ namespace QuietStatic.Toolkit.Audio
             );
 
         }
+
+        /// <summary>Assigns the persistent audio command channel.</summary>
+        public void SetRequestChannel(AudioRequestChannel value) => requestChannel = value;
 
         /// <summary>
         /// Returns a random non-null footstep clip.

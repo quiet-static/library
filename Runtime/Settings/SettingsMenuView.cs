@@ -36,17 +36,27 @@ namespace QuietStatic.Toolkit.Settings
             vSync?.onValueChanged.AddListener(value => SettingsManager.Instance?.SetVSync(value));
         }
 
+        private SettingsManager observedManager;
+
         private void OnEnable()
         {
-            SettingsManager.OnSettingsLoaded += Refresh;
-            SettingsManager.OnSettingChanged += HandleSettingChanged;
+            observedManager = SettingsManager.Instance;
+            if (observedManager != null)
+            {
+                observedManager.SettingsLoaded += Refresh;
+                observedManager.SettingChanged += HandleSettingChanged;
+            }
             Refresh();
         }
 
         private void OnDisable()
         {
-            SettingsManager.OnSettingsLoaded -= Refresh;
-            SettingsManager.OnSettingChanged -= HandleSettingChanged;
+            if (observedManager != null)
+            {
+                observedManager.SettingsLoaded -= Refresh;
+                observedManager.SettingChanged -= HandleSettingChanged;
+                observedManager = null;
+            }
         }
 
         /// <summary>Refreshes every control without invoking its change callback.</summary>

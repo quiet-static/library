@@ -1,4 +1,3 @@
-using QuietStatic.Input;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Interactions
@@ -27,9 +26,6 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("UI channel used for the prompt and progress meter when collider focus is not required.")]
         [SerializeField] private InteractionUIChannel interactionUIChannel;
 
-        [Tooltip("Optional component implementing IHoldInteractInputSource. Defaults to the active GameInputManager for backward compatibility.")]
-        [SerializeField] private MonoBehaviour holdInputSource;
-
         [Header("Camera Focus")]
         [Tooltip("Optional object the seated camera initially faces, such as a television.")]
         [SerializeField] private Transform cameraFocusTarget;
@@ -47,9 +43,6 @@ namespace QuietStatic.Toolkit.Interactions
 
         private bool isSeated;
         private bool isDirectHoldActive;
-        private IHoldInteractInputSource HoldInput =>
-            holdInputSource as IHoldInteractInputSource ?? GameInputManager.Instance;
-
         /// <summary>
         /// Gets whether eating must remain under the crosshair. When false, the
         /// seated sequence owns hold input and its collider is optional.
@@ -103,7 +96,7 @@ namespace QuietStatic.Toolkit.Interactions
                 return;
             }
 
-            bool isHeld = HoldInput?.InteractHeld == true;
+            bool isHeld = channel != null && channel.InteractHeld;
 
             if (!isHeld)
             {

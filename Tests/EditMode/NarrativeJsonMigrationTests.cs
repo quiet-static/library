@@ -626,7 +626,7 @@ namespace QuietStatic.Tests.EditMode
             SerializedProperty nodes = serialized.FindProperty("nodes");
             nodes.arraySize = 2;
             SerializedProperty first = nodes.GetArrayElementAtIndex(0);
-            first.FindPropertyRelative("id").stringValue = string.Empty;
+            first.FindPropertyRelative("id").stringValue = "node_001";
             first.FindPropertyRelative("speaker").stringValue = "Narrator";
             first.FindPropertyRelative("line").stringValue = "Original line";
             first.FindPropertyRelative("nextNodeIndex").intValue = 1;
@@ -651,7 +651,7 @@ namespace QuietStatic.Tests.EditMode
             second.FindPropertyRelative("choices").arraySize = 0;
             serialized.FindProperty("startNodeIndex").intValue = 0;
             serialized.ApplyModifiedPropertiesWithoutUndo();
-            AssetDatabase.CreateAsset(tree, root + "/LegacyDialogue.asset");
+            AssetDatabase.CreateAsset(tree, root + "/CurrentDialogue.asset");
             AssetDatabase.SaveAssets();
             return tree;
         }

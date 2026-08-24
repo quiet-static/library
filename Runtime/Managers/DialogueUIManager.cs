@@ -54,6 +54,12 @@ namespace QuietStatic.Toolkit.Dialogue
         [Tooltip("Text field used for the current speaker name.")]
         [SerializeField] private TMP_Text speakerLabel;
 
+        [Tooltip("Optional panel containing the speaker label. It can be hidden for configured presentation tags.")]
+        [SerializeField] private GameObject speakerPanel;
+
+        [Tooltip("Presentation tags that hide the speaker panel, such as Player.")]
+        [SerializeField] private string[] hideSpeakerPanelForTags = { "Player" };
+
         [Tooltip("Text field used when the current dialogue node has no response choices.")]
         [SerializeField] private TMP_Text dialogueNoOptionsText;
 
@@ -135,9 +141,10 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         /// <param name="speakerName">Speaker name to display.</param>
         /// <param name="dialogueText">Dialogue body text to display.</param>
-        public void ShowLine(string speakerName, string dialogueText)
+        public void ShowLine(string speakerName, string dialogueText, string[] presentationTags = null)
         {
             SetSpeakerName(speakerName);
+            SetSpeakerPanelVisibility(presentationTags);
             SetNoOptionsMode();
 
             if (dialogueNoOptionsText != null)
@@ -157,10 +164,12 @@ namespace QuietStatic.Toolkit.Dialogue
         public void ShowChoices(
             string speakerName,
             string dialogueText,
-            string[] choices
+            string[] choices,
+            string[] presentationTags = null
         )
         {
             SetSpeakerName(speakerName);
+            SetSpeakerPanelVisibility(presentationTags);
             SetOptionsMode();
 
             if (dialogueWithOptionsText != null)
@@ -225,6 +234,23 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             speakerLabel.text = speakerName ?? string.Empty;
+        }
+
+        /// <summary>Shows or hides the speaker panel according to node presentation tags.</summary>
+        private void SetSpeakerPanelVisibility(string[] presentationTags)
+        {
+            if (speakerPanel == null)
+            {
+                return;
+            }
+
+            bool shouldHide = presentationTags != null && hideSpeakerPanelForTags != null &&
+                Array.Exists(presentationTags, nodeTag =>
+                    Array.Exists(hideSpeakerPanelForTags, hiddenTag =>
+                        !string.IsNullOrWhiteSpace(hiddenTag) &&
+                        string.Equals(nodeTag, hiddenTag, StringComparison.OrdinalIgnoreCase)));
+
+            speakerPanel.SetActive(!shouldHide);
         }
 
         /// <summary>
