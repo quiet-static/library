@@ -83,6 +83,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     GUILayout.Label(issue.Severity.ToString(), EditorStyles.boldLabel, GUILayout.Width(65f));
+                    GUILayout.Label(issue.Code, EditorStyles.miniBoldLabel, GUILayout.Width(65f));
                     GUILayout.Label(issue.Category, EditorStyles.miniBoldLabel);
                     GUILayout.FlexibleSpace();
                     using (new EditorGUI.DisabledScope(issue.Context == null &&
@@ -124,7 +125,6 @@ namespace QuietStatic.Toolkit.Editor.Validation
     {
         protected override string EmptyMessage => "No narrative issues were found.";
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Validation/Validate Narrative")]
         public static void Open()
         {
             GetWindow<NarrativeValidationWindow>("Narrative Validation");
@@ -141,7 +141,6 @@ namespace QuietStatic.Toolkit.Editor.Validation
     {
         protected override string EmptyMessage => "No open-scene setup issues were found.";
 
-        [MenuItem(QuietStaticMenuPaths.Toolkit + "Validation/Validate Open Scenes")]
         public static void Open()
         {
             GetWindow<SceneSetupValidationWindow>("Scene Setup Validation");
@@ -150,6 +149,24 @@ namespace QuietStatic.Toolkit.Editor.Validation
         protected override IReadOnlyList<ValidationIssue> RunScan()
         {
             return ToolkitValidation.ScanOpenScenes();
+        }
+    }
+
+    /// <summary>Validation entry point for package paths and project build configuration.</summary>
+    public sealed class ArchitectureValidationWindow : ValidationWindowBase
+    {
+        protected override string EmptyMessage => "No project architecture issues were found.";
+
+        public static void Open()
+        {
+            GetWindow<ArchitectureValidationWindow>("Architecture Validation");
+        }
+
+        protected override IReadOnlyList<ValidationIssue> RunScan()
+        {
+            return ValidationIssueOrdering.Sort(
+                ToolkitValidation.ScanOpenScenes()
+                    .Concat(ArchitectureValidation.ScanProjectConfiguration()));
         }
     }
 }

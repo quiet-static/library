@@ -7,6 +7,8 @@ using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Flags;
 using QuietStatic.Toolkit.Minigames;
 using QuietStatic.Toolkit.Objectives;
+using QuietStatic.Toolkit.SceneFlow;
+using QuietStatic.Toolkit.Saving;
 using QuietStatic.Toolkit.Spawning;
 using UnityEditor;
 using UnityEngine;
@@ -31,15 +33,19 @@ namespace QuietStatic.Toolkit.Editor.Validation
             string category,
             string message,
             UnityEngine.Object context = null,
-            string assetPath = null)
+            string assetPath = null,
+            string code = null)
         {
             Severity = severity;
-            Category = category;
-            Message = message;
+            Category = category ?? string.Empty;
+            Message = message ?? string.Empty;
             Context = context;
-            AssetPath = assetPath;
+            AssetPath = assetPath ?? string.Empty;
+            Code = string.IsNullOrWhiteSpace(code) ? "QS0000" : code.Trim();
         }
 
+        /// <summary>Stable identifier for the rule that produced this issue.</summary>
+        public string Code { get; }
         public ValidationSeverity Severity { get; }
         public string Category { get; }
         public string Message { get; }
@@ -100,7 +106,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
             }
 
             ValidateFlagReferences(knownFlags, databases.Length > 0, issues);
-            return issues;
+            return ValidationIssueOrdering.Sort(issues);
         }
 
         public static IReadOnlyList<ValidationIssue> ScanOpenScenes()
@@ -140,14 +146,15 @@ namespace QuietStatic.Toolkit.Editor.Validation
                     group.First()));
             }
 
-            int listeners = components.Count(component => component is AudioListener);
+            AudioListener[] audioListeners = components.OfType<AudioListener>().ToArray();
+            int listeners = audioListeners.Length;
             if (listeners == 0)
             {
                 issues.Add(new ValidationIssue(
                     ValidationSeverity.Warning, "Audio",
                     "No enabled or disabled AudioListener exists in the open scenes."));
             }
-            else if (listeners > 1)
+            else if (listeners > 1 && !AreAudioListenersModeManaged(components, audioListeners))
             {
                 issues.Add(new ValidationIssue(
                     ValidationSeverity.Warning, "Audio",
@@ -164,6 +171,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
 
             ValidateSpawning(components, issues);
             ValidateMinigames(components, issues);
+            ValidateSaveParticipants(components, issues);
 
             foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
             {
@@ -178,7 +186,78 @@ namespace QuietStatic.Toolkit.Editor.Validation
                 }
             }
 
-            return issues;
+            issues.AddRange(ArchitectureValidation.ScanOpenScenes(components));
+            return ValidationIssueOrdering.Sort(issues);
+        }
+
+        /// <summary>Validates stable identities used to match saved participant payloads.</summary>
+        public static void ValidateSaveParticipants(
+            IEnumerable<Component> components,
+            ICollection<ValidationIssue> issues)
+        {
+            var identities = new Dictionary<string, Component>(StringComparer.Ordinal);
+            foreach (Component component in components ?? Enumerable.Empty<Component>())
+            {
+                if (component is not ISaveParticipant participant)
+                {
+                    continue;
+                }
+
+                string id = participant.SaveId?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(id))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Error,
+                        "Saving",
+                        $"{component.GetType().Name} has an empty save participant ID.",
+                        component,
+                        code: "QS1300"));
+                }
+                else if (identities.TryGetValue(id, out Component first))
+                {
+                    issues.Add(new ValidationIssue(
+                        ValidationSeverity.Error,
+                        "Saving",
+                        $"Save participant ID '{id}' is duplicated by " +
+                        $"'{first.name}' and '{component.name}'.",
+                        component,
+                        code: "QS1301"));
+                }
+                else
+                {
+                    identities.Add(id, component);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns whether every listener belongs to a distinct scene-mode camera owner.
+        /// Mode handlers make listeners mutually exclusive after support/content composition.
+        /// </summary>
+        public static bool AreAudioListenersModeManaged(
+            IEnumerable<Component> components,
+            IReadOnlyCollection<AudioListener> listeners)
+        {
+            var managed = new HashSet<AudioListener>();
+            var modes = new HashSet<SceneMode>();
+            foreach (SceneModeCameraHandler handler in components.OfType<SceneModeCameraHandler>())
+            {
+                var serialized = new SerializedObject(handler);
+                var listener = serialized.FindProperty("targetAudioListener")?.objectReferenceValue
+                    as AudioListener;
+                if (listener == null || !managed.Add(listener))
+                {
+                    continue;
+                }
+
+                SceneMode mode = (SceneMode)serialized.FindProperty("activeMode").enumValueIndex;
+                if (!modes.Add(mode))
+                {
+                    return false;
+                }
+            }
+
+            return listeners.Count > 0 && managed.SetEquals(listeners);
         }
 
         private static void ValidateMinigames(
@@ -331,15 +410,20 @@ namespace QuietStatic.Toolkit.Editor.Validation
                     spawnPoint));
             }
 
-            foreach (IGrouping<string, SpawnPoint> duplicate in spawnPoints
+            foreach (var duplicate in spawnPoints
                          .Where(point => !string.IsNullOrWhiteSpace(point.Id))
-                         .GroupBy(point => point.Id.Trim(), StringComparer.Ordinal)
+                         .GroupBy(point => new
+                         {
+                             SceneHandle = point.gameObject.scene.handle,
+                             Id = point.Id.Trim(),
+                         })
                          .Where(group => group.Count() > 1))
             {
+                Scene scene = duplicate.First().gameObject.scene;
                 issues.Add(new ValidationIssue(
                     ValidationSeverity.Error,
                     "Spawning",
-                    $"Open scenes contain {duplicate.Count()} spawn points with ID '{duplicate.Key}'.",
+                    $"Scene '{scene.name}' contains {duplicate.Count()} spawn points with ID '{duplicate.Key.Id}'.",
                     duplicate.First()));
             }
 
@@ -720,8 +804,6 @@ namespace QuietStatic.Toolkit.Editor.Validation
                     ?.stringValue;
                 bool hasDirector = cameraDirector != null;
                 bool hasShotId = !string.IsNullOrWhiteSpace(cameraShotId);
-                bool hasCamera = step.FindPropertyRelative("cameraTransform")?.objectReferenceValue != null;
-                bool hasPose = step.FindPropertyRelative("cameraPose")?.objectReferenceValue != null;
 
                 if (hasDirector != hasShotId)
                 {
@@ -737,18 +819,6 @@ namespace QuietStatic.Toolkit.Editor.Validation
                         $"Step {index} references unknown camera shot '{cameraShotId}'.", cutscene));
                 }
 
-                if (!hasDirector && hasCamera != hasPose)
-                {
-                    issues.Add(new ValidationIssue(
-                        ValidationSeverity.Error, "Cutscenes",
-                        $"Step {index} must assign both Camera Transform and Camera Pose.", cutscene));
-                }
-                else if (hasDirector && hasShotId && (hasCamera || hasPose))
-                {
-                    issues.Add(new ValidationIssue(
-                        ValidationSeverity.Warning, "Cutscenes",
-                        $"Step {index} has a named camera shot, so its legacy Camera Transform and Camera Pose fields are ignored.", cutscene));
-                }
             }
         }
 
