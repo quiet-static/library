@@ -8,7 +8,8 @@ namespace QuietStatic.Toolkit.Saving
     [AddComponentMenu("Quiet Static Toolkit/Saving/Checkpoint")]
     public sealed class Checkpoint : MonoBehaviour
     {
-        [Tooltip("Optional request channel. When empty, the active SaveManager is used.")]
+        [Tooltip("Required channel shared with the persistent Save Manager.")]
+        [RequiredCommandChannel]
         [SerializeField] private SaveRequestChannel requestChannel;
 
         [Tooltip("Save slot written when this checkpoint activates.")]
@@ -33,13 +34,16 @@ namespace QuietStatic.Toolkit.Saving
         /// <summary>Saves this checkpoint. Suitable for a UnityEvent.</summary>
         public void Save()
         {
-            if (requestChannel != null)
+            if (requestChannel == null)
             {
-                requestChannel.RequestSave(slot, arrivalSpawnId);
+                GameLogger.Warning(
+                    nameof(Save),
+                    this,
+                    $"{nameof(Checkpoint)} requires a save request channel.");
                 return;
             }
 
-            SaveManager.Instance?.SaveSlot(slot, arrivalSpawnId);
+            requestChannel.RequestSave(slot, arrivalSpawnId);
         }
 
         /// <summary>Allows this checkpoint's trigger to save again.</summary>

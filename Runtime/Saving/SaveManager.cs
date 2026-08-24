@@ -37,6 +37,7 @@ namespace QuietStatic.Toolkit.Saving
         [SerializeField] private string playerTargetId = "Player";
 
         [Tooltip("Optional cross-scene request channel.")]
+        [RequiredCommandChannel(isReceiver: true)]
         [SerializeField] private SaveRequestChannel requestChannel;
 
         [Header("Events")]
@@ -274,34 +275,125 @@ namespace QuietStatic.Toolkit.Saving
         private IEnumerator RestoreRoutine(int slot, SaveGameData data)
         {
             IsLoading = true;
-
-            if (!string.IsNullOrWhiteSpace(data.activeScene))
+            string failure = string.Empty;
+            try
             {
-                if (SceneFlowManager.Instance == null)
+                if (!string.IsNullOrWhiteSpace(data.activeScene))
                 {
-                    IsLoading = false;
-                    RaiseLoadFailed(slot, "No SceneFlowManager is available.");
+                    SceneFlowManager flow = SceneFlowManager.Instance;
+                    if (flow == null)
+                    {
+                        failure = "No SceneFlowManager is available.";
+                    }
+                    else
+                    {
+                        Exception transitionException = null;
+                        yield return RunGuarded(
+                            flow.TransitionToSceneRoutine(
+                                new SceneTransitionRequest(data.activeScene)),
+                            exception => transitionException = exception);
+
+                        if (transitionException != null)
+                        {
+                            failure = $"Scene transition threw an exception: " +
+                                      transitionException.Message;
+                        }
+                        else if (!flow.LastTransitionResult.HasValue ||
+                                 !flow.LastTransitionResult.Value.Succeeded ||
+                                 !string.Equals(
+                                     flow.LastTransitionResult.Value.Destination,
+                                     data.activeScene,
+                                     StringComparison.Ordinal) ||
+                                 !string.Equals(
+                                     SceneManager.GetActiveScene().name,
+                                     data.activeScene,
+                                     StringComparison.Ordinal))
+                        {
+                            failure = flow.LastTransitionResult?.Message ??
+                                      $"Scene '{data.activeScene}' did not become active.";
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(failure))
+                {
+                    try
+                    {
+                        RestoreFlags(data.activeFlags);
+                    }
+                    catch (Exception exception)
+                    {
+                        failure = $"Flag restoration failed: {exception.Message}";
+                    }
+                }
+
+                if (string.IsNullOrEmpty(failure) &&
+                    !TryRestoreParticipants(data.participants, out failure))
+                {
+                    // The participant method supplies a stable-ID-specific failure.
+                }
+
+                if (string.IsNullOrEmpty(failure) &&
+                    !string.IsNullOrWhiteSpace(data.arrivalSpawnId) &&
+                    SpawnManager.Instance != null)
+                {
+                    yield return null;
+                    try
+                    {
+                        SpawnManager.Instance.MoveRegisteredTargetToSpawn(
+                            playerTargetId,
+                            data.arrivalSpawnId);
+                    }
+                    catch (Exception exception)
+                    {
+                        failure = $"Spawn restoration failed: {exception.Message}";
+                    }
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+
+            if (string.IsNullOrEmpty(failure))
+            {
+                onLoaded.Invoke(slot);
+            }
+            else
+            {
+                RaiseLoadFailed(slot, failure);
+            }
+        }
+
+        private static IEnumerator RunGuarded(
+            IEnumerator routine,
+            Action<Exception> onException)
+        {
+            while (true)
+            {
+                bool moved;
+                object current = null;
+                try
+                {
+                    moved = routine.MoveNext();
+                    if (moved)
+                    {
+                        current = routine.Current;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    onException?.Invoke(exception);
                     yield break;
                 }
 
-                yield return SceneFlowManager.Instance.TransitionToSceneRoutine(
-                    new SceneTransitionRequest(data.activeScene));
+                if (!moved)
+                {
+                    yield break;
+                }
+
+                yield return current;
             }
-
-            RestoreFlags(data.activeFlags);
-            RestoreParticipants(data.participants);
-
-            if (!string.IsNullOrWhiteSpace(data.arrivalSpawnId) &&
-                SpawnManager.Instance != null)
-            {
-                yield return null;
-                SpawnManager.Instance.MoveRegisteredTargetToSpawn(
-                    playerTargetId,
-                    data.arrivalSpawnId);
-            }
-
-            IsLoading = false;
-            onLoaded.Invoke(slot);
         }
 
         private static void RestoreFlags(IEnumerable<string> flags)
@@ -312,12 +404,14 @@ namespace QuietStatic.Toolkit.Saving
             }
         }
 
-        private static void RestoreParticipants(
-            IEnumerable<SaveParticipantData> savedParticipants)
+        private static bool TryRestoreParticipants(
+            IEnumerable<SaveParticipantData> savedParticipants,
+            out string error)
         {
+            error = string.Empty;
             if (savedParticipants == null)
             {
-                return;
+                return true;
             }
 
             Dictionary<string, ISaveParticipant> activeParticipants =
@@ -331,9 +425,20 @@ namespace QuietStatic.Toolkit.Saving
                     !string.IsNullOrWhiteSpace(saved.id) &&
                     activeParticipants.TryGetValue(saved.id.Trim(), out ISaveParticipant participant))
                 {
-                    participant.RestoreSaveState(saved.json);
+                    try
+                    {
+                        participant.RestoreSaveState(saved.json);
+                    }
+                    catch (Exception exception)
+                    {
+                        error = $"Save participant '{saved.id.Trim()}' failed to restore: " +
+                                exception.Message;
+                        return false;
+                    }
                 }
             }
+
+            return true;
         }
 
         private static IEnumerable<ISaveParticipant> FindParticipants()
