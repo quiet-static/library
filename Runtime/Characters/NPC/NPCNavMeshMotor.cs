@@ -81,14 +81,39 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <returns>True when a valid destination was assigned.</returns>
         public bool SetDestination(Vector3 worldPosition, float sampleRadius = 2f)
         {
+            return SetDestination(worldPosition, out _, sampleRadius);
+        }
+
+        /// <summary>
+        /// Projects a world position onto the NavMesh, assigns it as the destination, and reports
+        /// the exact sampled position used by the agent.
+        /// </summary>
+        /// <param name="worldPosition">Requested world-space destination.</param>
+        /// <param name="resolvedDestination">
+        /// Sampled NavMesh destination when the request succeeds; otherwise the requested position.
+        /// </param>
+        /// <param name="sampleRadius">Radius used to find a nearby NavMesh position.</param>
+        /// <returns>True when a valid destination was assigned.</returns>
+        public bool SetDestination(
+            Vector3 worldPosition,
+            out Vector3 resolvedDestination,
+            float sampleRadius = 2f)
+        {
+            resolvedDestination = worldPosition;
             if (!TryPlaceOnNavMesh())
                 return false;
 
             if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit hit, sampleRadius, agent.areaMask))
                 return false;
 
+            if (!agent.SetDestination(hit.position))
+            {
+                return false;
+            }
+
+            resolvedDestination = hit.position;
             agent.isStopped = false;
-            return agent.SetDestination(hit.position);
+            return true;
         }
 
         /// <summary>Immediately moves the NPC to a nearby valid NavMesh position.</summary>

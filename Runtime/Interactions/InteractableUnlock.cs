@@ -1,3 +1,4 @@
+using System;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 
@@ -36,15 +37,47 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Animator trigger used when a binary interaction returns to its OFF state.")]
         [SerializeField] private string animationOffTrigger;
 
+        [Tooltip("Logical binary state at scene load. Match this to the Animator's authored starting pose.")]
+        [SerializeField] private bool initialState;
+
         /// <summary>Current binary state. False is OFF and true is ON.</summary>
         private bool currentState;
 
         /// <summary>Previous result used to detect a false-to-true requirement transition.</summary>
         private bool requirementWasMet;
+        private FlagManager observedFlags;
+
+        /// <summary>Raised after the logical activated state changes successfully.</summary>
+        public event Action<bool> StateChanged;
+
+        /// <summary>Gets the logical activated state owned by this animation adapter.</summary>
+        public bool IsActivated => currentState;
+
+        /// <summary>Gets whether this adapter has distinct ON and OFF triggers.</summary>
+        public bool IsBinary => isBinary;
+
+        private void Reset()
+        {
+            animator = GetComponent<Animator>();
+        }
+
+        private void Awake()
+        {
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+            }
+
+            currentState = initialState;
+        }
 
         private void OnEnable()
         {
-            FlagManager.OnFlagsChanged += HandleFlagsChanged;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged += HandleFlagsChanged;
+            }
             requirementWasMet = false;
 
             if (evaluateRequirementOnEnable)
@@ -55,7 +88,11 @@ namespace QuietStatic.Toolkit.Interactions
 
         private void OnDisable()
         {
-            FlagManager.OnFlagsChanged -= HandleFlagsChanged;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagsChanged -= HandleFlagsChanged;
+                observedFlags = null;
+            }
         }
 
         /// <summary>
@@ -99,39 +136,84 @@ namespace QuietStatic.Toolkit.Interactions
                 $"Called on {gameObject.name}. State before toggle: {currentState}"
             );
 
-            if (animator == null)
+            if (isBinary)
             {
-                GameLogger.Warning(
-                    nameof(UnlockInteraction),
-                    this,
-                    "Cannot animate because no Animator is assigned."
-                );
+                SetActivated(!currentState);
                 return;
             }
 
-            string triggerToUse;
+            TrySetTrigger(animationOnTrigger, nameof(UnlockInteraction));
+        }
 
-            if (isBinary)
+        /// <summary>Idempotently requests the logical ON state.</summary>
+        /// <returns>True when the component is already ON or the ON trigger was fired.</returns>
+        public bool Activate()
+        {
+            return SetActivated(true);
+        }
+
+        /// <summary>Idempotently requests the logical OFF state.</summary>
+        /// <returns>True when the component is already OFF or the OFF trigger was fired.</returns>
+        public bool Deactivate()
+        {
+            return SetActivated(false);
+        }
+
+        /// <summary>Idempotently applies an activated state without toggling it.</summary>
+        /// <param name="activated">True for the ON state; false for the OFF state.</param>
+        /// <returns>True when the requested state is active; otherwise false.</returns>
+        public bool SetActivated(bool activated)
+        {
+            if (currentState == activated)
             {
-                currentState = !currentState;
-                triggerToUse = currentState ? animationOnTrigger : animationOffTrigger;
+                return true;
             }
-            else
+
+            if (!isBinary && !activated)
             {
-                triggerToUse = animationOnTrigger;
+                GameLogger.Warning(
+                    nameof(SetActivated),
+                    this,
+                    "Cannot deactivate a non-binary animation adapter because it has no OFF trigger."
+                );
+                return false;
+            }
+
+            string triggerToUse = activated ? animationOnTrigger : animationOffTrigger;
+            if (!TrySetTrigger(triggerToUse, nameof(SetActivated)))
+            {
+                return false;
+            }
+
+            currentState = activated;
+            StateChanged?.Invoke(currentState);
+            return true;
+        }
+
+        private bool TrySetTrigger(string triggerToUse, string operation)
+        {
+            if (animator == null)
+            {
+                GameLogger.Warning(
+                    operation,
+                    this,
+                    "Cannot animate because no Animator is assigned."
+                );
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(triggerToUse))
             {
                 GameLogger.Warning(
-                    nameof(UnlockInteraction),
+                    operation,
                     this,
                     "Cannot animate because the selected trigger name is empty."
                 );
-                return;
+                return false;
             }
 
             animator.SetTrigger(triggerToUse);
+            return true;
         }
     }
 }

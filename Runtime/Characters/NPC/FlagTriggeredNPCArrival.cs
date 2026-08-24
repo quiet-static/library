@@ -60,9 +60,15 @@ namespace QuietStatic.Toolkit.Characters.NPC
             }
         }
 
+        private FlagManager observedFlags;
+
         private void OnEnable()
         {
-            FlagManager.OnFlagSet += HandleFlagSet;
+            observedFlags = FlagManager.Instance;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet += HandleFlagSet;
+            }
 
             if (FlagManager.Instance != null && FlagManager.Instance.HasFlag(requiredFlag))
             {
@@ -72,7 +78,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private void OnDisable()
         {
-            FlagManager.OnFlagSet -= HandleFlagSet;
+            if (observedFlags != null)
+            {
+                observedFlags.FlagSet -= HandleFlagSet;
+                observedFlags = null;
+            }
 
             if (dialogueRoutine != null)
             {
