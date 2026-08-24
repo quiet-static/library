@@ -16,6 +16,5 @@ one typed `CommandRequested` payload. Persistent receivers should use
 `CrossSceneChannelSubscription<T>` so disabling a component or changing its channel
 always detaches from the exact asset previously subscribed.
 
-Existing channel-specific events remain available for compatibility. New receivers
-should consume the typed command stream so adding a command does not require another
-pair of lifecycle subscriptions.
+Command receivers consume the typed command stream; lifecycle notifications remain
+separate observation events.

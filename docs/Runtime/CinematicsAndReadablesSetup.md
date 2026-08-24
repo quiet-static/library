@@ -2,7 +2,7 @@
 
 ## Generate the examples
 
-Choose **Tools > Quiet Static > Toolkit > Cinematics > Generate Cinematic & Readable Examples**. The generator creates
+Choose **Generate Cinematic and Readable Examples** in **Tools > Quiet Static > Project Setup**. The generator creates
 shared channel assets, sample letter content, and four prefabs under
 `Assets/QuietStatic Examples/Cinematics and Readables`. Generation is repeatable and only
 updates assets with those example names.
@@ -25,11 +25,10 @@ a shot without entering Play Mode, select it under **Editor Shot Preview** and c
 shot dropdown. For a generic UnityEvent, add `CutsceneCameraShotTrigger`, select its shot,
 and wire the event to `Run()`.
 
-Existing dialogue cues keep serialized shot indexes for compatibility and label them as
-legacy references. After assigning explicit Shot IDs, use the cue's **Migrate** button to
-replace the index with its stable ID.
+Dialogue cues reference shots exclusively by stable Shot ID. Every authored shot must have
+an explicit unique ID before it can be selected by a cue.
 
-Use **Tools > Quiet Static > Toolkit > Cinematics > Cutscene Explorer** to create a starter runner, search loaded
+Use **Cutscenes** in **Tools > Quiet Static > Workspace** to create a starter runner, search loaded
 scenes, select its object, and preview the sequence or one step during Play Mode.
 
 ## CutsceneTransitionPlayer
@@ -75,8 +74,8 @@ Create it from **Create > Quiet Static Toolkit > Interactions > Readable Content
 the optional title, long-form body, and optional close-control label. Reuse the asset from
 any number of item instances. The example generator creates `ExampleLetter`.
 
-Select one or more readable assets and choose **Tools > Quiet Static > Toolkit > Readables > Export
-Selected Readable Content JSON...** to migrate them into one narrative-authorer catalog.
+Select one or more readable assets and choose **Assets > Quiet Static > Export Readable
+Content JSON...** to migrate them into one narrative-authorer catalog.
 The asset filename becomes its stable authoring ID, and round-trip metadata preserves the
 original Unity asset and GUID when the JSON is imported again.
 

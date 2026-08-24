@@ -14,7 +14,7 @@
 
 The manager fades to black, loads and activates the destination, unloads the source
 when configured, applies the matching destination response, and fades clear. Use the
-Scene Flow Explorer to inspect links. The definition keeps route-specific behavior in
+Scene Flow Workspace to edit and inspect links. The definition keeps route-specific behavior in
 the destination scene instead of adding spawning or narrative policy to the manager.
 
 For direct trigger volumes, use `SceneTransitionTrigger`. For cross-scene decoupling,

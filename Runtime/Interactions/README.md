@@ -11,6 +11,10 @@ For complete Inspector-oriented setup recipes and reusable target prefabs, see
 `InteractionHighlighter` handles presentation, and `InteractableUnlock` reacts
 to progression flags.
 
+Binary `InteractableUnlock` components also expose idempotent `Activate`, `Deactivate`,
+and `SetActivated` methods. Use those when autonomous systems need a specific state;
+retain `UnlockInteraction` for player-facing toggle callbacks.
+
 ```text
 Player
 `-- Interactor
@@ -105,9 +109,9 @@ content object does not need to reference a persistent time manager directly.
 `HoldActivitySequence` can disable **Require Collider Focus** when a locked activity
 should consume held interaction input without continued aiming. In that mode it
 temporarily removes the hold from `Interactor` raycast selection and sends its
-prompt and progress through `InteractionUIChannel`. Assign any component implementing
-`IHoldInteractInputSource`, or leave it empty to use the active `GameInputManager` as a
-compatibility fallback.
+prompt and progress through `InteractionUIChannel`. Held-input state is published by the
+persistent player service through the same `PlayerActivityChannel`; the world object does
+not resolve an input manager.
 
 The same sequence can publish an optional camera focus target and yaw/pitch ranges through
 `PlayerActivityChannel`. The persistent player handler applies a limited-look region to
@@ -116,9 +120,8 @@ also scale an optional progress visual and activate an `ObjectStateDefinition` o
 completion. Add `HoldAudioFeedback` beside
 a hold and configure an `AudioEventPlayer` when looping audio should follow held input.
 
-New content should use `PlayerActivityContext`, `PlayerActivityChannel`,
-`HoldActivitySequence`, and `PlayerActivityHandler`. The former eating-named types are
-obsolete adapters retained only for source compatibility.
+Use `PlayerActivityContext`, `PlayerActivityChannel`, `HoldActivitySequence`, and
+`PlayerActivityHandler` for cross-scene activities.
 
 ## Activated progress interactions
 

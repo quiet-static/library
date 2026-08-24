@@ -13,11 +13,10 @@ be combined without adopting every toolkit system.
 - `Audio`, `UI`, `Settings`, `Animation`, and `Utilities` provide reusable presentation helpers.
 
 Cross-scene player activities use `PlayerActivityChannel`, `HoldActivitySequence`, and
-`PlayerActivityHandler`. The older eating-named types remain only as obsolete source
-compatibility adapters and should not be used in new content.
+`PlayerActivityHandler`.
 
 Start with the manager prefabs and sample scenes. Avoid placing a second copy of a
-singleton manager in content scenes; use handlers or static events from scene objects.
+singleton manager in content scenes; use handlers or ScriptableObject channels from scene objects.
 
 ## Inspector authoring
 

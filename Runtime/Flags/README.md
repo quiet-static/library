@@ -22,9 +22,9 @@ health or movement state.
 
 ## Narrative authorer handoff
 
-Open **Tools > Quiet Static > Toolkit > Flags > Flag Database** to create or edit a database.
-Use **Export JSON** in that window, or select a `FlagDatabase` asset and choose
-**Tools > Quiet Static > Toolkit > Flags > Export Selected Flag Database JSON...**, to create a
+Open the Flags tab in **Tools > Quiet Static > Workspace** to create or edit a database.
+Use **Export JSON** in that tab, or select a `FlagDatabase` asset and choose
+**Assets > Quiet Static > Export Flag Database JSON...**, to create a
 version-one flag catalog for the narrative authorer. Empty IDs, surrounding whitespace,
 or duplicate IDs stop the export so the authoring JSON preserves exact runtime semantics.
 

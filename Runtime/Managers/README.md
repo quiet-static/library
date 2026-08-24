@@ -36,11 +36,9 @@ references.
 owner. `QuietStatic.SettingsManager` is the authoritative settings owner and
 does not reference scene UI. A loaded `SettingsMenuView` binds reusable UI
 controls to that state when a settings menu is open.
-The deprecated manager types are isolated in
-`QuietStatic.Compatibility.Runtime` and remain only for serialized compatibility.
 
 `QuietStatic.PlayerManager` stores only the generic active player root.
 Project-owned spawning or character-selection code should call
 `SetPlayer(GameObject)` after completing its transition. Consumers can listen
-to `OnPlayerChanged(previousPlayer, newPlayer)`; either argument may be null.
+to `PlayerChanged(previousPlayer, newPlayer)`; either argument may be null.
 The manager deliberately contains no character-switching policy.
