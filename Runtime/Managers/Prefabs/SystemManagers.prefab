@@ -141,7 +141,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826d92408c07c924f995298a5161e22c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.PauseManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   gameplayState: Playing
   pausedState: Paused
@@ -195,7 +194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 723642bcc5cb4c008efbd91309275f96, type: 3}
   m_Name:
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Saving.SaveManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   filePrefix: save_slot_
   maximumSlot: 9

@@ -11,8 +11,8 @@ namespace QuietStatic.Toolkit.Core
     /// </typeparam>
     /// <remarks>
     /// This class provides a simple reusable singleton pattern for manager-style components.
-    /// It stores the first active instance in <see cref="Instance"/> and can optionally keep
-    /// that instance alive across scene loads.
+    /// It stores the first active instance in <see cref="Instance"/>. Scene composition owns
+    /// manager lifetime; persistent managers belong in retained support scenes.
     ///
     /// Duplicate handling is configurable. When duplicates are allowed, a later instance will
     /// not replace the existing <see cref="Instance"/>, but it also will not be destroyed.
@@ -29,9 +29,6 @@ namespace QuietStatic.Toolkit.Core
         public static T Instance { get; private set; }
 
         [Header("Singleton Settings")]
-        [Tooltip("If true, this GameObject is preserved with DontDestroyOnLoad after becoming the singleton instance.")]
-        [SerializeField] private bool persistBetweenScenes = true;
-
         [Tooltip("If true, duplicate instances destroy themselves when another singleton instance already exists.")]
         [SerializeField] private bool destroyDuplicates = true;
 
@@ -58,10 +55,6 @@ namespace QuietStatic.Toolkit.Core
 
             Instance = this as T;
 
-            if (persistBetweenScenes)
-            {
-                DontDestroyOnLoad(gameObject);
-            }
         }
 
         /// <summary>

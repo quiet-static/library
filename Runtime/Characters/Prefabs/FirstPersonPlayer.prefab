@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96ce9d308c8faa541a1324736bc383dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.CameraManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   cameraController: {fileID: 2799746197874661219}
   mainCamera: {fileID: 3362581280862487031}
@@ -127,7 +126,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c00cf9b451040f0419dc3d6147a5cad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.GameInputManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   interactBufferDuration: 0.15
 --- !u!1 &5944329285394939832
@@ -238,7 +236,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5d3b12b730ce284286b76272ea1cccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.InputModeManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   gameplayStates:
   - Playing

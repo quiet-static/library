@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
 
-namespace QuietStatic.Toolkit.DebugTools
+namespace QuietStatic
 {
     /// <summary>
     /// Centralized runtime logger that combines context-rich messages with consistent exception
@@ -24,34 +24,21 @@ namespace QuietStatic.Toolkit.DebugTools
             Debug.LogError(Normalize(message, "Error"), context);
 
         /// <summary>
-        /// Backward-compatible signature kept for existing runtime callsites that pass
-        /// a calling class name first and the context object second.
+        /// Writes a contextual informational message with an explicit source label.
         /// </summary>
-        /// <param name="callingClass">Calling class name used in historical log output.</param>
+        /// <param name="callingClass">Source label included in the log output.</param>
         /// <param name="context">Unity context object for log anchoring.</param>
         /// <param name="message">Message produced by the caller.</param>
         public static void Log(string callingClass, Object context, string message) =>
-            Info(BuildLegacyMessage(callingClass, message), context);
+            Info(BuildContextMessage(callingClass, message), context);
 
-        /// <summary>Backward-compatible signature for legacy warning calls.</summary>
+        /// <summary>Writes a contextual warning with an explicit source label.</summary>
         public static void Warning(string callingClass, Object context, string message) =>
-            Warning(BuildLegacyMessage(callingClass, message), context);
+            Warning(BuildContextMessage(callingClass, message), context);
 
-        /// <summary>Backward-compatible signature for legacy error calls.</summary>
+        /// <summary>Writes a contextual error with an explicit source label.</summary>
         public static void Error(string callingClass, Object context, string message) =>
-            Error(BuildLegacyMessage(callingClass, message), context);
-
-        /// <summary>Legacy no-op retained for compatibility with prior per-instance suppression calls.</summary>
-        public static void DisableFor(Object obj)
-        {
-            _ = obj;
-        }
-
-        /// <summary>Legacy no-op retained for compatibility with prior per-instance suppression calls.</summary>
-        public static void EnableFor(Object obj)
-        {
-            _ = obj;
-        }
+            Error(BuildContextMessage(callingClass, message), context);
 
         /// <summary>Logs an exception with operation context so callers can diagnose event failures.</summary>
         /// <param name="exception">Exception encountered while handling input, event, or state flow.</param>
@@ -123,7 +110,7 @@ namespace QuietStatic.Toolkit.DebugTools
                 : $"[{prefix}] {normalized}";
         }
 
-        private static string BuildLegacyMessage(string callingClass, string message)
+        private static string BuildContextMessage(string callingClass, string message)
         {
             if (string.IsNullOrWhiteSpace(callingClass))
             {

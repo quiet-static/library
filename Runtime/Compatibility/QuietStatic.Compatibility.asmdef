@@ -1,8 +1,0 @@
-{
-  "name": "QuietStatic.Compatibility.Runtime",
-  "rootNamespace": "QuietStatic",
-  "references": [
-    "QuietStatic.Core.Runtime"
-  ],
-  "autoReferenced": true
-}

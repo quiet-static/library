@@ -113,11 +113,6 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// </summary>
         private void Awake()
         {
-            if (!enableDebug)
-            {
-                GameLogger.DisableFor(this);
-            }
-
             animator = GetComponent<Animator>();
 
             if (motor == null)

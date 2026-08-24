@@ -142,7 +142,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 095e439c48f8b62468708c2e30d32b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Audio.SimpleMusicPlayer
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   source: {fileID: 797779164612378484}
   playOnStart: 0

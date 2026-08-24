@@ -123,11 +123,6 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// </summary>
         private void Awake()
         {
-            if (!enableDebug)
-            {
-                GameLogger.DisableFor(this);
-            }
-
             characterController = GetComponent<CharacterController>();
 
             if (characterController == null)

@@ -211,7 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 392b85f349dc0d144aa29dd6013ac1cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Flags.FlagManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   flagDatabase: {fileID: 0}
   startingFlags: []

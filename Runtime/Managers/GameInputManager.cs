@@ -19,8 +19,7 @@ namespace QuietStatic
     /// </summary>
     public class GameInputManager : ToolkitSingleton<GameInputManager>,
             IMoveInputSource,
-            ILookInputSource,
-            IHoldInteractInputSource
+            ILookInputSource
     {
         /////////////////////////////////////////////////////////////////////////////////////////
         //

@@ -175,7 +175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8e3ebd1a2043a54fa8fee3c9dbcaeaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.MusicManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   musicSource: {fileID: 0}
   stateMusicEntries: []
@@ -234,7 +233,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8526799331f6fa14b8462f4746d753e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.SfxManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   eventSound3DPrefab: {fileID: 5699780695079487177, guid: f1811274938a8404f9a0941965ede442, type: 3}
   defaultMinDistance: 5

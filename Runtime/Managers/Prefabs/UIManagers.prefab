@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09724c7ddcd899c47a50343bd616489b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Dialogue.DialogueUIManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   dialogueCanvas: {fileID: 0}
   speakerLabel: {fileID: 0}
@@ -109,7 +108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49cbaaa56b0c4b34597160e53c6cf2f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.InteractionUIManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   messageText: {fileID: 0}
   promptText: {fileID: 0}

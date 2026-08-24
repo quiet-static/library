@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56e4d041e4f66554299ac591b0799161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.State.GameStateManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   startingState: Starting
   onGameStateChanged:
@@ -131,7 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 590499698b232ce4c96728fbe6d2a43e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.CutsceneManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   fader: {fileID: 0}
   useScreenFade: 1
@@ -187,7 +185,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 858fe644f779b724ebabb12d99bc145b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.DialogueManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   onDialogueStarted:
     m_PersistentCalls:
@@ -239,7 +236,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 392b85f349dc0d144aa29dd6013ac1cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Flags.FlagSet
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   startingFlags:
   - 
@@ -294,7 +290,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee312cbc1abe4e9daccad155172d69a2, type: 3}
   m_Name:
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.Objectives.ObjectiveManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   database: {fileID: 0}
   autoActivateFromFlags: 1
@@ -356,6 +351,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287c1f81c98432e4880589d76f703017, type: 3}
   m_Name:
   m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.SpawnManager
-  persistBetweenScenes: 1
   destroyDuplicates: 1
   fallbackSpawnId: Default

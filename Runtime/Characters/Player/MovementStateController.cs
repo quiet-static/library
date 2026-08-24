@@ -64,10 +64,6 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// </remarks>
         private void Awake()
         {
-            if (!enableDebug)
-            {
-                GameLogger.DisableFor(this);
-            }
         }
 
         /// <summary>
