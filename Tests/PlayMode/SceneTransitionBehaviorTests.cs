@@ -19,12 +19,15 @@ namespace QuietStatic.Tests.PlayMode
         private Scene originalScene;
         private Scene destinationScene;
         private Action<string> transitionCompletedHandler;
+        private SceneFlowManager manager;
 
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            SceneFlowManager.OnTransitionCompleted -=
-                transitionCompletedHandler;
+            if (manager != null)
+            {
+                manager.TransitionCompleted -= transitionCompletedHandler;
+            }
             transitionCompletedHandler = null;
 
             if (originalScene.IsValid() && originalScene.isLoaded)
@@ -91,7 +94,7 @@ namespace QuietStatic.Tests.PlayMode
 
             managerObject = new GameObject("Inactive Scene Flow Manager");
             managerObject.SetActive(false);
-            SceneFlowManager manager =
+            manager =
                 managerObject.AddComponent<SceneFlowManager>();
             SetField(manager, "fadeDuringTransitions", false);
 
@@ -102,8 +105,7 @@ namespace QuietStatic.Tests.PlayMode
                     lifecycle.Add("completed");
                 }
             };
-            SceneFlowManager.OnTransitionCompleted +=
-                transitionCompletedHandler;
+            manager.TransitionCompleted += transitionCompletedHandler;
 
             yield return manager.TransitionToSceneRoutine(
                 new SceneTransitionRequest(

@@ -9,7 +9,7 @@ The preferred startup authority is a `SceneBootstrapProfile`. It defines ordered
 persistent scenes, the first active content scene, optional initial support/retained
 scenes, and whether unrelated scenes (including the tiny bootstrap scene) unload.
 
-Open `Tools > Quiet Static > Toolkit > Scene Flow > Scene Flow Setup` to create a bootstrap profile, scene map,
+Open `Tools > Quiet Static > Project Setup` to create a bootstrap profile, scene map,
 and request channel; locate and add referenced scenes to Build Settings; and create
 bootstrap or manager objects in the current scene.
 
@@ -60,13 +60,12 @@ and its support scenes, makes the target active, unloads the previous nonpersist
 content, and fades clear. Time scale does not affect either fade.
 
 Create a **Scene Flow Map** from `Assets > Create > Quiet Static Toolkit > Scene Flow`,
-then open `Tools > Quiet Static > Toolkit > Scene Flow > Scene Flow Explorer`. Each connection has a stable ID,
+then open the Scene Flow tab in `Tools > Quiet Static > Workspace`. Each connection has a stable ID,
 source, destination, optional support/retained scenes, and cleanup policy. Scene fields
 select from enabled Build Settings scenes. A mapped request carries its connection ID
 as the destination condition, so multiple routes into one scene remain distinguishable.
-Assign the map and connection ID to a `SceneTransitionTrigger` to use that configured
-route; the legacy target-scene fields remain supported for existing content and expose
-an optional direct condition ID.
+Assign the map and connection ID to a `SceneTransitionTrigger`; triggers and handlers
+dispatch only configured map connections.
 
 Add one `SceneTransitionDefinition` to a destination scene. Its ordered responses each
 contain a condition ID, an optional persistent `FlagRequirement`, and a UnityEvent. The

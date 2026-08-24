@@ -173,7 +173,7 @@ namespace QuietStatic.Tests.EditMode
         {
             LogAssert.Expect(
                 LogType.Warning,
-                $"WARNING: {definition.name} from Apply: " +
+                "[Warning] Apply: " +
                 $"SceneTransitionDefinition in scene '{root.scene.name}' " +
                 $"has no eligible response for condition '{conditionId}'.");
         }

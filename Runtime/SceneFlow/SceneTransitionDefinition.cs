@@ -14,8 +14,8 @@ namespace QuietStatic.Toolkit.SceneFlow
     /// Place one definition in a content scene. After that scene becomes active
     /// and old content is unloaded, <see cref="SceneFlowManager"/> invokes the
     /// first response whose transient condition and persistent flag requirement
-    /// both match. Requests without a condition preserve legacy behavior and do
-    /// not invoke this definition. Entry actions run before the transition fades
+    /// both match. Requests without a condition do not invoke this definition.
+    /// Entry actions run before the transition fades
     /// clear.
     /// </remarks>
     [DisallowMultipleComponent]

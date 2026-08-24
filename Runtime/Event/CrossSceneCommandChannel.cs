@@ -1,4 +1,5 @@
 using System;
+using QuietStatic.Toolkit.DebugTools;
 using UnityEngine;
 
 namespace QuietStatic
@@ -22,18 +23,78 @@ namespace QuietStatic
         /// <summary>Whether at least one enabled receiver is currently subscribed.</summary>
         public bool HasReceivers => CommandRequested != null;
 
+        /// <summary>Correlation ID assigned to the most recently traced dispatch.</summary>
+        public string LastCorrelationId { get; private set; } = string.Empty;
+
         /// <summary>
         /// Delivers a command to every current receiver and reports whether any existed.
         /// </summary>
         protected bool Dispatch(TCommand command)
         {
+            return Dispatch(command, null);
+        }
+
+        /// <summary>
+        /// Delivers a command and exposes its trace correlation before receivers run.
+        /// </summary>
+        /// <remarks>
+        /// The callback is invoked synchronously, including when tracing is disabled
+        /// (in which case the correlation ID is empty). This lets specialized
+        /// request/result channels associate a terminal result before a receiver can
+        /// publish one during dispatch.
+        /// </remarks>
+        protected bool Dispatch(
+            TCommand command,
+            Action<string> correlationAssigned)
+        {
             Action<TCommand> receivers = CommandRequested;
+            string correlationId = string.Empty;
+            string payload = string.Empty;
+            if (DebugTrace.Enabled)
+            {
+                correlationId = DebugTrace.BeginCorrelation();
+                LastCorrelationId = correlationId;
+                payload = command is null ? "null" : command.ToString();
+                DebugTrace.RecordCommand(
+                    correlationId,
+                    name,
+                    typeof(TCommand).Name,
+                    payload,
+                    string.Empty,
+                    "Submitted",
+                    this);
+            }
+
+            correlationAssigned?.Invoke(correlationId);
+
             if (receivers == null)
             {
+                if (DebugTrace.Enabled)
+                {
+                    DebugTrace.RecordCommand(
+                        correlationId,
+                        name,
+                        typeof(TCommand).Name,
+                        payload,
+                        string.Empty,
+                        "Rejected: no receiver",
+                        this);
+                }
                 return false;
             }
 
             receivers.Invoke(command);
+            if (DebugTrace.Enabled)
+            {
+                DebugTrace.RecordCommand(
+                    correlationId,
+                    name,
+                    typeof(TCommand).Name,
+                    payload,
+                    receivers.Method.DeclaringType?.Name ?? "Receiver",
+                    "Accepted",
+                    this);
+            }
             return true;
         }
     }

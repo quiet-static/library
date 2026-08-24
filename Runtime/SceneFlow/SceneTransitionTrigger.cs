@@ -9,8 +9,7 @@ namespace QuietStatic.Toolkit.SceneFlow
     /// <remarks>
     /// This component is intended for simple doorway, hallway, portal, or level-exit triggers.
     /// When an object enters the trigger, the component can optionally validate the object's tag,
-    /// invoke a UnityEvent, and then request the configured scene through the persistent
-    /// <see cref="SceneFlowManager"/>.
+    /// invoke a UnityEvent, and then request the configured scene through its command channel.
     ///
     /// The target scene must still be included in Unity's Build Settings for runtime scene loading
     /// to succeed.
@@ -18,19 +17,11 @@ namespace QuietStatic.Toolkit.SceneFlow
     public class SceneTransitionTrigger : MonoBehaviour
     {
         [Header("Scene Target")]
-        [Tooltip("Name of the scene to load when this trigger is activated. The scene must be included in Build Settings.")]
-        [SerializeField] private string targetScene;
-
-        [Tooltip("If true, the target scene is loaded additively. If false, the target scene replaces the current scene.")]
-        [SerializeField] private bool additive;
-
-        [Tooltip("Optional destination condition used by direct, non-additive transitions. Mapped transitions use their connection ID.")]
-        [SerializeField] private string conditionId;
-
         [Tooltip("Optional channel used to reach the persistent Scene Flow Manager.")]
+        [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 
-        [Tooltip("Optional scene map. When assigned with a Connection Id, the configured connection replaces Target Scene and Additive.")]
+        [Tooltip("Scene map containing the configured connection.")]
         [SerializeField] private SceneFlowMap sceneFlowMap;
 
         [Tooltip("Stable connection identifier from the Scene Flow Map.")]
@@ -101,74 +92,35 @@ namespace QuietStatic.Toolkit.SceneFlow
         }
 
         /// <summary>
-        /// Requests the configured scene load through the scene-flow channel or manager.
+        /// Requests the configured scene load through the required scene-flow channel.
         /// </summary>
         private bool TryLoadTargetScene()
         {
-            if (TryGetMappedRequest(out SceneTransitionRequest mappedRequest))
-            {
-                if (requestChannel != null)
-                {
-                    return requestChannel.RequestTransition(mappedRequest);
-                }
-
-                if (SceneFlowManager.Instance != null)
-                {
-                    SceneFlowManager.Instance.TransitionToScene(mappedRequest);
-                    return true;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(targetScene))
+            if (requestChannel == null)
             {
                 GameLogger.Warning(
                     nameof(TryLoadTargetScene),
                     this,
-                    $"{nameof(SceneTransitionTrigger)} needs a target scene."
-                );
+                    $"{nameof(SceneTransitionTrigger)} requires a scene-flow request channel.");
                 return false;
             }
 
-            if (requestChannel != null)
-            {
-                return additive
-                    ? requestChannel.TryLoadAdditive(targetScene)
-                    : requestChannel.RequestTransition(
-                        new SceneTransitionRequest(
-                            targetScene,
-                            conditionId: conditionId));
-            }
-
-            if (SceneFlowManager.Instance != null)
-            {
-                if (additive)
-                {
-                    SceneFlowManager.Instance.LoadSceneAdditive(targetScene);
-                }
-                else
-                {
-                    SceneFlowManager.Instance.TransitionToScene(
-                        new SceneTransitionRequest(
-                            targetScene,
-                            conditionId: conditionId));
-                }
-
-                return true;
-            }
-
-            GameLogger.Warning(
-                nameof(TryLoadTargetScene),
-                this,
-                $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no scene-flow receiver exists."
-            );
-            return false;
+            return TryGetMappedRequest(out SceneTransitionRequest request) &&
+                   requestChannel.RequestTransition(request);
         }
 
         private bool CanDispatchTarget()
         {
-            bool usesMappedConnection =
-                sceneFlowMap != null && !string.IsNullOrWhiteSpace(connectionId);
-            if (usesMappedConnection)
+            if (requestChannel == null)
+            {
+                GameLogger.Warning(
+                    nameof(CanDispatchTarget),
+                    this,
+                    $"{nameof(SceneTransitionTrigger)} requires a scene-flow request channel.");
+                return false;
+            }
+
+            if (sceneFlowMap != null && !string.IsNullOrWhiteSpace(connectionId))
             {
                 if (!sceneFlowMap.TryGetConnection(connectionId, out SceneFlowMap.Connection connection) ||
                     string.IsNullOrWhiteSpace(connection.ToSceneName))
@@ -191,35 +143,6 @@ namespace QuietStatic.Toolkit.SceneFlow
                     return false;
                 }
 
-                if (requestChannel != null)
-                {
-                    return requestChannel.HasReceivers;
-                }
-
-                if (SceneFlowManager.Instance != null)
-                {
-                    return true;
-                }
-
-                GameLogger.Warning(
-                    nameof(CanDispatchTarget),
-                    this,
-                    $"Connection '{connectionId}' needs a scene-flow channel or {nameof(SceneFlowManager)}.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(targetScene))
-            {
-                GameLogger.Warning(
-                    nameof(CanDispatchTarget),
-                    this,
-                    $"{nameof(SceneTransitionTrigger)} needs a target scene."
-                );
-                return false;
-            }
-
-            if (requestChannel != null)
-            {
                 if (requestChannel.HasReceivers)
                 {
                     return true;
@@ -228,20 +151,14 @@ namespace QuietStatic.Toolkit.SceneFlow
                 GameLogger.Warning(
                     nameof(CanDispatchTarget),
                     this,
-                    $"{nameof(SceneTransitionTrigger)} has no receiver for its scene-flow channel."
-                );
+                    $"Connection '{connectionId}' has no scene-flow receiver.");
                 return false;
-            }
-
-            if (SceneFlowManager.Instance != null)
-            {
-                return true;
             }
 
             GameLogger.Warning(
                 nameof(CanDispatchTarget),
                 this,
-                $"{nameof(SceneTransitionTrigger)} could not load scene '{targetScene}' because no scene-flow receiver exists."
+                $"{nameof(SceneTransitionTrigger)} requires a scene-flow map and connection ID."
             );
             return false;
         }

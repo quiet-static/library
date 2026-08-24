@@ -3,6 +3,7 @@ using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.SceneFlow;
 using QuietStatic.Toolkit.State;
+using QuietStatic.Toolkit.Editor.Validation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,20 +15,24 @@ namespace QuietStatic.Tests.EditMode
         private GameObject gameStateObject;
         private GameStateManager previousGameStateInstance;
         private Action<SceneMode> modeChangedHandler;
+        private SceneModeManager manager;
 
         [SetUp]
         public void SetUp()
         {
-            ResetSceneModeStatics();
             previousGameStateInstance = GameStateManager.Instance;
             SetGameStateManagerInstance(null);
             root = new GameObject("Scene Root");
+            manager = root.AddComponent<SceneModeManager>();
         }
 
         [TearDown]
         public void TearDown()
         {
-            SceneModeManager.OnSceneModeChanged -= modeChangedHandler;
+            if (manager != null)
+            {
+                manager.ModeChanged -= modeChangedHandler;
+            }
             modeChangedHandler = null;
             UnityEngine.Object.DestroyImmediate(root);
             if (gameStateObject != null)
@@ -36,7 +41,6 @@ namespace QuietStatic.Tests.EditMode
             }
             SetGameStateManagerInstance(previousGameStateInstance);
             previousGameStateInstance = null;
-            ResetSceneModeStatics();
         }
 
         [Test]
@@ -89,22 +93,56 @@ namespace QuietStatic.Tests.EditMode
             SetField(handler, "activeMode", SceneMode.Cutscene);
             MethodInfo apply = typeof(SceneModeManager).GetMethod(
                 "ApplySceneMode",
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(apply, Is.Not.Null);
 
             SceneModeDefinition definition = root.AddComponent<SceneModeDefinition>();
             SetField(definition, "mode", SceneMode.Cutscene);
-            apply.Invoke(null, new object[] { root.scene });
+            apply.Invoke(manager, new object[] { root.scene });
+            handler.Refresh();
 
             Assert.That(camera.enabled, Is.True);
             Assert.That(listener.enabled, Is.True);
 
             handler.enabled = false;
             SetField(definition, "mode", SceneMode.Play);
-            apply.Invoke(null, new object[] { root.scene });
+            apply.Invoke(manager, new object[] { root.scene });
 
             Assert.That(camera.enabled, Is.True);
             Assert.That(listener.enabled, Is.True);
+        }
+
+        [Test]
+        public void Validation_AcceptsListenersOwnedByDistinctSceneModes()
+        {
+            GameObject playObject = new("Play Camera");
+            playObject.transform.SetParent(root.transform);
+            AudioListener playListener = playObject.AddComponent<AudioListener>();
+            playObject.AddComponent<Camera>();
+            SceneModeCameraHandler playHandler = playObject.AddComponent<SceneModeCameraHandler>();
+            SetField(playHandler, "activeMode", SceneMode.Play);
+            SetField(playHandler, "targetAudioListener", playListener);
+
+            GameObject cutsceneObject = new("Cutscene Camera");
+            cutsceneObject.transform.SetParent(root.transform);
+            AudioListener cutsceneListener = cutsceneObject.AddComponent<AudioListener>();
+            cutsceneObject.AddComponent<Camera>();
+            SceneModeCameraHandler cutsceneHandler =
+                cutsceneObject.AddComponent<SceneModeCameraHandler>();
+            SetField(cutsceneHandler, "activeMode", SceneMode.Cutscene);
+            SetField(cutsceneHandler, "targetAudioListener", cutsceneListener);
+
+            Assert.That(
+                ToolkitValidation.AreAudioListenersModeManaged(
+                    new Component[]
+                    {
+                        playListener,
+                        playHandler,
+                        cutsceneListener,
+                        cutsceneHandler,
+                    },
+                    new[] { playListener, cutsceneListener }),
+                Is.True);
         }
 
         [Test]
@@ -119,28 +157,19 @@ namespace QuietStatic.Tests.EditMode
             SetField(definition, "initialGameState", "Exploring");
             int notificationCount = 0;
             modeChangedHandler = _ => notificationCount++;
-            SceneModeManager.OnSceneModeChanged += modeChangedHandler;
+            manager.ModeChanged += modeChangedHandler;
             MethodInfo apply = typeof(SceneModeManager).GetMethod(
                 "ApplySceneMode",
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(apply, Is.Not.Null);
 
-            apply.Invoke(null, new object[] { root.scene });
+            apply.Invoke(manager, new object[] { root.scene });
             SetField(definition, "initialGameState", "Combat");
-            apply.Invoke(null, new object[] { root.scene });
+            apply.Invoke(manager, new object[] { root.scene });
 
-            Assert.That(SceneModeManager.CurrentMode, Is.EqualTo(SceneMode.Play));
+            Assert.That(manager.CurrentMode, Is.EqualTo(SceneMode.Play));
             Assert.That(notificationCount, Is.EqualTo(1));
             Assert.That(gameStateManager.CurrentState, Is.EqualTo("Combat"));
-        }
-
-        private static void ResetSceneModeStatics()
-        {
-            MethodInfo reset = typeof(SceneModeManager).GetMethod(
-                "ResetStatics",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(reset, Is.Not.Null);
-            reset.Invoke(null, null);
         }
 
         private static void SetField(object target, string name, object value)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace QuietStatic.Toolkit.SceneFlow
 {
@@ -24,38 +25,29 @@ namespace QuietStatic.Toolkit.SceneFlow
 
         private void OnEnable()
         {
-            SceneModeManager.OnSceneModeChanged += HandleSceneModeChanged;
+            SceneManager.activeSceneChanged += HandleActiveSceneChanged;
             Refresh();
         }
 
         private void OnDisable()
         {
-            SceneModeManager.OnSceneModeChanged -= HandleSceneModeChanged;
+            SceneManager.activeSceneChanged -= HandleActiveSceneChanged;
         }
 
         /// <summary>Refreshes component activation from the currently declared scene mode.</summary>
         public void Refresh()
         {
-            SceneMode mode = SceneModeManager.CurrentMode;
-
-            // This supports direct scene testing when the persistent manager is not loaded.
-            if (mode == SceneMode.Unspecified)
-            {
-                SceneModeDefinition localDefinition =
-                    SceneModeManager.FindDefinition(gameObject.scene);
-                if (localDefinition != null)
-                {
-                    mode = localDefinition.Mode;
-                }
-            }
+            SceneModeDefinition definition =
+                SceneModeManager.FindDefinition(SceneManager.GetActiveScene()) ??
+                SceneModeManager.FindDefinition(gameObject.scene);
+            SceneMode mode = definition != null
+                ? definition.Mode
+                : SceneMode.Unspecified;
 
             SetCameraActive(mode == activeMode);
         }
 
-        private void HandleSceneModeChanged(SceneMode mode)
-        {
-            SetCameraActive(mode == activeMode);
-        }
+        private void HandleActiveSceneChanged(Scene previous, Scene current) => Refresh();
 
         private void SetCameraActive(bool shouldEnable)
         {

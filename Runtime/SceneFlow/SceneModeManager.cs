@@ -16,17 +16,10 @@ namespace QuietStatic.Toolkit.SceneFlow
     public sealed class SceneModeManager : MonoBehaviour
     {
         /// <summary>Raised when the active content scene declares a different mode.</summary>
-        public static event Action<SceneMode> OnSceneModeChanged;
+        public event Action<SceneMode> ModeChanged;
 
         /// <summary>Gets the currently resolved content-scene mode.</summary>
-        public static SceneMode CurrentMode { get; private set; }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics()
-        {
-            CurrentMode = SceneMode.Unspecified;
-            OnSceneModeChanged = null;
-        }
+        public SceneMode CurrentMode { get; private set; } = SceneMode.Unspecified;
 
         private void OnEnable()
         {
@@ -48,7 +41,7 @@ namespace QuietStatic.Toolkit.SceneFlow
             ApplySceneMode(newScene);
         }
 
-        private static void ApplySceneMode(Scene scene)
+        private void ApplySceneMode(Scene scene)
         {
             SceneModeDefinition definition = FindDefinition(scene);
             SceneMode newMode = definition != null
@@ -67,7 +60,7 @@ namespace QuietStatic.Toolkit.SceneFlow
 
             if (modeChanged)
             {
-                OnSceneModeChanged?.Invoke(CurrentMode);
+                ModeChanged?.Invoke(CurrentMode);
             }
         }
 

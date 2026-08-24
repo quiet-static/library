@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using QuietStatic.Toolkit.DebugTools;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.SceneFlow
@@ -44,6 +47,57 @@ namespace QuietStatic.Toolkit.SceneFlow
     public sealed class SceneFlowRequestChannel :
         CrossSceneCommandChannel<SceneFlowCommand>
     {
+        private readonly Dictionary<SceneTransitionRequest, string>
+            transitionCorrelationIds = new();
+
+        /// <summary>Raised after the receiver completes a full content transition.</summary>
+        public event Action<string> TransitionCompleted;
+
+        /// <summary>
+        /// Raised after the receiver accepts or rejects a transition and produces
+        /// its terminal success or failure result.
+        /// </summary>
+        public event Action<SceneTransitionResult> TransitionFinished;
+
+        /// <summary>
+        /// Gets the most recently published result so temporarily disabled observers can reconcile
+        /// a request after re-enabling.
+        /// </summary>
+        public SceneTransitionResult LastTransitionResult { get; private set; }
+
+        /// <summary>Publishes a receiver result to observers using this channel.</summary>
+        internal void PublishTransitionResult(SceneTransitionResult result)
+        {
+            LastTransitionResult = result;
+            string correlationId = ResolveCorrelationId(result.Request);
+            DebugTrace.RecordCommand(
+                correlationId,
+                name,
+                nameof(SceneFlowCommand),
+                result.Destination,
+                nameof(SceneFlowManager),
+                result.Succeeded
+                    ? "Completed"
+                    : $"Failed: {result.Failure}",
+                this);
+
+            if (result.Succeeded)
+            {
+                TransitionCompleted?.Invoke(result.Destination);
+            }
+
+            TransitionFinished?.Invoke(result);
+        }
+
+        /// <summary>
+        /// Publishes receiver completion to observers using this channel.
+        /// Retained for callers that only report successful scene names.
+        /// </summary>
+        internal void PublishTransitionCompleted(string sceneName)
+        {
+            PublishTransitionResult(SceneTransitionResult.Success(sceneName));
+        }
+
         /// <summary>Requests a full content transition from a UnityEvent.</summary>
         public void TransitionToScene(string sceneName)
         {
@@ -69,10 +123,21 @@ namespace QuietStatic.Toolkit.SceneFlow
                 return false;
             }
 
-            return Dispatch(new SceneFlowCommand(
-                SceneFlowCommandType.Transition,
-                request.TargetSceneName,
-                request));
+            bool dispatched = Dispatch(
+                new SceneFlowCommand(
+                    SceneFlowCommandType.Transition,
+                    request.TargetSceneName,
+                    request),
+                correlationId => TrackCorrelation(
+                    request,
+                    correlationId));
+
+            if (!dispatched)
+            {
+                transitionCorrelationIds.Remove(request);
+            }
+
+            return dispatched;
         }
 
         /// <summary>Requests an additive load from a UnityEvent.</summary>
@@ -133,6 +198,37 @@ namespace QuietStatic.Toolkit.SceneFlow
             return Dispatch(new SceneFlowCommand(
                 type,
                 sceneName.Trim()));
+        }
+
+        private void TrackCorrelation(
+            SceneTransitionRequest request,
+            string correlationId)
+        {
+            if (request == null || string.IsNullOrEmpty(correlationId))
+            {
+                return;
+            }
+
+            transitionCorrelationIds[request] = correlationId;
+        }
+
+        private string ResolveCorrelationId(
+            SceneTransitionRequest request)
+        {
+            if (request == null)
+            {
+                return LastCorrelationId;
+            }
+
+            if (!transitionCorrelationIds.TryGetValue(
+                    request,
+                    out string correlationId))
+            {
+                return string.Empty;
+            }
+
+            transitionCorrelationIds.Remove(request);
+            return correlationId;
         }
     }
 }

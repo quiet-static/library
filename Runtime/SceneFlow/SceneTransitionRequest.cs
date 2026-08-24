@@ -23,8 +23,8 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// Scene that becomes active when loading completes.
         /// </param>
         /// <param name="additionalScenesToLoad">
-        /// Optional support scenes that must be loaded before cleanup, such as
-        /// a player, lighting, or local UI scene.
+        /// Optional support scenes that must be loaded before cleanup and remain
+        /// loaded for this transition, such as a player, lighting, or local UI scene.
         /// </param>
         /// <param name="additionalScenesToKeep">
         /// Optional nonpersistent scenes that should survive this transition.
@@ -58,7 +58,7 @@ namespace QuietStatic.Toolkit.SceneFlow
         public string TargetSceneName { get; }
 
         /// <summary>
-        /// Gets support scenes that are loaded before cleanup begins.
+        /// Gets required support scenes loaded before, and retained through, cleanup.
         /// </summary>
         public IReadOnlyList<string> AdditionalScenesToLoad =>
             additionalScenesToLoad;

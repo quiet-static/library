@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Audio;
 using QuietStatic.Toolkit.Interactions;
+using QuietStatic.Toolkit.Pause;
 using QuietStatic.Toolkit.Saving;
 using QuietStatic.Toolkit.SceneFlow;
 using QuietStatic.Toolkit.Utilities;
@@ -77,6 +79,65 @@ namespace QuietStatic.Tests.EditMode
                     AudioCommandType.DespawnSpawnedSfx,
                     AudioCommandType.DisableSfxSpawning,
                     AudioCommandType.EnableSfxSpawning
+                },
+                commands);
+            Object.DestroyImmediate(channel);
+        }
+
+        [Test]
+        public void AudioRequestChannel_ReturnsReceiverCreatedPositionalSound()
+        {
+            AudioRequestChannel channel =
+                ScriptableObject.CreateInstance<AudioRequestChannel>();
+            GameObject soundObject = new("Created Sound");
+            EventSound3D expected = soundObject.AddComponent<EventSound3D>();
+            AudioCommand received = default;
+            channel.CommandRequested += command =>
+            {
+                received = command;
+                command.SoundCreated?.Invoke(expected);
+            };
+
+            EventSound3D actual = channel.PlayAtPosition(
+                null,
+                new Vector3(1f, 2f, 3f),
+                2f,
+                20f,
+                0.4f,
+                true);
+
+            Assert.That(actual, Is.SameAs(expected));
+            Assert.That(received.Type, Is.EqualTo(AudioCommandType.PlaySfxAtPosition));
+            Assert.That(received.Position, Is.EqualTo(new Vector3(1f, 2f, 3f)));
+            Assert.That(received.MinDistance, Is.EqualTo(2f));
+            Assert.That(received.MaxDistance, Is.EqualTo(20f));
+            Assert.That(received.Value, Is.EqualTo(0.4f));
+            Assert.That(received.Loop, Is.True);
+
+            Object.DestroyImmediate(soundObject);
+            Object.DestroyImmediate(channel);
+        }
+
+        [Test]
+        public void PauseRequestChannel_ForwardsEveryTypedOperation()
+        {
+            PauseRequestChannel channel =
+                ScriptableObject.CreateInstance<PauseRequestChannel>();
+            var commands = new List<PauseCommandType>();
+            channel.CommandRequested += command => commands.Add(command.Type);
+
+            channel.Toggle();
+            channel.Pause();
+            channel.Resume();
+            channel.ForceResume();
+
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    PauseCommandType.Toggle,
+                    PauseCommandType.Pause,
+                    PauseCommandType.Resume,
+                    PauseCommandType.ForceResume
                 },
                 commands);
             Object.DestroyImmediate(channel);
@@ -181,6 +242,55 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(
                 received.Transition.TargetSceneName,
                 Is.EqualTo("House"));
+
+            Object.DestroyImmediate(channel);
+        }
+
+        [Test]
+        public void SceneTransitionResult_DefaultValueIsNotSuccessful()
+        {
+            SceneTransitionResult result = default;
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(SceneTransitionFailure.Unknown));
+        }
+
+        [Test]
+        public void SceneFlowChannel_PublishesTypedResultsAndPreservesLegacyCompletion()
+        {
+            SceneFlowRequestChannel channel =
+                ScriptableObject.CreateInstance<SceneFlowRequestChannel>();
+            var results = new List<SceneTransitionResult>();
+            var completedScenes = new List<string>();
+            channel.TransitionFinished += results.Add;
+            channel.TransitionCompleted += completedScenes.Add;
+            MethodInfo publish = typeof(SceneFlowRequestChannel).GetMethod(
+                "PublishTransitionResult",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(publish, Is.Not.Null);
+
+            SceneTransitionRequest failureRequest =
+                new SceneTransitionRequest("Office");
+            SceneTransitionResult failure = SceneTransitionResult.Failed(
+                "Office",
+                SceneTransitionFailure.AlreadyTransitioning,
+                "Busy",
+                failureRequest);
+            SceneTransitionRequest successRequest =
+                new SceneTransitionRequest("Cellar");
+            SceneTransitionResult success = SceneTransitionResult.Success(
+                "Cellar",
+                successRequest);
+            publish.Invoke(channel, new object[] { failure });
+            publish.Invoke(channel, new object[] { success });
+
+            Assert.That(results, Is.EqualTo(new[] { failure, success }));
+            Assert.That(results[0].Request, Is.SameAs(failureRequest));
+            Assert.That(results[1].Request, Is.SameAs(successRequest));
+            Assert.That(channel.LastTransitionResult, Is.EqualTo(success));
+            Assert.That(completedScenes, Is.EqualTo(new[] { "Cellar" }));
 
             Object.DestroyImmediate(channel);
         }

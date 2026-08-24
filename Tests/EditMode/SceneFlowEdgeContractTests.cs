@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using QuietStatic.Toolkit.SceneFlow;
 using UnityEngine;
@@ -64,9 +65,9 @@ namespace QuietStatic.Tests.EditMode
             map.name = "Scene Flow Contract Map";
             LogAssert.Expect(
                 LogType.Warning,
-                "WARNING: Scene Flow Contract Map from TryGetConnection: " +
-                "SceneFlowMap contains more than one connection named 'route.entry'. " +
-                "The first connection will be used.");
+                new Regex(
+                    "TryGetConnection: SceneFlowMap contains more than one connection named " +
+                    "'route\\.entry'\\. The first connection will be used\\."));
 
             bool found = map.TryGetConnection(
                 "  route.entry  ",
@@ -158,46 +159,6 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
-        public void Handler_DirectConditionPropagatesAndStartedEventRequiresAcceptedDispatch()
-        {
-            SceneFlowRequestChannel channel = Track(
-                ScriptableObject.CreateInstance<SceneFlowRequestChannel>());
-            channel.name = "Direct Requests";
-            UnityEvent started = new UnityEvent();
-            int startedCount = 0;
-            int receivedCount = 0;
-            SceneFlowCommand received = default;
-            started.AddListener(() => startedCount++);
-            SceneTransitionHandler handler = CreateHandler(
-                "Direct Handler",
-                channel,
-                started);
-            SetField(handler, "targetScene", new SceneReference(" Destination "));
-            SetField(handler, "conditionId", "  direct.entry  ");
-            LogAssert.Expect(
-                LogType.Warning,
-                "WARNING: Direct Handler from Dispatch: " +
-                "No receiver is listening to Direct Requests.");
-
-            handler.Transition();
-
-            Assert.That(startedCount, Is.Zero);
-            Assert.That(receivedCount, Is.Zero);
-
-            channel.CommandRequested += command =>
-            {
-                received = command;
-                receivedCount++;
-            };
-            handler.Transition();
-
-            Assert.That(receivedCount, Is.EqualTo(1));
-            Assert.That(received.Transition.TargetSceneName, Is.EqualTo("Destination"));
-            Assert.That(received.Transition.ConditionId, Is.EqualTo("direct.entry"));
-            Assert.That(startedCount, Is.EqualTo(1));
-        }
-
-        [Test]
         public void Handler_MappedTransitionUsesNormalizedConnectionIdAsCondition()
         {
             SceneFlowMap.Connection connection = CreateConnection(
@@ -218,19 +179,165 @@ namespace QuietStatic.Tests.EditMode
                 started);
             SetField(handler, "sceneFlowMap", map);
             SetField(handler, "connectionId", " mapped.entry ");
-            SetField(handler, "targetScene", new SceneReference("DirectFallback"));
-            SetField(handler, "conditionId", "direct.condition.must.not.leak");
 
-            handler.Transition();
+            bool accepted = handler.TryTransition();
 
+            Assert.That(accepted, Is.True);
             Assert.That(received.Type, Is.EqualTo(SceneFlowCommandType.Transition));
             Assert.That(received.SceneName, Is.EqualTo("MappedDestination"));
             Assert.That(received.Transition.TargetSceneName, Is.EqualTo("MappedDestination"));
             Assert.That(received.Transition.ConditionId, Is.EqualTo("mapped.entry"));
-            Assert.That(
-                received.Transition.ConditionId,
-                Is.Not.EqualTo("direct.condition.must.not.leak"));
             Assert.That(startedCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Handler_ImmediateCorrelatedRejectionIsNotReportedAsStarted()
+        {
+            SceneFlowMap map = CreateMap(CreateConnection(
+                "route.busy",
+                string.Empty,
+                "BusyDestination"));
+            SceneFlowRequestChannel channel = Track(
+                ScriptableObject.CreateInstance<SceneFlowRequestChannel>());
+            UnityEvent started = new UnityEvent();
+            UnityEvent failed = new UnityEvent();
+            int startedCount = 0;
+            int failedCount = 0;
+            started.AddListener(() => startedCount++);
+            failed.AddListener(() => failedCount++);
+            SceneTransitionRequest submittedRequest = null;
+            channel.CommandRequested += command =>
+            {
+                submittedRequest = command.Transition;
+                PublishResult(channel, SceneTransitionResult.Failed(
+                    command.SceneName,
+                    SceneTransitionFailure.AlreadyTransitioning,
+                    "Busy",
+                    command.Transition));
+            };
+            SceneTransitionHandler handler = CreateHandler(
+                "Busy Handler",
+                channel,
+                started,
+                failed);
+            SetField(handler, "sceneFlowMap", map);
+            SetField(handler, "connectionId", "route.busy");
+            var results = new List<SceneTransitionResult>();
+            handler.TransitionFinished += results.Add;
+
+            bool accepted = handler.TryTransition();
+
+            Assert.That(accepted, Is.False);
+            Assert.That(startedCount, Is.Zero);
+            Assert.That(failedCount, Is.EqualTo(1));
+            Assert.That(results, Has.Count.EqualTo(1));
+            Assert.That(
+                results[0].Failure,
+                Is.EqualTo(SceneTransitionFailure.AlreadyTransitioning));
+            Assert.That(results[0].Request, Is.SameAs(submittedRequest));
+            Assert.That(handler.IsTransitionPending, Is.False);
+        }
+
+        [Test]
+        public void Handler_FiltersResultsToItsExactPendingRequest()
+        {
+            SceneFlowMap map = CreateMap(CreateConnection(
+                "route.filtered",
+                string.Empty,
+                "SharedDestination"));
+            SceneFlowRequestChannel channel = Track(
+                ScriptableObject.CreateInstance<SceneFlowRequestChannel>());
+            UnityEvent started = new UnityEvent();
+            UnityEvent failed = new UnityEvent();
+            int failedCount = 0;
+            failed.AddListener(() => failedCount++);
+            SceneTransitionRequest submittedRequest = null;
+            channel.CommandRequested += command =>
+                submittedRequest = command.Transition;
+            SceneTransitionHandler handler = CreateHandler(
+                "Filtered Handler",
+                channel,
+                started,
+                failed);
+            SetField(handler, "sceneFlowMap", map);
+            SetField(handler, "connectionId", "route.filtered");
+            var results = new List<SceneTransitionResult>();
+            handler.TransitionFinished += results.Add;
+
+            Assert.That(handler.TryTransition(), Is.True);
+            Assert.That(handler.IsTransitionPending, Is.True);
+            SceneTransitionRequest otherRequest =
+                new SceneTransitionRequest("SharedDestination");
+            PublishResult(channel, SceneTransitionResult.Failed(
+                "SharedDestination",
+                SceneTransitionFailure.LoadFailed,
+                "Other request failed",
+                otherRequest));
+
+            Assert.That(results, Is.Empty);
+            Assert.That(failedCount, Is.Zero);
+            Assert.That(handler.IsTransitionPending, Is.True);
+
+            SceneTransitionResult ownFailure = SceneTransitionResult.Failed(
+                "SharedDestination",
+                SceneTransitionFailure.LoadFailed,
+                "Own request failed",
+                submittedRequest);
+            PublishResult(channel, ownFailure);
+
+            Assert.That(results, Is.EqualTo(new[] { ownFailure }));
+            Assert.That(failedCount, Is.EqualTo(1));
+            Assert.That(handler.IsTransitionPending, Is.False);
+        }
+
+        [Test]
+        public void Handler_DisabledDuringPendingRequest_DefersItsExactResultUntilReenabled()
+        {
+            SceneFlowMap map = CreateMap(CreateConnection(
+                "route.disabled",
+                string.Empty,
+                "DeferredDestination"));
+            SceneFlowRequestChannel channel = Track(
+                ScriptableObject.CreateInstance<SceneFlowRequestChannel>());
+            SceneTransitionRequest submittedRequest = null;
+            channel.CommandRequested += command =>
+                submittedRequest = command.Transition;
+            UnityEvent failed = new UnityEvent();
+            int failedCount = 0;
+            failed.AddListener(() => failedCount++);
+            SceneTransitionHandler handler = CreateHandler(
+                "Disabled Handler",
+                channel,
+                new UnityEvent(),
+                failed);
+            SetField(handler, "sceneFlowMap", map);
+            SetField(handler, "connectionId", "route.disabled");
+            var results = new List<SceneTransitionResult>();
+            handler.TransitionFinished += results.Add;
+
+            Assert.That(handler.TryTransition(), Is.True);
+            Assert.That(handler.IsTransitionPending, Is.True);
+            handler.gameObject.SetActive(false);
+            SceneTransitionResult ownFailure = SceneTransitionResult.Failed(
+                "DeferredDestination",
+                SceneTransitionFailure.LoadFailed,
+                "Deferred failure",
+                submittedRequest);
+
+            PublishResult(channel, ownFailure);
+            PublishResult(channel, SceneTransitionResult.Success(
+                "UnrelatedDestination",
+                new SceneTransitionRequest("UnrelatedDestination")));
+
+            Assert.That(handler.IsTransitionPending, Is.False);
+            Assert.That(results, Is.Empty);
+            Assert.That(failedCount, Is.Zero);
+
+            handler.gameObject.SetActive(true);
+            InvokeLifecycle(handler, "OnEnable");
+
+            Assert.That(results, Is.EqualTo(new[] { ownFailure }));
+            Assert.That(failedCount, Is.EqualTo(1));
         }
 
         private SceneFlowMap CreateMap(
@@ -245,14 +352,39 @@ namespace QuietStatic.Tests.EditMode
         private SceneTransitionHandler CreateHandler(
             string name,
             SceneFlowRequestChannel channel,
-            UnityEvent started)
+            UnityEvent started,
+            UnityEvent failed = null)
         {
             GameObject gameObject = Track(new GameObject(name));
             SceneTransitionHandler handler =
                 gameObject.AddComponent<SceneTransitionHandler>();
             SetField(handler, "requestChannel", channel);
             SetField(handler, "onTransitionStarted", started);
+            SetField(handler, "onTransitionFailed", failed);
             return handler;
+        }
+
+        private static void PublishResult(
+            SceneFlowRequestChannel channel,
+            SceneTransitionResult result)
+        {
+            MethodInfo publish = typeof(SceneFlowRequestChannel).GetMethod(
+                "PublishTransitionResult",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(publish, Is.Not.Null);
+            publish.Invoke(channel, new object[] { result });
+        }
+
+        private static void InvokeLifecycle(object target, string methodName)
+        {
+            MethodInfo method = target.GetType().GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(
+                method,
+                Is.Not.Null,
+                $"Expected lifecycle method '{methodName}' on {target.GetType().FullName}.");
+            method.Invoke(target, null);
         }
 
         private static SceneFlowMap.Connection CreateConnection(
