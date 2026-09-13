@@ -54,6 +54,20 @@ occupy waiting positions, pause for game-specific service, and then leave. Add
 `NPCQueueMember` beside each NPC's `NPCController` and `NPCNavMeshMotor`, assign any
 pre-service stops, and list the members on the queue controller in service order.
 
+For concurrent arrivals, increase **Maximum Active Members** and provide one waiting
+position for each customer behind the register. Every active member follows its own
+pre-service route while service remains in the authored order. Advancing the line preserves
+unfinished browsing stops and their remaining wait time.
+
+Add `NPCWaypoint` to any pre-service destination that should pause. Its minimum/maximum
+wait durations, facing, destination jitter, animation trigger, and arrival event apply to
+each visiting member. Plain Transform destinations remain movement-only. For a browsing
+stop, set the wait range to 3–5 seconds and assign an existing Animator trigger through the
+member's `NPCAnimationTrigger`; `idle` can stand in until a browsing clip is available.
+Connect the motor's movement events to walking/idle triggers so walking resumes afterward.
+Waits use game time and pause with the queue. `RestoreAt` restores followers to their line
+positions rather than reconstructing partially completed browsing routes.
+
 The queue owns only spatial progression. Dialogue, interactions, transactions, objectives,
 and save data stay in the scene handler: listen for `MemberReadyForService`, call
 `BeginService` when the player engages the NPC, and call `CompleteService` when that game's

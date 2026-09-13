@@ -39,7 +39,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [SerializeField] private NPCAnimationTrigger animationTrigger;
 
         [Header("Route")]
-        [Tooltip("Ordered destinations this NPC visits after entering and before reaching service.")]
+        [Tooltip("Ordered destinations visited before service. Add NPCWaypoint to a destination to configure its wait, facing, and optional animation.")]
         [SerializeField] private Transform[] preServiceWaypoints = Array.Empty<Transform>();
 
         [Header("Behavior Modes")]
@@ -85,6 +85,9 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <summary>Gets the optional door opener coordinated by queue movement.</summary>
         public NPCDoorOpener DoorOpener => doorOpener;
 
+        /// <summary>Gets the optional adapter used for queue and waypoint animation cues.</summary>
+        public NPCAnimationTrigger AnimationTrigger => animationTrigger;
+
         /// <summary>Gets the ordered route visited immediately before service.</summary>
         public IReadOnlyList<Transform> PreServiceWaypoints =>
             preServiceWaypoints ?? Array.Empty<Transform>();
@@ -116,6 +119,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
             if (doorOpener == null)
             {
                 doorOpener = GetComponent<NPCDoorOpener>();
+            }
+
+            if (animationTrigger == null)
+            {
+                animationTrigger = GetComponent<NPCAnimationTrigger>();
             }
         }
 

@@ -30,7 +30,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         public bool IsReady => agent != null && agent.enabled && agent.isOnNavMesh;
 
         /// <summary>Gets whether the agent currently has meaningful velocity.</summary>
-        public bool IsMoving => IsReady && agent.velocity.sqrMagnitude > 0.01f;
+        public bool IsMoving => IsReady && !agent.isStopped && agent.velocity.sqrMagnitude > 0.01f;
 
         private void Reset() => agent = GetComponent<NavMeshAgent>();
 
@@ -144,11 +144,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <summary>Stops movement and clears the current path.</summary>
         public void Stop()
         {
-            if (!IsReady)
-                return;
+            if (IsReady)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+            }
 
-            agent.isStopped = true;
-            agent.ResetPath();
+            // Publish the idle transition before callers apply a waypoint animation.
+            // Deferring it to Update could overwrite the arrival cue on the next frame.
+            if (wasMoving)
+            {
+                wasMoving = false;
+                onStoppedMoving?.Invoke();
+            }
         }
 
         /// <summary>Allows the agent to resume its current path when ready.</summary>

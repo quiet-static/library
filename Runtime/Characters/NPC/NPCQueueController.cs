@@ -25,12 +25,20 @@ namespace QuietStatic.Toolkit.Characters.NPC
             public NPCQueueMember Member;
             public readonly List<Transform> Targets = new List<Transform>();
             public int TargetIndex;
+            public int PreServiceTargetCount;
             public NPCQueueMemberState FinalState;
             public bool UseFallback;
             public bool WaitingForDoor;
             public int DestinationRequestedFrame;
             public Vector3 ResolvedDestination;
             public bool HasResolvedDestination;
+            public Vector3 RequestedDestination;
+            public bool HasRequestedDestination;
+            public NPCWaypoint WaitingWaypoint;
+            public bool IsWaitingAtWaypoint;
+            public float WaitRemaining;
+            public bool RestoreAutomaticRotation;
+            public bool PreviousAutomaticRotation;
         }
 
         [Header("Queue Layout")]
@@ -173,7 +181,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            for (int index = motions.Count - 1; index >= 0; index--)
+            for (int index = motions.Count - 1; index >= 0 && IsRunning && !IsPaused; index--)
             {
                 if (index >= motions.Count)
                 {
@@ -228,6 +236,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             IsPaused = true;
             StopMotors();
+            foreach (Motion motion in motions)
+            {
+                EndWaypointFacing(motion);
+            }
         }
 
         /// <summary>Continues every route segment held by <see cref="PauseQueue"/>.</summary>
@@ -239,13 +251,21 @@ namespace QuietStatic.Toolkit.Characters.NPC
             }
 
             IsPaused = false;
-            for (int index = motions.Count - 1; index >= 0; index--)
+            for (int index = motions.Count - 1; index >= 0 && IsRunning && !IsPaused; index--)
             {
                 if (index >= motions.Count)
                 {
                     continue;
                 }
-                BeginMotionSegment(motions[index]);
+                Motion motion = motions[index];
+                if (motion.IsWaitingAtWaypoint)
+                {
+                    BeginWaypointFacing(motion);
+                }
+                else
+                {
+                    BeginMotionSegment(motion);
+                }
             }
         }
 
@@ -437,7 +457,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 maximumActiveMembers,
                 1 + CountWaitingPoints()));
 
-            while (activeMembers.Count < capacity && nextActivationIndex < members.Count)
+            while (IsRunning && activeMembers.Count < capacity && nextActivationIndex < members.Count)
             {
                 int memberIndex = nextActivationIndex++;
                 NPCQueueMember member = ActivateMember(memberIndex);
@@ -463,7 +483,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private void FillWaitingPositions()
         {
             FillActivePositions();
-            for (int index = 1; index < activeMembers.Count; index++)
+            for (int index = 1; IsRunning && index < activeMembers.Count; index++)
             {
                 ScheduleWaitingMotion(activeMembers[index], index - 1);
             }
@@ -493,6 +513,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private void ScheduleServiceApproach(NPCQueueMember member)
         {
+            if (RetargetApproach(member, servicePoint, NPCQueueMemberState.ReadyForService))
+            {
+                return;
+            }
+
             var targets = new List<Transform>();
             if (member.State != NPCQueueMemberState.Waiting)
             {
@@ -505,18 +530,24 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 }
             }
 
+            int preServiceTargetCount = targets.Count;
             if (servicePoint != null)
             {
                 targets.Add(servicePoint);
             }
 
-            ScheduleMotion(member, targets, NPCQueueMemberState.ReadyForService);
+            ScheduleMotion(member, targets, NPCQueueMemberState.ReadyForService, preServiceTargetCount);
         }
 
         private void ScheduleWaitingMotion(NPCQueueMember member, int waitingIndex)
         {
             Transform waitingPoint = GetWaitingPoint(waitingIndex);
             if (waitingPoint == null)
+            {
+                return;
+            }
+
+            if (RetargetApproach(member, waitingPoint, NPCQueueMemberState.Waiting))
             {
                 return;
             }
@@ -543,20 +574,63 @@ namespace QuietStatic.Toolkit.Characters.NPC
                     targets.Add(waypoint);
                 }
             }
+            int preServiceTargetCount = targets.Count;
             targets.Add(waitingPoint);
-            ScheduleMotion(member, targets, NPCQueueMemberState.Waiting);
+            ScheduleMotion(member, targets, NPCQueueMemberState.Waiting, preServiceTargetCount);
+        }
+
+        private bool RetargetApproach(
+            NPCQueueMember member,
+            Transform destination,
+            NPCQueueMemberState finalState)
+        {
+            Motion motion = motions.Find(candidate => candidate.Member == member);
+            if (motion == null || (motion.FinalState != NPCQueueMemberState.Waiting &&
+                                   motion.FinalState != NPCQueueMemberState.ReadyForService))
+            {
+                return false;
+            }
+
+            // A place opening in the line changes only the eventual destination. Each shopper
+            // keeps its own route cursor, sampled destination, and remaining browsing time.
+            int routeLength = motion.PreServiceTargetCount;
+            motion.Targets.RemoveRange(routeLength, motion.Targets.Count - routeLength);
+            if (destination != null)
+            {
+                motion.Targets.Add(destination);
+            }
+            motion.FinalState = finalState;
+            if (motion.TargetIndex >= routeLength)
+            {
+                motion.TargetIndex = routeLength;
+                motion.HasRequestedDestination = false;
+                member.Motor?.Stop();
+                member.DoorOpener?.ClearPendingDoor();
+                if (motion.TargetIndex >= motion.Targets.Count)
+                {
+                    motions.Remove(motion);
+                    CompleteMotion(motion);
+                }
+                else if (!IsPaused)
+                {
+                    BeginMotionSegment(motion);
+                }
+            }
+            return true;
         }
 
         private void ScheduleMotion(
             NPCQueueMember member,
             IEnumerable<Transform> targets,
-            NPCQueueMemberState finalState)
+            NPCQueueMemberState finalState,
+            int preServiceTargetCount = 0)
         {
             RemoveMotion(member);
             var motion = new Motion
             {
                 Member = member,
                 FinalState = finalState,
+                PreServiceTargetCount = preServiceTargetCount,
             };
             foreach (Transform target in targets)
             {
@@ -573,23 +647,41 @@ namespace QuietStatic.Toolkit.Characters.NPC
             }
 
             motions.Add(motion);
-            BeginMotionSegment(motion);
+            if (!IsPaused)
+            {
+                BeginMotionSegment(motion);
+            }
         }
 
         private void BeginMotionSegment(Motion motion)
         {
             Transform target = motion.Targets[motion.TargetIndex];
+            if (target == null)
+            {
+                AdvanceMotionSegment(motion);
+                return;
+            }
+
+            if (!motion.HasRequestedDestination)
+            {
+                NPCWaypoint waypoint = GetCurrentWaypoint(motion, target);
+                Vector2 jitter = waypoint != null
+                    ? UnityEngine.Random.insideUnitCircle * waypoint.DestinationJitterRadius
+                    : Vector2.zero;
+                motion.RequestedDestination = target.position + new Vector3(jitter.x, 0f, jitter.y);
+                motion.HasRequestedDestination = true;
+            }
             if (!PrepareDoorPassage(motion, target))
             {
                 return;
             }
 
             motion.HasResolvedDestination = false;
-            motion.ResolvedDestination = target.position;
+            motion.ResolvedDestination = motion.RequestedDestination;
             NPCNavMeshMotor motor = motion.Member.Motor;
-            Vector3 resolvedDestination = target.position;
+            Vector3 resolvedDestination = motion.RequestedDestination;
             bool accepted = motor != null && motor.SetDestination(
-                target.position,
+                motion.RequestedDestination,
                 out resolvedDestination);
             motion.ResolvedDestination = resolvedDestination;
             motion.HasResolvedDestination = accepted;
@@ -607,7 +699,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             if (HasReached(
                     motion.Member.transform,
-                    GetArrivalPosition(motion, target)))
+                    GetArrivalPosition(motion, target),
+                    GetArrivalDistance(motion, target)))
             {
                 CompleteMotionSegment(motion, motion.Member.transform, target);
             }
@@ -617,12 +710,24 @@ namespace QuietStatic.Toolkit.Characters.NPC
         {
             if (motion.Member == null || motion.TargetIndex >= motion.Targets.Count)
             {
+                EndWaypointFacing(motion);
                 motions.Remove(motion);
+                return;
+            }
+
+            if (motion.IsWaitingAtWaypoint)
+            {
+                UpdateWaypointWait(motion, Time.deltaTime);
                 return;
             }
 
             Transform actor = motion.Member.transform;
             Transform target = motion.Targets[motion.TargetIndex];
+            if (target == null)
+            {
+                AdvanceMotionSegment(motion);
+                return;
+            }
             bool wasWaitingForDoor = motion.WaitingForDoor;
             if (!PrepareDoorPassage(motion, target))
             {
@@ -639,7 +744,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             if (motion.UseFallback)
             {
-                MoveWithoutNavMesh(actor, target);
+                MoveWithoutNavMesh(actor, motion.RequestedDestination);
             }
             else if (HasPathFailed(motion))
             {
@@ -655,7 +760,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            if (!HasReached(actor, GetArrivalPosition(motion, target)))
+            if (!HasReached(actor, GetArrivalPosition(motion, target), GetArrivalDistance(motion, target)))
             {
                 return;
             }
@@ -666,31 +771,120 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private void CompleteMotionSegment(Motion motion, Transform actor, Transform target)
         {
             NPCNavMeshMotor motor = motion.Member.Motor;
+            NPCWaypoint waypoint = GetCurrentWaypoint(motion, target);
+            Quaternion completionRotation = waypoint != null ? actor.rotation : target.rotation;
             bool useResolvedDestination =
                 !motion.UseFallback && motion.HasResolvedDestination;
-            Vector3 completionPosition = useResolvedDestination
-                ? motion.ResolvedDestination
-                : target.position;
+            Vector3 completionPosition = GetArrivalPosition(motion, target);
             bool warped = useResolvedDestination &&
                           motor != null &&
                           motor.Warp(
                               completionPosition,
-                              target.rotation,
-                              Mathf.Max(0.05f, arrivalDistance));
+                              completionRotation,
+                              Mathf.Max(0.05f, GetArrivalDistance(motion, target)));
             if (!warped)
             {
-                actor.SetPositionAndRotation(completionPosition, target.rotation);
+                actor.SetPositionAndRotation(completionPosition, completionRotation);
             }
             motor?.Stop();
+            if (waypoint != null)
+            {
+                // Stabilize the wait before arrival listeners run: they can pause or cancel
+                // the queue, and must never cause this arrival cue to be replayed on resume.
+                motion.WaitingWaypoint = waypoint;
+                motion.IsWaitingAtWaypoint = true;
+                motion.WaitRemaining = waypoint.GetWaitDuration();
+                BeginWaypointFacing(motion);
+                motion.Member.AnimationTrigger?.SetTrigger(waypoint.AnimatorTrigger);
+                waypoint.NotifyReached(motion.Member.Controller);
+                return;
+            }
+
+            AdvanceMotionSegment(motion);
+        }
+
+        private void AdvanceMotionSegment(Motion motion)
+        {
+            EndWaypointFacing(motion);
+            motion.IsWaitingAtWaypoint = false;
+            motion.WaitingWaypoint = null;
+            motion.HasRequestedDestination = false;
+            motion.Member?.DoorOpener?.ClearPendingDoor();
             motion.TargetIndex++;
             if (motion.TargetIndex < motion.Targets.Count)
             {
-                BeginMotionSegment(motion);
+                if (!IsPaused)
+                {
+                    BeginMotionSegment(motion);
+                }
                 return;
             }
 
             motions.Remove(motion);
             CompleteMotion(motion);
+        }
+
+        private void UpdateWaypointWait(Motion motion, float deltaTime)
+        {
+            motion.WaitRemaining -= deltaTime;
+            NPCWaypoint waypoint = motion.WaitingWaypoint;
+            bool facingComplete = true;
+            if (waypoint != null && waypoint.TryGetFacingDirection(
+                    motion.Member.transform.position, out Vector3 direction))
+            {
+                Transform actor = motion.Member.transform;
+                Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+                actor.rotation = waypoint.FacingTurnSpeed <= 0f
+                    ? targetRotation
+                    : Quaternion.RotateTowards(actor.rotation, targetRotation, waypoint.FacingTurnSpeed * deltaTime);
+                facingComplete = Quaternion.Angle(actor.rotation, targetRotation) <= waypoint.FacingTolerance;
+            }
+
+            if (waypoint == null || (motion.WaitRemaining <= 0f && facingComplete))
+            {
+                AdvanceMotionSegment(motion);
+            }
+        }
+
+        private static void BeginWaypointFacing(Motion motion)
+        {
+            if (motion.WaitingWaypoint == null || !motion.WaitingWaypoint.TryGetFacingDirection(
+                    motion.Member.transform.position, out _))
+            {
+                return;
+            }
+
+            NPCNavMeshMotor motor = motion.Member.Motor;
+            if (!motion.RestoreAutomaticRotation && motor?.Agent != null)
+            {
+                motion.PreviousAutomaticRotation = motor.Agent.updateRotation;
+                motion.RestoreAutomaticRotation = true;
+                motor.SetAutomaticRotation(false);
+            }
+        }
+
+        private static void EndWaypointFacing(Motion motion)
+        {
+            if (motion.RestoreAutomaticRotation)
+            {
+                motion.Member?.Motor?.SetAutomaticRotation(motion.PreviousAutomaticRotation);
+                motion.RestoreAutomaticRotation = false;
+            }
+        }
+
+        private static NPCWaypoint GetCurrentWaypoint(Motion motion, Transform target)
+        {
+            return motion.TargetIndex < motion.PreServiceTargetCount && target != null
+                ? target.GetComponent<NPCWaypoint>()
+                : null;
+        }
+
+        private float GetArrivalDistance(Motion motion, Transform target)
+        {
+            NPCWaypoint waypoint = GetCurrentWaypoint(motion, target);
+            return waypoint != null
+                ? Mathf.Max(waypoint.ArrivalDistance, motion.Member.Motor?.Agent?.stoppingDistance ?? 0f)
+                : arrivalDistance;
         }
 
         private static bool HasPathFailed(Motion motion)
@@ -733,7 +927,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return true;
             }
 
-            NPCDoorTraversalStatus status = opener.EvaluatePath(target.position);
+            NPCDoorTraversalStatus status = opener.EvaluatePath(motion.RequestedDestination);
             if (status == NPCDoorTraversalStatus.Clear)
             {
                 motion.WaitingForDoor = false;
@@ -811,7 +1005,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 nextActivationIndex = currentIndex + 1;
             }
 
-            if (next.State != NPCQueueMemberState.Waiting)
+            if (next.State != NPCQueueMemberState.Waiting &&
+                next.State != NPCQueueMemberState.Entering)
             {
                 next.ApplyState(NPCQueueMemberState.Entering);
             }
@@ -839,6 +1034,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
             StopMotors();
             foreach (Motion motion in motions)
             {
+                EndWaypointFacing(motion);
                 motion.Member?.DoorOpener?.ClearPendingDoor();
             }
             motions.Clear();
@@ -858,6 +1054,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
             {
                 if (motions[index].Member == member)
                 {
+                    EndWaypointFacing(motions[index]);
                     motions[index].Member?.Motor?.Stop();
                     motions[index].Member?.DoorOpener?.ClearPendingDoor();
                     motions.RemoveAt(index);
@@ -937,9 +1134,9 @@ namespace QuietStatic.Toolkit.Characters.NPC
             return null;
         }
 
-        private void MoveWithoutNavMesh(Transform actor, Transform target)
+        private void MoveWithoutNavMesh(Transform actor, Vector3 targetPosition)
         {
-            Vector3 direction = target.position - actor.position;
+            Vector3 direction = targetPosition - actor.position;
             direction.y = 0f;
             if (direction.sqrMagnitude > 0.0001f)
             {
@@ -952,7 +1149,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             actor.position = Vector3.MoveTowards(
                 actor.position,
-                target.position,
+                targetPosition,
                 fallbackMovementSpeed * Time.deltaTime);
         }
 
@@ -960,19 +1157,14 @@ namespace QuietStatic.Toolkit.Characters.NPC
         {
             return !motion.UseFallback && motion.HasResolvedDestination
                 ? motion.ResolvedDestination
-                : target.position;
+                : motion.HasRequestedDestination ? motion.RequestedDestination : target.position;
         }
 
-        private bool HasReached(Transform actor, Transform target)
-        {
-            return target != null && HasReached(actor, target.position);
-        }
-
-        private bool HasReached(Transform actor, Vector3 targetPosition)
+        private static bool HasReached(Transform actor, Vector3 targetPosition, float distance)
         {
             Vector3 offset = actor.position - targetPosition;
             offset.y = 0f;
-            return offset.sqrMagnitude <= arrivalDistance * arrivalDistance;
+            return offset.sqrMagnitude <= distance * distance;
         }
 
         private static IEnumerable<Transform> EnumerateTarget(Transform target)
