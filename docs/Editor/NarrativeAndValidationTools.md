@@ -15,7 +15,13 @@ The scan checks:
 - empty dialogue text and choices;
 - invalid dialogue start/transition indexes and unreachable nodes;
 - empty objective text and requirements with no flags;
-- cutscene steps with only one side of a camera/pose pair assigned.
+- cutscene steps with only one side of a camera/pose pair assigned;
+- missing or duplicate active command-channel receivers;
+- unreadable or duplicate persistent readable overlays;
+- invalid, ambiguous, or duplicate transition-fade paths;
+- direct references to toolkit managers in another loaded scene;
+- stale Authoring/Generated narrative synchronization, package-reference integrity,
+  machine-local package paths, and development-only build scenes.
 
 Select an issue to ping its asset or scene component. Closed scenes are not opened
 automatically, so component validation covers currently loaded scenes only. Flag
@@ -33,8 +39,10 @@ supports create, duplicate, guarded delete, dependency references, and contextua
 Flags, objective definitions, game-state entries, and cinematic definitions expose a
 **Safe ID Rename** panel. Rename scans serialized assets, prefabs, and scenes, then shows
 an impact preview before applying an Undo-supported source and consumer update. Stale
-previews cannot be applied. The **Problems** tab runs the same narrative and open-scene
-rules as batch validation and links results back to their owning Unity objects.
+previews cannot be applied. The **Problems** tab combines narrative, synchronization,
+open-scene, package-reference, package-path, and build-configuration rules and links
+results back to their owning Unity objects. Batch/release validation additionally loads
+and evaluates every enabled build scene rather than only the scenes currently open.
 
 The Flags tab searches IDs and descriptions, scans exact serialized flag usage inline,
 and exports the selected catalog. Deletion never silently rewrites string references.
@@ -141,8 +149,9 @@ adding another nested tool window.
 Open **Tools > Quiet Static > Validate Project**, then select **Problems**.
 
 The scan checks missing scripts, duplicate Quiet Static manager types, AudioListener
-count, EventSystem presence, game-state database duplicates and references, and
-enabled build-scene GUIDs that no longer resolve.
+count, EventSystem presence, game-state database duplicates and references, required
+command receivers, readable/fade capability, cross-scene manager references, package
+serialization and paths, and enabled build-scene GUIDs that no longer resolve.
 An absent EventSystem is informational because persistent UI may be loaded additively.
 
 Fields marked with `[GameStateId]` use the same searchable, string-preserving

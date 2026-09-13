@@ -69,7 +69,7 @@ namespace QuietStatic
         [SerializeField] private bool loadStartupSceneOnAwake = true;
 
         [Header("Cross-Scene Commands")]
-        [Tooltip("Optional channel through which content scenes request scene-flow operations.")]
+        [Tooltip("Required receiver channel for scene-owned scene-flow commands and correlated results. Direct SceneFlowManager method calls remain available without it.")]
         [RequiredCommandChannel(isReceiver: true)]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 

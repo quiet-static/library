@@ -356,7 +356,10 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         public void SetSearch(string value) { search = value ?? string.Empty; gui?.MarkDirtyRepaint(); }
         public void Refresh()
         {
-            issues = ToolkitValidation.ScanNarrative().Concat(ToolkitValidation.ScanOpenScenes())
+            issues = ToolkitValidation.ScanNarrative()
+                .Concat(NarrativeSynchronization.ScanProject())
+                .Concat(ToolkitValidation.ScanOpenScenes())
+                .Concat(ArchitectureValidation.ScanProjectConfiguration())
                 .OrderByDescending(issue => issue.Severity).ThenBy(issue => issue.Code, StringComparer.Ordinal)
                 .ThenBy(issue => issue.Message, StringComparer.Ordinal).ToArray();
             gui?.MarkDirtyRepaint();

@@ -28,6 +28,8 @@ namespace QuietStatic.Toolkit.Editor.Validation
     /// <summary>A navigable, read-only issue produced by a validation rule.</summary>
     public sealed class ValidationIssue
     {
+        public const string DefaultCode = "QS0000";
+
         public ValidationIssue(
             ValidationSeverity severity,
             string category,
@@ -41,7 +43,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
             Message = message ?? string.Empty;
             Context = context;
             AssetPath = assetPath ?? string.Empty;
-            Code = string.IsNullOrWhiteSpace(code) ? "QS0000" : code.Trim();
+            Code = string.IsNullOrWhiteSpace(code) ? DefaultCode : code.Trim();
         }
 
         /// <summary>Stable identifier for the rule that produced this issue.</summary>
@@ -59,6 +61,9 @@ namespace QuietStatic.Toolkit.Editor.Validation
     /// </summary>
     public static class ToolkitValidation
     {
+        public const string MissingSaveParticipantIdCode = "QS1300";
+        public const string DuplicateSaveParticipantIdCode = "QS1301";
+
         public static IReadOnlyList<ValidationIssue> ScanNarrative()
         {
             var issues = new List<ValidationIssue>();
@@ -211,7 +216,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
                         "Saving",
                         $"{component.GetType().Name} has an empty save participant ID.",
                         component,
-                        code: "QS1300"));
+                        code: MissingSaveParticipantIdCode));
                 }
                 else if (identities.TryGetValue(id, out Component first))
                 {
@@ -221,7 +226,7 @@ namespace QuietStatic.Toolkit.Editor.Validation
                         $"Save participant ID '{id}' is duplicated by " +
                         $"'{first.name}' and '{component.name}'.",
                         component,
-                        code: "QS1301"));
+                        code: DuplicateSaveParticipantIdCode));
                 }
                 else
                 {

@@ -29,7 +29,7 @@ namespace QuietStatic
         [SerializeField] private string connectionId;
 
         [Header("Commands")]
-        [Tooltip("Channel shared with the persistent Scene Flow Manager. Recommended for scene-owned handlers.")]
+        [Tooltip("Required channel used to send mapped transitions to the persistent Scene Flow Manager.")]
         [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 

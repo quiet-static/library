@@ -17,7 +17,7 @@ namespace QuietStatic.Toolkit.SceneFlow
     public class SceneTransitionTrigger : MonoBehaviour
     {
         [Header("Scene Target")]
-        [Tooltip("Optional channel used to reach the persistent Scene Flow Manager.")]
+        [Tooltip("Required channel used to send this mapped transition to the persistent Scene Flow Manager.")]
         [RequiredCommandChannel]
         [SerializeField] private SceneFlowRequestChannel requestChannel;
 
