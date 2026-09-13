@@ -64,8 +64,8 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
                 QuietStatic.Toolkit.Editor.Settings.SettingsMenuPrefabBuilder.BuildAll();
             if (GUILayout.Button("Build Custom Jumpscare Prefab"))
                 QuietStatic.Toolkit.Editor.Jumpscare.JumpscarePrefabBuilder.Build();
-            if (GUILayout.Button("Build Documentation Sample Scenes"))
-                QuietStatic.Toolkit.Editor.Samples.DocumentationSampleSceneBuilder.BuildAll();
+            if (GUILayout.Button("Import and Open Executable Sample"))
+                QuietStatic.Toolkit.Editor.Samples.ExecutableSampleSetup.ImportAndOpen();
         }
 
         private void DrawAssetCreation()

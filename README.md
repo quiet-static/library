@@ -64,14 +64,16 @@ Inspector-facing IDs should come from the provided databases.
 
 ## Getting started
 
-1. Import **Toolkit Examples** from this package's Samples tab in Package Manager (or
-   open `Samples` directly while developing the package) to see bootstrap, system, UI,
-   interaction, narrative, horror, and prefab composition.
-2. Add the manager prefabs from `Runtime/Managers/Prefabs` to a persistent System scene.
-3. Assign flag and game-state databases before wiring scene behavior.
-4. Add a player prefab and matching camera rig.
-5. Load content scenes additively through the Scene Flow components.
-6. Use the neutral TextMeshPro title, pause, and settings prefabs under
+1. Choose **Tools > Quiet Static > Samples > Import and Open Executable Example** to
+   import the complete Bootstrap -> persistent Systems/UI -> Content sample, configure
+   its three Build Settings scenes, and open its bootstrap scene.
+2. Import **Composition References (Non-Runnable)** from this package's Samples tab
+   only when you want diagram-like narrative, horror, and prefab composition examples.
+3. Add the manager prefabs from `Runtime/Managers/Prefabs` to a persistent System scene.
+4. Assign flag and game-state databases before wiring scene behavior.
+5. Add a player prefab and matching camera rig.
+6. Load content scenes additively through the Scene Flow components.
+7. Use the neutral TextMeshPro title, pause, and settings prefabs under
    `Runtime/UI/Prefabs`, then create prefab variants for game-specific presentation.
 
 Every runtime module contains a README with setup, hierarchy examples, and integration

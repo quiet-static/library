@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using QuietStatic.Toolkit.SceneFlow;
 using UnityEditor;
@@ -10,6 +11,32 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
     [CustomPropertyDrawer(typeof(SceneReference))]
     public sealed class SceneReferenceDrawer : PropertyDrawer
     {
+        private readonly Func<EditorBuildSettingsScene[]> getBuildSettingsScenes;
+        private readonly Func<Rect, GUIContent, int, string[], int> drawPopup;
+
+        /// <summary>Creates a drawer backed by the project's Build Settings.</summary>
+        public SceneReferenceDrawer()
+            : this(
+                () => EditorBuildSettings.scenes,
+                (position, label, selectedIndex, displayedOptions) =>
+                    EditorGUI.Popup(
+                        position,
+                        label.text,
+                        selectedIndex,
+                        displayedOptions))
+        {
+        }
+
+        internal SceneReferenceDrawer(
+            Func<EditorBuildSettingsScene[]> getBuildSettingsScenes,
+            Func<Rect, GUIContent, int, string[], int> drawPopup)
+        {
+            this.getBuildSettingsScenes = getBuildSettingsScenes
+                ?? throw new ArgumentNullException(nameof(getBuildSettingsScenes));
+            this.drawPopup = drawPopup
+                ?? throw new ArgumentNullException(nameof(drawPopup));
+        }
+
         public override void OnGUI(
             Rect position,
             SerializedProperty property,
@@ -17,17 +44,51 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
         {
             SerializedProperty sceneName =
                 property.FindPropertyRelative("sceneName");
-            string[] names = EditorBuildSettings.scenes
+            string[] names = getBuildSettingsScenes()
                 .Where(scene => scene.enabled)
                 .Select(scene => System.IO.Path.GetFileNameWithoutExtension(scene.path))
                 .Where(name => !string.IsNullOrWhiteSpace(name))
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
 
-            string[] choices = new[] { "<None>" }.Concat(names).ToArray();
             int current = Array.IndexOf(names, sceneName.stringValue);
-            int selected = EditorGUI.Popup(position, label.text, current + 1, choices);
-            sceneName.stringValue = selected <= 0 ? string.Empty : names[selected - 1];
+            List<string> choices = new() { "<None>" };
+            List<string> values = new() { string.Empty };
+            int selectedIndex;
+
+            if (current >= 0)
+            {
+                choices.AddRange(names);
+                values.AddRange(names);
+                selectedIndex = current + 1;
+            }
+            else if (!string.IsNullOrEmpty(sceneName.stringValue))
+            {
+                choices.Add($"<Missing/disabled: {sceneName.stringValue}>");
+                values.Add(sceneName.stringValue);
+                choices.AddRange(names);
+                values.AddRange(names);
+                selectedIndex = 1;
+            }
+            else
+            {
+                choices.AddRange(names);
+                values.AddRange(names);
+                selectedIndex = 0;
+            }
+
+            EditorGUI.BeginChangeCheck();
+            int selected = drawPopup(
+                position,
+                label,
+                selectedIndex,
+                choices.ToArray());
+            if (EditorGUI.EndChangeCheck()
+                && selected >= 0
+                && selected < values.Count)
+            {
+                sceneName.stringValue = values[selected];
+            }
         }
     }
 }

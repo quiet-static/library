@@ -18,9 +18,14 @@
   },
   "samples": [
     {
-      "displayName": "Toolkit Examples",
-      "description": "Bootstrap, persistent systems, interactions, objectives, narrative, horror, and menu examples with reusable definition assets.",
-      "path": "Samples"
+      "displayName": "Executable Toolkit Example",
+      "description": "A runnable Bootstrap to persistent Systems/UI to Content flow with an interaction that completes a flag-driven objective.",
+      "path": "Samples~/ExecutableToolkitExample"
+    },
+    {
+      "displayName": "Composition References (Non-Runnable)",
+      "description": "Diagram-like prefab, narrative, and horror composition references intended for inspection and adaptation, not direct play.",
+      "path": "Samples~/CompositionReferences"
     }
   ],
   "author": {
