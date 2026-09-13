@@ -145,11 +145,11 @@ namespace QuietStatic.Toolkit.Dialogue
         {
             SetSpeakerName(speakerName);
             SetSpeakerPanelVisibility(presentationTags);
-            SetNoOptionsMode();
+            TMP_Text lineText = SetNoOptionsMode();
 
-            if (dialogueNoOptionsText != null)
+            if (lineText != null)
             {
-                dialogueNoOptionsText.text = dialogueText ?? string.Empty;
+                lineText.text = dialogueText ?? string.Empty;
             }
 
             ShowDialogueUI();
@@ -312,18 +312,24 @@ namespace QuietStatic.Toolkit.Dialogue
 
             for (int i = 0; i < choiceButtons.Length; i++)
             {
-                Button button = choiceButtons[i];
-
-                if (button == null)
-                {
-                    continue;
-                }
-
-                int capturedIndex = i;
-
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => SelectChoice(capturedIndex));
+                WireChoiceButton(i);
             }
+        }
+
+        private void WireChoiceButton(int index)
+        {
+            if (choiceButtons == null ||
+                index < 0 ||
+                index >= choiceButtons.Length ||
+                choiceButtons[index] == null)
+            {
+                return;
+            }
+
+            Button button = choiceButtons[index];
+            int capturedIndex = index;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => SelectChoice(capturedIndex));
         }
 
         /// <summary>
@@ -343,21 +349,38 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Configures the UI for dialogue without choices.
         /// </summary>
-        private void SetNoOptionsMode()
+        private TMP_Text SetNoOptionsMode()
         {
+            TMP_Text lineText = GetLinearDialogueText();
+
             if (dialogueNoOptionsText != null)
             {
-                dialogueNoOptionsText.gameObject.SetActive(true);
+                dialogueNoOptionsText.gameObject.SetActive(
+                    dialogueNoOptionsText == lineText);
             }
 
             if (dialogueWithOptionsText != null)
             {
-                dialogueWithOptionsText.gameObject.SetActive(false);
+                dialogueWithOptionsText.gameObject.SetActive(
+                    dialogueWithOptionsText == lineText);
             }
 
             SetChoiceTexts(null);
             SetContinueVisible(true);
+            return lineText;
         }
+
+        /// <summary>
+        /// Selects the text region used for a linear line in the current control layout.
+        /// </summary>
+        /// <returns>
+        /// The standard choice-layout text when Continue reuses a choice button; otherwise the
+        /// dedicated no-options text.
+        /// </returns>
+        private TMP_Text GetLinearDialogueText() =>
+            GetSharedContinueChoiceIndex() >= 0 && dialogueWithOptionsText != null
+                ? dialogueWithOptionsText
+                : dialogueNoOptionsText;
 
         /// <summary>
         /// Configures the UI for dialogue with choices.
@@ -381,6 +404,23 @@ namespace QuietStatic.Toolkit.Dialogue
         {
             if (continueButton != null)
             {
+                int sharedChoiceIndex = GetSharedContinueChoiceIndex();
+                if (sharedChoiceIndex >= 0)
+                {
+                    // Some compact layouts reuse the first response control for linear
+                    // advancement. Its listener must follow the current presentation mode;
+                    // otherwise one click can submit both response zero and Continue.
+                    if (visible)
+                    {
+                        continueButton.onClick.RemoveAllListeners();
+                        continueButton.onClick.AddListener(Continue);
+                    }
+                    else
+                    {
+                        WireChoiceButton(sharedChoiceIndex);
+                    }
+                }
+
                 continueButton.gameObject.SetActive(visible);
             }
 
@@ -389,6 +429,12 @@ namespace QuietStatic.Toolkit.Dialogue
                 continueLabel.text = visible ? continueText : string.Empty;
             }
         }
+
+        /// <summary>Gets the choice slot reused by Continue, or -1 for a dedicated control.</summary>
+        private int GetSharedContinueChoiceIndex() =>
+            continueButton != null && choiceButtons != null
+                ? Array.IndexOf(choiceButtons, continueButton)
+                : -1;
 
         /// <summary>
         /// Applies dialogue UI visibility and cursor behavior.
