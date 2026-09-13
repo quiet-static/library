@@ -62,7 +62,17 @@ When the fader lives in a separate UI scene, create a **Screen Fade Channel** as
 assign it to both `SceneFlowManager`/`CutsceneSequenceRunner` and a
 `ScreenFadeChannelHandler` beside the `ScreenFader`. Fade requests carry completion state,
 so callers still wait until the screen is fully black or clear before continuing. Direct
-fader references remain supported as a fallback.
+fader references remain supported as a fallback. `FadeRequested` is observational:
+observers cannot complete a request, and a failing observer is logged without interrupting
+the handler or other observers. Disabling the active handler cancels its request and leaves
+the overlay fully clear and nonblocking.
+
+Upgrade note for projects that serialized the earlier combined `ScreenFader.cs` types:
+`ScreenFadeChannel` and `ScreenFadeChannelHandler` now have their own Unity script assets.
+Unity cannot preserve the one former script GUID for all three separated types. Existing
+`ScreenFader` components keep their original script reference; recreate any old fade-channel
+asset and replace any old channel-handler component, then reassign the shared channel and
+scene-local fader. The Stolen consumer composition has already been migrated.
 
 For a project-specific activity, implement `ICinematicWaitSource` and assign
 the component to a sequence step's **Wait Source** field. The sequence calls

@@ -54,10 +54,13 @@ other persistent code needs to coordinate with the complete transition.
 
 ## Faded transitions and connection maps
 
-Assign the persistent UI scene's `ScreenFader` to `SceneFlowManager` and enable
-**Fade During Transitions**. A full transition then fades to black, loads the target
-and its support scenes, makes the target active, unloads the previous nonpersistent
-content, and fades clear. Time scale does not affect either fade.
+For a fader in a separate persistent UI scene, assign one `ScreenFadeChannel` asset to
+`SceneFlowManager` and to a `ScreenFadeChannelHandler` beside that UI scene's
+`ScreenFader`. Enable **Fade During Transitions**. A full transition then fades to black,
+loads the target and its support scenes, makes the target active, unloads the previous
+nonpersistent content, and fades clear. Time scale does not affect either fade. A directly
+assigned or uniquely discoverable fader remains supported as the local fallback when the
+channel has no active handler.
 
 Create a **Scene Flow Map** from `Assets > Create > Quiet Static Toolkit > Scene Flow`,
 then open the Scene Flow tab in `Tools > Quiet Static > Workspace`. Each connection has a stable ID,

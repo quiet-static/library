@@ -45,9 +45,10 @@ Cutscene** and also lists runners already present in loaded scenes.
 
 ## ScreenFader
 
-Place the fader on a fullscreen UI `Image` with a `CanvasGroup`. Assign both references,
-choose its fade color and durations, and choose whether it starts clear. The fader owns
-only the visual fade and can still be referenced directly in small, single-scene setups.
+Place the fader on a fullscreen UI `Image` with a `CanvasGroup`. Assign the required
+`CanvasGroup` and, when used, the optional `Image`; choose its fade color, durations, and
+startup state. The fader owns only the visual fade and can still be referenced directly in
+small, single-scene setups.
 
 ## ScreenFadeChannel
 
@@ -60,13 +61,16 @@ scene. Requests are completion-aware, so scene or cutscene work waits for the fa
 
 Add this beside the `ScreenFader` in the separate persistent UI/fader scene. Assign the
 shared channel and scene-local fader. Only one enabled handler should listen to a given
-channel. The generated `ExampleScreenFader` prefab contains the complete setup.
+channel. Disabling the handler cancels any in-flight request and restores a fully clear,
+nonblocking overlay. The generated `ExampleScreenFader` prefab contains the complete setup.
 
 ## SceneFlowManager fade fields
 
 Assign Screen Fade Channel and set Transition Fade Duration. Leave Screen Fader empty for
-the cross-scene setup. If the channel has no enabled handler, the manager uses its direct
-fader fallback when assigned; otherwise the transition continues without a fade.
+the cross-scene setup. If the channel has no enabled handler, the manager uses an assigned
+or active discoverable direct-fader fallback; otherwise the transition continues without a
+fade. Plain request observers do not count as completion-capable handlers.
+They cannot complete requests, and an exception from one observer is contained and logged.
 
 ## ReadableContentDefinition
 
