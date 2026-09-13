@@ -347,6 +347,58 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
+        public void DisabledInteractionYieldsToOptInTargetBehindIt()
+        {
+            containerObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            containerObject.name = "Disabled Register Computer";
+            containerObject.transform.position = Vector3.forward * 0.5f;
+            containerObject.transform.localScale =
+                new Vector3(1f, 1f, 0.1f);
+            Interactable disabledInteraction =
+                containerObject.AddComponent<Interactable>();
+            disabledInteraction.SetEnabled(false);
+
+            otherObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            otherObject.name = "Customer Behind Counter";
+            otherObject.transform.position = Vector3.forward * 1.5f;
+            Interactable customerInteraction =
+                otherObject.AddComponent<Interactable>();
+            AssignPrivateField(
+                customerInteraction,
+                "allowTargetingThroughOccluders",
+                true);
+
+            Physics.SyncTransforms();
+            interactor.RefreshTarget();
+
+            Assert.That(interactor.CurrentTarget,
+                Is.SameAs(customerInteraction));
+        }
+
+        [Test]
+        public void DisabledInteractionStillBlocksOrdinaryTargetBehindIt()
+        {
+            containerObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            containerObject.name = "Disabled Foreground Interaction";
+            containerObject.transform.position = Vector3.forward * 0.5f;
+            containerObject.transform.localScale =
+                new Vector3(1f, 1f, 0.1f);
+            Interactable disabledInteraction =
+                containerObject.AddComponent<Interactable>();
+            disabledInteraction.SetEnabled(false);
+
+            otherObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            otherObject.name = "Ordinary Hidden Interaction";
+            otherObject.transform.position = Vector3.forward * 1.5f;
+            otherObject.AddComponent<Interactable>();
+
+            Physics.SyncTransforms();
+            interactor.RefreshTarget();
+
+            Assert.That(interactor.CurrentTarget, Is.Null);
+        }
+
+        [Test]
         public void ProjectOwnedInterfaceTargetCanBeSelectedAndInteracted()
         {
             containerObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -425,11 +477,11 @@ namespace QuietStatic.Tests.EditMode
         }
 
         private static void AssignPrivateField(
-            Interactor target,
+            object target,
             string fieldName,
             object value)
         {
-            typeof(Interactor)
+            target.GetType()
                 .GetField(
                     fieldName,
                     BindingFlags.Instance | BindingFlags.NonPublic

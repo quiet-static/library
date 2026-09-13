@@ -248,6 +248,7 @@ namespace QuietStatic.Toolkit.Interactions
             SortHitsByDistance(raycastHits, hitCount);
 
             Transform selectedOwner = null;
+            bool hasNonInteractiveOccluder = false;
             Transform resolvedIgnoredRoot = ResolveIgnoredRoot();
             Transform resolvedInteractionOrigin = ResolveInteractionOrigin();
 
@@ -271,9 +272,31 @@ namespace QuietStatic.Toolkit.Interactions
                     // The nearest collider still occludes everything behind it.
                     if (selectedOwner == null)
                     {
-                        return;
+                        hasNonInteractiveOccluder = true;
                     }
 
+                    continue;
+                }
+
+                if (!HasTargetableInteractionStage(
+                        hitInteractable,
+                        hitHoldInteractable,
+                        hitProgressInteractable))
+                {
+                    // Disabled interactions still have raycast colliders. Until they become
+                    // targetable, treat them like ordinary geometry so they cannot claim owner
+                    // selection and hide an explicitly pass-through target behind them.
+                    if (selectedOwner == null)
+                    {
+                        hasNonInteractiveOccluder = true;
+                    }
+
+                    continue;
+                }
+
+                if (hasNonInteractiveOccluder &&
+                    !AllowsTargetingThroughOccluders(hitInteractable))
+                {
                     continue;
                 }
 
@@ -301,6 +324,35 @@ namespace QuietStatic.Toolkit.Interactions
                 progressInteractable = hitProgressInteractable;
                 selectedOwner = hitOwner;
             }
+        }
+
+        private static bool AllowsTargetingThroughOccluders(
+            IInteractionTarget interactionTarget)
+        {
+            return interactionTarget is Interactable interactable &&
+                   interactable.AllowTargetingThroughOccluders;
+        }
+
+        private bool HasTargetableInteractionStage(
+            IInteractionTarget interactionTarget,
+            HoldInteractable holdInteraction,
+            ActivatedProgressInteractable progressInteraction)
+        {
+            if (progressInteraction != null &&
+                (progressInteraction.IsAvailable || progressInteraction.IsRunning))
+            {
+                return true;
+            }
+
+            if (holdInteraction != null &&
+                holdInteraction.IsEnabled &&
+                holdInteraction.IsInteractorTargetingEnabled)
+            {
+                return true;
+            }
+
+            return interactionTarget != null &&
+                   interactionTarget.IsInteractionAvailable(this);
         }
 
         private static void SortHitsByDistance(

@@ -27,6 +27,9 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Name or prompt shown to the player.")]
         [SerializeField] private string displayName = "Interact";
 
+        [Tooltip("Allow this target to be selected behind non-interactable colliders, such as a service counter. Keep disabled for ordinary world interactions.")]
+        [SerializeField] private bool allowTargetingThroughOccluders;
+
         [Header("Requirements")]
         [Tooltip("Optional flags required before this interaction succeeds.")]
         [SerializeField] private FlagRequirement requirement;
@@ -52,6 +55,13 @@ namespace QuietStatic.Toolkit.Interactions
 
         /// <summary>Gets the player-facing interaction label.</summary>
         public string DisplayName => displayName;
+
+        /// <summary>
+        /// Gets whether camera targeting may look past nearer colliders that do not own an
+        /// interaction. This is intended for deliberately reachable targets behind counters or
+        /// similar scene geometry, not as a global replacement for interaction occlusion.
+        /// </summary>
+        public bool AllowTargetingThroughOccluders => allowTargetingThroughOccluders;
 
         /// <inheritdoc />
         public Transform InteractionTransform => transform;
@@ -96,6 +106,15 @@ namespace QuietStatic.Toolkit.Interactions
 
             HandleSuccessfulInteraction(interactor);
             return true;
+        }
+
+        /// <summary>
+        /// Attempts this interaction without an actor. This parameterless entry point is
+        /// suitable for UI Buttons and other Inspector-configured UnityEvents.
+        /// </summary>
+        public void Interact()
+        {
+            TryInteract();
         }
 
         /// <summary>Changes whether this object accepts interaction attempts.</summary>
