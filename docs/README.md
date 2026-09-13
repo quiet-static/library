@@ -14,5 +14,7 @@ recipe for the feature being built.
 - [Settings, pause, and accessibility](Setup/SettingsPauseAccessibility.md)
 - [Saving and restoration](Setup/SavingAndRestoration.md)
 
-Example scenes live under `Samples`. They are instructional starting points and
-should be duplicated into a game's `Assets` folder before project-specific editing.
+Use **Tools > Quiet Static > Samples > Import and Open Executable Example** for the
+runnable `Samples~/ExecutableToolkitExample` vertical slice. The separate
+`Samples~/CompositionReferences` scenes are instructional patterns that should be
+adapted in a game's `Assets` folder before project-specific editing.

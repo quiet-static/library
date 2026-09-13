@@ -9,7 +9,7 @@ The final section uses **Stolen** as a concrete case study. It describes the pro
 current scene architecture and GameObjects, explains why they are arranged that way,
 and separates working setup from content that is prepared but not yet connected.
 
-This guide was verified against the toolkit and Stolen workspace on **August 17,
+This guide was verified against the toolkit and Stolen workspace on **August 31,
 2026**. The package is still evolving. When this guide and an Inspector tooltip
 disagree, inspect the current component source and serialized configuration first; a
 few older setup documents describe intended behavior that is not present in the current
@@ -163,21 +163,23 @@ Navigation package for `NavMeshSurface`. Confirm the project's render pipeline, 
 System, and any project-level navigation package are enabled before debugging those
 components.
 
-### 4.2 Import samples as references, not production scenes
+### 4.2 Run the executable sample; adapt composition references
 
-In Package Manager, select the package and import **Toolkit Examples**. The samples
-cover bootstrap, managers and menus, scene orchestration, narrative/horror,
-interactions/objectives, and prefab composition. Copy or variant anything you intend
-to customize into `Assets/MyGame`.
+Choose **Tools > Quiet Static > Samples > Import and Open Executable Example**. The
+command imports **Executable Toolkit Example** if needed, places its Bootstrap,
+persistent Systems/UI, and Content scenes first in Build Settings, and opens the
+bootstrap scene. Press Play and click **Inspect sample** to complete its flag-driven
+objective. You can also import it from the Package Manager Samples tab before running
+the setup command.
 
-Samples deliberately leave some project-owned references empty. An Input Action asset,
-AudioMixer, art, project scene names, and build configuration cannot be safely chosen
-by a generic package. Some package samples and prefabs also contain stale or
-project-specific references; use them as annotated scaffolding and validate every
-Inspector field.
+The separate **Composition References (Non-Runnable)** sample contains diagram-like
+narrative, horror, and prefab composition examples. Copy or variant anything you intend
+to customize into `Assets/MyGame`. Reusable prefabs intentionally leave project-owned
+Input Actions, audio, presentation, and content references unassigned where a generic
+package cannot choose them safely.
 
-See the [sample
-README](../Samples/README.md) and [common
+See the [executable sample
+README](../Samples~/ExecutableToolkitExample/README.md) and [common
 component recipes](../docs/Runtime/CommonComponentRecipes.md).
 
 ### 4.3 Use a predictable project layout
@@ -216,8 +218,9 @@ possible to update the library without mixing package changes with game content.
   to **File > Build Profiles > Scene List** (called Build Settings in older Unity
   versions). `SceneManager` cannot load a scene that is absent.
 - Set **Active Input Handling** to the Input System configuration used by the project.
-- Create or choose a project `InputActionAsset`. Do not assume the package player
-  prefab's serialized Input Actions reference is valid in another project.
+- Create or choose a project `InputActionAsset`, then assign it and route required
+  actions in a project-owned prefab variant or scene instance. Package player prefabs
+  intentionally contain no project Input Actions reference or action-event table.
 - Import TMP essentials when prompted and assign a project font to UI variants.
 - Configure layers before setting an `Interactor` layer mask. A mask stores layer
   numbers, not names; renaming or reordering project layers can invalidate assumptions.
@@ -357,13 +360,14 @@ their project-owned fields.
 | `Runtime/Managers/Prefabs/AudioManagers.prefab` | Assign clips, state music, mixer routing, and any project SFX prefab policy. |
 | `Runtime/Managers/Prefabs/UIManagers.prefab` | Manager presentation fields are largely null; its ScreenFader has no guaranteed visible fullscreen image. |
 | `Runtime/Characters/Prefabs/Player.prefab` | Has core movement/input components but no project Input Action asset and no Interactor. |
-| `Runtime/Characters/Prefabs/FirstPersonPlayer.prefab` | References package-missing project Input Actions/audio and embeds camera/input managers that may duplicate persistent owners. |
+| `Runtime/Characters/Prefabs/FirstPersonPlayer.prefab` | Composition example with project Input Actions, footstep clips, and audio channel intentionally unassigned; embedded camera/input managers may duplicate persistent owners. |
 | `Runtime/Handlers/Prefabs/system_callers.prefab` | Current package prefab is stale relative to its README; only its actually attached components are real endpoints. |
 
-The package samples are similarly skeletal. The sample bootstrap profile names System
-and House scenes that are not shipped as a ready-made playable pair; other sample
-scenes deliberately omit player, databases, UI, or success-event configuration. Treat
-them as diagrams to inspect, then build project-owned variants.
+The package's **Executable Toolkit Example** is a complete, consumer-independent
+Bootstrap -> persistent Systems/UI -> Content slice with assigned data, interaction,
+success flag, objective, and status UI. **Composition References (Non-Runnable)**
+remains intentionally diagram-like; inspect those scenes and build project-owned
+variants from the patterns you need.
 
 ## 6. Databases, definitions, flags, and runtime state
 
@@ -1436,10 +1440,11 @@ implement `ICinematicWaitSource` is started without blocking the definition play
 
 ### 14.5 Fades and credits
 
-`ScreenFader` controls a `CanvasGroup`/optional image and supports fade-to-black,
-fade-to-clear, and request-channel operation. Use one persistent fader when scene
-transitions can destroy the initiating content. `FadeToClearOnStart` is convenient for
-simple entry scenes, but avoid racing it against a transition coordinator.
+`ScreenFader` controls a `CanvasGroup`/optional image and performs direct fade-to-black
+and fade-to-clear operations. `ScreenFadeChannelHandler` bridges those mechanics to a
+`ScreenFadeChannel`. Use one persistent fader when scene transitions can destroy the
+initiating content. `FadeToClearOnStart` is convenient for simple entry scenes, but avoid
+racing it against a transition coordinator.
 
 `CreditsScroller` provides scaled-time credits movement and completion events. Put it
 under a UI Canvas and route completion to a title transition or quit policy through a
@@ -1583,9 +1588,9 @@ actions; `HorrorTensionController` can also request tension music/stingers. Deci
 which system has final music authority so a state change does not immediately undo a
 tension transition.
 
-Package prefabs cannot know your clips. The current first-person sample prefab also
-contains missing project audio references in a clean consumer. Assign project-owned
-clips in your variant.
+Package prefabs cannot know your clips. The first-person composition intentionally
+leaves its footstep clips and audio channel unassigned; assign project-owned audio in
+your variant.
 
 ### 16.3 Audio troubleshooting
 
@@ -2112,7 +2117,8 @@ conversely, a content-only test may omit the persistent input/UI services it nee
 ### The project works in the editor but not in a standalone build
 
 - Every dynamically loaded scene must be enabled in the build scene list.
-- Package/sample GUID references to project Input Actions or clips may be missing.
+- Project-owned variants may still have unassigned fields or reference assets excluded
+  from the build; package assets themselves must pass package-reference validation.
 - Editor-only asset searches and builder behavior do not exist at runtime.
 - File paths and stable IDs are case-sensitive on some target platforms.
 - Test save paths, mixer parameter names, and input devices in the target build.
@@ -2216,11 +2222,12 @@ Keep its runner active while only the child view is hidden. Check RectTransform 
 request-channel receiver, and use a dedicated action map that remains enabled while
 Gameplay is blocked.
 
-### A sample or generated prefab is incomplete
+### A composition reference or generated prefab is incomplete
 
-Samples are composition diagrams. Assign project-owned Input Actions, scenes,
-databases, audio, mixer, UI references, and art. Some sample bootstrap references name
-`System`/`House` scenes that are not shipped in the package itself.
+Use **Executable Toolkit Example** when you need a known-runnable package baseline. The
+separate composition-reference scenes and generated prefabs are starting patterns;
+assign the project-owned Input Actions, scenes, databases, audio, mixer, UI references,
+and art required by your game.
 
 ## 24. Production checklist
 
