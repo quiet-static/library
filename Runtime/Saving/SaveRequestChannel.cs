@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Saving
@@ -43,6 +44,14 @@ namespace QuietStatic.Toolkit.Saving
     public sealed class SaveRequestChannel :
         CrossSceneCommandChannel<SaveCommand>
     {
+        /// <summary>Raised after a requested save finishes, with its slot and success state.</summary>
+        public event Action<int, bool> SaveCompleted;
+
+        internal void ReportSaveCompleted(int slot, bool succeeded)
+        {
+            SaveCompleted?.Invoke(slot, succeeded);
+        }
+
         /// <summary>Requests a save in the supplied slot.</summary>
         public void RequestSave(int slot, string arrivalSpawnId = "")
         {

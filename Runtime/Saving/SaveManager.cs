@@ -36,7 +36,7 @@ namespace QuietStatic.Toolkit.Saving
         [Tooltip("Registered target ID moved to the saved arrival spawn after loading.")]
         [SerializeField] private string playerTargetId = "Player";
 
-        [Tooltip("Optional cross-scene request channel.")]
+        [Tooltip("Required receiver channel for cross-scene save, load, and delete commands. Direct SaveManager method calls do not use this channel.")]
         [RequiredCommandChannel(isReceiver: true)]
         [SerializeField] private SaveRequestChannel requestChannel;
 
@@ -210,7 +210,8 @@ namespace QuietStatic.Toolkit.Saving
 
         private void HandleSaveRequested(int slot, string arrivalSpawnId)
         {
-            SaveSlot(slot, arrivalSpawnId);
+            bool succeeded = SaveSlot(slot, arrivalSpawnId);
+            requestChannel?.ReportSaveCompleted(slot, succeeded);
         }
 
         private void HandleDeleteRequested(int slot)

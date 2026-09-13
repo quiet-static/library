@@ -101,6 +101,8 @@ namespace QuietStatic.Toolkit.Editor.Settings
             mainFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             AddTitle(main.transform, "PAUSED");
             Button resume = AddButton(main.transform, "Resume");
+            Button save = AddButton(main.transform, "Save Game");
+            save.GetComponent<RectTransform>().sizeDelta = new Vector2(300f, 30f);
             Button settingsButton = AddButton(main.transform, "Settings");
             Button exit = AddButton(main.transform, "Exit Game");
 
@@ -113,11 +115,13 @@ namespace QuietStatic.Toolkit.Editor.Settings
             GameQuitter quitter = root.AddComponent<GameQuitter>();
             PauseMenuView view = root.AddComponent<PauseMenuView>();
             SerializedObject serialized = new(view);
+            Set(serialized, "saveButtonLabel", save.GetComponentInChildren<TMP_Text>());
             Set(serialized, "mainPage", main);
             Set(serialized, "settingsPage", settings);
             Set(serialized, "gameQuitter", quitter);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             UnityEventTools.AddPersistentListener(resume.onClick, view.Resume);
+            UnityEventTools.AddPersistentListener(save.onClick, view.SaveGame);
             UnityEventTools.AddPersistentListener(settingsButton.onClick, view.ShowSettingsPage);
             UnityEventTools.AddPersistentListener(
                 settings.GetComponent<SettingsMenuView>().BackRequested,

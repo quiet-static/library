@@ -10,10 +10,17 @@ Wire a button's `On Click` event to `GameQuitter.QuitGame`.
 uses a full-screen, presentation-neutral layout so games can replace colors, fonts,
 backgrounds, and spacing through prefab variants without changing navigation code.
 
-`PauseMenu.prefab` provides Resume, Settings, and Exit Game navigation. It is
+`PauseMenu.prefab` provides Resume, Save Game, Settings, and Exit Game navigation. It is
 designed to be loaded as the additive pause UI scene managed by `PauseManager`,
 or placed under an existing pause Canvas. Its nested settings page uses the
 same persistent `SettingsManager` as the standalone `SettingsMenu.prefab`.
+
+Assign the host game's `SaveRequestChannel` to `PauseMenuView` and its persistent
+`SaveManager`. Save Game replaces slot 0 by default (configurable in the Inspector)
+without resuming gameplay. The button label reports success, failure, or a missing
+save service. It uses the existing save format: active scene, progression flags,
+and registered save participants. An optional arrival spawn can be configured;
+an empty value uses normal scene entry on load, not the player's exact position.
 
 All supplied menu labels use TextMeshPro. Host scenes should contain an `EventSystem`
 with `InputSystemUIInputModule`; the package does not require `StandaloneInputModule`.
