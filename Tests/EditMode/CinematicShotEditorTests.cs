@@ -230,6 +230,95 @@ namespace QuietStatic.Tests.EditMode
                 Is.EqualTo("cues.Array.data[0].cameraDirector"));
         }
 
+        [Test]
+        public void AuthoringCreatesUsableSharedMarkerAndUndoRemovesWholeShot()
+        {
+            var director = CreateDirector(out Camera camera, out _, out _);
+            Vector3 original = director.transform.position;
+            SaveTestSceneClean();
+            int index = CinematicShotAuthoring.Create(director, "Piper Close", new Vector3(2, 3, 4), Quaternion.Euler(10, 20, 0), 34);
+            Assert.That(index, Is.Zero);
+            Assert.That(director.IsShotUsable(index), Is.True);
+            Assert.That(director.GetShotId(index), Is.Not.Empty);
+            var shot = new SerializedObject(director).FindProperty("shots").GetArrayElementAtIndex(index);
+            var marker = (Transform)shot.FindPropertyRelative("cameraPositionMarker").objectReferenceValue;
+            Assert.That(marker.parent.name, Is.EqualTo("Shots"));
+            Assert.That(marker.gameObject.scene, Is.EqualTo(director.gameObject.scene));
+            Assert.That(marker.IsChildOf(director.transform), Is.False);
+            Assert.That(director.transform.position, Is.EqualTo(original));
+            Assert.That(testScene.isDirty, Is.True);
+            Undo.FlushUndoRecordObjects();
+            Undo.PerformUndo();
+            Assert.That(director.ShotCount, Is.Zero);
+            Assert.That(marker == null, Is.True);
+            Undo.PerformRedo();
+            Assert.That(director.ShotCount, Is.EqualTo(1));
+            Assert.That(director.IsShotUsable(0), Is.True);
+        }
+
+        [Test]
+        public void CaptureRetainsIdAndUndoRestoresFocusPoseAndLens()
+        {
+            var director = CreateDirector(out _, out Transform marker, out Transform focus);
+            var originalShot = CreateShot("shot.piper", "Piper", marker, 40);
+            originalShot.focusTarget = focus;
+            originalShot.lookAtOffset = Vector3.up;
+            SetShots(director, new List<CinematicCutsceneCameraDirector.CinematicShot> { originalShot });
+            Vector3 originalPosition = marker.position;
+            CinematicShotAuthoring.Capture(director, 0, new Vector3(8, 2, 9), Quaternion.Euler(0, 90, 0), 28);
+            var serialized = new SerializedObject(director);
+            var shot = serialized.FindProperty("shots").GetArrayElementAtIndex(0);
+            Assert.That(director.GetShotId(0), Is.EqualTo("shot.piper"));
+            Assert.That(shot.FindPropertyRelative("focusTarget").objectReferenceValue, Is.Null);
+            Assert.That(marker.position, Is.EqualTo(new Vector3(8, 2, 9)));
+            Assert.That(shot.FindPropertyRelative("fieldOfView").floatValue, Is.EqualTo(28));
+            Undo.FlushUndoRecordObjects();
+            Undo.PerformUndo();
+            serialized.Update();
+            shot = serialized.FindProperty("shots").GetArrayElementAtIndex(0);
+            Assert.That(shot.FindPropertyRelative("focusTarget").objectReferenceValue, Is.EqualTo(focus));
+            Assert.That(shot.FindPropertyRelative("fieldOfView").floatValue, Is.EqualTo(40));
+            Assert.That(marker.position, Is.EqualTo(originalPosition));
+        }
+
+        [Test]
+        public void DuplicateHasIndependentIdentityAndMarkerAndPreservesTargetFraming()
+        {
+            var director = CreateDirector(out _, out Transform marker, out Transform focus);
+            var source = CreateShot("shot.source", "Source", marker, 38);
+            source.focusTarget = focus;
+            source.lookAtOffset = new Vector3(0, .2f, 0);
+            SetShots(director, new List<CinematicCutsceneCameraDirector.CinematicShot> { source });
+            int index = CinematicShotAuthoring.Duplicate(director, 0);
+            var shot = new SerializedObject(director).FindProperty("shots").GetArrayElementAtIndex(index);
+            var copyMarker = (Transform)shot.FindPropertyRelative("cameraPositionMarker").objectReferenceValue;
+            Assert.That(director.GetShotId(index), Is.Not.EqualTo("shot.source"));
+            Assert.That(copyMarker.GetInstanceID(), Is.Not.EqualTo(marker.GetInstanceID()));
+            Assert.That(copyMarker.position, Is.EqualTo(marker.position));
+            Assert.That(shot.FindPropertyRelative("focusTarget").objectReferenceValue, Is.EqualTo(focus));
+            Assert.That(shot.FindPropertyRelative("lookAtOffset").vector3Value, Is.EqualTo(source.lookAtOffset));
+            CinematicShotAuthoring.Capture(director, index, Vector3.one * 9, Quaternion.identity, 30);
+            Assert.That(marker.position, Is.Not.EqualTo(copyMarker.position));
+            Assert.That(director.GetShotId(0), Is.EqualTo("shot.source"));
+        }
+
+        [Test]
+        public void CaptureDetachesSharedMarkerWithoutChangingOtherShot()
+        {
+            var director = CreateDirector(out _, out Transform marker, out _);
+            Vector3 original = marker.position;
+            SetShots(director, new List<CinematicCutsceneCameraDirector.CinematicShot>
+            {
+                CreateShot("shot.a", "A", marker, 40), CreateShot("shot.b", "B", marker, 40)
+            });
+            CinematicShotAuthoring.Capture(director, 0, Vector3.one * 7, Quaternion.identity, 35);
+            Assert.That(marker.position, Is.EqualTo(original));
+            director.PreviewShot(1);
+            Assert.That(director.transform.position, Is.EqualTo(original));
+            director.PreviewShot(0);
+            Assert.That(director.transform.position, Is.EqualTo(Vector3.one * 7));
+        }
+
         private CinematicCutsceneCameraDirector CreateDirector(
             out Camera camera,
             out Transform wideMarker,

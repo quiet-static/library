@@ -16,6 +16,21 @@ cutscenes in loaded scenes, inspect their steps, select their objects, and previ
 sequence or individual step in Play Mode. Scene references remain on the runner so camera
 poses, dialogue runners, and character controllers are explicit and safe to serialize.
 
+Use **Shots** in the Workspace toolbar to open the **Camera Shots** editor (also available
+through **Open Shot Editor** on a camera director). Choose a cinematic camera from the loaded
+scenes, then create a named shot from the perspective Scene View or the current camera.
+New markers go in a shared **Shots** group beside the camera, so they do not move with it.
+Select an existing shot to edit its name, world position, focus target, framing offset, and
+field of view. **Preview on Cinematic Camera** applies the shot; **Save Scene** persists it.
+Creation, capture, field edits, and preview support Undo.
+
+**Duplicate** creates an independent marker and unique Shot ID while preserving the original
+focus and lens. **Capture Scene View** and **Capture Camera** replace a selected shot's framing
+and clear its focus target to match the captured view exactly. Existing Shot IDs stay unchanged,
+so renaming or reframing a shot preserves cutscene references. Capturing a shared marker creates
+an independent marker rather than changing another shot. Authoring is disabled in Play Mode;
+existing shots can still be previewed.
+
 For director-owned camera shots, give every shot a stable **Shot ID** and a friendly
 **Shot Name**. Sequence steps and dialogue-node cues show **Camera Shot** as a dropdown
 after their **Camera Director** is assigned, and store the stable ID rather than the
@@ -82,7 +97,11 @@ use unscaled time by default and can be switched to scaled time on the runner.
 
 For presentation changes on individual dialogue lines, add
 `DialogueNodeCinematicCue` beside the sequence. Assign the sequence's `DialogueRunner`,
-then add one cue per stable `DialogueTree.Node.id`. Each cue can select a camera-director
+or assign a scene-local `DialogueEventPlayer` to **Dialogue Player** when the persistent
+manager owns traversal (the player takes precedence). Player cues observe only that
+player's session, including its first node and later replays. Add one cue per stable
+`DialogueTree.Node.id`. Consecutive cues selecting the current shot hold its composition.
+Each cue can select a camera-director
 shot by stable ID, run a `CutsceneCharacterStepTrigger`, and invoke extra scene-local
 events. This keeps reusable dialogue assets free of scene camera and character references.
 

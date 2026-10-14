@@ -40,23 +40,40 @@ namespace QuietStatic.Toolkit.Cinematics
         [Tooltip("Only node changes from this Dialogue Runner activate cues.")]
         [SerializeField] private DialogueRunner dialogueRunner;
 
+        [Tooltip("Scene-local dialogue player to observe. When assigned, takes precedence over Dialogue Runner.")]
+        [SerializeField] private DialogueEventPlayer dialoguePlayer;
+
         [Header("Node Cues")]
         [Tooltip("Mappings from stable dialogue node IDs to scene presentation changes.")]
         [SerializeField] private List<Cue> cues = new();
 
-        private void Reset() => dialogueRunner = GetComponentInChildren<DialogueRunner>(true);
+        private void Reset()
+        {
+            dialogueRunner = GetComponentInChildren<DialogueRunner>(true);
+            dialoguePlayer = GetComponent<DialogueEventPlayer>();
+        }
 
         private void OnEnable()
         {
-            if (dialogueRunner != null)
+            if (dialoguePlayer != null)
+            {
+                dialoguePlayer.NodeChanged += ApplyNode;
+                ApplyNode(dialoguePlayer.CurrentNode);
+            }
+            else if (dialogueRunner != null)
             {
                 dialogueRunner.NodeChanged += HandleNodeChanged;
+                if (dialogueRunner.IsRunning) ApplyNode(dialogueRunner.CurrentNode);
             }
         }
 
         private void OnDisable()
         {
-            if (dialogueRunner != null)
+            if (dialoguePlayer != null)
+            {
+                dialoguePlayer.NodeChanged -= ApplyNode;
+            }
+            else if (dialogueRunner != null)
             {
                 dialogueRunner.NodeChanged -= HandleNodeChanged;
             }
@@ -64,13 +81,19 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private void HandleNodeChanged(DialogueRunner source, DialogueTree.Node node)
         {
-            if (source != dialogueRunner || node == null || string.IsNullOrEmpty(node.id)) return;
+            if (source == dialogueRunner) ApplyNode(node);
+        }
+
+        private void ApplyNode(DialogueTree.Node node)
+        {
+            if (node == null || string.IsNullOrEmpty(node.id)) return;
 
             foreach (Cue cue in cues)
             {
                 if (cue == null || !string.Equals(cue.nodeId, node.id, StringComparison.Ordinal)) continue;
                 if (cue.cameraDirector != null &&
-                    !string.IsNullOrWhiteSpace(cue.cameraShotId))
+                    !string.IsNullOrWhiteSpace(cue.cameraShotId) &&
+                    cue.cameraDirector.CurrentShotId != cue.cameraShotId)
                 {
                     cue.cameraDirector.CutToShot(cue.cameraShotId);
                 }

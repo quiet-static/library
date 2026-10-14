@@ -29,6 +29,7 @@ namespace QuietStatic.Toolkit.Editor.Cinematics
             var director = (CinematicCutsceneCameraDirector)target;
             DrawIdentityWarnings(director);
             DrawPreviewControls(director);
+            if (GUILayout.Button("Open Shot Editor")) CinematicShotEditorWindow.Open(director);
         }
 
         private void DrawPreviewControls(

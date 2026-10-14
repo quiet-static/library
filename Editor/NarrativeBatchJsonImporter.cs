@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using QuietStatic.Toolkit.Editor.Dialogue;
+using QuietStatic.Toolkit.Editor.Cinematics;
+using QuietStatic.Toolkit.Cinematics;
 using QuietStatic.Toolkit.Dialogue;
 using UnityEditor;
 using UnityEngine;
@@ -31,6 +33,7 @@ namespace QuietStatic.Toolkit.Editor
             DocumentKind.Objectives,
             DocumentKind.Readables,
             DocumentKind.Dialogue,
+            DocumentKind.Cinematic,
         };
 
         private static readonly HashSet<string> WindowsReservedAssetNames = new(
@@ -49,6 +52,7 @@ namespace QuietStatic.Toolkit.Editor
             Objectives,
             Readables,
             Dialogue,
+            Cinematic,
         }
 
         /// <summary>The effect a reviewed batch import will have on a Unity asset.</summary>
@@ -312,9 +316,12 @@ namespace QuietStatic.Toolkit.Editor
                 {
                     Document document = plan.Documents[index];
                     TextAsset source = sources[index].Asset;
-                    UnityEngine.Object imported = document.Kind == DocumentKind.Dialogue
-                        ? DialogueJsonImporter.Import(source, plan.DialogueOutputFolder)
-                        : NarrativeContentJsonImporter.Import(source, plan.NarrativeOutputFolder);
+                    UnityEngine.Object imported = document.Kind switch
+                    {
+                        DocumentKind.Dialogue => DialogueJsonImporter.Import(source, plan.DialogueOutputFolder),
+                        DocumentKind.Cinematic => CinematicTreeJsonImporter.Import(source, plan.NarrativeOutputFolder),
+                        _ => NarrativeContentJsonImporter.Import(source, plan.NarrativeOutputFolder),
+                    };
                     importedAssets.Add(imported);
                 }
 
@@ -373,6 +380,7 @@ namespace QuietStatic.Toolkit.Editor
                 : StringComparer.Ordinal;
             var seenPaths = new HashSet<string>(pathComparer);
             var dialogueIdentities = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var cinematicIdentities = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var catalogIdentities = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var unityTargets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var documents = new List<Document>(manifest.documents.Length);
@@ -417,14 +425,19 @@ namespace QuietStatic.Toolkit.Editor
                 IReadOnlyList<NarrativeContentJsonImporter.ImportTarget> contentTargets = null;
                 if (kind == DocumentKind.Dialogue)
                     DialogueJsonImporter.ValidateJson(json, documentPath);
+                else if (kind == DocumentKind.Cinematic)
+                    CinematicTreeJsonImporter.ValidateJson(json);
                 else
                     contentTargets = NarrativeContentJsonImporter.GetImportTargets(
                         json,
                         narrativeOutputFolder,
                         documentPath);
-                Dictionary<string, string> identities = kind == DocumentKind.Dialogue
-                    ? dialogueIdentities
-                    : catalogIdentities;
+                Dictionary<string, string> identities = kind switch
+                {
+                    DocumentKind.Dialogue => dialogueIdentities,
+                    DocumentKind.Cinematic => cinematicIdentities,
+                    _ => catalogIdentities,
+                };
                 string assetName = MakeSafeFileName(identity);
                 if (IsWindowsReservedAssetName(assetName))
                 {
@@ -435,7 +448,8 @@ namespace QuietStatic.Toolkit.Editor
                 }
                 if (identities.TryGetValue(assetName, out string existingIdentityPath))
                 {
-                    string label = kind == DocumentKind.Dialogue ? "treeId" : "catalogId";
+                    string label = kind == DocumentKind.Dialogue ? "treeId" :
+                        kind == DocumentKind.Cinematic ? "Cinematic Tree name" : "catalogId";
                     throw new ArgumentException(
                         $"{documentPath}: {label} '{identity}' maps to the same generated " +
                         $"asset name as {existingIdentityPath}.",
@@ -452,6 +466,7 @@ namespace QuietStatic.Toolkit.Editor
                     json,
                     document,
                     contentTargets,
+                    narrativeOutputFolder,
                     dialogueOutputFolder,
                     unityTargets,
                     assetChanges,
@@ -643,8 +658,9 @@ namespace QuietStatic.Toolkit.Editor
                 "objectives" => DocumentKind.Objectives,
                 "readables" => DocumentKind.Readables,
                 "dialogue" => DocumentKind.Dialogue,
+                "cinematic" => DocumentKind.Cinematic,
                 _ => throw new ArgumentException(
-                    $"{at}.kind must be flags, objectives, readables, or dialogue.",
+                    $"{at}.kind must be flags, objectives, readables, dialogue, or cinematic.",
                     parameterName),
             };
         }
@@ -673,6 +689,15 @@ namespace QuietStatic.Toolkit.Editor
                 return probe.treeId;
             }
 
+            if (kind == DocumentKind.Cinematic)
+            {
+                if (!string.IsNullOrEmpty(probe.contentType) || !string.IsNullOrEmpty(probe.treeId))
+                    throw new ArgumentException(
+                        $"{sourcePath}: kind cinematic requires no contentType or treeId.",
+                        parameterName);
+                return Path.GetFileNameWithoutExtension(sourcePath);
+            }
+
             string expectedContentType = KindToManifestValue(kind);
             if (!string.Equals(probe.contentType, expectedContentType, StringComparison.Ordinal) ||
                 string.IsNullOrWhiteSpace(probe.catalogId) ||
@@ -694,6 +719,7 @@ namespace QuietStatic.Toolkit.Editor
                 DocumentKind.Objectives => "objectives",
                 DocumentKind.Readables => "readables",
                 DocumentKind.Dialogue => "dialogue",
+                DocumentKind.Cinematic => "cinematic",
                 _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
             };
         }
@@ -702,6 +728,7 @@ namespace QuietStatic.Toolkit.Editor
             string json,
             Document document,
             IReadOnlyList<NarrativeContentJsonImporter.ImportTarget> contentTargets,
+            string narrativeOutputFolder,
             string dialogueOutputFolder,
             IDictionary<string, string> targets,
             ICollection<AssetChange> assetChanges,
@@ -721,6 +748,21 @@ namespace QuietStatic.Toolkit.Editor
                     document.Identity,
                     AssetChangeKind.Create,
                     document.SourcePath + ": dialogue target",
+                    targets,
+                    assetChanges,
+                    parameterName);
+                return;
+            }
+
+            if (document.Kind == DocumentKind.Cinematic)
+            {
+                RegisterUnityTarget(
+                    $"{narrativeOutputFolder}/Cinematics/{MakeSafeFileName(document.Identity)}.asset",
+                    typeof(CinematicTree),
+                    document,
+                    document.Identity,
+                    AssetChangeKind.Create,
+                    document.SourcePath + ": cinematic target",
                     targets,
                     assetChanges,
                     parameterName);
