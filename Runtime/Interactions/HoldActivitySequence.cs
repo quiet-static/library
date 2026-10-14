@@ -42,6 +42,8 @@ namespace QuietStatic.Toolkit.Interactions
         [SerializeField] private bool snapCameraToFocus = true;
 
         private bool isSeated;
+        /// <summary>Whether the player is in this temporary seated activity.</summary>
+        public bool IsSeated => isSeated;
         private bool isDirectHoldActive;
         /// <summary>
         /// Gets whether eating must remain under the crosshair. When false, the

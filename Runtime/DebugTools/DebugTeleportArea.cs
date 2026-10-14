@@ -75,12 +75,11 @@ namespace QuietStatic.Toolkit.DebugTools
 
         /// <summary>
         /// Moves a target to one of this area's destinations. A directly attached
-        /// <see cref="CharacterController"/> is disabled during the move and then enabled;
+        /// <see cref="CharacterController"/> is disabled during the move and then restored;
         /// a directly attached <see cref="Rigidbody"/> has both velocities cleared.
         /// </summary>
         /// <remarks>
-        /// The controller's prior enabled state is not preserved: a controller found on the target
-        /// is enabled after teleporting even when it was disabled before this call.
+        /// The controller's prior enabled state is preserved after the move.
         /// </remarks>
         /// <param name="target">Transform to move.</param>
         /// <param name="destinationIndex">Zero-based direct-child destination index.</param>
@@ -106,6 +105,7 @@ namespace QuietStatic.Toolkit.DebugTools
 
             CharacterController characterController = target.GetComponent<CharacterController>();
             Rigidbody rigidbody = target.GetComponent<Rigidbody>();
+            bool controllerWasEnabled = characterController != null && characterController.enabled;
 
             try
             {
@@ -146,24 +146,13 @@ namespace QuietStatic.Toolkit.DebugTools
                 Debug.LogException(exception, this);
                 return false;
             }
-
-            if (characterController != null)
+            finally
             {
-                try
-                {
-                    // Re-enabling rebuilds the controller around its newly assigned world pose.
-                    characterController.enabled = true;
-                }
-                catch (System.Exception exception)
-                {
-                    Debug.LogError(
-                        $"[DebugTools] Teleport failed while re-enabling CharacterController for '{target.name}'.",
-                        this);
-                    Debug.LogException(exception, this);
-                    return false;
-                }
+                if (characterController != null) characterController.enabled = controllerWasEnabled;
             }
 
+            target.GetComponent<QuietStatic.Toolkit.Characters.Player.CharacterMotor>()?.ResetMotion();
+            Physics.SyncTransforms();
             return true;
         }
     }

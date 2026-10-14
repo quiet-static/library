@@ -65,6 +65,13 @@ namespace QuietStatic.Toolkit.Utilities
         /// <summary>Gets the currently selected state, or null when all states are cleared.</summary>
         public ObjectStateDefinition CurrentState { get; private set; }
 
+        /// <summary>Restores the authored state when beginning a fresh session.</summary>
+        public void ResetToStartingState()
+        {
+            if (startingState == null) ClearState(false);
+            else ActivateState(startingState, false);
+        }
+
         private CrossSceneChannelSubscription<ObjectStateChannel>
             channelSubscription;
 

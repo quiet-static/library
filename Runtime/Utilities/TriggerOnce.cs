@@ -32,6 +32,14 @@ namespace QuietStatic.Toolkit.Utilities
         /// Tracks whether this trigger has already fired.
         /// </summary>
         private bool triggered;
+        /// <summary>Whether this one-shot event has already fired.</summary>
+        public bool HasTriggered => triggered;
+        /// <summary>Restores the latch without invoking the event.</summary>
+        public void RestoreTriggered(bool value)
+        {
+            triggered = value;
+            enabled = !value || !disableAfterTrigger;
+        }
 
         /// <summary>
         /// Checks entering colliders and fires the trigger event when the collider passes validation.
@@ -57,7 +65,9 @@ namespace QuietStatic.Toolkit.Utilities
         /// </returns>
         private bool CanTrigger(Collider other)
         {
-            if (triggered)
+            // Unity can deliver trigger callbacks to disabled MonoBehaviours.
+            if (!isActiveAndEnabled || triggered ||
+                QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading == true)
             {
                 return false;
             }

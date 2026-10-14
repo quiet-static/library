@@ -160,11 +160,10 @@ namespace QuietStatic
             return sound;
         }
 
-        /// <summary>Pauses all currently playing sounds spawned by this manager.</summary>
+        /// <summary>Pauses currently playing spawned sounds, preserving earlier pending resumes.</summary>
         public void PauseSpawnedSounds()
         {
             RemoveDestroyedSounds();
-            pausedSounds.Clear();
 
             foreach (EventSound3D sound in spawnedSounds)
             {
@@ -178,7 +177,7 @@ namespace QuietStatic
             }
         }
 
-        /// <summary>Resumes sounds paused by the last manager pause request.</summary>
+        /// <summary>Resumes sounds paused by this manager since its last resume request.</summary>
         public void ResumeSpawnedSounds()
         {
             foreach (EventSound3D sound in pausedSounds)

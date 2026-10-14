@@ -168,6 +168,17 @@ namespace QuietStatic.Toolkit.Interactions
         /// <param name="isEnabled">New runtime enabled state.</param>
         public void SetEnabled(bool isEnabled) => IsEnabled = isEnabled;
 
+        /// <summary>Restores a stable checkpoint without replaying completion flags, sounds, or callbacks.</summary>
+        public void RestoreProgress(float normalizedProgress, bool available)
+        {
+            StopHideRoutine();
+            IsRunning = false;
+            Progress = Mathf.Clamp01(normalizedProgress);
+            IsEnabled = available;
+            UpdateProgressDisplay();
+            ShowProgress(false);
+        }
+
         private void Finish()
         {
             IsRunning = false;

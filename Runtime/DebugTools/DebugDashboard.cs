@@ -121,6 +121,7 @@ namespace QuietStatic.Toolkit.DebugTools
         private bool performanceWindowOpen;
         private bool logWindowOpen;
         private string traceFilter = string.Empty;
+        private string diagnosticStatus = string.Empty;
         private bool teleportWindowOpen;
         private bool cutsceneWindowOpen;
         // Performance values are sampled with unscaled time so pause menus and timeScale changes do
@@ -950,6 +951,13 @@ namespace QuietStatic.Toolkit.DebugTools
                 GUILayout.Label("No player is assigned to the persistent PlayerManager.", dimStyle);
             }
 
+            else
+            {
+                GUILayout.Label($"Player: {player.name}  Position: {player.transform.position:F2}", dimStyle);
+                if (GUILayout.Button("Copy player position"))
+                    GUIUtility.systemCopyBuffer = $"{SceneManager.GetActiveScene().name}: {player.transform.position:F3}, yaw {player.transform.eulerAngles.y:F1}";
+            }
+            GUILayout.Label("Destinations move the player only; story flags remain as configured. F3 closes the dashboard.", dimStyle);
             teleportScroll = GUILayout.BeginScrollView(teleportScroll);
             // ActiveAreas is maintained by each area's enable/disable lifecycle, so this list
             // naturally tracks additive scene loads and unloads without scanning the whole scene.
@@ -1018,6 +1026,8 @@ namespace QuietStatic.Toolkit.DebugTools
                 DebugTrace.Clear();
             }
             GUILayout.EndHorizontal();
+            if (GUILayout.Button("Export diagnostic report")) ExportDiagnostics();
+            if (!string.IsNullOrEmpty(diagnosticStatus)) GUILayout.Label(diagnosticStatus, dimStyle);
             traceFilter = GUILayout.TextField(traceFilter ?? string.Empty);
 
             logScroll = GUILayout.BeginScrollView(logScroll);
@@ -1047,6 +1057,40 @@ namespace QuietStatic.Toolkit.DebugTools
             }
             GUILayout.EndScrollView();
             GUI.DragWindow(new Rect(0f, 0f, logWindowRect.width - 34f, TitleBarHeight));
+        }
+
+        /// <summary>Writes a portable build/state/trace snapshot beside the player save data.</summary>
+        private void ExportDiagnostics()
+        {
+            try
+            {
+                var report = new System.Text.StringBuilder();
+                report.AppendLine($"{Application.productName} {Application.version} | Unity {Application.unityVersion}");
+                report.AppendLine($"UTC: {DateTime.UtcNow:O} | Development: {Debug.isDebugBuild}");
+                report.AppendLine($"OS: {SystemInfo.operatingSystem} | GPU: {SystemInfo.graphicsDeviceName}");
+                report.AppendLine($"State: {GameStateManager.Instance?.CurrentState} | Time scale: {Time.timeScale}");
+                report.AppendLine($"FPS: {fps:F1} | Worst frame: {worstFrameMilliseconds:F2} ms");
+                report.AppendLine($"Player log: {Application.consoleLogPath}");
+                for (int i = 0; i < SceneManager.sceneCount; i++)
+                    report.AppendLine($"Scene: {SceneManager.GetSceneAt(i).path}");
+                var player = PlayerManager.Instance != null ? PlayerManager.Instance.Player : null;
+                if (player != null) report.AppendLine($"Player: {player.name} | Position: {player.transform.position:F3} | Rotation: {player.transform.eulerAngles:F1}");
+                if (FlagManager.Instance != null)
+                    foreach (string flag in FlagManager.Instance.ActiveFlags.OrderBy(value => value)) report.AppendLine($"Flag: {flag}");
+                foreach (var entry in DebugTrace.Entries)
+                    report.AppendLine($"{entry.Time:F3}s f{entry.Frame} [{entry.Category}] {entry.Message}");
+                string directory = Path.Combine(Application.persistentDataPath, "Diagnostics");
+                Directory.CreateDirectory(directory);
+                string path = Path.Combine(directory, $"Stolen-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.txt");
+                File.WriteAllText(path, report.ToString());
+                GUIUtility.systemCopyBuffer = path;
+                diagnosticStatus = $"Saved {path} (path copied)";
+            }
+            catch (Exception exception)
+            {
+                diagnosticStatus = $"Export failed: {exception.Message}";
+                Debug.LogException(exception, this);
+            }
         }
 
         private bool MatchesTraceFilter(DebugTrace.Entry entry)

@@ -19,6 +19,7 @@ using QuietStatic.Toolkit.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace QuietStatic.Toolkit.Dialogue
@@ -105,6 +106,8 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public bool IsVisible { get; private set; }
 
+        private bool refreshControlStatePending;
+
         /// <summary>
         /// Initializes the singleton, wires choice buttons, and hides the UI.
         /// </summary>
@@ -127,6 +130,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         private void LateUpdate()
         {
+            if (refreshControlStatePending)
+            {
+                refreshControlStatePending = false;
+                ResetControlStates();
+            }
+
             if (!IsVisible || !controlCursor)
             {
                 return;
@@ -259,6 +268,10 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <param name="choices">Choice labels to display, or null to hide all choices.</param>
         public void SetChoiceTexts(string[] choices)
         {
+            ResetControlStates();
+            // Button.OnSubmit applies its pressed visual after invoking onClick, which can
+            // synchronously present the next node. Refresh again after input processing.
+            refreshControlStatePending = true;
             int choiceCount = choices?.Length ?? 0;
             int buttonCount = choiceButtons?.Length ?? 0;
 
@@ -290,6 +303,37 @@ namespace QuietStatic.Toolkit.Dialogue
         {
             OnChoiceSelected?.Invoke(choiceIndex);
             onChoiceSelected?.Invoke(choiceIndex);
+        }
+
+        /// <summary>Releases previous-node presses and selection without discarding live hover.</summary>
+        private void ResetControlStates()
+        {
+            EventSystem eventSystem = EventSystem.current;
+            var pointer = new PointerEventData(eventSystem)
+            {
+                button = PointerEventData.InputButton.Left,
+            };
+            var selection = new BaseEventData(eventSystem);
+            if (choiceButtons != null)
+            {
+                foreach (Button button in choiceButtons)
+                {
+                    ResetControlState(button, eventSystem, pointer, selection);
+                }
+            }
+            ResetControlState(continueButton, eventSystem, pointer, selection);
+        }
+
+        private static void ResetControlState(
+            Button button, EventSystem eventSystem, PointerEventData pointer, BaseEventData selection)
+        {
+            if (button == null) return;
+            if (eventSystem != null && eventSystem.currentSelectedGameObject == button.gameObject)
+            {
+                eventSystem.SetSelectedGameObject(null);
+            }
+            button.OnPointerUp(pointer);
+            button.OnDeselect(selection);
         }
 
         /// <summary>

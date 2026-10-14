@@ -22,6 +22,7 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
             "waitingPoints",
             "initialMembers",
             "maximumActiveMembers",
+            "arrivalInterval",
             "beginOnStart",
             "manageMemberVisibility",
             "arrivalDistance",
@@ -41,6 +42,7 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
         private SerializedProperty waitingPoints;
         private SerializedProperty initialMembers;
         private SerializedProperty maximumActiveMembers;
+        private SerializedProperty arrivalInterval;
         private SerializedProperty beginOnStart;
         private SerializedProperty manageMemberVisibility;
         private SerializedProperty arrivalDistance;
@@ -64,6 +66,7 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
             waitingPoints = serializedObject.FindProperty("waitingPoints");
             initialMembers = serializedObject.FindProperty("initialMembers");
             maximumActiveMembers = serializedObject.FindProperty("maximumActiveMembers");
+            arrivalInterval = serializedObject.FindProperty("arrivalInterval");
             beginOnStart = serializedObject.FindProperty("beginOnStart");
             manageMemberVisibility = serializedObject.FindProperty("manageMemberVisibility");
             arrivalDistance = serializedObject.FindProperty("arrivalDistance");
@@ -105,6 +108,7 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
             DrawHeader("Members");
             memberList.DoLayoutList();
             EditorGUILayout.PropertyField(maximumActiveMembers);
+            EditorGUILayout.PropertyField(arrivalInterval);
             EditorGUILayout.PropertyField(beginOnStart);
             EditorGUILayout.PropertyField(manageMemberVisibility);
             DrawMemberFeedback();

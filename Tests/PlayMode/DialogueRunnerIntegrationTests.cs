@@ -5,6 +5,8 @@ using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Flags;
+using QuietStatic.Toolkit.Cinematics;
+using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -192,6 +194,77 @@ namespace QuietStatic.Tests.PlayMode
             Assert.That(secondEnded, Is.EqualTo(1));
             Assert.That(first.IsRunning, Is.False);
             Assert.That(second.IsRunning, Is.False);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator CinematicCues_FollowOwnedSessionIncludingFirstNodeBranchesAndReplay()
+        {
+            DialogueTree tree = Track(CreateTree(
+                new DialogueTree.Node { id = "start", choices = new[]
+                {
+                    new DialogueTree.Choice { text = "Left", nextNodeIndex = 1 },
+                    new DialogueTree.Choice { text = "Right", nextNodeIndex = 2 }
+                } },
+                new DialogueTree.Node { id = "left", nextNodeIndex = -1 },
+                new DialogueTree.Node { id = "right", nextNodeIndex = -1 }));
+            var managerObject = Track(new GameObject("Dialogue Manager"));
+            managerObject.AddComponent<DialogueRunner>();
+            var manager = managerObject.AddComponent<DialogueManager>();
+            var playerObject = Track(new GameObject("Cinematic Dialogue"));
+            var player = playerObject.AddComponent<DialogueEventPlayer>();
+            var other = Track(new GameObject("Other Dialogue")).AddComponent<DialogueEventPlayer>();
+            var cueObject = Track(new GameObject("Cues"));
+            cueObject.SetActive(false);
+            var cues = cueObject.AddComponent<DialogueNodeCinematicCue>();
+            var cameraObject = Track(new GameObject("Beat Camera"));
+            cameraObject.AddComponent<Camera>();
+            var director = cameraObject.AddComponent<CinematicCutsceneCameraDirector>();
+            var shots = new List<CinematicCutsceneCameraDirector.CinematicShot>();
+            var entered = new List<string>();
+            var mappings = new List<DialogueNodeCinematicCue.Cue>();
+            foreach (string id in new[] { "start", "left", "right" })
+            {
+                string captured = id;
+                var action = new UnityEvent();
+                action.AddListener(() => entered.Add(captured));
+                var marker = Track(new GameObject(id + " marker")).transform;
+                marker.position = new Vector3(shots.Count, 1, -3);
+                shots.Add(new CinematicCutsceneCameraDirector.CinematicShot
+                    { shotId = id, cameraPositionMarker = marker });
+                mappings.Add(new DialogueNodeCinematicCue.Cue
+                    { nodeId = id, cameraDirector = director, cameraShotId = id, onNodeEntered = action });
+            }
+            typeof(CinematicCutsceneCameraDirector).GetField("shots", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(director, shots);
+            typeof(DialogueNodeCinematicCue).GetField("dialoguePlayer", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(cues, player);
+            typeof(DialogueNodeCinematicCue).GetField("cues", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(cues, mappings);
+            cueObject.SetActive(true);
+
+            Assert.That(player.TryStartDialogue(tree, null, null), Is.True);
+            Assert.That(director.CurrentShotId, Is.EqualTo("start"));
+            manager.ChooseDialogueOption(1);
+            Assert.That(director.CurrentShotId, Is.EqualTo("right"));
+            Assert.That(cameraObject.transform.position, Is.EqualTo(new Vector3(2, 1, -3)));
+            manager.StopDialogue();
+            CollectionAssert.AreEqual(new[] { "start", "right" }, entered);
+            // Same asset on a different player must not activate this player's shots.
+            Assert.That(other.TryStartDialogue(tree, null, null), Is.True);
+            manager.ChooseDialogueOption(0);
+            manager.StopDialogue();
+            CollectionAssert.AreEqual(new[] { "start", "right" }, entered);
+            Assert.That(director.CurrentShotId, Is.EqualTo("right"));
+            Assert.That(player.TryStartDialogue(tree, null, null), Is.True);
+            cueObject.SetActive(false);
+            manager.ChooseDialogueOption(0);
+            CollectionAssert.AreEqual(new[] { "start", "right", "start" }, entered);
+            // Re-enabling catches up to the current node exactly once.
+            cueObject.SetActive(true);
+            CollectionAssert.AreEqual(new[] { "start", "right", "start", "left" }, entered);
+            Assert.That(director.CurrentShotId, Is.EqualTo("left"));
+            manager.StopDialogue();
             yield return null;
         }
 

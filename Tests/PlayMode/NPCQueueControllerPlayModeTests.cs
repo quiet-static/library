@@ -21,6 +21,87 @@ namespace QuietStatic.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator StaggeredArrivals_RespectSpacingPauseAndRestart()
+        {
+            NPCQueueController queue = CreateStaggeredQueue(out NPCQueueMember[] customers);
+            var enteredAt = new float[] { -1f, -1f, -1f };
+            for (int index = 0; index < customers.Length; index++)
+            {
+                int capturedIndex = index;
+                GetField<UnityEvent>(customers[index], "onEntering")
+                    .AddListener(() => enteredAt[capturedIndex] = Time.time);
+            }
+            host.SetActive(true);
+            queue.BeginQueue();
+            Assert.That(customers[0].gameObject.activeSelf, Is.True);
+            Assert.That(customers[1].gameObject.activeSelf, Is.False);
+            queue.PauseQueue();
+            yield return new WaitForSeconds(0.4f);
+            Assert.That(customers[1].gameObject.activeSelf, Is.False);
+            queue.ResumeQueue();
+            yield return new WaitForSeconds(0.1f);
+            Assert.That(customers[1].gameObject.activeSelf, Is.False, "Pause must preserve the arrival delay.");
+            float deadline = Time.time + 2f;
+            while (!customers[2].gameObject.activeSelf && Time.time < deadline)
+                yield return null;
+            Assert.That(customers[2].gameObject.activeSelf, Is.True);
+            Assert.That(enteredAt[1] - enteredAt[0], Is.GreaterThanOrEqualTo(0.65f));
+            Assert.That(enteredAt[2] - enteredAt[1], Is.GreaterThanOrEqualTo(0.28f));
+
+            queue.CancelQueue();
+            queue.BeginQueue();
+            Assert.That(customers[0].gameObject.activeSelf, Is.True, "Restart should not inherit the old cooldown.");
+            Assert.That(customers[1].gameObject.activeSelf, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator FastCheckout_WaitsForNextArrivalAndPlacesItAtEntrance()
+        {
+            NPCQueueController queue = CreateStaggeredQueue(out NPCQueueMember[] customers);
+            Transform entrance = GetField<Transform>(queue, "entryPoint");
+            SetField(queue, "servicePoint", entrance);
+            SetField(queue, "exitPoint", entrance);
+            host.SetActive(true);
+            queue.BeginQueue();
+            Assert.That(queue.CompleteService(), Is.True);
+            Assert.That(customers[0].State, Is.EqualTo(NPCQueueMemberState.Completed));
+            Assert.That(customers[1].gameObject.activeSelf, Is.False);
+            yield return new WaitForSeconds(0.1f);
+            Assert.That(customers[1].gameObject.activeSelf, Is.False);
+            float deadline = Time.time + 2f;
+            while (!customers[1].gameObject.activeSelf && Time.time < deadline)
+                yield return null;
+            Assert.That(customers[1].State, Is.EqualTo(NPCQueueMemberState.ReadyForService));
+            Assert.That(customers[1].transform.position, Is.EqualTo(entrance.position));
+        }
+
+        private NPCQueueController CreateStaggeredQueue(out NPCQueueMember[] customers)
+        {
+            host = new GameObject("Staggered Customer Queue");
+            host.SetActive(false);
+            NPCQueueController queue = host.AddComponent<NPCQueueController>();
+            SetField(queue, "arrivalInterval", 0.3f);
+            SetField(queue, "maximumActiveMembers", 3);
+            SetField(queue, "useDirectMovementFallback", true);
+            SetField(queue, "entryPoint", CreateTarget("Entrance", Vector3.zero));
+            SetField(queue, "servicePoint", CreateTarget("Register", Vector3.right * 2f));
+            SetField(queue, "waitingPoints", new[]
+            {
+                CreateTarget("Line 1", new Vector3(2f, 0f, 1f)),
+                CreateTarget("Line 2", new Vector3(2f, 0f, 2f)),
+            });
+            customers = new NPCQueueMember[3];
+            for (int index = 0; index < customers.Length; index++)
+            {
+                var actor = CreateTarget($"Customer {index}", new Vector3(-10f, 0f, index)).gameObject;
+                customers[index] = actor.AddComponent<NPCQueueMember>();
+                actor.GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
+            }
+            SetField(queue, "initialMembers", customers);
+            return queue;
+        }
+
+        [UnityTest]
         public IEnumerator ConcurrentCustomers_FinishTheirOwnBrowseWaitBeforeOrderedService()
         {
             host = new GameObject("Concurrent Customer Queue");

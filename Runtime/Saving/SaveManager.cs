@@ -32,6 +32,9 @@ namespace QuietStatic.Toolkit.Saving
         [Min(0)]
         [SerializeField] private int maximumSlot = 9;
 
+        [Tooltip("Active scene names that cannot be restored independently, such as temporary playable memories. Saving in these scenes leaves existing slots untouched.")]
+        [SerializeField] private string[] excludedActiveScenes = Array.Empty<string>();
+
         [Header("Restoration")]
         [Tooltip("Registered target ID moved to the saved arrival spawn after loading.")]
         [SerializeField] private string playerTargetId = "Player";
@@ -54,6 +57,14 @@ namespace QuietStatic.Toolkit.Saving
 
         /// <summary>Whether a save restoration is currently running.</summary>
         public bool IsLoading { get; private set; }
+
+        /// <summary>Optional game-owned validation. Return an explanation to reject a checkpoint.</summary>
+        public Func<SaveGameData, string> ValidateCheckpoint { get; set; }
+        /// <summary>Last operation failure, suitable for menu feedback.</summary>
+        public string LastError { get; private set; } = string.Empty;
+        public event Action<int, bool, string> LoadCompleted;
+        /// <summary>Raised after preflight succeeds and before destination loading begins.</summary>
+        public event Action LoadStarted;
 
         private CrossSceneChannelSubscription<SaveRequestChannel>
             requestSubscription;
@@ -94,11 +105,22 @@ namespace QuietStatic.Toolkit.Saving
                 return false;
             }
 
+            if (excludedActiveScenes != null && excludedActiveScenes.Contains(SceneManager.GetActiveScene().name))
+            {
+                RaiseSaveFailed(slot, "Saving is unavailable during this temporary scene. Finish the sequence before saving.");
+                return false;
+            }
+
             try
             {
+                if (IsLoading || SceneFlowManager.Instance?.IsTransitioning == true)
+                    throw new InvalidOperationException("Wait for loading to finish before saving.");
                 SaveGameData data = CaptureData(arrivalSpawnId);
+                error = ValidateCheckpoint?.Invoke(data);
+                if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
                 string json = JsonUtility.ToJson(data, true);
                 WriteAtomically(GetSlotPath(slot), json);
+                LastError = string.Empty;
                 onSaved.Invoke(slot);
                 return true;
             }
@@ -131,6 +153,7 @@ namespace QuietStatic.Toolkit.Saving
                 return;
             }
 
+            LoadStarted?.Invoke();
             StartCoroutine(RestoreRoutine(slot, data));
         }
 
@@ -170,13 +193,7 @@ namespace QuietStatic.Toolkit.Saving
         /// <summary>Returns whether a valid slot file exists.</summary>
         public bool HasSave(int slot)
         {
-            if (!TryValidateSlot(slot, out _))
-            {
-                return false;
-            }
-
-            string path = GetSlotPath(slot);
-            return File.Exists(path) || File.Exists(GetBackupPath(path));
+            return TryGetSlotMetadata(slot, out _, out _);
         }
 
         /// <summary>
@@ -277,9 +294,14 @@ namespace QuietStatic.Toolkit.Saving
         {
             IsLoading = true;
             string failure = string.Empty;
+            string previousScene = SceneManager.GetActiveScene().name;
+            List<string> previousFlags = FlagManager.Instance?.ActiveFlags.ToList();
             try
             {
-                if (!string.IsNullOrWhiteSpace(data.activeScene))
+                // Destination Awake/OnEnable/Start must observe the saved story, not the old session.
+                try { RestoreFlags(data.activeFlags); }
+                catch (Exception exception) { failure = "Flag restoration failed: " + exception.Message; }
+                if (string.IsNullOrEmpty(failure) && !string.IsNullOrWhiteSpace(data.activeScene))
                 {
                     SceneFlowManager flow = SceneFlowManager.Instance;
                     if (flow == null)
@@ -291,7 +313,8 @@ namespace QuietStatic.Toolkit.Saving
                         Exception transitionException = null;
                         yield return RunGuarded(
                             flow.TransitionToSceneRoutine(
-                                new SceneTransitionRequest(data.activeScene)),
+                                new SceneTransitionRequest(data.activeScene,
+                                    additionalScenesToKeep: new[] { previousScene })),
                             exception => transitionException = exception);
 
                         if (transitionException != null)
@@ -328,22 +351,22 @@ namespace QuietStatic.Toolkit.Saving
                     }
                 }
 
-                if (string.IsNullOrEmpty(failure) &&
-                    !TryRestoreParticipants(data.participants, out failure))
+                if (string.IsNullOrEmpty(failure))
                 {
-                    // The participant method supplies a stable-ID-specific failure.
+                    try { TryRestoreParticipants(data.participants, out failure); }
+                    catch (Exception exception) { failure = "Participant restoration failed: " + exception.Message; }
                 }
 
                 if (string.IsNullOrEmpty(failure) &&
-                    !string.IsNullOrWhiteSpace(data.arrivalSpawnId) &&
-                    SpawnManager.Instance != null)
+                    !string.IsNullOrWhiteSpace(data.arrivalSpawnId))
                 {
                     yield return null;
                     try
                     {
-                        SpawnManager.Instance.MoveRegisteredTargetToSpawn(
+                        if (SpawnManager.Instance == null || !SpawnManager.Instance.MoveRegisteredTargetToSpawn(
                             playerTargetId,
-                            data.arrivalSpawnId);
+                            data.arrivalSpawnId))
+                            throw new InvalidOperationException("The saved spawn is unavailable.");
                     }
                     catch (Exception exception)
                     {
@@ -358,15 +381,27 @@ namespace QuietStatic.Toolkit.Saving
 
             if (string.IsNullOrEmpty(failure))
             {
+                // Keep the source menu available until every participant has restored.
+                SceneFlowManager flow = SceneFlowManager.Instance;
+                if (flow != null && previousScene != data.activeScene &&
+                    !flow.PersistentSceneNames.Contains(previousScene) &&
+                    !string.IsNullOrWhiteSpace(data.activeScene))
+                    flow.UnloadScene(previousScene);
+                LastError = string.Empty;
                 onLoaded.Invoke(slot);
+                LoadCompleted?.Invoke(slot, true, string.Empty);
             }
             else
             {
+                SceneFlowManager.Instance?.RecoverInterruptedTransition();
+                try { RestoreFlags(previousFlags); }
+                catch (Exception exception) { failure += " Previous flags could not be restored: " + exception.Message; }
                 RaiseLoadFailed(slot, failure);
             }
         }
 
-        private static IEnumerator RunGuarded(
+        /// <summary>Runs nested restoration/recovery iterators and reports exceptions to the caller.</summary>
+        public static IEnumerator RunGuarded(
             IEnumerator routine,
             Action<Exception> onException)
         {
@@ -393,7 +428,18 @@ namespace QuietStatic.Toolkit.Saving
                     yield break;
                 }
 
-                yield return current;
+                if (current is IEnumerator nested)
+                {
+                    Exception nestedFailure = null;
+                    yield return RunGuarded(nested, exception => nestedFailure = exception);
+                    if (nestedFailure != null)
+                    {
+                        (routine as IDisposable)?.Dispose();
+                        onException?.Invoke(nestedFailure);
+                        yield break;
+                    }
+                }
+                else yield return current;
             }
         }
 
@@ -422,6 +468,12 @@ namespace QuietStatic.Toolkit.Saving
 
             foreach (SaveParticipantData saved in savedParticipants)
             {
+                if (saved == null || string.IsNullOrWhiteSpace(saved.id) ||
+                    !activeParticipants.ContainsKey(saved.id.Trim()))
+                {
+                    error = $"Save participant '{saved?.id}' is unavailable in the restored scene.";
+                    return false;
+                }
                 if (saved != null &&
                     !string.IsNullOrWhiteSpace(saved.id) &&
                     activeParticipants.TryGetValue(saved.id.Trim(), out ISaveParticipant participant))
@@ -446,7 +498,7 @@ namespace QuietStatic.Toolkit.Saving
         {
             var seenIds = new HashSet<string>(StringComparer.Ordinal);
             MonoBehaviour[] behaviours =
-                FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+                FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
             foreach (MonoBehaviour behaviour in behaviours)
             {
@@ -459,9 +511,7 @@ namespace QuietStatic.Toolkit.Saving
                 string id = participant.SaveId.Trim();
                 if (!seenIds.Add(id))
                 {
-                    GameLogger.Warning(nameof(SaveManager), behaviour,
-                        $"Duplicate save participant ID '{id}' was ignored.");
-                    continue;
+                    throw new InvalidOperationException($"Duplicate save participant ID '{id}'. The checkpoint cannot be restored reliably.");
                 }
 
                 yield return participant;
@@ -521,7 +571,7 @@ namespace QuietStatic.Toolkit.Saving
             return false;
         }
 
-        private static bool TryDeserializeFile(
+        private bool TryDeserializeFile(
             string path,
             out SaveGameData data,
             out string error)
@@ -560,6 +610,20 @@ namespace QuietStatic.Toolkit.Saving
 
                 data.activeFlags ??= new List<string>();
                 data.participants ??= new List<SaveParticipantData>();
+                var participantIds = new HashSet<string>(StringComparer.Ordinal);
+                if (data.participants.Any(p => p == null || string.IsNullOrWhiteSpace(p.id) ||
+                    !participantIds.Add(p.id.Trim())))
+                {
+                    error = "Save participant IDs are missing or duplicated.";
+                    return false;
+                }
+                if (excludedActiveScenes != null && excludedActiveScenes.Contains(data.activeScene))
+                {
+                    error = "The saved scene cannot be resumed.";
+                    return false;
+                }
+                error = ValidateCheckpoint?.Invoke(data);
+                if (!string.IsNullOrEmpty(error)) return false;
                 error = string.Empty;
                 return true;
             }
@@ -617,13 +681,16 @@ namespace QuietStatic.Toolkit.Saving
 
         private void RaiseSaveFailed(int slot, string message)
         {
+            LastError = message;
             onSaveFailed.Invoke(slot, message);
             GameLogger.Warning("SaveSlot", this, message);
         }
 
         private void RaiseLoadFailed(int slot, string message)
         {
+            LastError = message;
             onLoadFailed.Invoke(slot, message);
+            LoadCompleted?.Invoke(slot, false, message);
             GameLogger.Warning("LoadSlot", this, message);
         }
     }

@@ -116,6 +116,13 @@ namespace QuietStatic
         /// </summary>
         public bool IsTransitioning => isTransitioning;
 
+        /// <summary>Releases transition ownership after an externally guarded transition throws.</summary>
+        public void RecoverInterruptedTransition()
+        {
+            isTransitioning = false;
+            ResolveScreenFader()?.SetClearInstant();
+        }
+
         /// <summary>Most recent terminal transition result, if a request has finished.</summary>
         public SceneTransitionResult? LastTransitionResult { get; private set; }
 

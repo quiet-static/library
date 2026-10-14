@@ -3,7 +3,9 @@
   "rootNamespace": "QuietStatic.Tests.PlayMode",
   "references": [
     "QuietStatic.Core.Runtime",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

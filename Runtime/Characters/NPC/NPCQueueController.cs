@@ -62,6 +62,10 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("Maximum simultaneously visible members. Waiting-point capacity is also respected.")]
         [SerializeField] private int maximumActiveMembers = 1;
 
+        [Min(0f)]
+        [Tooltip("Minimum seconds between new arrivals. Zero fills all available positions immediately. Pausing the queue also pauses this timer.")]
+        [SerializeField] private float arrivalInterval;
+
         [Tooltip("Begin processing the configured members when this component starts.")]
         [SerializeField] private bool beginOnStart;
 
@@ -108,6 +112,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private bool initialized;
         private bool completionRaised;
         private bool resumeAfterEnable;
+        private float arrivalDelayRemaining;
 
         /// <summary>Raised when the front member reaches service.</summary>
         public event Action<NPCQueueMember, int> MemberReadyForService;
@@ -179,6 +184,12 @@ namespace QuietStatic.Toolkit.Characters.NPC
             if (IsPaused)
             {
                 return;
+            }
+
+            if (IsRunning)
+            {
+                arrivalDelayRemaining = Mathf.Max(0f, arrivalDelayRemaining - Time.deltaTime);
+                FillActivePositions();
             }
 
             for (int index = motions.Count - 1; index >= 0 && IsRunning && !IsPaused; index--)
@@ -435,6 +446,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
             resumeAfterEnable = false;
             currentIndex = 0;
             nextActivationIndex = 0;
+            arrivalDelayRemaining = 0f;
             activeMembers.Clear();
             foreach (NPCQueueMember member in members)
             {
@@ -459,12 +471,18 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
             while (IsRunning && activeMembers.Count < capacity && nextActivationIndex < members.Count)
             {
+                if (arrivalDelayRemaining > 0f)
+                {
+                    break;
+                }
                 int memberIndex = nextActivationIndex++;
                 NPCQueueMember member = ActivateMember(memberIndex);
                 if (member == null)
                 {
                     continue;
                 }
+
+                arrivalDelayRemaining = Mathf.Max(0f, arrivalInterval);
 
                 Place(member, entryPoint);
                 member.ApplyState(NPCQueueMemberState.Entering);
@@ -997,14 +1015,14 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            NPCQueueMember next = activeMembers.Count > 0
-                ? activeMembers[0]
-                : ActivateMember(currentIndex);
-            if (nextActivationIndex <= currentIndex)
+            if (activeMembers.Count == 0)
             {
-                nextActivationIndex = currentIndex + 1;
+                // A fast checkout must not bypass the next arrival's delay or its entry point.
+                FillActivePositions();
+                return;
             }
 
+            NPCQueueMember next = activeMembers[0];
             if (next.State != NPCQueueMemberState.Waiting &&
                 next.State != NPCQueueMemberState.Entering)
             {

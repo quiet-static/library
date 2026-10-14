@@ -61,6 +61,9 @@ namespace QuietStatic.Toolkit.Animation.Environment
             ApplyPower(false, true);
         }
 
+        /// <summary>Restores power presentation without replaying gameplay callbacks.</summary>
+        public void RestorePower(bool poweredOn) => ApplyPower(poweredOn, false);
+
         private void ApplyPower(bool poweredOn, bool notify)
         {
             IsPoweredOn = poweredOn;

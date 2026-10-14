@@ -51,6 +51,18 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private Coroutine dialogueRoutine;
         /// <summary>Gets whether this component has successfully transported its NPC.</summary>
         public bool HasTriggered => hasTriggered;
+        /// <summary>Actor whose placement is owned by this arrival.</summary>
+        public Transform ArrivalActor => npc != null ? npc.transform : null;
+        /// <summary>Whether a delayed arrival conversation has not started yet.</summary>
+        public bool IsDialoguePending => dialogueRoutine != null;
+
+        /// <summary>Restores the one-shot latch without replaying arrival events or dialogue.</summary>
+        public void RestoreArrivalState(bool value)
+        {
+            if (dialogueRoutine != null) StopCoroutine(dialogueRoutine);
+            dialogueRoutine = null;
+            hasTriggered = value;
+        }
 
         private void Awake()
         {
@@ -70,7 +82,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 observedFlags.FlagSet += HandleFlagSet;
             }
 
-            if (FlagManager.Instance != null && FlagManager.Instance.HasFlag(requiredFlag))
+            if (QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading != true &&
+                FlagManager.Instance != null && FlagManager.Instance.HasFlag(requiredFlag))
             {
                 TryArrive();
             }

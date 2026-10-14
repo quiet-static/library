@@ -69,6 +69,13 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public event Action<DialogueTree, Transform> DialogueEnded;
 
+        /// <summary>Raised for each node presented by this player's own dialogue session.</summary>
+        public event Action<DialogueTree.Node> NodeChanged;
+
+        /// <summary>Gets the current node of this player's active session.</summary>
+        public DialogueTree.Node CurrentNode => activeTree != null && observedManager != null &&
+            observedManager.CurrentDialogueTree == activeTree ? observedManager.CurrentNode : null;
+
         private DialogueTree activeTree;
         private Transform activeSpeaker;
         private DialogueManager observedManager;
@@ -167,6 +174,12 @@ namespace QuietStatic.Toolkit.Dialogue
                 CameraManager.Instance.BeginFocus(requestedFocusTarget);
             }
 
+            // The runner enters its first node synchronously inside StartDialogue, before
+            // this wrapper owns the accepted session. Deliver that node once ownership is set.
+            if (CurrentNode != null)
+            {
+                NodeChanged?.Invoke(CurrentNode);
+            }
             onDialogueStarted?.Invoke();
             return true;
         }
@@ -219,9 +232,12 @@ namespace QuietStatic.Toolkit.Dialogue
             HasTriggered = false;
         }
 
+        /// <summary>Restores a collider's one-shot latch without replaying its conversation.</summary>
+        public void RestoreTriggered(bool value) => HasTriggered = value;
+
         private void OnTriggerEnter(Collider other)
         {
-            if (!TriggerStartsEnabled ||
+            if (!TriggerStartsEnabled || QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading == true ||
                 !startOnTriggerEnter ||
                 other == null ||
                 (triggerOnce && HasTriggered) ||
@@ -244,6 +260,14 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             CompleteActiveDialogue();
+        }
+
+        private void HandleNodeChanged(DialogueTree tree, DialogueTree.Node node)
+        {
+            if (activeTree != null && tree == activeTree)
+            {
+                NodeChanged?.Invoke(node);
+            }
         }
 
         private void CompleteActiveDialogue()
@@ -286,6 +310,7 @@ namespace QuietStatic.Toolkit.Dialogue
             if (observedManager != null)
             {
                 observedManager.DialogueEnded += HandleDialogueEnded;
+                observedManager.NodeChanged += HandleNodeChanged;
             }
 
             return true;
@@ -301,6 +326,7 @@ namespace QuietStatic.Toolkit.Dialogue
             }
 
             manager.DialogueEnded -= HandleDialogueEnded;
+            manager.NodeChanged -= HandleNodeChanged;
         }
     }
 }

@@ -50,6 +50,12 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public event Action<UnityEngine.Object> DialogueEnded;
 
+        /// <summary>Raised when the active dialogue presents a node, including without a UI.</summary>
+        public event Action<DialogueTree, DialogueTree.Node> NodeChanged;
+
+        /// <summary>Gets the currently presented node, or null outside a dialogue.</summary>
+        public DialogueTree.Node CurrentNode => IsDialogueActive ? dialogueRunner.CurrentNode : null;
+
         [Serializable]
         public class DialogueStartedEvent : UnityEvent<UnityEngine.Object, Transform>
         {
@@ -266,6 +272,8 @@ namespace QuietStatic.Toolkit.Dialogue
             {
                 return;
             }
+
+            NodeChanged?.Invoke(runner.Tree, node);
 
             if (dialogueUIManager == null)
             {

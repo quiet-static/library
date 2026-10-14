@@ -62,12 +62,18 @@ namespace QuietStatic.Toolkit.UI.Menu
         private void HandleSaveCompleted(int slot, bool succeeded)
         {
             if (slot == saveSlot)
-                SetSaveLabel(succeeded ? "Game saved" : "Save failed - retry");
+                SetSaveLabel(succeeded ? "Game saved" :
+                    (SaveManager.Instance?.LastError ?? "Save failed - retry"));
         }
 
         private void SetSaveLabel(string text)
         {
-            if (saveButtonLabel != null) saveButtonLabel.text = text;
+            if (saveButtonLabel != null)
+            {
+                saveButtonLabel.enableAutoSizing = true;
+                saveButtonLabel.fontSizeMin = 16f;
+                saveButtonLabel.text = text;
+            }
         }
 
         public void ShowMainPage() => SetPages(true);

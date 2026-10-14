@@ -50,7 +50,9 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             toolbar.Add(new ToolbarButton(NarrativeBatchJsonImporter.OpenImportPreview) { text = "Import Batch" });
             toolbar.Add(new ToolbarButton(NarrativeAuthoringJsonExporter.ExportProjectSnapshotWithFolderPanel) { text = "Export Snapshot" });
             toolbar.Add(new ToolbarButton(InteractableExplorerWindow.Open) { text = "Interactions" });
+            toolbar.Add(new ToolbarButton(ClutterInteractableWindow.Open) { text = "Clutter", tooltip = "Detect and author optional flavor-text interactions" });
             toolbar.Add(new ToolbarButton(CutsceneExplorerWindow.Open) { text = "Cutscenes" });
+            toolbar.Add(new ToolbarButton(CinematicShotEditorWindow.Open) { text = "Shots", tooltip = "Create, edit, and preview scene camera shots" });
             toolbar.Add(new ToolbarButton(CommunicationGraphWindow.Open) { text = "Communication" });
             toolbar.Add(new ToolbarButton(WiringSnapshotExporter.ExportBuildScenes) { text = "Export Wiring" });
             rootVisualElement.Add(toolbar);

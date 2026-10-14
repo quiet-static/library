@@ -102,6 +102,14 @@ namespace QuietStatic.Toolkit.Characters.Player
         /// </summary>
         private bool isGrounded;
 
+        /// <summary>Clears movement accumulated before an explicit teleport.</summary>
+        public void ResetMotion()
+        {
+            velocity = Vector3.zero;
+            move = Vector3.zero;
+            isGrounded = false;
+        }
+
         /// <summary>
         /// Gets the current vertical velocity.
         /// Useful for animation state evaluation.
