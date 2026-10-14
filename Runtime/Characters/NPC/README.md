@@ -59,6 +59,12 @@ position for each customer behind the register. Every active member follows its 
 pre-service route while service remains in the authored order. Advancing the line preserves
 unfinished browsing stops and their remaining wait time.
 
+Set **Arrival Interval** to stagger new members at the entrance while allowing earlier
+customers to browse or wait. The first member enters immediately; later arrivals wait at
+least this many game seconds. The timer pauses with the queue and resets on restart.
+Zero preserves simultaneous arrivals. Restoring a save still reconstructs followers at
+their waiting positions without replaying their entrances.
+
 Add `NPCWaypoint` to any pre-service destination that should pause. Its minimum/maximum
 wait durations, facing, destination jitter, animation trigger, and arrival event apply to
 each visiting member. Plain Transform destinations remain movement-only. For a browsing

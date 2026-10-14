@@ -4,8 +4,8 @@
 
 `Tools > Quiet Static` intentionally contains only:
 
-- **Workspace** — content catalogs, visual graphs, Problems, narrative transfer, and
-  operational explorers;
+- **Workspace** — content catalogs, visual graphs, Problems, narrative transfer,
+  scene-scoped content editing, and operational explorers;
 - **Validate Project** — opens the Workspace Problems tab;
 - **Project Setup** — scene-flow setup and optional maintained generators;
 - **Play Mode Isolation** — project-local isolated-scene Play Mode preference;

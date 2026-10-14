@@ -30,7 +30,7 @@ code-generated IDs cannot be discovered.
 
 ## Content Workspace
 
-Open **Tools > Quiet Static > Workspace**. The Flags, Objectives,
+Open **Tools > Quiet Static > Workspace**. The Scene Content, Flags, Objectives,
 Game States, Cinematics, Dialogue, Scene Flow, Readables, and Story Sequences tabs replace
 the former separate database and reference windows. Each tab searches serialized content,
 remembers its filter and selected asset, edits through the normal Unity Inspector, and
@@ -52,6 +52,36 @@ stores the exact string ID, supports clearing, retains legacy/missing values unt
 author explicitly changes them, and displays descriptions or missing-ID warnings.
 When multiple databases exist, the selector deterministically uses the first database
 by asset GUID; projects should normally configure one authoritative database.
+
+## Scene Content
+
+Open the **Scene Content** tab when the editing question begins with “what belongs to
+this scene or this object?” Choose a loaded scene, then optionally assign a GameObject
+scope or click **Use Selection**. A scope includes the selected object and every child,
+which makes it useful for a room, NPC, prop group, or encounter root.
+
+The tab exposes three focused groups: flavor interactions, `DialogueEventPlayer`
+references, and other `Interactable` targets. Flavor prompts and text can be edited
+inline. Dialogue rows expose their tree, speaker, and focus reference and can open the
+tree in the Dialogue Workspace. Other targets expose their player-facing prompt. The
+shared Workspace search filters by object name and hierarchy path after the scene and
+GameObject scope are applied.
+
+This is a scene-object view rather than an asset ownership database. It only scans
+loaded scenes, does not infer runtime-created references, and does not claim that an
+asset referenced by a scene is exclusive to that scene.
+
+## Clutter Interactables
+
+Choose **Clutter** in the Workspace toolbar to open the clutter authoring tool. It
+indexes `FlavorTextInteraction` components separately from story and gameplay
+interactables. Select scene objects and choose **Set Up Selected Objects as Clutter
+Interactables** to add or repair the standard interaction, highlight, trigger-collider,
+layer, UI-channel, and flavor-text setup.
+
+Use clutter interactions for optional one-message observations. They intentionally do
+not own dialogue nodes, flags, objectives, or story state. Existing non-flavor targets
+are detection results only unless the author explicitly chooses **Convert**.
 
 ## Dialogue catalog
 

@@ -35,6 +35,23 @@ Use an `InteractionUIChannel` when prompts or messages originate in replaceable
 content scenes. Its persistent listener consumes a single typed command stream;
 prompt, progress-meter, and message methods remain suitable for UnityEvents.
 
+## Flavor-text clutter
+
+Use `FlavorTextInteraction` for a short optional observation attached to environmental
+clutter. It listens to the neighboring `Interactable` and publishes its text through
+`InteractionUIChannel` after a successful inspection. It contains no dialogue flow,
+flags, objective state, or progression behavior.
+
+Open **Tools > Quiet Static > Workspace** and choose **Clutter** to set up selected
+scene objects. The tool adds or repairs the interaction target, highlighter, trigger
+collider, interaction layer, UI channel, and flavor component without duplicating
+components. Prompts and flavor text can then be edited in that tool or in the
+Workspace's **Scene Content** tab.
+
+Use a `DialogueEventPlayer` and `DialogueTree` when text needs speakers, several beats,
+choices, flags, focus, or completion events. Use `ReadableInteractionTrigger` for
+long-form material that opens a modal document view.
+
 ## Letters and readable items
 
 Create a **Readable Content** asset for each letter, note, or other long-form item. Add

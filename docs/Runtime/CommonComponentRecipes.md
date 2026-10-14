@@ -37,6 +37,7 @@ by design, so it discovers renderers added beneath a project Prefab Variant when
 | Hold Interact until the action completes | `HoldInteractable.prefab` / `HoldInteractable` |
 | Press once, then wait while work continues | `ActivatedProgressInteractable.prefab` / `ActivatedProgressInteractable` |
 | Press once to start dialogue | `DialogueInteractable.prefab` |
+| Inspect optional clutter and show one short observation | `Interactable` + `FlavorTextInteraction` |
 | Play one or more 3D sounds on interaction | `AudioInteractable.prefab` |
 | Trigger or toggle an Animator | `AnimatedInteractable.prefab` |
 | Trigger animation and spatial audio together | `AnimatedAudioInteractable.prefab` |
@@ -98,6 +99,27 @@ and sends text through `InteractionUIChannel`.
 
 The first matching non-empty rule wins. A rule using Requirement Mode **None** always
 matches, so place it last when it is being used as an in-list fallback.
+
+## Recipe: optional flavor-text clutter
+
+Use this for environmental details that deepen characterization or setting without
+entering dialogue or changing story state.
+
+1. Open **Tools > Quiet Static > Workspace** and choose **Clutter**.
+2. Select one or more rendered scene objects.
+3. Click **Set Up Selected Objects as Clutter Interactables**.
+4. Set a concise action prompt such as “Read diary” or “Inspect radio.”
+5. Enter the short observation in **Flavor Text** and verify the assigned
+   `InteractionUIChannel`.
+6. Review the generated trigger collider and confirm that the player's interaction
+   mask includes the object's layer.
+7. Save the owning scene.
+
+The command can be run again to repair missing components without creating duplicates.
+For room-by-room editing, open the Workspace **Scene Content** tab, choose the loaded
+scene, select the room root, and click **Use Selection**. Choose a dialogue tree when
+the text needs several beats or story behavior, and choose a readable for a document
+the player opens and closes.
 
 Example failure-message ordering:
 

@@ -75,6 +75,9 @@ Inspector-facing IDs should come from the provided databases.
 6. Load content scenes additively through the Scene Flow components.
 7. Use the neutral TextMeshPro title, pause, and settings prefabs under
    `Runtime/UI/Prefabs`, then create prefab variants for game-specific presentation.
+8. Open **Tools > Quiet Static > Workspace** to browse project content. Use **Scene
+   Content** to narrow interactions and dialogue to a loaded scene or GameObject subtree,
+   and use **Clutter** to author optional flavor-text inspections.
 
 Every runtime module contains a README with setup, hierarchy examples, and integration
 notes. API comments and Inspector tooltips document individual components and fields.

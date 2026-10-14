@@ -9,6 +9,9 @@ The final section uses **Stolen** as a concrete case study. It describes the pro
 current scene architecture and GameObjects, explains why they are arranged that way,
 and separates working setup from content that is prepared but not yet connected.
 
+Links to Stolen-specific guides require the sibling `libraries/stolen` checkout;
+those guides are not included in the standalone toolkit package.
+
 This guide was verified against the toolkit and Stolen workspace on **August 31,
 2026**. The package is still evolving. When this guide and an Inspector tooltip
 disagree, inspect the current component source and serialized configuration first; a
@@ -761,6 +764,24 @@ the action is unavailable. If the prompt is misleading, use
 `ConditionalInteractionMessage` rules or disable availability through the appropriate
 unlock component.
 
+### Optional flavor-text clutter
+
+Use `FlavorTextInteraction` for books, photographs, tools, dishes, and other optional
+props that should produce one brief observation. It sits beside an `Interactable` and
+sends its text through `InteractionUIChannel` after a successful inspection. It does
+not create dialogue state, set flags, or participate in objectives.
+
+Open **Tools > Quiet Static > Workspace** and choose **Clutter**. Select one or more
+scene objects and run **Set Up Selected Objects as Clutter Interactables**. The tool
+adds or repairs the normal target, highlight, trigger collider, interaction layer,
+channel, and flavor component. Review generated collider bounds around unusual art.
+
+Use the Workspace **Scene Content** tab to choose a loaded scene and optionally narrow
+the list to one GameObject hierarchy. From there, edit flavor text and prompts, inspect
+scene dialogue references, or open a referenced tree in the Dialogue Workspace. Use
+dialogue for speakers, multiple beats, choices, flags, camera focus, or completion
+events; use a readable for longer modal documents.
+
 ### 9.3 Hold interaction
 
 Use `HoldInteractable` when the player must keep the action pressed for a duration.
@@ -1148,7 +1169,7 @@ deduction notes for remaining outcome presentation work.
 Further reading: [objectives](../Runtime/Objectives/README.md),
 [narrative sequences](../Runtime/Narrative/README.md),
 [deductions](../Runtime/Deductions/Deductions/README.md), and
-Stolen's [deductions notes](architecture/Deductions.md).
+Stolen's [deductions notes](../../stolen/Docs/architecture/Deductions.md).
 
 ## 12. Readables
 
@@ -1469,7 +1490,7 @@ handler. Because its current implementation uses `Time.deltaTime`, ensure time s
 
 Further reading: [cinematics module](../Runtime/Cinematics/README.md),
 [cinematics and readables setup](../docs/Runtime/CinematicsAndReadablesSetup.md),
-and Stolen's [cinematic scene guide](architecture/Cinematics.md).
+and Stolen's [cinematic scene guide](../../stolen/Docs/architecture/Cinematics.md).
 
 ## 15. NPCs and NavMesh behavior
 
@@ -2021,14 +2042,16 @@ messages.
 
 Stolen adds a richer F3 dashboard with performance metrics, `DebugEventMonitor`, the
 bounded `DebugTrace`, and teleport-area support; see section 26 and
-[Stolen debug tools](architecture/DebugTools.md).
+[Stolen debug tools](../../stolen/Docs/architecture/DebugTools.md).
 
 ### 21.4 Editor tools
 
 The task-oriented package entry points are:
 
 - **Tools > Quiet Static > Workspace**: content catalogs, Dialogue and Scene Flow graphs,
-  validation Problems, narrative transfer, interactions, cutscenes, and communication diagnostics;
+  validation Problems, narrative transfer, interactions, cutscenes, and communication diagnostics.
+  Its **Scene Content** tab filters interactions and dialogue references by loaded scene
+  or GameObject subtree, while the **Clutter** toolbar action authors optional flavor text;
 - **Tools > Quiet Static > Validate Project**: opens the Workspace Problems tab;
 - **Tools > Quiet Static > Project Setup**: scene-flow setup and optional maintained generators;
 - **Tools > Quiet Static > Play Mode Isolation** and **Debug Dashboard**: development operations;
@@ -2323,7 +2346,7 @@ system's implementation or unusual configuration.
 - [NPCs](../Runtime/Characters/NPC/README.md)
 - [Cinematics](../Runtime/Cinematics/README.md)
 - [Core/game state](../Runtime/Core/README.md)
-- [Debugging](../Runtime/Debug/README.md)
+- [Game logging](Runtime/Debug/GameLogger.md)
 - [Deductions](../Runtime/Deductions/Deductions/README.md)
 - [Dialogue](../Runtime/Dialogue/README.md)
 - [Cross-scene events](../Runtime/Event/README.md)

@@ -42,3 +42,9 @@ Project-owned spawning or character-selection code should call
 `SetPlayer(GameObject)` after completing its transition. Consumers can listen
 to `PlayerChanged(previousPlayer, newPlayer)`; either argument may be null.
 The manager deliberately contains no character-switching policy.
+
+`SfxManager.PauseSpawnedSounds()` remembers the sounds it paused until
+`ResumeSpawnedSounds()` is called, including across repeated pause requests.
+Sounds paused directly through `EventSound3D` remain under the caller's control.
+Pausing existing sounds does not block new spawns; use `DisableSpawning()` when
+new playback should also be blocked.
