@@ -270,7 +270,7 @@ namespace QuietStatic.Toolkit.Interactions
                         out Transform hitOwner))
                 {
                     // The nearest collider still occludes everything behind it.
-                    if (selectedOwner == null)
+                    if (!hit.collider.isTrigger && selectedOwner == null)
                     {
                         hasNonInteractiveOccluder = true;
                     }
@@ -286,7 +286,7 @@ namespace QuietStatic.Toolkit.Interactions
                     // Disabled interactions still have raycast colliders. Until they become
                     // targetable, treat them like ordinary geometry so they cannot claim owner
                     // selection and hide an explicitly pass-through target behind them.
-                    if (selectedOwner == null)
+                    if (!hit.collider.isTrigger && selectedOwner == null)
                     {
                         hasNonInteractiveOccluder = true;
                     }
@@ -573,7 +573,9 @@ namespace QuietStatic.Toolkit.Interactions
             IInteractionTarget interactable,
             bool highlighted)
         {
-            if (interactable == null)
+            // Interface references bypass Unity's destroyed-object null comparison.
+            // Scene unloading can destroy the target before this persistent interactor disables.
+            if (interactable == null || interactable is Object targetObject && targetObject == null)
             {
                 return;
             }

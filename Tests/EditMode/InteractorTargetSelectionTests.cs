@@ -81,6 +81,37 @@ namespace QuietStatic.Tests.EditMode
         }
 
         [Test]
+        public void DestroyedSceneTargetCanReleaseFocusThroughItsInterface()
+        {
+            progressInteraction.SetEnabled(false);
+            interactor.RefreshTarget();
+            Assert.That(interactor.CurrentTarget, Is.SameAs(normalInteraction));
+            Object.DestroyImmediate(targetObject);
+            targetObject = null;
+            Assert.DoesNotThrow(() => typeof(Interactor).GetMethod("OnDisable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(interactor, null));
+        }
+
+        [Test]
+        public void SolidWallBlocksInteractionButStoryTriggerDoesNot()
+        {
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            try
+            {
+                wall.transform.position = Vector3.forward * .4f;
+                wall.transform.localScale = Vector3.one * .1f;
+                Physics.SyncTransforms();
+                interactor.RefreshTarget();
+                Assert.That(interactor.CurrentProgressTarget, Is.Null);
+                Assert.That(interactor.CurrentTarget, Is.Null);
+                wall.GetComponent<Collider>().isTrigger = true;
+                Physics.SyncTransforms();
+                interactor.RefreshTarget();
+                Assert.That(interactor.CurrentProgressTarget, Is.SameAs(progressInteraction));
+            }
+            finally { Object.DestroyImmediate(wall); }
+        }
+
+        [Test]
         public void AvailableProgressInteractionTakesPrecedence()
         {
             interactor.RefreshTarget();
