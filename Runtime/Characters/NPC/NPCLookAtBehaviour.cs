@@ -110,13 +110,13 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// </summary>
         private void LateUpdate()
         {
-            if (!IsBehaviourActive || !headOnly || ShouldUseAnimatorIK())
+            if (!headOnly || ShouldUseAnimatorIK())
                 return;
 
             if (!EnsureHeadTransform())
                 return;
 
-            if (TryGetLookPosition(out Vector3 lookPosition))
+            if (IsBehaviourActive && TryGetLookPosition(out Vector3 lookPosition))
             {
                 RotateHeadTransformToward(lookPosition);
             }
@@ -239,7 +239,6 @@ namespace QuietStatic.Toolkit.Characters.NPC
         {
             target = null;
             targetOffset = Vector3.zero;
-            ResetLookSmoothing();
 
             if (temporaryTarget == null)
                 SetBehaviourActive(false);
@@ -252,7 +251,6 @@ namespace QuietStatic.Toolkit.Characters.NPC
             temporaryTarget = null;
             targetOffset = Vector3.zero;
             temporaryTargetOffset = Vector3.zero;
-            ResetLookSmoothing();
             SetBehaviourActive(false);
         }
 
@@ -281,7 +279,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         protected override void OnBehaviourDeactivated()
         {
             motor?.SetAutomaticRotation(true);
-            ResetLookSmoothing();
+            // Keep the accumulated look delta so LateUpdate/IK can ease back to rest.
         }
 
         private void CacheReferences()

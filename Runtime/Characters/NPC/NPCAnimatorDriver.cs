@@ -15,6 +15,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [SerializeField] private bool normalizeByAgentSpeed = true;
         [SerializeField, Min(0f)] private float damping = 0.1f;
 
+        [Tooltip("Optional moving trigger for controllers that use states instead of a speed float.")]
+        [SerializeField] private string movingTrigger;
+        [Tooltip("Optional stationary trigger paired with Moving Trigger.")]
+        [SerializeField] private string stationaryTrigger;
+        private bool wasMoving;
         private int speedHash;
 
         private void Reset()
@@ -41,7 +46,17 @@ namespace QuietStatic.Toolkit.Characters.NPC
             if (normalizeByAgentSpeed)
                 speed /= Mathf.Max(motor.Agent.speed, 0.01f);
 
-            animator.SetFloat(speedHash, speed, damping, Time.deltaTime);
+            if (!string.IsNullOrWhiteSpace(movingTrigger) && !string.IsNullOrWhiteSpace(stationaryTrigger))
+            {
+                bool moving = motor.Agent.velocity.sqrMagnitude > 0.0025f;
+                if (moving != wasMoving)
+                {
+                    animator.ResetTrigger(moving ? stationaryTrigger : movingTrigger);
+                    animator.SetTrigger(moving ? movingTrigger : stationaryTrigger);
+                    wasMoving = moving;
+                }
+            }
+            else animator.SetFloat(speedHash, speed, damping, Time.deltaTime);
         }
     }
 }
