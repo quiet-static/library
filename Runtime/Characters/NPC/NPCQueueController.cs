@@ -179,6 +179,21 @@ namespace QuietStatic.Toolkit.Characters.NPC
             PauseQueue();
         }
 
+        [Tooltip("Delay appearance and disappearance while the active camera can see the entry or departing actor.")]
+        [SerializeField] private bool avoidVisibleSpawning;
+        private readonly List<NPCQueueMember> pendingHide = new();
+
+        private bool IsVisibleToPlayer(Vector3 position, Transform actor = null)
+        {
+            Camera camera = Camera.main;
+            if (camera == null) return false;
+            Vector3 center = position + Vector3.up;
+            if (!GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(camera), new Bounds(center, new Vector3(1f,2f,1f)))) return false;
+            Vector3 origin = camera.transform.position;
+            if (!Physics.Linecast(origin, center, out var hit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) return true;
+            return actor != null && hit.transform.IsChildOf(actor);
+        }
+
         private void Update()
         {
             if (IsPaused)
@@ -186,6 +201,15 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
+            for (int i = pendingHide.Count - 1; i >= 0; i--)
+            {
+                var member = pendingHide[i];
+                if (member == null || !IsVisibleToPlayer(member.transform.position, member.transform))
+                {
+                    if (member != null) member.gameObject.SetActive(false);
+                    pendingHide.RemoveAt(i);
+                }
+            }
             if (IsRunning)
             {
                 arrivalDelayRemaining = Mathf.Max(0f, arrivalDelayRemaining - Time.deltaTime);
@@ -439,6 +463,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private void ResetQueueInternal(bool hideMembers)
         {
+            pendingHide.Clear();
             StopAllMotion();
             IsRunning = false;
             IsPaused = false;
@@ -475,6 +500,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 {
                     break;
                 }
+                if (avoidVisibleSpawning && entryPoint != null && IsVisibleToPlayer(entryPoint.position)) break;
                 int memberIndex = nextActivationIndex++;
                 NPCQueueMember member = ActivateMember(memberIndex);
                 if (member == null)
@@ -997,7 +1023,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
             activeMembers.Remove(member);
             if (manageMemberVisibility)
             {
-                member.gameObject.SetActive(false);
+                if (avoidVisibleSpawning && IsVisibleToPlayer(member.transform.position, member.transform)) pendingHide.Add(member);
+                else member.gameObject.SetActive(false);
             }
 
             MemberDeparted?.Invoke(member, departedIndex);

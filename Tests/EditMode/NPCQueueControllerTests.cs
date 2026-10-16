@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Characters.NPC;
@@ -29,6 +30,35 @@ namespace QuietStatic.Tests.EditMode
         {
             Object.DestroyImmediate(queueObject);
             Object.DestroyImmediate(memberObject);
+        }
+
+        [Test]
+        public void LifecycleVisibilityChecksFrustumAndSolidOcclusion()
+        {
+            var previousCameras = Object.FindObjectsByType<Camera>(FindObjectsSortMode.None).Where(c => c.enabled && c.CompareTag("MainCamera")).ToArray();
+            foreach (var previous in previousCameras) previous.enabled = false;
+            var cameraObject = new GameObject("Queue visibility camera");
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            try
+            {
+                cameraObject.tag = "MainCamera";
+                cameraObject.AddComponent<Camera>();
+                cameraObject.transform.position = new Vector3(0, 1, -5);
+                Assert.That(Camera.main, Is.SameAs(cameraObject.GetComponent<Camera>()));
+                wall.transform.position = new Vector3(0, 1, -2.5f);
+                wall.transform.localScale = new Vector3(3,3,.2f);
+                var method = typeof(NPCQueueController).GetMethod("IsVisibleToPlayer", BindingFlags.NonPublic | BindingFlags.Instance);
+                Physics.SyncTransforms();
+                Assert.That((bool)method.Invoke(queue, new object[] { Vector3.zero, null }), Is.False, "A wall hides the lifecycle endpoint.");
+                wall.SetActive(false); Physics.SyncTransforms();
+                Assert.That((bool)method.Invoke(queue, new object[] { Vector3.zero, null }), Is.True, "A visible endpoint must defer spawning.");
+                Assert.That((bool)method.Invoke(queue, new object[] { Vector3.back * 10, null }), Is.False, "An endpoint behind the player can change visibility.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(wall); Object.DestroyImmediate(cameraObject);
+                foreach (var previous in previousCameras) if (previous != null) previous.enabled = true;
+            }
         }
 
         [Test]
