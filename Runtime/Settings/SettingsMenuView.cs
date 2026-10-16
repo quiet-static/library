@@ -1,3 +1,5 @@
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -20,6 +22,9 @@ namespace QuietStatic.Toolkit.Settings
         [Tooltip("Enables one vertical-sync interval when selected.")]
         [SerializeField] private Toggle vSync;
 
+        [Tooltip("Display size selected from the settings manager's configured options.")]
+        [SerializeField] private TMP_Dropdown resolution;
+
         [Header("Navigation")]
         [Tooltip("Raised when the menu's Back button is pressed. Parent menus decide what to show next.")]
         [SerializeField] private UnityEvent backRequested = new();
@@ -34,12 +39,21 @@ namespace QuietStatic.Toolkit.Settings
             sfxVolume?.onValueChanged.AddListener(value => SettingsManager.Instance?.SetSfxVolume(value));
             lookSensitivity?.onValueChanged.AddListener(value => SettingsManager.Instance?.SetMouseSensitivity(value));
             vSync?.onValueChanged.AddListener(value => SettingsManager.Instance?.SetVSync(value));
+            resolution?.onValueChanged.AddListener(value => SettingsManager.Instance?.SetResolution(value));
         }
 
         private SettingsManager observedManager;
 
-        private void OnEnable()
+        private void Start() => BindManager();
+
+        private void Update()
         {
+            if (observedManager != SettingsManager.Instance) BindManager();
+        }
+
+        private void BindManager()
+        {
+            OnDisable();
             observedManager = SettingsManager.Instance;
             if (observedManager != null)
             {
@@ -47,6 +61,11 @@ namespace QuietStatic.Toolkit.Settings
                 observedManager.SettingChanged += HandleSettingChanged;
             }
             Refresh();
+        }
+
+        private void OnEnable()
+        {
+            BindManager();
         }
 
         private void OnDisable()
@@ -70,6 +89,14 @@ namespace QuietStatic.Toolkit.Settings
             sfxVolume?.SetValueWithoutNotify(manager.SfxVolume);
             lookSensitivity?.SetValueWithoutNotify(manager.MouseSensitivity);
             vSync?.SetIsOnWithoutNotify(manager.VSyncEnabled);
+            if (resolution != null)
+            {
+                var labels = manager.ResolutionOptions?.Select(option => $"Resolution: {option.width} x {option.height}").ToList();
+                resolution.ClearOptions();
+                if (labels != null) resolution.AddOptions(labels);
+                resolution.SetValueWithoutNotify(manager.ResolutionIndex);
+                resolution.RefreshShownValue();
+            }
         }
 
         /// <summary>Requests that the parent menu return to its previous page.</summary>

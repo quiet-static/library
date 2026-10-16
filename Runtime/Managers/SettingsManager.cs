@@ -16,7 +16,7 @@ namespace QuietStatic
         MasterVolume, MusicVolume, SfxVolume, AmbienceVolume, DialogueVolume,
         MouseSensitivity, VSync, SubtitleTextSize, SpeakerLabels, ClosedCaptions,
         ReducedFlashing, ReducedCameraMotion, InteractionInputMode,
-        HighContrastPrompts, ContentWarning
+        HighContrastPrompts, ContentWarning, Resolution
     }
 
     /// <summary>
@@ -57,6 +57,11 @@ namespace QuietStatic
             new ResolutionOption(1920, 1080),
             new ResolutionOption(2560, 1440)
         };
+
+        /// <summary>Configured display sizes in dropdown order.</summary>
+        public System.Collections.Generic.IReadOnlyList<ResolutionOption> ResolutionOptions => resolutionOptions;
+        /// <summary>Index of the applied display size.</summary>
+        public int ResolutionIndex { get; private set; }
 
         private const string MasterVolumeKey = "Settings_MasterVolume";
         private const string MusicVolumeKey = "Settings_MusicVolume";
@@ -256,7 +261,7 @@ namespace QuietStatic
         public void SetResolution(int index)
         {
             ApplyResolution(index);
-            PlayerPrefs.SetInt(ResolutionIndexKey, index);
+            PlayerPrefs.SetInt(ResolutionIndexKey, ResolutionIndex);
             PlayerPrefs.Save();
         }
 
@@ -304,6 +309,7 @@ namespace QuietStatic
 
             index = Mathf.Clamp(index, 0, resolutionOptions.Length - 1);
 
+            ResolutionIndex = index;
             ResolutionOption option = resolutionOptions[index];
 
             Screen.SetResolution(
@@ -311,6 +317,7 @@ namespace QuietStatic
                 option.height,
                 Screen.fullScreen
             );
+            Notify(GameSettingId.Resolution);
         }
 
         private void ApplyVSync(bool isOn)
