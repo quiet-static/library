@@ -100,6 +100,19 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(map.TryCreateRequest("Broken", out _), Is.False);
         }
 
+        [Test]
+        public void FadeOverride_IsCarriedOnlyByItsConfiguredRoute()
+        {
+            var slow = CreateConnection("Slow", "House", "Office", true);
+            var ordinary = CreateConnection("Ordinary", "Station", "Office", true);
+            SetField(slow, "fadeDuration", .8f);
+            SetConnections(slow, ordinary);
+            Assert.That(map.TryCreateRequest("Slow", out var slowRequest), Is.True);
+            Assert.That(map.TryCreateRequest("Ordinary", out var ordinaryRequest), Is.True);
+            Assert.That(slowRequest.FadeDuration, Is.EqualTo(.8f));
+            Assert.That(ordinaryRequest.FadeDuration, Is.LessThan(0f));
+        }
+
         private static SceneFlowMap.Connection CreateConnection(
             string id,
             string from,

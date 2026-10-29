@@ -101,6 +101,7 @@ namespace QuietStatic
         /// Prevents multiple scene transitions from running simultaneously.
         /// </summary>
         private bool isTransitioning;
+        private float requestFadeDuration = -1f;
         private CrossSceneChannelSubscription<SceneFlowRequestChannel>
             requestSubscription;
 
@@ -403,6 +404,7 @@ namespace QuietStatic
             }
 
             isTransitioning = true;
+            requestFadeDuration = request.FadeDuration;
             TransitionStarted?.Invoke(targetSceneName);
 
             ScreenFader transitionFader = ResolveScreenFader();
@@ -562,15 +564,24 @@ namespace QuietStatic
             {
                 yield return screenFadeChannel.FadeRoutine(
                     target,
-                    transitionFadeDuration);
+                    requestFadeDuration >= 0f ? requestFadeDuration : transitionFadeDuration);
                 yield break;
             }
 
             if (directFader == null) yield break;
             directFader.StopActiveFade();
-            yield return target == ScreenFadeTarget.Black
-                ? directFader.FadeToBlackRoutine()
-                : directFader.FadeToClearRoutine();
+            if (requestFadeDuration >= 0f)
+            {
+                yield return target == ScreenFadeTarget.Black
+                    ? directFader.FadeToBlackRoutine(requestFadeDuration)
+                    : directFader.FadeToClearRoutine(requestFadeDuration);
+            }
+            else
+            {
+                yield return target == ScreenFadeTarget.Black
+                    ? directFader.FadeToBlackRoutine()
+                    : directFader.FadeToClearRoutine();
+            }
         }
 
         private IEnumerator FinishFailedTransition(

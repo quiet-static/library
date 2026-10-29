@@ -34,6 +34,9 @@ namespace QuietStatic.Toolkit.SceneFlow
             [Tooltip("Unload other nonpersistent scenes after the destination is ready.")]
             [SerializeField] private bool unloadOtherScenes = true;
 
+            [Tooltip("Fade duration for this route. Negative uses the Scene Flow Manager default.")]
+            [SerializeField] private float fadeDuration = -1f;
+
             /// <summary>Gets the stable connection ID.</summary>
             public string Id => Normalize(id);
             /// <summary>Gets the source scene name.</summary>
@@ -54,7 +57,8 @@ namespace QuietStatic.Toolkit.SceneFlow
                     GetNames(additionalScenesToLoad),
                     GetNames(additionalScenesToKeep),
                     unloadOtherScenes,
-                    Id);
+                    Id,
+                    fadeDuration);
             }
 
             private static IEnumerable<string> GetNames(

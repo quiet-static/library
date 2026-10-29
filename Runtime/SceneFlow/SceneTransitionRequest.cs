@@ -36,12 +36,14 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// Optional transient condition used by the destination scene to select
         /// its entry behavior.
         /// </param>
+        /// <param name="fadeDuration">Optional per-transition fade duration. Negative preserves the service default.</param>
         public SceneTransitionRequest(
             string targetSceneName,
             IEnumerable<string> additionalScenesToLoad = null,
             IEnumerable<string> additionalScenesToKeep = null,
             bool unloadOtherScenes = true,
-            string conditionId = "")
+            string conditionId = "",
+            float fadeDuration = -1f)
         {
             TargetSceneName = Normalize(targetSceneName);
             this.additionalScenesToLoad =
@@ -50,6 +52,7 @@ namespace QuietStatic.Toolkit.SceneFlow
                 CopyDistinctSceneNames(additionalScenesToKeep);
             UnloadOtherScenes = unloadOtherScenes;
             ConditionId = Normalize(conditionId);
+            FadeDuration = float.IsNaN(fadeDuration) || float.IsInfinity(fadeDuration) ? -1f : fadeDuration;
         }
 
         /// <summary>
@@ -82,6 +85,9 @@ namespace QuietStatic.Toolkit.SceneFlow
         /// represents an ordinary, unconditioned transition.
         /// </remarks>
         public string ConditionId { get; }
+
+        /// <summary>Optional fade duration in seconds. A negative value preserves the scene-flow service default.</summary>
+        public float FadeDuration { get; }
 
         /// <summary>
         /// Returns whether this request explicitly retains a scene.
