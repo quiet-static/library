@@ -9,6 +9,21 @@
    complete objectives, play audio, or request scene transitions.
 5. Ensure the player has an `Interactor`, compatible input source, and interaction UI.
 
+## Editing interaction text together
+
+Open **Tools > Quiet Static > Workspace**, then click **Interactions**. Each entry
+now edits its prompt, progress label (for hold/progress targets), flavor text,
+conditional rule messages and fallback, and static `InteractionUIChannel.ShowMessage`
+or `ShowPrompt` text in its interaction events. Callback labels show the owning
+event and listener position. Other event wiring stays intact.
+
+Search matches message text as well as object names and hierarchy paths. Choose
+**Open Scenes** for scene edits, or **Project Prefabs** to edit prefab sources.
+Scene edits support Undo and prefab overrides; save the scene afterward. Use
+**Save Prefab Changes** to persist dirty project prefab sources. This editor
+exposes individual text fields together; it does not replace text across all
+objects automatically.
+
 ## Create an objective
 
 1. Add a stable entry to `ObjectiveDatabase` and create/assign an

@@ -44,6 +44,13 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         private ExplorerScope scope = ExplorerScope.OpenScenes;
         private bool issuesOnly;
 
+        private void OnDisable() => Undo.undoRedoPerformed -= HandleUndo;
+
+        private void HandleUndo()
+        {
+            RefreshEntries();
+        }
+
         public static void Open()
         {
             GetWindow<InteractableExplorerWindow>("Interactables");
@@ -51,6 +58,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
 
         private void OnEnable()
         {
+            Undo.undoRedoPerformed += HandleUndo;
             RefreshEntries();
         }
 
@@ -59,6 +67,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
             DrawToolbar();
 
             List<Entry> visible = entries
+                .Where(entry => entry.Target != null && entry.Owner != null)
                 .Where(MatchesSearch)
                 .Where(entry => !issuesOnly || HasIssue(entry))
                 .ToList();
@@ -72,6 +81,9 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 $"{entries.Count} target(s) • {basic} one-shot • {hold} hold • " +
                 $"{progress} autonomous progress • {issues} setup issue(s)",
                 issues > 0 ? MessageType.Warning : MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "Edit prompts and messages below. Changes support Undo. Save scenes after editing; " +
+                "use Save Prefab Changes for project prefab edits.", MessageType.Info);
 
             scroll = EditorGUILayout.BeginScrollView(scroll);
             foreach (Entry entry in visible)
@@ -116,6 +128,13 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 {
                     RefreshEntries();
                 }
+                if (scope != ExplorerScope.OpenScenes && GUILayout.Button(
+                    "Save Prefab Changes", EditorStyles.toolbarButton, GUILayout.Width(135f)))
+                {
+                    foreach (string path in entries.Where(entry => entry.Owner != null && EditorUtility.IsPersistent(entry.Owner))
+                                 .Select(entry => AssetDatabase.GetAssetPath(entry.Owner)).Distinct())
+                        AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(path));
+                }
             }
         }
 
@@ -137,7 +156,16 @@ namespace QuietStatic.Toolkit.Editor.Interactions
 
                 EditorGUILayout.LabelField("Location", entry.Location);
                 EditorGUILayout.LabelField("Hierarchy", entry.HierarchyPath);
-                EditorGUILayout.LabelField("UI Text", entry.Prompt);
+                using (var data = new SerializedObject(entry.Target))
+                {
+                    data.Update();
+                    SerializedProperty prompt = data.FindProperty(entry.Target is Interactable ? "displayName" : "hoverPrompt");
+                    EditorGUILayout.PropertyField(prompt, new GUIContent("Prompt"));
+                    SerializedProperty progressName = data.FindProperty("progressName");
+                    if (progressName != null) EditorGUILayout.PropertyField(progressName, new GUIContent("Progress Label"));
+                    DrawEventMessages(data);
+                    if (data.ApplyModifiedProperties()) entry.Prompt = prompt.stringValue;
+                }
                 EditorGUILayout.LabelField("Requirement", entry.Requirement);
 
                 if (entry.CompletionFlags.Length > 0)
@@ -164,7 +192,14 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 foreach (ConditionalInteractionMessage conditional in
                          entry.ConditionalMessages)
                 {
-                    DrawConditionalMessages(conditional);
+                    if (conditional != null) DrawConditionalMessages(conditional);
+                }
+                foreach (FlavorTextInteraction flavor in entry.Owner.GetComponents<FlavorTextInteraction>())
+                {
+                    using var data = new SerializedObject(flavor);
+                    data.Update();
+                    EditorGUILayout.PropertyField(data.FindProperty("flavorText"), new GUIContent("Flavor Text"));
+                    data.ApplyModifiedProperties();
                 }
             }
         }
@@ -177,31 +212,54 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 "Conditional UI Messages",
                 EditorStyles.boldLabel);
 
-            IReadOnlyList<ConditionalInteractionMessage.MessageRule> rules =
-                conditional.Rules;
-            for (int index = 0; index < rules.Count; index++)
+            using var data = new SerializedObject(conditional);
+            data.Update();
+            SerializedProperty rules = data.FindProperty("rules");
+            for (int index = 0; index < rules.arraySize; index++)
             {
-                ConditionalInteractionMessage.MessageRule rule = rules[index];
-                if (rule == null)
-                {
-                    EditorGUILayout.LabelField($"{index + 1}. <Missing rule>");
-                    continue;
-                }
-
-                string label = string.IsNullOrWhiteSpace(rule.Label)
+                SerializedProperty rule = rules.GetArrayElementAtIndex(index);
+                string ruleLabel = rule.FindPropertyRelative("label").stringValue;
+                string label = string.IsNullOrWhiteSpace(ruleLabel)
                     ? $"Rule {index + 1}"
-                    : rule.Label;
-                string condition = DescribeRequirement(rule.Requirement);
-                EditorGUILayout.LabelField(
-                    $"{index + 1}. {label} [{condition}]",
-                    Truncate(rule.Message, 100));
+                    : ruleLabel;
+                string condition = DescribeRequirement(conditional.Rules[index]?.Requirement);
+                EditorGUILayout.LabelField($"{index + 1}. {label} [{condition}]", EditorStyles.miniBoldLabel);
+                EditorGUILayout.PropertyField(rule.FindPropertyRelative("message"), new GUIContent("Message"));
             }
+            EditorGUILayout.PropertyField(data.FindProperty("defaultMessage"), new GUIContent("Fallback"));
+            data.ApplyModifiedProperties();
+        }
 
-            if (!string.IsNullOrWhiteSpace(conditional.DefaultMessage))
+        /// <summary>Exposes only static string arguments on interaction UI calls, preserving all event wiring.</summary>
+        private static void DrawEventMessages(SerializedObject data)
+        {
+            foreach (var message in EventMessages(data))
             {
-                EditorGUILayout.LabelField(
-                    "Fallback",
-                    Truncate(conditional.DefaultMessage, 100));
+                EditorGUILayout.LabelField(message.Label, EditorStyles.miniBoldLabel);
+                message.Text.stringValue = EditorGUILayout.TextArea(message.Text.stringValue, GUILayout.MinHeight(42f));
+            }
+        }
+
+        private static IEnumerable<(string Label, SerializedProperty Text)> EventMessages(SerializedObject data)
+        {
+            SerializedProperty property = data.GetIterator();
+            for (bool enter = true; property.NextVisible(enter); enter = false)
+            {
+                if (property.propertyType != SerializedPropertyType.Generic) continue;
+                SerializedProperty calls = property.FindPropertyRelative("m_PersistentCalls.m_Calls");
+                if (calls == null || !calls.isArray) continue;
+                for (int index = 0; index < calls.arraySize; index++)
+                {
+                    SerializedProperty call = calls.GetArrayElementAtIndex(index);
+                    if (call.FindPropertyRelative("m_Target").objectReferenceValue is not InteractionUIChannel ||
+                        call.FindPropertyRelative("m_Mode").intValue != (int)UnityEngine.Events.PersistentListenerMode.String)
+                        continue;
+                    string method = call.FindPropertyRelative("m_MethodName").stringValue;
+                    if (method != nameof(InteractionUIChannel.ShowMessage) && method != nameof(InteractionUIChannel.ShowPrompt))
+                        continue;
+                    yield return ($"{property.displayName} / {method} [{index + 1}]",
+                        call.FindPropertyRelative("m_Arguments.m_StringArgument"));
+                }
             }
         }
 
@@ -301,7 +359,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
 
         private static Entry CreateEntry(Component target, string location)
         {
-            var serializedTarget = new SerializedObject(target);
+            using var serializedTarget = new SerializedObject(target);
             string prompt;
             string[] completionFlags;
 
@@ -373,15 +431,21 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                    ContainsIgnoreCase(entry.Requirement, search) ||
                    entry.CompletionFlags.Any(flag =>
                        ContainsIgnoreCase(flag, search)) ||
-                   entry.ConditionalMessages.Any(message =>
-                       ContainsIgnoreCase(message.DefaultMessage, search) ||
-                       message.Rules.Any(rule =>
-                           rule != null &&
-                           (ContainsIgnoreCase(rule.Label, search) ||
-                            ContainsIgnoreCase(rule.Message, search) ||
-                            (rule.Requirement != null &&
-                             rule.Requirement.Flags.Any(flag =>
-                                 ContainsIgnoreCase(flag, search))))));
+                   entry.ConditionalMessages.Any(MatchesConditionalMessage) ||
+                   entry.Owner.GetComponents<FlavorTextInteraction>().Any(flavor => ContainsIgnoreCase(flavor.FlavorText, search)) ||
+                   MatchesEventText(entry.Target, search);
+        }
+
+        private bool MatchesConditionalMessage(ConditionalInteractionMessage message) =>
+            message != null && (ContainsIgnoreCase(message.DefaultMessage, search) ||
+                message.Rules.Any(rule => rule != null &&
+                    (ContainsIgnoreCase(rule.Label, search) || ContainsIgnoreCase(rule.Message, search) ||
+                     (rule.Requirement != null && rule.Requirement.Flags.Any(flag => ContainsIgnoreCase(flag, search))))));
+
+        private static bool MatchesEventText(Component target, string query)
+        {
+            using var data = new SerializedObject(target);
+            return EventMessages(data).Any(message => ContainsIgnoreCase(message.Text.stringValue, query));
         }
 
         private static bool HasIssue(Entry entry) =>
@@ -491,14 +555,5 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static string Truncate(string value, int maximumLength)
-        {
-            if (string.IsNullOrWhiteSpace(value) || value.Length <= maximumLength)
-            {
-                return value ?? string.Empty;
-            }
-
-            return value.Substring(0, maximumLength - 1) + "…";
-        }
     }
 }
