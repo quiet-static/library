@@ -80,6 +80,39 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             }
         }
 
+        /// <summary>Chooses and imports one dialogue JSON, including sources outside Assets.</summary>
+        [MenuItem("Tools/Quiet Static/Importers/Import Dialogue JSON...")]
+        public static void ImportWithFilePanel()
+        {
+            string path = EditorUtility.OpenFilePanel("Import Dialogue JSON", "", "json");
+            if (string.IsNullOrEmpty(path)) return;
+            try
+            {
+                DialogueTree tree = ImportFile(path);
+                Selection.activeObject = tree;
+                EditorGUIUtility.PingObject(tree);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"Dialogue import failed: {exception.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Imports one saved JSON file directly. Explicit unityAssetPath takes precedence
+        /// over the output folder. Reimport preserves the existing asset identity.
+        /// Linked flag catalogs are not imported; use the batch importer for catalog changes.
+        /// </summary>
+        public static DialogueTree ImportFile(string path, string outputFolder = DefaultOutputFolder)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("A dialogue JSON path is required.", nameof(path));
+            string fullPath = Path.GetFullPath(path);
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string sourcePath = Path.GetRelativePath(projectRoot, fullPath).Replace('\\', '/');
+            return ImportJson(File.ReadAllText(fullPath), sourcePath, outputFolder);
+        }
+
         /// <summary>Validates and imports a JSON TextAsset, updating an existing generated asset in place.</summary>
         /// <param name="source">JSON source asset.</param>
         /// <param name="outputFolder">Project-relative Assets folder for generated DialogueTree assets.</param>
@@ -89,11 +122,15 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            return ImportJson(source.text, AssetDatabase.GetAssetPath(source), outputFolder);
+        }
+
+        private static DialogueTree ImportJson(string json, string sourcePath, string outputFolder)
+        {
             if (!NarrativeJsonPathUtility.IsCanonicalAssetFolder(outputFolder))
                 throw new ArgumentException("Output folder must be a project-relative path under Assets.", nameof(outputFolder));
 
-            string sourcePath = AssetDatabase.GetAssetPath(source);
-            Document document = ParseAndValidate(source.text, sourcePath);
+            Document document = ParseAndValidate(json, sourcePath);
 
             Dictionary<string, int> indexes = document.nodes
                 .Select((node, index) => new { node.id, index })

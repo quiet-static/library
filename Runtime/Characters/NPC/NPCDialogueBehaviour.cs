@@ -16,6 +16,9 @@ namespace QuietStatic.Toolkit.Characters.NPC
         [Tooltip("Dialogue tree played when this NPC is interacted with.")]
         [SerializeField] private DialogueTree dialogueTree;
 
+        [Tooltip("Optional selector evaluated on every interaction. When assigned, its rules and fallback replace the fixed tree; no match starts nothing.")]
+        [SerializeField] private DialogueTreeResolver dialogueResolver;
+
         [Tooltip("Scene-local dialogue wrapper. This should reference the DialogueEventPlayer in the NPC's gameplay scene.")]
         [SerializeField] private DialogueEventPlayer dialogueEventPlayer;
 
@@ -49,6 +52,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private NPCController controller;
         private bool[] previousBehaviourStates;
+        private DialogueTree activeDialogueTree;
 
         /// <summary>Gets the dialogue tree configured for this NPC.</summary>
         public DialogueTree DialogueTree => dialogueTree;
@@ -99,7 +103,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
         }
 
         /// <summary>
-        /// Requests this NPC's assigned tree through the scene-local DialogueEventPlayer.
+        /// Resolves the current conversation, or uses the fixed tree when no resolver is assigned,
+        /// and requests it through the scene-local DialogueEventPlayer.
         /// This method is suitable for an Interactable UnityEvent.
         /// </summary>
         public void StartDialogue()
@@ -109,7 +114,13 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            if (dialogueTree == null)
+            DialogueTree requestedTree = dialogueTree;
+            if (dialogueResolver != null && !dialogueResolver.TryResolve(out requestedTree))
+            {
+                return;
+            }
+
+            if (requestedTree == null)
             {
                 GameLogger.Warning(
                     "StartDialogue",
@@ -134,7 +145,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
             Transform resolvedFocusTarget = focusTarget != null ? focusTarget : transform;
 
             bool started = dialogueEventPlayer.TryStartDialogue(
-                dialogueTree,
+                requestedTree,
                 resolvedFocusTarget,
                 transform
             );
@@ -144,6 +155,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
+            activeDialogueTree = requestedTree;
             BeginDialogueState();
         }
 
@@ -161,7 +173,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         }
 
         /// <summary>
-        /// Replaces the dialogue tree at runtime.
+        /// Replaces the fixed dialogue tree used when no resolver is assigned.
         /// </summary>
         public void SetDialogueTree(DialogueTree tree)
         {
@@ -215,7 +227,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
 
         private void HandleDialogueEnded(DialogueTree endedTree, Transform endedSpeaker)
         {
-            if (!IsInDialogue || endedTree != dialogueTree || endedSpeaker != transform)
+            if (!IsInDialogue || endedTree != activeDialogueTree || endedSpeaker != transform)
             {
                 return;
             }
@@ -226,6 +238,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private void FinishDialogueState()
         {
             IsInDialogue = false;
+            activeDialogueTree = null;
 
             if (faceControllerTargetDuringDialogue && lookAtBehaviour != null)
             {

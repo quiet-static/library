@@ -48,6 +48,11 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             toolbar.Add(search);
             toolbar.Add(new ToolbarButton(() => selected?.Refresh()) { text = "Refresh" });
             toolbar.Add(new ToolbarButton(NarrativeBatchJsonImporter.OpenImportPreview) { text = "Import Batch" });
+            toolbar.Add(new ToolbarButton(Dialogue.DialogueJsonImporter.ImportWithFilePanel)
+            {
+                text = "Import Dialogue JSON",
+                tooltip = "Import one dialogue directly from its saved JSON, including files outside Assets. Import new flag catalogs separately or with Import Batch."
+            });
             toolbar.Add(new ToolbarButton(NarrativeAuthoringJsonExporter.ExportProjectSnapshotWithFolderPanel) { text = "Export Snapshot" });
             toolbar.Add(new ToolbarButton(InteractableExplorerWindow.Open) { text = "Interactions" });
             toolbar.Add(new ToolbarButton(ClutterInteractableWindow.Open) { text = "Clutter", tooltip = "Detect and author optional flavor-text interactions" });
