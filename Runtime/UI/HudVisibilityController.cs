@@ -47,6 +47,16 @@ namespace QuietStatic.Toolkit.UI
             RefreshVisibility();
         }
 
+        private void Update()
+        {
+            // Persistent Player UI can enable before the System scene finishes loading.
+            if (observedGameState == GameStateManager.Instance) return;
+            if (observedGameState != null) observedGameState.StateChanged -= HandleGameStateChanged;
+            observedGameState = GameStateManager.Instance;
+            if (observedGameState != null) observedGameState.StateChanged += HandleGameStateChanged;
+            RefreshVisibility();
+        }
+
         private void OnDisable()
         {
             if (observedGameState != null)

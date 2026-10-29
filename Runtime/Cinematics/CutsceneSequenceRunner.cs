@@ -258,6 +258,7 @@ namespace QuietStatic.Toolkit.Cinematics
                 yield return FadeRoutine(ScreenFadeTarget.Black, fadeOutBeforeStep);
             }
 
+            while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             step.onStepStarted?.Invoke();
             ApplyCameraPose(step);
 
@@ -302,6 +303,7 @@ namespace QuietStatic.Toolkit.Cinematics
                 yield return WaitForDuration(step.waitAfterStep);
             }
 
+            while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             step.onStepFinished?.Invoke();
         }
 
@@ -327,13 +329,12 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private IEnumerator WaitForDuration(float duration)
         {
-            if (useUnscaledTime)
+            float elapsed = 0f;
+            while (elapsed < duration)
             {
-                yield return new WaitForSecondsRealtime(duration);
-            }
-            else
-            {
-                yield return new WaitForSeconds(duration);
+                yield return null;
+                if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) continue;
+                elapsed += useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
             }
         }
 

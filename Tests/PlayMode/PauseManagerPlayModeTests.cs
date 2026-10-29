@@ -87,6 +87,26 @@ namespace QuietStatic.Tests.PlayMode
             yield return null;
         }
 
+        [UnityTest]
+        public IEnumerator NarrativePause_RestoresInterruptedModeAndTimeScale()
+        {
+            CreateManagers("Dialogue", pauseTimeScale: true,
+                out GameStateManager gameState, out PauseManager pauseManager);
+            SetField(pauseManager, "additionalPausableStates", new[] { "Dialogue", "Cutscene" });
+            foreach (string state in new[] { "Dialogue", "Cutscene" })
+            {
+                gameState.SetState(state);
+                Time.timeScale = .65f;
+                pauseManager.PauseGame();
+                Assert.That(pauseManager.IsPaused, Is.True);
+                Assert.That(Time.timeScale, Is.Zero);
+                yield return null;
+                pauseManager.ResumeGame();
+                Assert.That(gameState.CurrentState, Is.EqualTo(state));
+                Assert.That(Time.timeScale, Is.EqualTo(.65f));
+            }
+        }
+
         private void CreateManagers(
             string startingState,
             bool pauseTimeScale,

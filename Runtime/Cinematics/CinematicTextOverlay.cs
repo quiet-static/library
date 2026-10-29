@@ -23,6 +23,7 @@ namespace QuietStatic.Toolkit.Cinematics
         private void OnDisable() => Clear();
         private void Update()
         {
+            if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) return;
             if (!IsRevealing || textLabel == null) return;
             revealed += speed * (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
             textLabel.maxVisibleCharacters = Mathf.Min(count, Mathf.FloorToInt(revealed));

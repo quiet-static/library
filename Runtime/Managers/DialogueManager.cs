@@ -94,6 +94,18 @@ namespace QuietStatic.Toolkit.Dialogue
             IsDialogueActive ? dialogueRunner.Tree : null;
 
         private Transform currentFocusTarget;
+        private readonly System.Collections.Generic.HashSet<UnityEngine.Object> inputSuspensions = new();
+
+        /// <summary>Temporarily prevents advancing or choosing while a scene presentation owns the dialogue.</summary>
+        public void SuspendInput(UnityEngine.Object owner) { if (owner != null) inputSuspensions.Add(owner); }
+
+        /// <summary>Releases a scene presentation's input claim without changing the active node.</summary>
+        public void ResumeInput(UnityEngine.Object owner) => inputSuspensions.Remove(owner);
+
+        private bool IsInputSuspended
+        {
+            get { inputSuspensions.RemoveWhere(owner => owner == null); return inputSuspensions.Count > 0; }
+        }
 
         /// <summary>
         /// Initializes references and subscribes to UI choice events.
@@ -208,6 +220,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public void AdvanceDialogue()
         {
+            if (IsInputSuspended || (PauseManager.Instance != null && PauseManager.Instance.IsPaused)) return;
             if (!IsDialogueActive || dialogueRunner == null)
             {
                 return;
@@ -222,6 +235,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <param name="choiceIndex">Index of the selected choice.</param>
         public void ChooseDialogueOption(int choiceIndex)
         {
+            if (IsInputSuspended || (PauseManager.Instance != null && PauseManager.Instance.IsPaused)) return;
             if (!IsDialogueActive || dialogueRunner == null)
             {
                 return;

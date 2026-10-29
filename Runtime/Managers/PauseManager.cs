@@ -21,13 +21,17 @@ namespace QuietStatic
         [SerializeField] private GameStateManager gameStateManager;
 
         [Header("State IDs")]
-        [Tooltip("State required before the game can be paused.")]
+        [Tooltip("Base gameplay state in which pausing is allowed.")]
         [GameStateId]
         [SerializeField] private string gameplayState = "Playing";
 
         [Tooltip("State assigned while the game is paused.")]
         [GameStateId]
         [SerializeField] private string pausedState = "Paused";
+
+        [Tooltip("Additional modes that may be paused, such as Dialogue and Cutscene. Resume restores the interrupted mode.")]
+        [GameStateId]
+        [SerializeField] private string[] additionalPausableStates = System.Array.Empty<string>();
 
         [Header("Pause UI Scene")]
         [Tooltip("Optional additive scene containing pause menu UI.")]
@@ -59,6 +63,10 @@ namespace QuietStatic
             gameStateManager != null && gameStateManager.IsInState(pausedState);
 
         private Coroutine pauseSceneRoutine;
+        private string resumeState;
+        private float resumeTimeScale = 1f;
+        private CursorLockMode resumeCursorLock;
+        private bool resumeCursorVisible;
 
         /// <summary>Gets whether the additive pause scene is currently reconciling.</summary>
         public bool IsChangingPauseScene => pauseSceneRoutine != null;
@@ -104,11 +112,15 @@ namespace QuietStatic
                 return;
             }
 
-            if (!gameStateManager.IsInState(gameplayState))
+            if (!CanPause(gameStateManager.CurrentState))
             {
                 return;
             }
 
+            resumeState = gameStateManager.CurrentState;
+            resumeTimeScale = Time.timeScale;
+            resumeCursorLock = Cursor.lockState;
+            resumeCursorVisible = Cursor.visible;
             gameStateManager.SetState(pausedState);
 
             if (pauseTimeScale)
@@ -136,12 +148,16 @@ namespace QuietStatic
 
             if (pauseTimeScale)
             {
-                Time.timeScale = 1f;
+                Time.timeScale = resumeTimeScale;
             }
 
-            gameStateManager.SetState(gameplayState);
-
-            RestoreGameplayCursor();
+            gameStateManager.SetState(string.IsNullOrEmpty(resumeState) ? gameplayState : resumeState);
+            if (manageCursor)
+            {
+                Cursor.lockState = resumeCursorLock;
+                Cursor.visible = resumeCursorVisible;
+            }
+            resumeState = null;
 
             if (usePauseScene && !string.IsNullOrWhiteSpace(pauseSceneName))
             {
@@ -157,6 +173,13 @@ namespace QuietStatic
         {
             Time.timeScale = 1f;
             RestoreGameplayCursor();
+        }
+
+        private bool CanPause(string state)
+        {
+            if (state == pausedState) return false;
+            if (state == gameplayState) return true;
+            return additionalPausableStates != null && System.Array.IndexOf(additionalPausableStates, state) >= 0;
         }
 
         private void ReconcilePauseScene()

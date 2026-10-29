@@ -72,6 +72,8 @@ namespace QuietStatic.Toolkit.UI.Menu
             {
                 saveButtonLabel.enableAutoSizing = true;
                 saveButtonLabel.fontSizeMin = 16f;
+                saveButtonLabel.fontSizeMax = 24f;
+                saveButtonLabel.fontSize = 24f;
                 saveButtonLabel.text = text;
             }
         }

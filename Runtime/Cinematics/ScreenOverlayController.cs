@@ -75,6 +75,7 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private void Update()
         {
+            if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) return;
             foreach (var layer in lookup.Values)
             {
                 float target = layer.visible ? 1f : 0f;

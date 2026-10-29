@@ -149,6 +149,7 @@ namespace QuietStatic.Toolkit.Cinematics
         private IEnumerator RunBeat(CinematicDefinition.Beat beat)
         {
             if (beat == null) yield break;
+            while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             InvokeBeatEvents(beat.id, true);
             ApplyShot(beat.cameraShotId);
             ApplyAnimations(beat.characterAnimations);
@@ -165,6 +166,7 @@ namespace QuietStatic.Toolkit.Cinematics
                 activity.component.SendMessage("Play", SendMessageOptions.DontRequireReceiver);
             }
             if (beat.delayAfterActivity > 0f) yield return Wait(beat.delayAfterActivity);
+            while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             InvokeBeatEvents(beat.id, false);
         }
 
@@ -206,11 +208,15 @@ namespace QuietStatic.Toolkit.Cinematics
             }
         }
 
-        private object Wait(float duration)
+        private IEnumerator Wait(float duration)
         {
-            return useUnscaledTime
-                ? (object)new WaitForSecondsRealtime(duration)
-                : new WaitForSeconds(duration);
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                yield return null;
+                if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) continue;
+                elapsed += useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+            }
         }
 
         private static T Find<T>(List<T> values, string id, Func<T, string> getId) where T : class

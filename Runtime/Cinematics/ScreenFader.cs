@@ -216,6 +216,9 @@ namespace QuietStatic.Toolkit.Cinematics
 
                 while (elapsed < duration)
                 {
+                    if (PauseManager.Instance != null && PauseManager.Instance.IsPaused &&
+                        (SceneFlowManager.Instance == null || !SceneFlowManager.Instance.IsTransitioning))
+                    { yield return null; continue; }
                     elapsed += Time.unscaledDeltaTime;
 
                     float progress = Mathf.Clamp01(elapsed / duration);

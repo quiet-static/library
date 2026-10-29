@@ -106,6 +106,9 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public bool IsVisible { get; private set; }
 
+        /// <summary>Gets the authored dialogue canvas for temporary scene presentation effects.</summary>
+        public Canvas PresentationCanvas => dialogueCanvas;
+
         private bool refreshControlStatePending;
 
         /// <summary>

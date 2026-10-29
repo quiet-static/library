@@ -36,6 +36,7 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private void Update()
         {
+            if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) return;
             if (!IsRunning) return;
             if (overlay == null || !overlay.isActiveAndEnabled || CurrentBeat == null) { Stop(); return; }
             bool advance = advanceAction != null ? advanceAction.action.WasPressedThisFrame() : allowDefaultInput &&
@@ -68,6 +69,7 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <summary>First advance completes typing; a subsequent advance moves to the next beat.</summary>
         public void Advance()
         {
+            if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) return;
             if (!IsRunning) return;
             if (overlay != null && overlay.IsRevealing) overlay.RevealAll();
             else NextBeat();

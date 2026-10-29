@@ -13,7 +13,7 @@ namespace QuietStatic.Toolkit.Cinematics
         [SerializeField] private RectTransform bottomBar;
         [Tooltip("Height of each bar as a fraction of the screen height.")]
         [Range(0f, 0.45f)] [SerializeField] private float barHeight = 0.12f;
-        [Tooltip("Seconds to fully show or hide the bars. Uses unscaled time so paused cutscenes still animate.")]
+        [Tooltip("Seconds to fully show or hide the bars. Uses unscaled time except while the Pause Manager is paused.")]
         [Min(0f)] [SerializeField] private float transitionDuration = 0.3f;
         [Tooltip("Show immediately on enable when no playback source is assigned. Useful for cinematic-only scenes.")]
         [SerializeField] private bool showOnEnable = true;
@@ -37,6 +37,7 @@ namespace QuietStatic.Toolkit.Cinematics
 
         private void Update()
         {
+            if (PauseManager.Instance != null && PauseManager.Instance.IsPaused) return;
             if (HasPlaybackSource) targetVisible = PlaybackActive;
             visibility = transitionDuration <= 0f
                 ? (targetVisible ? 1f : 0f)

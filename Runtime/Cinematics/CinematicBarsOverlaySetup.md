@@ -2,7 +2,7 @@
 
 Drag `Runtime/UI/Prefabs/CinematicBarsOverlay.prefab` from the Quiet Static Library package into a cinematic scene as a root object. It includes its own screen-space overlay Canvas and two black Images. No camera or EventSystem is required. The bars do not intercept clicks.
 
-Each bar defaults to 12% of the screen height and scales with the screen at any resolution. Adjust **Bar Height** on `CinematicBarsOverlay` to change the framing. **Transition Duration** controls the slide animation and uses unscaled time, including while gameplay is paused.
+Each bar defaults to 12% of the screen height and scales with the screen at any resolution. Adjust **Bar Height** on `CinematicBarsOverlay` to change the framing. **Transition Duration** controls the slide animation and uses unscaled time, but freezes while the Pause Manager is paused.
 
 For a cinematic-only scene, leave **Show On Enable** checked. The bars appear immediately when the scene opens.
 
