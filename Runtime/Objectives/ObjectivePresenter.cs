@@ -40,6 +40,9 @@ namespace QuietStatic.Toolkit.Objectives
 
         private string currentDisplayText;
 
+        /// <summary>The primary story-objective label, used to align secondary objective views.</summary>
+        public TMP_Text DisplayLabel => displayLabel;
+
         private void Reset()
         {
             TMP_Text[] labels = GetComponentsInChildren<TMP_Text>(true);
