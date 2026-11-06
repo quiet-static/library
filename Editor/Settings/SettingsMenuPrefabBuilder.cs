@@ -77,7 +77,14 @@ namespace QuietStatic.Toolkit.Editor.Settings
             Set(serialized, "musicVolume", AddSlider(root.transform, "Music volume"));
             Set(serialized, "sfxVolume", AddSlider(root.transform, "Sound effects volume"));
             Set(serialized, "lookSensitivity", AddSlider(root.transform, "Look sensitivity"));
+            GameObject resolutionRow = Row(root.transform, "Resolution");
+            GameObject dropdown = TMP_DefaultControls.CreateDropdown(new TMP_DefaultControls.Resources());
+            dropdown.name = "Control";
+            dropdown.transform.SetParent(resolutionRow.transform, false);
+            dropdown.AddComponent<LayoutElement>().preferredWidth = 300f;
+            Set(serialized, "resolution", dropdown.GetComponent<TMP_Dropdown>());
             Set(serialized, "vSync", AddToggle(root.transform, "VSync"));
+            Set(serialized, "applyChanges", AddButton(root.transform, "Apply Changes"));
             Button back = AddButton(root.transform, "Back");
             UnityEventTools.AddPersistentListener(back.onClick, view.RequestBack);
             serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -113,6 +120,9 @@ namespace QuietStatic.Toolkit.Editor.Settings
             settings.SetActive(false);
 
             GameQuitter quitter = root.AddComponent<GameQuitter>();
+            SerializedObject quitSettings = new(quitter);
+            quitSettings.FindProperty("unloadScenesBeforeQuit").boolValue = true;
+            quitSettings.ApplyModifiedPropertiesWithoutUndo();
             PauseMenuView view = root.AddComponent<PauseMenuView>();
             SerializedObject serialized = new(view);
             Set(serialized, "saveButtonLabel", save.GetComponentInChildren<TMP_Text>());
@@ -156,6 +166,9 @@ namespace QuietStatic.Toolkit.Editor.Settings
             settings.SetActive(false);
 
             GameQuitter quitter = root.AddComponent<GameQuitter>();
+            SerializedObject quitSettings = new(quitter);
+            quitSettings.FindProperty("unloadScenesBeforeQuit").boolValue = true;
+            quitSettings.ApplyModifiedPropertiesWithoutUndo();
             TitleMenuView view = root.AddComponent<TitleMenuView>();
             SerializedObject serialized = new(view);
             Set(serialized, "mainPage", main);
@@ -248,6 +261,7 @@ namespace QuietStatic.Toolkit.Editor.Settings
             Slider slider = item.GetComponent<Slider>();
             slider.minValue = 0f;
             slider.maxValue = 1f;
+            slider.SetValueWithoutNotify(1f);
             return slider;
         }
 

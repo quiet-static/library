@@ -4,7 +4,8 @@
   "references": [
     "QuietStatic.Core.Runtime",
     "QuietStatic.Core.Editor",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

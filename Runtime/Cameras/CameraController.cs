@@ -352,8 +352,9 @@ namespace QuietStatic.Toolkit.Cameras
 
         private void HandleRotation(Vector2 lookInput)
         {
-            yaw += lookInput.x * mouseSensitivity;
-            pitch -= lookInput.y * mouseSensitivity;
+            float sensitivity = mouseSensitivity * (SettingsManager.Instance != null ? SettingsManager.Instance.MouseSensitivity : 1f);
+            yaw += lookInput.x * sensitivity;
+            pitch -= lookInput.y * sensitivity;
 
             pitch = Mathf.Clamp(
                 pitch,

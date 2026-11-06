@@ -55,7 +55,8 @@ namespace QuietStatic
             new ResolutionOption(1366, 768),
             new ResolutionOption(1600, 900),
             new ResolutionOption(1920, 1080),
-            new ResolutionOption(2560, 1440)
+            new ResolutionOption(2560, 1440),
+            new ResolutionOption(3840, 2160)
         };
 
         /// <summary>Configured display sizes in dropdown order.</summary>
