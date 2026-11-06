@@ -440,7 +440,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
             message != null && (ContainsIgnoreCase(message.DefaultMessage, search) ||
                 message.Rules.Any(rule => rule != null &&
                     (ContainsIgnoreCase(rule.Label, search) || ContainsIgnoreCase(rule.Message, search) ||
-                     (rule.Requirement != null && rule.Requirement.Flags.Any(flag => ContainsIgnoreCase(flag, search))))));
+                     (rule.Requirement != null && (rule.Requirement.Flags.Any(flag => ContainsIgnoreCase(flag, search)) || rule.Requirement.Comparisons.Any(condition => condition != null && ContainsIgnoreCase(condition.flagId, search)))))));
 
         private static bool MatchesEventText(Component target, string query)
         {
@@ -482,7 +482,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 return "Missing requirement";
             }
 
-            if (requirement.Mode == FlagRequirementMode.None)
+            if (requirement.Mode == FlagRequirementMode.None && requirement.Comparisons.Count == 0)
             {
                 return "None";
             }
@@ -491,6 +491,8 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 .Where(flag => !string.IsNullOrWhiteSpace(flag))
                 .Select(flag => flag.Trim())
                 .ToArray();
+            string typed = string.Join(", ", requirement.Comparisons.Where(condition => condition != null).Select(condition => condition.flagId + " " + condition.comparison));
+            if (typed.Length > 0) return $"{requirement.Mode}: {string.Join(", ", flags)}; comparisons: {typed}";
             return flags.Length == 0
                 ? $"{requirement.Mode} (no flags)"
                 : $"{requirement.Mode}: {string.Join(", ", flags)}";

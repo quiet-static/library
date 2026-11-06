@@ -8,7 +8,7 @@ namespace QuietStatic.Toolkit.Saving
     public sealed class SaveGameData
     {
         /// <summary>Current save schema version.</summary>
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         /// <summary>Schema version used to validate and migrate this save.</summary>
         public int version = CurrentVersion;
@@ -24,6 +24,9 @@ namespace QuietStatic.Toolkit.Saving
 
         /// <summary>Flag IDs active when the save was captured.</summary>
         public List<string> activeFlags = new List<string>();
+
+        /// <summary>Version-two typed progression values. Version-one saves use catalog defaults.</summary>
+        public List<QuietStatic.Toolkit.Flags.FlagValueEntry> flagValues = new();
 
         /// <summary>Opaque payloads captured from registered save participants.</summary>
         public List<SaveParticipantData> participants = new List<SaveParticipantData>();

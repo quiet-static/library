@@ -50,8 +50,10 @@ and exports the selected catalog. Deletion never silently rewrites string refere
 Fields marked with `[FlagId]` use a searchable selector in the Inspector. The selector
 stores the exact string ID, supports clearing, retains legacy/missing values until the
 author explicitly changes them, and displays descriptions or missing-ID warnings.
-When multiple databases exist, the selector deterministically uses the first database
-by asset GUID; projects should normally configure one authoritative database.
+The flag selector merges all imported flag databases and shows each catalog name and
+value kind. IDs must be globally unique. Assign every runtime catalog explicitly to
+the persistent FlagManager; editor discovery does not add runtime catalogs automatically.
+See the [typed flags guide](../../Runtime/Flags/README.md) for values and comparisons.
 
 ## Scene Content
 
@@ -185,7 +187,7 @@ serialization and paths, and enabled build-scene GUIDs that no longer resolve.
 An absent EventSystem is informational because persistent UI may be loaded additively.
 
 Fields marked with `[GameStateId]` use the same searchable, string-preserving
-Inspector workflow as flag IDs. The selector uses the first database by deterministic
+Inspector workflow as flag IDs. Unlike flag catalogs, the game-state selector uses the first database by deterministic
 asset GUID when more than one exists; projects should keep one authoritative
 `GameStateDatabase`.
 

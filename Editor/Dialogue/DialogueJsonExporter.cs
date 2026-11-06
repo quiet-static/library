@@ -62,6 +62,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             public string mode;
             public string[] flags;
+            public FlagComparison[] comparisons;
         }
 
         /// <summary>Validates a tree for a lossless authorer migration.</summary>
@@ -268,6 +269,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             mode = (requirement?.Mode ?? FlagRequirementMode.None).ToString(),
             flags = requirement?.Flags.ToArray() ?? Array.Empty<string>(),
+            comparisons = requirement?.Comparisons.ToArray() ?? Array.Empty<FlagComparison>(),
         };
 
         private static void ValidateTargetIndex(
@@ -285,6 +287,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             string label,
             ICollection<string> errors)
         {
+            FlagComparisonSerialization.Validate(requirement?.Comparisons, label, errors);
             FlagRequirementMode mode = requirement?.Mode ?? FlagRequirementMode.None;
             IReadOnlyList<string> flags = requirement?.Flags ?? Array.Empty<string>();
             ValidateIds(flags, label + " flags", errors);

@@ -48,3 +48,14 @@ The manager deliberately contains no character-switching policy.
 Sounds paused directly through `EventSound3D` remain under the caller's control.
 Pausing existing sounds does not block new spawns; use `DisableSpawning()` when
 new playback should also be blocked.
+
+## Game clock
+
+GameClockManager owns continuous game minutes in a retained systems scene. Configure
+Seconds Per Game Minute and initial 24-hour time in its Inspector. It respects scaled
+Unity time. Query Hour, Minute, Day, MinuteOfDay, TotalMinutes, or DisplayTime; mutate
+with SetTime, SetTotalMinutes, AdvanceMinutes, PauseClock and ResumeClock. Changed
+fires after every mutation. GameClockChannel provides a cross-scene facade; load the
+manager first, because commands are synchronous. The channel stores only a live
+binding, never session time in the asset. Game-specific schedules and presentation
+belong to consuming projects. Save persistence requires explicit game integration.

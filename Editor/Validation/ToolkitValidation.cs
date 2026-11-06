@@ -591,6 +591,8 @@ namespace QuietStatic.Toolkit.Editor.Validation
                     continue;
                 }
 
+                if (!Enum.IsDefined(typeof(FlagValueType), definitions[index].valueType) || !definitions[index].DefaultValue.IsValid)
+                    issues.Add(new ValidationIssue(ValidationSeverity.Error, "Flags", $"Flag '{id}' has an invalid type or default.", database, AssetDatabase.GetAssetPath(database)));
                 if (!local.Add(id) || !knownFlags.Add(id))
                 {
                     issues.Add(new ValidationIssue(
@@ -863,10 +865,30 @@ namespace QuietStatic.Toolkit.Editor.Validation
                 return;
             }
 
+            var definitions = FindAssets<FlagDatabase>().SelectMany(database => database.Flags ?? Array.Empty<FlagDatabase.FlagDefinition>())
+                .Where(definition => definition != null && !string.IsNullOrWhiteSpace(definition.id))
+                .GroupBy(definition => definition.id.Trim(), StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
             foreach (UnityEngine.Object candidate in EnumerateSerializedCandidates())
             {
                 ScanStringProperties(candidate, (property, value) =>
                 {
+                    if (property.name == "flagId" && !string.IsNullOrWhiteSpace(value))
+                    {
+                        int separator = property.propertyPath.LastIndexOf('.');
+                        var parent = separator < 0 ? null : property.serializedObject.FindProperty(property.propertyPath.Substring(0, separator));
+                        var expected = parent?.FindPropertyRelative("expected") ?? parent?.FindPropertyRelative("value");
+                        if (expected != null && definitions.TryGetValue(value.Trim(), out var definition))
+                        {
+                            int type = expected.FindPropertyRelative("type").intValue;
+                            var comparison = parent.FindPropertyRelative("comparison");
+                            if (type != (int)definition.valueType || !Enum.IsDefined(typeof(FlagValueType), type) ||
+                                (type == (int)FlagValueType.Float && (float.IsNaN(expected.FindPropertyRelative("number").floatValue) || float.IsInfinity(expected.FindPropertyRelative("number").floatValue))) ||
+                                (comparison != null && (comparison.intValue < 0 || comparison.intValue > 5 ||
+                                 (comparison.intValue > 1 && type != (int)FlagValueType.Integer && type != (int)FlagValueType.Float))))
+                                issues.Add(new ValidationIssue(ValidationSeverity.Error, "Flags", $"Invalid type or comparison for flag '{value}' at {property.propertyPath}.", candidate, AssetDatabase.GetAssetPath(candidate)));
+                        }
+                    }
                     if (!string.IsNullOrWhiteSpace(value) &&
                         IsFlagProperty(property) &&
                         !knownFlags.Contains(value.Trim()))
@@ -1069,8 +1091,10 @@ namespace QuietStatic.Toolkit.Editor.Validation
 
         private static bool IsFlagProperty(SerializedProperty property)
         {
+            string path = property.propertyPath;
+            if (path.EndsWith(".value.text", StringComparison.Ordinal) || path.EndsWith(".expected.text", StringComparison.Ordinal)) return false;
             return property.name.IndexOf("flag", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                   property.propertyPath.IndexOf("flag", StringComparison.OrdinalIgnoreCase) >= 0;
+                   path.IndexOf("flag", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool IsGameStateProperty(SerializedProperty property)

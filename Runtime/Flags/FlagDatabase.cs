@@ -32,6 +32,27 @@ namespace QuietStatic.Toolkit.Flags
             /// <summary>Runtime flag identifier.</summary>
             public string id;
 
+            [Tooltip("Value kind. Existing definitions remain Boolean; IDs are globally unique across catalogs.")]
+            public FlagValueType valueType;
+
+            [Tooltip("Initial value for an Integer flag.")]
+            public int defaultInteger;
+
+            [Tooltip("Initial value for a Float flag. Must be finite.")]
+            public float defaultFloat;
+
+            [Tooltip("Initial value for a String flag.")]
+            public string defaultString;
+
+            /// <summary>Gets the authored initial value; Boolean flags start false.</summary>
+            public FlagValue DefaultValue => valueType switch
+            {
+                FlagValueType.Integer => FlagValue.From(defaultInteger),
+                FlagValueType.Float => FlagValue.From(defaultFloat),
+                FlagValueType.String => FlagValue.From(defaultString),
+                _ => FlagValue.From(false)
+            };
+
             [Header("Documentation")]
             [Tooltip("Human-readable explanation of what this flag represents and when it should be set.")]
             [TextArea(2, 5)]

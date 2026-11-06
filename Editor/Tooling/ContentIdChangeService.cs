@@ -46,6 +46,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             string sourceProperty = FindSourceProperty(source, kind, oldValue);
             if (sourceProperty == null) throw new InvalidOperationException($"ID '{oldValue}' was not found in '{source.name}'.");
             if (FindSourceProperty(source, kind, newValue) != null) throw new InvalidOperationException($"ID '{newValue}' already exists in '{source.name}'.");
+            EnsureFlagIdAvailable(kind, newValue, source);
             string path = AssetDatabase.GetAssetPath(source);
             return new ContentIdChangePreview(kind, path, sourceProperty, oldValue, newValue,
                 ComputeVersion(source), FindReferences(kind, oldValue, path));
@@ -57,6 +58,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             UnityEngine.Object source = AssetDatabase.LoadMainAssetAtPath(preview.SourcePath);
             if (source == null || ComputeVersion(source) != preview.Version)
                 throw new InvalidOperationException("The source asset changed after preview. Refresh the preview before applying.");
+            EnsureFlagIdAvailable(preview.Kind, preview.NewId, source);
             RewriteConsumers(preview.Kind, preview.OldId, preview.NewId, preview.SourcePath);
             source = AssetDatabase.LoadMainAssetAtPath(preview.SourcePath);
             var serialized = new SerializedObject(source);
@@ -168,13 +170,24 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             _ => false
         };
 
+        private static void EnsureFlagIdAvailable(ContentIdKind kind, string id, UnityEngine.Object source)
+        {
+            if (kind != ContentIdKind.Flag) return;
+            foreach (string guid in AssetDatabase.FindAssets("t:FlagDatabase"))
+            {
+                var database = AssetDatabase.LoadAssetAtPath<QuietStatic.Toolkit.Flags.FlagDatabase>(AssetDatabase.GUIDToAssetPath(guid));
+                if (database != null && database != source && FindSourceProperty(database, kind, id) != null)
+                    throw new InvalidOperationException($"Flag ID '{id}' already exists in catalog '{database.name}'.");
+            }
+        }
+
         private static bool IsConsumerField(ContentIdKind kind, string name, string propertyPath)
         {
             string lower = name.ToLowerInvariant();
             string path = propertyPath.ToLowerInvariant();
             return kind switch
             {
-                ContentIdKind.Flag => lower.Contains("flag") || path.Contains("flag"),
+                ContentIdKind.Flag => !path.EndsWith(".value.text") && !path.EndsWith(".expected.text") && !path.EndsWith(".defaultstring") && (lower.Contains("flag") || path.Contains("flag")),
                 ContentIdKind.Objective => lower.Contains("objectiveid") || path.Contains("objectiveid"),
                 ContentIdKind.GameState => lower == "state" || lower.Contains("stateid") || lower.EndsWith("state") || path.Contains("stateid"),
                 ContentIdKind.Cinematic => lower.Contains("cinematicid") || path.Contains("cinematicid"),

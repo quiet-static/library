@@ -39,6 +39,10 @@ namespace QuietStatic.Toolkit.Editor.Flags
         {
             public string id;
             public string description;
+            public string valueType;
+            public int defaultInteger;
+            public float defaultFloat;
+            public string defaultString;
         }
 
         /// <summary>
@@ -83,6 +87,8 @@ namespace QuietStatic.Toolkit.Editor.Flags
                     continue;
                 }
 
+                if (!Enum.IsDefined(typeof(FlagValueType), definition.valueType) || !definition.DefaultValue.IsValid)
+                    errors.Add($"Flag '{definition.id}' has an invalid type or default.");
                 string normalizedId = definition.id.Trim();
                 if (!string.Equals(definition.id, normalizedId, StringComparison.Ordinal))
                     errors.Add($"Flag ID '{definition.id}' must not have leading or trailing whitespace.");
@@ -118,6 +124,10 @@ namespace QuietStatic.Toolkit.Editor.Flags
             {
                 id = definition.id,
                 description = definition.description ?? string.Empty,
+                valueType = definition.valueType.ToString(),
+                defaultInteger = definition.defaultInteger,
+                defaultFloat = definition.defaultFloat,
+                defaultString = definition.defaultString ?? string.Empty,
             }).ToArray();
             return JsonUtility.ToJson(document, true) + Environment.NewLine;
         }

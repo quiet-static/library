@@ -12,6 +12,41 @@ namespace QuietStatic.Tests.EditMode
     public sealed class InputSequenceIntegrationTests
     {
         [Test]
+        public void Activator_KeepsActiveSequenceUntilResultThenAllowsNextCustomer()
+        {
+            var channel = ScriptableObject.CreateInstance<InputSequenceRequestChannel>();
+            var first = ScriptableObject.CreateInstance<InputSequenceDefinition>();
+            var second = ScriptableObject.CreateInstance<InputSequenceDefinition>();
+            var owner = new GameObject("Customer sequence test");
+            owner.SetActive(false);
+            var activator = owner.AddComponent<InputSequenceMinigameActivator>();
+            activator.SetRequestChannel(channel);
+            activator.SetSequence(first);
+            InputSequenceDefinition accepted = null;
+            channel.StartRequested += definition => { accepted = definition; return true; };
+            owner.SetActive(true);
+            try
+            {
+                Assert.That(activator.TryActivate(), Is.True);
+                Assert.That(accepted, Is.SameAs(first));
+                activator.SetSequence(second);
+                InvokePrivate(activator, "HandleFinished", first, InputSequenceOutcome.Completed);
+                Assert.That(activator.IsAwaitingResult, Is.False);
+                activator.SetSequence(second);
+                Assert.That(activator.TryActivate(), Is.True);
+                Assert.That(accepted, Is.SameAs(second));
+                InvokePrivate(activator, "HandleFinished", second, InputSequenceOutcome.Completed);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(owner);
+                UnityEngine.Object.DestroyImmediate(first);
+                UnityEngine.Object.DestroyImmediate(second);
+                UnityEngine.Object.DestroyImmediate(channel);
+            }
+        }
+
+        [Test]
         public void RequestChannel_StopsAfterFirstRunnerAcceptsRequest()
         {
             InputSequenceRequestChannel channel =
@@ -239,13 +274,13 @@ namespace QuietStatic.Tests.EditMode
                 ?.SetValue(target, value);
         }
 
-        private static void InvokePrivate(object target, string name)
+        private static void InvokePrivate(object target, string name, params object[] arguments)
         {
             MethodInfo method = target.GetType().GetMethod(
                 name,
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null, $"Missing method '{name}'.");
-            method.Invoke(target, null);
+            method.Invoke(target, arguments);
         }
     }
 }

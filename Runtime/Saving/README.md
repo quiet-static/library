@@ -3,11 +3,11 @@
 `SaveManager` writes versioned JSON slots beneath `Application.persistentDataPath`.
 It coordinates systems that already own authoritative state rather than replacing them.
 
-Version 1 stores:
+Version 2 stores:
 
 - the active content scene;
 - the spawn point used when the slot is loaded;
-- active progression flags; and
+- active Boolean progression flags and typed Integer/Float/String values; and
 - JSON payloads from explicitly implemented `ISaveParticipant` components.
 
 Add one `SaveManager` to the persistent Systems scene. Create a
@@ -36,3 +36,9 @@ Add `ObjectStateSaveParticipant` beside an `ObjectStateHandler` to persist that
 handler. Give the participant a globally unique save ID and ensure every referenced
 `ObjectStateDefinition` has a stable ID. This remains opt-in so decorative state
 handlers do not silently increase save scope.
+
+Version-1 saves migrate explicitly on read: their Boolean IDs are retained and new
+non-Boolean values use catalog defaults. Version-2 saves preserve typed values before
+scene startup and during failure rollback. Unknown or mistyped version-2 entries fail
+restoration rather than coercing values. Changing an existing flag's kind requires a
+project migration, just as changing a stable ID does.

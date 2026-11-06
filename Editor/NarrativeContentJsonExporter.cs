@@ -80,6 +80,7 @@ namespace QuietStatic.Toolkit.Editor
         {
             public string mode;
             public string[] flags;
+            public FlagComparison[] comparisons;
         }
 
         /// <summary>Validates an objective database for lossless authorer export.</summary>
@@ -340,6 +341,7 @@ namespace QuietStatic.Toolkit.Editor
         {
             mode = (requirement?.Mode ?? FlagRequirementMode.None).ToString(),
             flags = requirement?.Flags.ToArray() ?? Array.Empty<string>(),
+            comparisons = requirement?.Comparisons.ToArray() ?? Array.Empty<FlagComparison>(),
         };
 
         private static string ReadObjectiveId(ObjectiveDefinition objective)
@@ -371,6 +373,7 @@ namespace QuietStatic.Toolkit.Editor
             string label,
             ICollection<string> errors)
         {
+            FlagComparisonSerialization.Validate(requirement?.Comparisons, label, errors);
             FlagRequirementMode mode = requirement?.Mode ?? FlagRequirementMode.None;
             IReadOnlyList<string> flags = requirement?.Flags ?? Array.Empty<string>();
             var seen = new HashSet<string>(StringComparer.Ordinal);

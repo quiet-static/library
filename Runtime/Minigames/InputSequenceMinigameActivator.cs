@@ -45,6 +45,15 @@ namespace QuietStatic.Toolkit.Minigames
         /// <summary>Whether this component has an accepted request awaiting a result.</summary>
         public bool IsAwaitingResult => awaitingResult;
 
+        /// <summary>Changes the requested sequence while no request is active.</summary>
+        public void SetSequence(InputSequenceDefinition value)
+        {
+            if (!awaitingResult)
+            {
+                sequence = value;
+            }
+        }
+
         private void OnEnable()
         {
             SubscribeToResults();

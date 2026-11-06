@@ -14,9 +14,15 @@ namespace QuietStatic.Toolkit.Flags.Editor
     [CustomPropertyDrawer(typeof(FlagIdAttribute))]
     public sealed class FlagIdDrawer : PropertyDrawer
     {
+        static FlagIdDrawer()
+        {
+            EditorApplication.projectChanged += ClearCache;
+            Undo.undoRedoPerformed += ClearCache;
+        }
+
         private const string MissingPrefix = "<Missing> ";
 
-        private static FlagDatabase cachedDatabase;
+        private static bool cacheReady;
         private static string[] cachedIds;
         private static Dictionary<string, string> cachedDescriptions;
 
@@ -102,7 +108,7 @@ namespace QuietStatic.Toolkit.Flags.Editor
             SerializedProperty property,
             GUIContent label)
         {
-            if (cachedDatabase == null || cachedIds.Length == 0)
+            if (cachedIds == null || cachedIds.Length == 0)
             {
                 EditorGUI.PropertyField(position, property, label);
                 return;
@@ -165,45 +171,21 @@ namespace QuietStatic.Toolkit.Flags.Editor
 
         private static void EnsureCache()
         {
-            if (cachedDatabase != null && cachedIds != null && cachedDescriptions != null)
-            {
-                return;
-            }
-
-            string[] guids = AssetDatabase.FindAssets("t:FlagDatabase");
-            if (guids.Length == 0)
-            {
-                cachedDatabase = null;
-                cachedIds = Array.Empty<string>();
-                cachedDescriptions = new Dictionary<string, string>();
-                return;
-            }
-
-            Array.Sort(guids, StringComparer.Ordinal);
-            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            cachedDatabase = AssetDatabase.LoadAssetAtPath<FlagDatabase>(path);
-            if (cachedDatabase == null)
-            {
-                cachedIds = Array.Empty<string>();
-                cachedDescriptions = new Dictionary<string, string>();
-                return;
-            }
-
-            var validDefinitions = cachedDatabase.Flags
-                .Where(definition => definition != null)
-                .Where(definition => !string.IsNullOrWhiteSpace(definition.id))
-                .GroupBy(definition => definition.id.Trim())
-                .Select(group => group.First())
-                .OrderBy(definition => definition.id.Trim())
-                .ToArray();
-
-            cachedIds = validDefinitions
-                .Select(definition => definition.id.Trim())
-                .ToArray();
-
-            cachedDescriptions = validDefinitions.ToDictionary(
-                definition => definition.id.Trim(),
-                definition => definition.description?.Trim() ?? string.Empty);
+            if (cacheReady) return;
+            var definitions = AssetDatabase.FindAssets("t:FlagDatabase")
+                .OrderBy(guid => guid, StringComparer.Ordinal)
+                .Select(guid => AssetDatabase.LoadAssetAtPath<FlagDatabase>(AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(database => database != null)
+                .SelectMany(database => (database.Flags ?? Array.Empty<FlagDatabase.FlagDefinition>())
+                    .Where(definition => definition != null && !string.IsNullOrWhiteSpace(definition.id))
+                    .Select(definition => (database, definition)))
+                .GroupBy(entry => entry.definition.id.Trim(), StringComparer.Ordinal)
+                .OrderBy(group => group.Key, StringComparer.Ordinal).ToArray();
+            cachedIds = definitions.Select(group => group.Key).ToArray();
+            cachedDescriptions = definitions.ToDictionary(group => group.Key, group =>
+                string.Join(" | ", group.Select(entry => $"{entry.database.name} [{entry.definition.valueType}]: {entry.definition.description}")) +
+                (group.Count() > 1 ? " [DUPLICATE ID — fix catalogs]" : string.Empty), StringComparer.Ordinal);
+            cacheReady = true;
         }
 
         private static string GetDescription(string id)
@@ -220,7 +202,7 @@ namespace QuietStatic.Toolkit.Flags.Editor
 
         public static void ClearCache()
         {
-            cachedDatabase = null;
+            cacheReady = false;
             cachedIds = null;
             cachedDescriptions = null;
         }

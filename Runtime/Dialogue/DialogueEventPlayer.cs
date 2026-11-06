@@ -237,7 +237,9 @@ namespace QuietStatic.Toolkit.Dialogue
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!TriggerStartsEnabled || QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading == true ||
+            // Unity sends trigger messages to disabled MonoBehaviours too. A scene
+            // owner disabling this wrapper must also suppress new trigger starts.
+            if (!isActiveAndEnabled || !TriggerStartsEnabled || QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading == true ||
                 !startOnTriggerEnter ||
                 other == null ||
                 (triggerOnce && HasTriggered) ||

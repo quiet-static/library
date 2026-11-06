@@ -21,23 +21,34 @@ namespace QuietStatic.Toolkit.Flags
     public class FlagRequirement
     {
         [Header("Requirement")]
-        [Tooltip("How the listed flags should be evaluated. None always passes.")]
+        [Tooltip("How the Boolean flags are evaluated. None skips this Boolean gate; typed comparisons still apply.")]
         [SerializeField] private FlagRequirementMode mode = FlagRequirementMode.None;
 
-        [Tooltip("Flags checked by this requirement.")]
+        [Tooltip("Boolean flags checked by this requirement. Use Comparisons for numeric or string values.")]
         [FlagId]
         [SerializeField] private string[] flags;
+
+        [Tooltip("Additional typed comparisons. Every comparison must pass, together with the Boolean requirement.")]
+        [SerializeField] private FlagComparison[] comparisons;
+
+        /// <summary>Additional typed comparisons, combined using AND.</summary>
+        public IReadOnlyList<FlagComparison> Comparisons => comparisons ?? Array.Empty<FlagComparison>();
 
         public FlagRequirement()
         {
         }
 
-        /// <summary>Creates a requirement from a mode and stable flag IDs.</summary>
+        /// <summary>Creates a Boolean requirement from a mode and stable IDs.</summary>
+        public FlagRequirement(FlagRequirementMode mode, IEnumerable<string> flags) : this(mode, flags, null) { }
+
+        /// <summary>Creates a Boolean requirement with additional typed comparisons.</summary>
         public FlagRequirement(
             FlagRequirementMode mode,
-            IEnumerable<string> flags)
+            IEnumerable<string> flags,
+            IEnumerable<FlagComparison> comparisons)
         {
             this.mode = mode;
+            this.comparisons = comparisons?.ToArray() ?? Array.Empty<FlagComparison>();
             this.flags = flags?
                 .Where(flag => !string.IsNullOrWhiteSpace(flag))
                 .Select(flag => flag.Trim())
@@ -55,14 +66,13 @@ namespace QuietStatic.Toolkit.Flags
         /// Gets whether this requirement contains an explicit flag-based condition.
         /// </summary>
         /// <remarks>
-        /// <see cref="FlagRequirementMode.None"/> intentionally passes when evaluated, but it
-        /// does not represent a condition that should automatically react to flag changes.
-        /// Empty flag lists are also treated as unconfigured to prevent accidental activation.
+        /// Boolean mode None and empty Boolean lists alone are unconfigured. An explicit
+        /// typed comparison also configures the requirement, including with Boolean mode None.
         /// </remarks>
         public bool IsConfigured =>
-            mode != FlagRequirementMode.None &&
-            flags != null &&
-            Array.Exists(flags, flag => !string.IsNullOrWhiteSpace(flag));
+            (mode != FlagRequirementMode.None && flags != null &&
+             Array.Exists(flags, flag => !string.IsNullOrWhiteSpace(flag))) ||
+            Comparisons.Any(condition => condition != null && !string.IsNullOrWhiteSpace(condition.flagId));
 
         /// <summary>
         /// Evaluates this requirement against the supplied or active flag manager.
@@ -71,7 +81,7 @@ namespace QuietStatic.Toolkit.Flags
         /// <returns>True when the configured requirement mode is satisfied.</returns>
         public bool IsMet(FlagManager flagSet = null)
         {
-            if (mode == FlagRequirementMode.None)
+            if (mode == FlagRequirementMode.None && Comparisons.Count == 0)
             {
                 return true;
             }
@@ -82,6 +92,10 @@ namespace QuietStatic.Toolkit.Flags
             {
                 return false;
             }
+
+            if (mode != FlagRequirementMode.None && Flags.Any(id =>
+                flagSet.TryGetValue(id, out var value) && value.Type != FlagValueType.Boolean)) return false;
+            if (Comparisons.Any(condition => condition == null || !condition.IsMet(flagSet))) return false;
 
             return mode switch
             {

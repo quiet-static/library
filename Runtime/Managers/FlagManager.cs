@@ -8,10 +8,10 @@ using UnityEngine.Events;
 namespace QuietStatic.Toolkit.Flags
 {
     /// <summary>
-    /// Stores the runtime state of gameplay flags defined by an optional
-    /// <see cref="FlagDatabase"/>.
+    /// Stores Boolean and typed progression state from explicitly assigned flag catalogs.
+    /// Retains arbitrary Boolean IDs when no catalog is assigned.
     /// </summary>
-    public class FlagManager : ToolkitSingleton<FlagManager>
+    public partial class FlagManager : ToolkitSingleton<FlagManager>
     {
         [Serializable]
         public class StringUnityEvent : UnityEvent<string>
@@ -40,8 +40,11 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         [Header("Database")]
-        [Tooltip("Optional central list of valid flag IDs. When assigned, unknown IDs cannot be set.")]
+        [Tooltip("Legacy primary catalog. Combined with Additional Flag Databases; assigned catalogs restrict valid IDs.")]
         [SerializeField] private FlagDatabase flagDatabase;
+
+        [Tooltip("Additional catalogs available to this manager. IDs must be unique across all assigned catalogs.")]
+        [SerializeField] private FlagDatabase[] additionalFlagDatabases;
 
         [Header("Starting State")]
         [Tooltip("Flags that should already be active when this flag set initializes.")]
@@ -132,7 +135,7 @@ namespace QuietStatic.Toolkit.Flags
                 return false;
             }
 
-            return flagDatabase == null || knownFlagIds.Contains(flagId.Trim());
+            return !Databases.Any() || knownFlagIds.Contains(flagId.Trim());
         }
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace QuietStatic.Toolkit.Flags
         public bool HasFlag(string flagId)
         {
             return !string.IsNullOrWhiteSpace(flagId) &&
-                   activeFlags.Contains(flagId.Trim());
+                   IsBooleanFlag(flagId.Trim()) && activeFlags.Contains(flagId.Trim());
         }
 
         /// <summary>
@@ -212,11 +215,12 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            if (!activeFlags.Remove(normalizedFlagId))
+            if (!IsBooleanFlag(normalizedFlagId) || !activeFlags.Remove(normalizedFlagId))
             {
                 return;
             }
 
+            ValueChanged?.Invoke(normalizedFlagId, FlagValue.From(false));
             FlagCleared?.Invoke(normalizedFlagId);
             onFlagCleared?.Invoke(normalizedFlagId);
             FlagsChanged?.Invoke();
@@ -227,12 +231,13 @@ namespace QuietStatic.Toolkit.Flags
         /// </summary>
         public void ClearAllFlags()
         {
-            if (activeFlags.Count == 0)
+            if (activeFlags.Count == 0 && typedValues.Count == 0)
             {
                 return;
             }
 
             activeFlags.Clear();
+            typedValues.Clear();
             FlagsChanged?.Invoke();
         }
 
@@ -247,6 +252,7 @@ namespace QuietStatic.Toolkit.Flags
         public void RestoreFlags(IEnumerable<string> flagIds)
         {
             activeFlags.Clear();
+            typedValues.Clear();
 
             if (flagIds != null)
             {
@@ -261,34 +267,23 @@ namespace QuietStatic.Toolkit.Flags
         }
 
         /// <summary>
-        /// Copies valid IDs from the assigned database into a runtime lookup set.
+        /// Caches globally unique IDs and typed definitions from every assigned catalog.
         /// </summary>
         private void CacheDatabaseFlags()
         {
             knownFlagIds.Clear();
 
-            if (flagDatabase == null || flagDatabase.Flags == null)
+            definitions.Clear();
+            foreach (FlagDatabase database in Databases)
+            foreach (FlagDatabase.FlagDefinition definition in database.Flags ?? Array.Empty<FlagDatabase.FlagDefinition>())
             {
-                return;
-            }
-
-            foreach (FlagDatabase.FlagDefinition definition in flagDatabase.Flags)
-            {
-                if (definition == null || string.IsNullOrWhiteSpace(definition.id))
-                {
-                    continue;
-                }
-
+                if (definition == null || string.IsNullOrWhiteSpace(definition.id)) continue;
                 string normalizedId = definition.id.Trim();
-
                 if (!knownFlagIds.Add(normalizedId))
-                {
-                    GameLogger.Warning(
-                        "CacheDatabaseFlags",
-                        this,
-                        $"[{nameof(FlagManager)}] The assigned {nameof(FlagDatabase)} contains a duplicate flag ID: '{normalizedId}'."
-                    );
-                }
+                    throw new InvalidOperationException($"Duplicate flag ID '{normalizedId}' across assigned catalogs.");
+                if (!Enum.IsDefined(typeof(FlagValueType), definition.valueType) || !definition.DefaultValue.IsValid)
+                    throw new InvalidOperationException($"Invalid type or default for flag '{normalizedId}'.");
+                definitions.Add(normalizedId, definition);
             }
         }
 
@@ -365,6 +360,7 @@ namespace QuietStatic.Toolkit.Flags
                 return false;
             }
 
+            if (!IsBooleanFlag(normalizedFlagId)) return false;
             return activeFlags.Add(normalizedFlagId);
         }
 
@@ -373,6 +369,7 @@ namespace QuietStatic.Toolkit.Flags
         /// </summary>
         private void RaiseFlagSetEvents(string flagId)
         {
+            ValueChanged?.Invoke(flagId, FlagValue.From(true));
             FlagSet?.Invoke(flagId);
             onFlagSet?.Invoke(flagId);
             FlagsChanged?.Invoke();

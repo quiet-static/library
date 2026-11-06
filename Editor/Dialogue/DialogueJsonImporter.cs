@@ -53,6 +53,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         {
             public string mode;
             public string[] flags;
+            public FlagComparison[] comparisons;
         }
 
         /// <summary>Returns whether the current selection is an importable JSON text asset.</summary>
@@ -350,10 +351,10 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
 
         private static FlagRequirement CreateRequirement(Condition condition)
         {
-            if (condition == null || string.IsNullOrWhiteSpace(condition.mode))
+            if (condition == null)
                 return new FlagRequirement();
             Enum.TryParse(condition.mode, true, out FlagRequirementMode mode);
-            return new FlagRequirement(mode, condition.flags);
+            return new FlagRequirement(mode, condition.flags, condition.comparisons);
         }
 
         private static void ValidateCondition(
@@ -361,6 +362,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             string at,
             ICollection<string> errors)
         {
+            FlagComparisonSerialization.Validate(condition?.comparisons, at, errors);
             if (condition == null ||
                 (string.IsNullOrWhiteSpace(condition.mode) &&
                  (condition.flags == null || condition.flags.Length == 0)))
@@ -385,6 +387,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             SerializedObjectBox box = new(requirement);
             target.FindPropertyRelative("mode").enumValueIndex = (int)box.Mode;
             WriteStrings(target.FindPropertyRelative("flags"), box.Flags);
+            FlagComparisonSerialization.Write(target.FindPropertyRelative("comparisons"), requirement?.Comparisons);
         }
 
         private readonly struct SerializedObjectBox

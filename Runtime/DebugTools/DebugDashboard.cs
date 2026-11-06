@@ -867,10 +867,11 @@ namespace QuietStatic.Toolkit.DebugTools
 
             // An explicitly assigned database is useful for debugging another content set; otherwise
             // mirror the live manager's database so labels and controls reflect its configuration.
-            FlagDatabase displayDatabase = flagDatabase != null ? flagDatabase : flagManager.Database;
-            if (displayDatabase != null && displayDatabase.Flags != null)
+            var displayDatabases = flagDatabase != null ? new[] { flagDatabase } : flagManager.Databases;
+            foreach (FlagDatabase displayDatabase in displayDatabases)
             {
-                DrawHeader("KNOWN INACTIVE FLAGS");
+                if (displayDatabase.Flags == null) continue;
+                DrawHeader(displayDatabase.name + " — FLAGS AND VALUES");
                 foreach (FlagDatabase.FlagDefinition definition in displayDatabase.Flags)
                 {
                     if (definition == null || string.IsNullOrWhiteSpace(definition.id) ||
@@ -879,6 +880,20 @@ namespace QuietStatic.Toolkit.DebugTools
                         continue;
                     }
 
+                    if (definition.valueType != FlagValueType.Boolean)
+                    {
+                        if (flagManager.TryGetValue(definition.id, out var value))
+                        {
+                            string displayValue = value.Type switch
+                            {
+                                FlagValueType.Integer => value.Integer.ToString(),
+                                FlagValueType.Float => value.Float.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                                _ => value.String
+                            };
+                            GUILayout.Label($"{definition.id} [{value.Type}]: {displayValue}");
+                        }
+                        continue;
+                    }
                     GUILayout.BeginHorizontal();
                     GUILayout.Label($"[ ] {definition.id}");
                     if (GUILayout.Button("Set", GUILayout.Width(64f)))

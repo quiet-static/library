@@ -20,6 +20,32 @@ namespace QuietStatic.Toolkit.Flags
         [QuietStatic.Toolkit.Flags.FlagId]
         [SerializeField] private string[] flagsToSet;
 
+        [Tooltip("Typed assignments applied by SetValues. Values must match their catalog types.")]
+        [SerializeField] private FlagValueEntry[] valuesToSet;
+
+        [FlagId, Tooltip("Typed value targeted by the single-value UnityEvent methods below.")]
+        [SerializeField] private string valueFlagId;
+
+        /// <summary>Applies configured typed assignments through the shared manager.</summary>
+        public void SetValues()
+        {
+            if (FlagManager.Instance == null) return;
+            foreach (var entry in valuesToSet ?? System.Array.Empty<FlagValueEntry>())
+                if (entry != null) FlagManager.Instance.SetValue(entry.flagId, entry.value);
+        }
+        /// <summary>Sets the configured Boolean value.</summary>
+        public void SetBoolean(bool value) => FlagManager.Instance?.SetBoolean(valueFlagId, value);
+        /// <summary>Sets the configured Integer value.</summary>
+        public void SetInteger(int value) => FlagManager.Instance?.SetInteger(valueFlagId, value);
+        /// <summary>Sets the configured Float value.</summary>
+        public void SetFloat(float value) => FlagManager.Instance?.SetFloat(valueFlagId, value);
+        /// <summary>Sets the configured String value.</summary>
+        public void SetString(string value) => FlagManager.Instance?.SetString(valueFlagId, value);
+        /// <summary>Adds to the configured Integer value without overflow.</summary>
+        public void AddInteger(int delta) => FlagManager.Instance?.AddInteger(valueFlagId, delta);
+        /// <summary>Adds to the configured Float value, rejecting nonfinite results.</summary>
+        public void AddFloat(float delta) => FlagManager.Instance?.AddFloat(valueFlagId, delta);
+
         /// <summary>
         /// Sets every flag configured in <see cref="flagsToSet"/>.
         /// </summary>
@@ -36,7 +62,7 @@ namespace QuietStatic.Toolkit.Flags
                 return;
             }
 
-            foreach (string flag in flagsToSet)
+            foreach (string flag in flagsToSet ?? System.Array.Empty<string>())
             {
                 FlagManager.Instance.SetFlag(flag);
             }

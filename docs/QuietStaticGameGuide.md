@@ -93,7 +93,7 @@ Unity and the toolkit use several terms that can sound more complicated than the
 | Handler | A small scene-facing facade with UnityEvent-callable methods. A content object can reference a nearby handler instead of locating a manager itself. |
 | Channel | A ScriptableObject event bus used to send a command across scene boundaries without a direct GameObject reference. Toolkit command channels are synchronous; they do not queue messages. |
 | UnityEvent | A configurable event shown in the Inspector. It lets designers connect one component's event to another component's public method. |
-| Flag | A stable string ID representing a durable story fact, for example `readable.house.read-letter`. A flag is either set or unset. |
+| Flag | A stable string ID representing a durable story fact, for example `readable.house.read-letter`. Boolean flags are set or unset; typed flags can also store Integer, Float, or String progression values. |
 | Requirement | A rule that tests flags, such as "all of these flags must be set" or "none of these flags may be set." |
 | Game state | A broad application state such as `Playing`, `Dialogue`, `Paused`, or `Cutscene`. It is different from a story flag. |
 | Scene mode | Whether the active content expects gameplay or cutscene presentation. A `SceneModeDefinition` lets the persistent mode manager apply the matching game state and camera policy. |
@@ -422,8 +422,11 @@ A flag is a durable yes/no fact. Good flags are `readable.house.read-letter`,
 `house.dinner.microwave.done`, or `house.phone.checked-car`. Poor flags are `PlayerHealth37` or
 `DoorAnimationHalfway`; continuous and transient state belongs elsewhere.
 
-Create a `FlagDatabase`, add every legal ID and a designer description, then assign it
-to the one persistent `FlagManager`. If a database is assigned, the manager rejects
+Create one or more `FlagDatabase` catalogs, add globally unique IDs and designer
+descriptions, then assign them through Database and Additional Flag Databases on the
+one persistent `FlagManager`. Definitions support Boolean, Integer, Float, and String
+values; use typed comparisons for numeric/string conditions. See the
+[typed flags guide](../Runtime/Flags/README.md). If any catalog is assigned, the manager rejects
 unknown flags. This is intentional: a typo should fail visibly instead of silently
 creating a parallel story branch.
 
@@ -2120,8 +2123,9 @@ explicit queue rather than assuming the channel remembers it.
 
 ### 22.3 Definition and database rules
 
-- Keep one authoritative Flag and Game State database; dropdown discovery can choose
-  the first database by deterministic asset order if several exist.
+- Assign all runtime flag catalogs to one persistent FlagManager and keep their IDs
+  globally unique. Flag dropdowns merge catalogs. Keep one authoritative Game State
+  database; its selector still chooses the first database by deterministic asset order.
 - Definitions may reference other definitions, but avoid references to scene
   GameObjects.
 - Display text can change freely; stable IDs should change only with an explicit
@@ -2266,8 +2270,8 @@ and art required by your game.
 
 ### Data and progression
 
-- [ ] One authoritative flag database is assigned, and one authoritative game-state
-  database is present for editor discovery.
+- [ ] All runtime flag catalogs are assigned to the persistent FlagManager with globally
+  unique IDs, and one authoritative game-state database is present for editor discovery.
 - [ ] Stable IDs are unique, nonblank, case-consistent, and treated as save contracts.
 - [ ] Every objective's activation/completion behavior is intentional.
 - [ ] Story/deduction result order is from most specific/highest priority to fallback.

@@ -57,9 +57,13 @@ namespace QuietStatic.Toolkit.Editor
         {
             public string id; public string title; public string description; public string body;
             public string unityAssetPath;
+            public string valueType;
+            public int defaultInteger;
+            public float defaultFloat;
+            public string defaultString;
             public string closeLabel = "Close"; public Requirement activationRequirement; public Requirement completionRequirement;
         }
-        [Serializable] private sealed class Requirement { public string mode = "None"; public string[] flags; }
+        [Serializable] private sealed class Requirement { public string mode = "None"; public string[] flags; public FlagComparison[] comparisons; }
 
         private sealed class ExistingObjective
         {
@@ -337,6 +341,12 @@ namespace QuietStatic.Toolkit.Editor
                 SerializedProperty flag = flags.GetArrayElementAtIndex(index);
                 flag.FindPropertyRelative("id").stringValue = document.items[index].id.Trim();
                 flag.FindPropertyRelative("description").stringValue = document.items[index].description ?? string.Empty;
+                var item = document.items[index];
+                Enum.TryParse(item.valueType ?? "Boolean", true, out FlagValueType valueType);
+                flag.FindPropertyRelative("valueType").intValue = (int)valueType;
+                flag.FindPropertyRelative("defaultInteger").intValue = item.defaultInteger;
+                flag.FindPropertyRelative("defaultFloat").floatValue = item.defaultFloat;
+                flag.FindPropertyRelative("defaultString").stringValue = item.defaultString ?? string.Empty;
             }
             serialized.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(database); return database;
         }
@@ -521,6 +531,11 @@ namespace QuietStatic.Toolkit.Editor
                     if (!string.Equals(item.id, id, StringComparison.Ordinal)) errors.Add($"Item id '{item.id}' must not have surrounding whitespace.");
                     if (!ids.Add(id)) errors.Add($"Item id '{item.id}' is duplicated.");
                 }
+                if (document.contentType == "flags" && item != null &&
+                    (!Enum.TryParse(item.valueType ?? "Boolean", true, out FlagValueType kind) ||
+                     !Enum.IsDefined(typeof(FlagValueType), kind) ||
+                     (kind == FlagValueType.Float && (float.IsNaN(item.defaultFloat) || float.IsInfinity(item.defaultFloat)))))
+                    errors.Add($"Flag '{item.id}' has an invalid valueType or default.");
                 if (document.contentType == "readables" && string.IsNullOrWhiteSpace(item?.body)) errors.Add($"Readable '{item?.id}' must have a body.");
                 if (document.contentType == "objectives")
                 {
@@ -539,6 +554,7 @@ namespace QuietStatic.Toolkit.Editor
             ICollection<string> errors)
         {
             if (requirement == null) return;
+            FlagComparisonSerialization.Validate(requirement.comparisons, $"Objective {id} {label}", errors);
             if (!Enum.TryParse(requirement.mode, true, out FlagRequirementMode mode) ||
                 !Enum.IsDefined(typeof(FlagRequirementMode), mode))
             {
@@ -826,6 +842,7 @@ namespace QuietStatic.Toolkit.Editor
             property.FindPropertyRelative("mode").enumValueIndex = (int)mode;
             SerializedProperty flags = property.FindPropertyRelative("flags"); string[] values = requirement.flags ?? Array.Empty<string>(); flags.arraySize = values.Length;
             for (int index = 0; index < values.Length; index++) flags.GetArrayElementAtIndex(index).stringValue = values[index].Trim();
+            FlagComparisonSerialization.Write(property.FindPropertyRelative("comparisons"), requirement.comparisons);
         }
 
         private static T LoadOrCreate<T>(string path) where T : ScriptableObject

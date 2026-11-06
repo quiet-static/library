@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor.Validation;
@@ -27,6 +28,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         private bool issuesOnly;
         private Vector2 browserScroll;
         private string simulatedFlags = string.Empty;
+        [SerializeField, Tooltip("Explicit typed values for path simulation. Missing non-Boolean values fail their comparisons.")]
+        private List<QuietStatic.Toolkit.Flags.FlagValueEntry> simulatedValues = new();
         private string graphSearch = string.Empty;
 
         public static void Open()
@@ -144,6 +147,12 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             simulatedFlags = EditorGUILayout.TextField(new GUIContent("Simulated Flags", "Comma-separated flags; runtime state is never changed."), simulatedFlags);
             string[] previewFlags = simulatedFlags.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(flag => flag.Trim()).Where(flag => flag.Length > 0).ToArray();
+            var simulation = new SerializedObject(this);
+            EditorGUILayout.PropertyField(simulation.FindProperty("simulatedValues"), new GUIContent("Simulated Values"), true);
+            simulation.ApplyModifiedProperties();
+            var previewValues = simulatedValues.Where(entry => entry != null && !string.IsNullOrWhiteSpace(entry.flagId))
+                .GroupBy(entry => entry.flagId.Trim(), StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First().value, StringComparer.Ordinal);
             var serialized = new SerializedObject(tree);
             serialized.Update();
             using (new EditorGUI.DisabledScope(tree.GeneratedFromJson))
@@ -161,7 +170,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                         EditorGUILayout.PropertyField(node.FindPropertyRelative("line"));
                         EditorGUILayout.PropertyField(node.FindPropertyRelative("flagsToSetOnEnter"), true);
                         EditorGUILayout.PropertyField(node.FindPropertyRelative("choices"), true);
-                        int[] available = DialoguePathPreview.AvailableChoiceIndexes(tree.Nodes[index], previewFlags);
+                        int[] available = DialoguePathPreview.AvailableChoiceIndexes(tree.Nodes[index], previewFlags, previewValues);
                         if ((tree.Nodes[index].choices?.Length ?? 0) > 0)
                             EditorGUILayout.LabelField("Preview Available", available.Length == 0 ? "<None>" : string.Join(", ", available.Select(choice => (choice + 1).ToString())));
                         using (new EditorGUILayout.HorizontalScope())

@@ -275,6 +275,7 @@ namespace QuietStatic.Toolkit.Saving
 
             if (FlagManager.Instance != null)
             {
+                data.flagValues = FlagManager.Instance.CaptureValues();
                 data.activeFlags = FlagManager.Instance.ActiveFlags
                     .OrderBy(flag => flag, StringComparer.Ordinal)
                     .ToList();
@@ -296,10 +297,11 @@ namespace QuietStatic.Toolkit.Saving
             string failure = string.Empty;
             string previousScene = SceneManager.GetActiveScene().name;
             List<string> previousFlags = FlagManager.Instance?.ActiveFlags.ToList();
+            var previousValues = FlagManager.Instance?.CaptureValues();
             try
             {
                 // Destination Awake/OnEnable/Start must observe the saved story, not the old session.
-                try { RestoreFlags(data.activeFlags); }
+                try { RestoreFlags(data.activeFlags, data.flagValues); }
                 catch (Exception exception) { failure = "Flag restoration failed: " + exception.Message; }
                 if (string.IsNullOrEmpty(failure) && !string.IsNullOrWhiteSpace(data.activeScene))
                 {
@@ -343,7 +345,7 @@ namespace QuietStatic.Toolkit.Saving
                 {
                     try
                     {
-                        RestoreFlags(data.activeFlags);
+                        RestoreFlags(data.activeFlags, data.flagValues);
                     }
                     catch (Exception exception)
                     {
@@ -394,7 +396,7 @@ namespace QuietStatic.Toolkit.Saving
             else
             {
                 SceneFlowManager.Instance?.RecoverInterruptedTransition();
-                try { RestoreFlags(previousFlags); }
+                try { RestoreFlags(previousFlags, previousValues); }
                 catch (Exception exception) { failure += " Previous flags could not be restored: " + exception.Message; }
                 RaiseLoadFailed(slot, failure);
             }
@@ -443,11 +445,11 @@ namespace QuietStatic.Toolkit.Saving
             }
         }
 
-        private static void RestoreFlags(IEnumerable<string> flags)
+        private static void RestoreFlags(IEnumerable<string> flags, IEnumerable<QuietStatic.Toolkit.Flags.FlagValueEntry> values)
         {
             if (FlagManager.Instance != null)
             {
-                FlagManager.Instance.RestoreFlags(flags);
+                FlagManager.Instance.RestoreValues(flags, values);
             }
         }
 
@@ -608,6 +610,13 @@ namespace QuietStatic.Toolkit.Saving
                     return false;
                 }
 
+                // Explicit v1 migration: preserve Boolean state and initialize newly introduced typed values from catalog defaults.
+                if (data.version == 1) { data.flagValues = new(); data.version = 2; }
+                data.flagValues ??= new();
+                var flagValueIds = new HashSet<string>(StringComparer.Ordinal);
+                if (data.flagValues.Any(entry => entry == null || string.IsNullOrWhiteSpace(entry.flagId) ||
+                    !entry.value.IsValid || !flagValueIds.Add(entry.flagId.Trim())))
+                { error = "Saved flag values are invalid or duplicated."; return false; }
                 data.activeFlags ??= new List<string>();
                 data.participants ??= new List<SaveParticipantData>();
                 var participantIds = new HashSet<string>(StringComparer.Ordinal);
