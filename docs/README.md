@@ -1,5 +1,10 @@
 # Quiet Static Toolkit Guides
 
+Open [index.html](index.html) locally in a browser. The **Code** tab covers runtime
+and editor APIs, and the **Assets** tab catalogs the bundled Unity assets and samples.
+Both tabs work offline. To refresh the reference after changing the package, run
+`pwsh -File docs/BuildReference.ps1` from the package root with PowerShell 7.
+
 These guides describe reusable setup patterns rather than one game's scene names,
 flags, input maps, or art. Start with the persistent systems guide, then follow the
 recipe for the feature being built.

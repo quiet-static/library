@@ -82,6 +82,9 @@ Inspector-facing IDs should come from the provided databases.
 Every runtime module contains a README with setup, hierarchy examples, and integration
 notes. API comments and Inspector tooltips document individual components and fields.
 
+Open [the Quiet Static Library reference](docs/index.html) in your browser to search
+the Code and Assets tabs.
+
 For step-by-step scene recipes, see
 [`docs/Runtime/CommonComponentRecipes.md`](docs/Runtime/CommonComponentRecipes.md). It covers
 basic and flag-gated interactions, hold and autonomous progress, dialogue, staged behavior,

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assets — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="index.html">Code</a></li>
+      <li><a href="assets.html" aria-current='page'>Assets</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search assets</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#assets-runtime-animation'>Animation</a></li>
+<li><a href='#assets-runtime-audio'>Audio</a></li>
+<li><a href='#assets-runtime-cameras'>Cameras</a></li>
+<li><a href='#assets-runtime-characters'>Characters</a></li>
+<li><a href='#assets-runtime-handlers'>Handlers</a></li>
+<li><a href='#assets-runtime-interactions'>Interactions</a></li>
+<li><a href='#assets-runtime-jumpscare'>Jumpscare</a></li>
+<li><a href='#assets-runtime-managers'>Managers</a></li>
+<li><a href='#assets-runtime-minigames'>Minigames</a></li>
+<li><a href='#assets-runtime-sceneflow'>SceneFlow</a></li>
+<li><a href='#assets-runtime-ui'>UI</a></li>
+<li><a href='#assets-samples-compositionreferences'>Composition References</a></li>
+<li><a href='#assets-samples-executabletoolkitexample'>Executable Toolkit Example</a></li></ul>
+  </aside>
+  <main>
+<h1>Asset reference</h1>
+<p>Browse the prefabs, ScriptableObject instances, scenes, and artwork shipped with the package. Find runtime assets under <strong>Packages &gt; Quiet Static Library</strong> in Unity&#39;s Project window. Import sample assets from the package&#39;s <strong>Samples</strong> tab.</p>
+<section class='catalog' id='assets-runtime-animation'><h2>Animation</h2>
+<p><a href='../Runtime/Animation/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Animation-Environment-Prefabs-FlickeringLight-prefab'><h3>FlickeringLight</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Animation.Environment.LightFlicker'><code>LightFlicker</code></a></p>
+<p class='source'><a href='../Runtime/Animation/Environment/Prefabs/FlickeringLight.prefab'>Runtime/Animation/Environment/Prefabs/FlickeringLight.prefab</a> · <a href='#asset-Runtime-Animation-Environment-Prefabs-FlickeringLight-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Animation-Environment-Prefabs-SkyboxRotator-prefab'><h3>SkyboxRotator</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Animation.Environment.SkyboxRotation'><code>SkyboxRotation</code></a></p>
+<p class='source'><a href='../Runtime/Animation/Environment/Prefabs/SkyboxRotator.prefab'>Runtime/Animation/Environment/Prefabs/SkyboxRotator.prefab</a> · <a href='#asset-Runtime-Animation-Environment-Prefabs-SkyboxRotator-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-audio'><h2>Audio</h2>
+<p><a href='../Runtime/Audio/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Audio-Prefabs-EventSound3D-prefab'><h3>EventSound3D</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Audio.EventSound3D'><code>EventSound3D</code></a></p>
+<p class='source'><a href='../Runtime/Audio/Prefabs/EventSound3D.prefab'>Runtime/Audio/Prefabs/EventSound3D.prefab</a> · <a href='#asset-Runtime-Audio-Prefabs-EventSound3D-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Audio-Prefabs-ObjectWithSound-prefab'><h3>ObjectWithSound</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Audio.AudioEventPlayer'><code>AudioEventPlayer</code></a></p>
+<p class='source'><a href='../Runtime/Audio/Prefabs/ObjectWithSound.prefab'>Runtime/Audio/Prefabs/ObjectWithSound.prefab</a> · <a href='#asset-Runtime-Audio-Prefabs-ObjectWithSound-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Audio-Prefabs-SimpleMusicPlayer-prefab'><h3>SimpleMusicPlayer</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer'><code>SimpleMusicPlayer</code></a></p>
+<p class='source'><a href='../Runtime/Audio/Prefabs/SimpleMusicPlayer.prefab'>Runtime/Audio/Prefabs/SimpleMusicPlayer.prefab</a> · <a href='#asset-Runtime-Audio-Prefabs-SimpleMusicPlayer-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-cameras'><h2>Cameras</h2>
+<p><a href='../Runtime/Cameras/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Cameras-Prefabs-FirstPersonPOVCameraRig-prefab'><h3>FirstPersonPOVCameraRig</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Cameras.CameraController'><code>CameraController</code></a></p>
+<p class='source'><a href='../Runtime/Cameras/Prefabs/FirstPersonPOVCameraRig.prefab'>Runtime/Cameras/Prefabs/FirstPersonPOVCameraRig.prefab</a> · <a href='#asset-Runtime-Cameras-Prefabs-FirstPersonPOVCameraRig-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Cameras-Prefabs-ThirdPersonPOVCameraRig-prefab'><h3>ThirdPersonPOVCameraRig</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Cameras.CameraController'><code>CameraController</code></a></p>
+<p class='source'><a href='../Runtime/Cameras/Prefabs/ThirdPersonPOVCameraRig.prefab'>Runtime/Cameras/Prefabs/ThirdPersonPOVCameraRig.prefab</a> · <a href='#asset-Runtime-Cameras-Prefabs-ThirdPersonPOVCameraRig-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-characters'><h2>Characters</h2>
+<p><a href='../Runtime/Characters/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Characters-Prefabs-FirstPersonPlayer-prefab'><h3>FirstPersonPlayer</h3><p>Prefab</p>
+<p>First-person player prefab. Pair it with the first-person camera rig.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Cameras.CameraController'><code>CameraController</code></a>, <a href='index.html#api-QuietStatic.CameraManager'><code>CameraManager</code></a>, <a href='index.html#api-QuietStatic.GameInputManager'><code>GameInputManager</code></a>, <a href='index.html#api-QuietStatic.InputModeManager'><code>InputModeManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactor'><code>Interactor</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Characters.Player.MovementStateController'><code>MovementStateController</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Audio.PlayerFootsteps'><code>PlayerFootsteps</code></a></p>
+<p class='source'><a href='../Runtime/Characters/Prefabs/FirstPersonPlayer.prefab'>Runtime/Characters/Prefabs/FirstPersonPlayer.prefab</a> · <a href='#asset-Runtime-Characters-Prefabs-FirstPersonPlayer-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Characters-Prefabs-Player-prefab'><h3>Player</h3><p>Prefab</p>
+<p>Third-person player prefab. Pair it with the third-person camera rig.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor'><code>CharacterMotor</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Characters.Player.MovementStateController'><code>MovementStateController</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Characters.Player.PlayerController'><code>PlayerController</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Input.PlayerInputReader'><code>PlayerInputReader</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Characters.VelocityReporter'><code>VelocityReporter</code></a></p>
+<p class='source'><a href='../Runtime/Characters/Prefabs/Player.prefab'>Runtime/Characters/Prefabs/Player.prefab</a> · <a href='#asset-Runtime-Characters-Prefabs-Player-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-handlers'><h2>Handlers</h2>
+<p><a href='../Runtime/Handlers/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Handlers-Prefabs-system_callers-prefab'><h3>system_callers</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHandler'><code>InteractionHandler</code></a>, <a href='index.html#api-QuietStatic.SpawnHandler'><code>SpawnHandler</code></a></p>
+<p class='source'><a href='../Runtime/Handlers/Prefabs/system_callers.prefab'>Runtime/Handlers/Prefabs/system_callers.prefab</a> · <a href='#asset-Runtime-Handlers-Prefabs-system_callers-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-interactions'><h2>Interactions</h2>
+<p><a href='../Runtime/Interactions/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-ActivatedProgressInteractable-prefab'><h3>ActivatedProgressInteractable</h3><p>Prefab</p>
+<p>Use when an interaction starts a timed activity that then advances on its own.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable'><code>ActivatedProgressInteractable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/ActivatedProgressInteractable.prefab'>Runtime/Interactions/Prefabs/ActivatedProgressInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-ActivatedProgressInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-AnimatedAudioInteractable-prefab'><h3>AnimatedAudioInteractable</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Audio.AudioEventPlayer'><code>AudioEventPlayer</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractableUnlock'><code>InteractableUnlock</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/AnimatedAudioInteractable.prefab'>Runtime/Interactions/Prefabs/AnimatedAudioInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-AnimatedAudioInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-AnimatedInteractable-prefab'><h3>AnimatedInteractable</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractableUnlock'><code>InteractableUnlock</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/AnimatedInteractable.prefab'>Runtime/Interactions/Prefabs/AnimatedInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-AnimatedInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-AudioInteractable-prefab'><h3>AudioInteractable</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Audio.AudioEventPlayer'><code>AudioEventPlayer</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/AudioInteractable.prefab'>Runtime/Interactions/Prefabs/AudioInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-AudioInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-BasicInteractable-prefab'><h3>BasicInteractable</h3><p>Prefab</p>
+<p>Start here for a simple interaction and wire the action in the Inspector.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/BasicInteractable.prefab'>Runtime/Interactions/Prefabs/BasicInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-BasicInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-ConditionalMessageInteractable-prefab'><h3>ConditionalMessageInteractable</h3><p>Prefab</p>
+<p>Use to change the prompt or response according to conditions.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage'><code>ConditionalInteractionMessage</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/ConditionalMessageInteractable.prefab'>Runtime/Interactions/Prefabs/ConditionalMessageInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-ConditionalMessageInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-DialogueInteractable-prefab'><h3>DialogueInteractable</h3><p>Prefab</p>
+<p>Use to launch dialogue from a scene interaction.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer'><code>DialogueEventPlayer</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/DialogueInteractable.prefab'>Runtime/Interactions/Prefabs/DialogueInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-DialogueInteractable-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Interactions-Prefabs-HoldInteractable-prefab'><h3>HoldInteractable</h3><p>Prefab</p>
+<p>Use for an interaction that requires the player to hold the input until progress completes.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.HoldInteractable'><code>HoldInteractable</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><code>InteractionHighlighter</code></a></p>
+<p class='source'><a href='../Runtime/Interactions/Prefabs/HoldInteractable.prefab'>Runtime/Interactions/Prefabs/HoldInteractable.prefab</a> · <a href='#asset-Runtime-Interactions-Prefabs-HoldInteractable-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-jumpscare'><h2>Jumpscare</h2>
+<p><a href='../Runtime/Jumpscare/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Jumpscare-Prefabs-CustomJumpscare-prefab'><h3>CustomJumpscare</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent'><code>JumpscareEvent</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger'><code>JumpscareTrigger</code></a></p>
+<p class='source'><a href='../Runtime/Jumpscare/Prefabs/CustomJumpscare.prefab'>Runtime/Jumpscare/Prefabs/CustomJumpscare.prefab</a> · <a href='#asset-Runtime-Jumpscare-Prefabs-CustomJumpscare-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-managers'><h2>Managers</h2>
+<p><a href='../Runtime/Managers/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Managers-Prefabs-AudioManagers-prefab'><h3>AudioManagers</h3><p>Prefab</p>
+<p>Shared audio services for the persistent Systems scene.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.MusicManager'><code>MusicManager</code></a>, <a href='index.html#api-QuietStatic.SfxManager'><code>SfxManager</code></a></p>
+<p class='source'><a href='../Runtime/Managers/Prefabs/AudioManagers.prefab'>Runtime/Managers/Prefabs/AudioManagers.prefab</a> · <a href='#asset-Runtime-Managers-Prefabs-AudioManagers-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Managers-Prefabs-GameplayManagers-prefab'><h3>GameplayManagers</h3><p>Prefab</p>
+<p>Shared gameplay state and progression services. Assign the databases and channels for your project.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.CutsceneManager'><code>CutsceneManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Dialogue.DialogueManager'><code>DialogueManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Flags.FlagManager'><code>FlagManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.State.GameStateManager'><code>GameStateManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectiveManager'><code>ObjectiveManager</code></a>, <a href='index.html#api-QuietStatic.SpawnManager'><code>SpawnManager</code></a></p>
+<p class='source'><a href='../Runtime/Managers/Prefabs/GameplayManagers.prefab'>Runtime/Managers/Prefabs/GameplayManagers.prefab</a> · <a href='#asset-Runtime-Managers-Prefabs-GameplayManagers-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Managers-Prefabs-SystemManagers-prefab'><h3>SystemManagers</h3><p>Prefab</p>
+<p>Persistent settings and pause services for the Systems scene.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.PauseManager'><code>PauseManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Saving.SaveManager'><code>SaveManager</code></a>, <a href='index.html#api-QuietStatic.SettingsManager'><code>SettingsManager</code></a></p>
+<p class='source'><a href='../Runtime/Managers/Prefabs/SystemManagers.prefab'>Runtime/Managers/Prefabs/SystemManagers.prefab</a> · <a href='#asset-Runtime-Managers-Prefabs-SystemManagers-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-Managers-Prefabs-UIManagers-prefab'><h3>UIManagers</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Dialogue.DialogueUIManager'><code>DialogueUIManager</code></a>, <a href='index.html#api-QuietStatic.InteractionUIManager'><code>InteractionUIManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Cinematics.ScreenFader'><code>ScreenFader</code></a></p>
+<p class='source'><a href='../Runtime/Managers/Prefabs/UIManagers.prefab'>Runtime/Managers/Prefabs/UIManagers.prefab</a> · <a href='#asset-Runtime-Managers-Prefabs-UIManagers-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-minigames'><h2>Minigames</h2>
+<p><a href='../Runtime/Minigames/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-Minigames-InputSequenceMinigameRunner-prefab'><h3>InputSequenceMinigameRunner</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Minigames.InputSequenceMinigame'><code>InputSequenceMinigame</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Minigames.InputSequenceView'><code>InputSequenceView</code></a></p>
+<p class='source'><a href='../Runtime/Minigames/InputSequenceMinigameRunner.prefab'>Runtime/Minigames/InputSequenceMinigameRunner.prefab</a> · <a href='#asset-Runtime-Minigames-InputSequenceMinigameRunner-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-sceneflow'><h2>SceneFlow</h2>
+<p><a href='../Runtime/SceneFlow/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-SceneFlow-Prefabs-SceneFlowManager-prefab'><h3>SceneFlowManager</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.SceneFlowManager'><code>SceneFlowManager</code></a></p>
+<p class='source'><a href='../Runtime/SceneFlow/Prefabs/SceneFlowManager.prefab'>Runtime/SceneFlow/Prefabs/SceneFlowManager.prefab</a> · <a href='#asset-Runtime-SceneFlow-Prefabs-SceneFlowManager-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-runtime-ui'><h2>UI</h2>
+<p><a href='../Runtime/UI/README.md'>Module setup guide</a></p>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-CinematicBarsOverlay-prefab'><h3>CinematicBarsOverlay</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Cinematics.CinematicBarsOverlay'><code>CinematicBarsOverlay</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/CinematicBarsOverlay.prefab'>Runtime/UI/Prefabs/CinematicBarsOverlay.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-CinematicBarsOverlay-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-CinematicTextOverlay-prefab'><h3>CinematicTextOverlay</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Cinematics.CinematicTextOverlay'><code>CinematicTextOverlay</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Cinematics.CinematicTreePlayer'><code>CinematicTreePlayer</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Cinematics.CinematicTreeShotCues'><code>CinematicTreeShotCues</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/CinematicTextOverlay.prefab'>Runtime/UI/Prefabs/CinematicTextOverlay.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-CinematicTextOverlay-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-crosshair_white-png'><h3>crosshair_white</h3><p>Texture</p>
+<img src='../Runtime/UI/Prefabs/crosshair_white.png' alt='crosshair_white texture'>
+<p class='source'><a href='../Runtime/UI/Prefabs/crosshair_white.png'>Runtime/UI/Prefabs/crosshair_white.png</a> · <a href='#asset-Runtime-UI-Prefabs-crosshair_white-png'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-hud-prefab'><h3>hud</h3><p>Prefab</p>
+<p class='source'><a href='../Runtime/UI/Prefabs/hud.prefab'>Runtime/UI/Prefabs/hud.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-hud-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-InputRebindControl-prefab'><h3>InputRebindControl</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Settings.InputRebindControl'><code>InputRebindControl</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/InputRebindControl.prefab'>Runtime/UI/Prefabs/InputRebindControl.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-InputRebindControl-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-interaction_ui-prefab'><h3>interaction_ui</h3><p>Prefab</p>
+<p class='source'><a href='../Runtime/UI/Prefabs/interaction_ui.prefab'>Runtime/UI/Prefabs/interaction_ui.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-interaction_ui-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-PauseMenu-prefab'><h3>PauseMenu</h3><p>Prefab</p>
+<p>A pause screen with settings UI. Use with the persistent pause and settings services.</p>
+<p>QS scripts <a href='index.html#api-GameQuitter'><code>GameQuitter</code></a>, <a href='index.html#api-QuietStatic.Toolkit.UI.Menu.PauseMenuView'><code>PauseMenuView</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Settings.SettingsMenuView'><code>SettingsMenuView</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/PauseMenu.prefab'>Runtime/UI/Prefabs/PauseMenu.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-PauseMenu-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-ProgressBarTheme-asset'><h3>ProgressBarTheme</h3><p>ScriptableObject asset</p>
+<p>Shared styling for world-space progress bars and screen-space sliders.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.UI.ProgressBarTheme'><code>ProgressBarTheme</code></a></p>
+<p class='source'><a href='../Runtime/UI/ProgressBarTheme.asset'>Runtime/UI/ProgressBarTheme.asset</a> · <a href='#asset-Runtime-UI-ProgressBarTheme-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-SettingsMenu-prefab'><h3>SettingsMenu</h3><p>Prefab</p>
+<p>A standalone settings view for a title or pause menu.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Settings.SettingsMenuView'><code>SettingsMenuView</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/SettingsMenu.prefab'>Runtime/UI/Prefabs/SettingsMenu.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-SettingsMenu-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-TitleMenu-prefab'><h3>TitleMenu</h3><p>Prefab</p>
+<p>A starting point for a title screen. Create a prefab variant for game-specific presentation.</p>
+<p>QS scripts <a href='index.html#api-GameQuitter'><code>GameQuitter</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Settings.SettingsMenuView'><code>SettingsMenuView</code></a>, <a href='index.html#api-QuietStatic.Toolkit.UI.Menu.TitleMenuView'><code>TitleMenuView</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/TitleMenu.prefab'>Runtime/UI/Prefabs/TitleMenu.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-TitleMenu-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-UIControllers-prefab'><h3>UIControllers</h3><p>Prefab</p>
+<p>Place in a persistent UI scene to keep common UI controllers available during content transitions.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.UI.HudVisibilityController'><code>HudVisibilityController</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController'><code>ObjectiveVisibilityController</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/UIControllers.prefab'>Runtime/UI/Prefabs/UIControllers.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-UIControllers-prefab'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Runtime-UI-Prefabs-WorldSpaceProgressBar-prefab'><h3>WorldSpaceProgressBar</h3><p>Prefab</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.UI.WorldSpaceProgressBar'><code>WorldSpaceProgressBar</code></a></p>
+<p class='source'><a href='../Runtime/UI/Prefabs/WorldSpaceProgressBar.prefab'>Runtime/UI/Prefabs/WorldSpaceProgressBar.prefab</a> · <a href='#asset-Runtime-UI-Prefabs-WorldSpaceProgressBar-prefab'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-samples-compositionreferences'><h2>Composition References</h2>
+<p>Inspect these scenes for reusable prefab, narrative, and horror compositions. Adapt them into your own project before play. <a href='../Samples~/CompositionReferences/README.md'>Sample guide</a></p>
+<article class='asset' data-entry id='asset-Samples-CompositionReferences-Data-ExampleStorySequence-asset'><h3>ExampleStorySequence</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Narrative.StorySequenceDefinition'><code>StorySequenceDefinition</code></a></p>
+<p class='source'><a href='../Samples~/CompositionReferences/Data/ExampleStorySequence.asset'>Samples~/CompositionReferences/Data/ExampleStorySequence.asset</a> · <a href='#asset-Samples-CompositionReferences-Data-ExampleStorySequence-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-CompositionReferences-Data-ExampleTension-asset'><h3>ExampleTension</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition'><code>HorrorTensionDefinition</code></a></p>
+<p class='source'><a href='../Samples~/CompositionReferences/Data/ExampleTension.asset'>Samples~/CompositionReferences/Data/ExampleTension.asset</a> · <a href='#asset-Samples-CompositionReferences-Data-ExampleTension-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-CompositionReferences-Scenes-NarrativeAndHorrorCompositionReference-unity'><h3>NarrativeAndHorrorCompositionReference</h3><p>Scene</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Flags.FlagManager'><code>FlagManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Horror.HorrorTensionController'><code>HorrorTensionController</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Narrative.StorySequenceRunner'><code>StorySequenceRunner</code></a></p>
+<p class='source'><a href='../Samples~/CompositionReferences/Scenes/NarrativeAndHorrorCompositionReference.unity'>Samples~/CompositionReferences/Scenes/NarrativeAndHorrorCompositionReference.unity</a> · <a href='#asset-Samples-CompositionReferences-Scenes-NarrativeAndHorrorCompositionReference-unity'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-CompositionReferences-Scenes-PrefabCompositionReference-unity'><h3>PrefabCompositionReference</h3><p>Scene</p>
+<p class='source'><a href='../Samples~/CompositionReferences/Scenes/PrefabCompositionReference.unity'>Samples~/CompositionReferences/Scenes/PrefabCompositionReference.unity</a> · <a href='#asset-Samples-CompositionReferences-Scenes-PrefabCompositionReference-unity'>Permalink</a></p></article>
+</section>
+<section class='catalog' id='assets-samples-executabletoolkitexample'><h2>Executable Toolkit Example</h2>
+<p>Open the bootstrap scene through <strong>Tools &gt; Quiet Static &gt; Samples &gt; Import and Open Executable Example</strong>. The example loads Systems and Content to demonstrate a flag-driven objective. <a href='../Samples~/ExecutableToolkitExample/README.md'>Sample guide</a></p>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleBootstrap-unity'><h3>QuietStaticSampleBootstrap</h3><p>Scene</p>
+<p>Entry scene for the runnable sample.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper'><code>SceneBootstrapper</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleBootstrap.unity'>Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleBootstrap.unity</a> · <a href='#asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleBootstrap-unity'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleBootstrapProfile-asset'><h3>QuietStaticSampleBootstrapProfile</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile'><code>SceneBootstrapProfile</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Data/QuietStaticSampleBootstrapProfile.asset'>Samples~/ExecutableToolkitExample/Data/QuietStaticSampleBootstrapProfile.asset</a> · <a href='#asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleBootstrapProfile-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleContent-unity'><h3>QuietStaticSampleContent</h3><p>Scene</p>
+<p>Content scene with the interaction and flag-driven objective.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Interactions.Interactable'><code>Interactable</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleContent.unity'>Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleContent.unity</a> · <a href='#asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleContent-unity'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleFlags-asset'><h3>QuietStaticSampleFlags</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Flags.FlagDatabase'><code>FlagDatabase</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Data/QuietStaticSampleFlags.asset'>Samples~/ExecutableToolkitExample/Data/QuietStaticSampleFlags.asset</a> · <a href='#asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleFlags-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleObjective-asset'><h3>QuietStaticSampleObjective</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition'><code>ObjectiveDefinition</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Data/QuietStaticSampleObjective.asset'>Samples~/ExecutableToolkitExample/Data/QuietStaticSampleObjective.asset</a> · <a href='#asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleObjective-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleObjectives-asset'><h3>QuietStaticSampleObjectives</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase'><code>ObjectiveDatabase</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Data/QuietStaticSampleObjectives.asset'>Samples~/ExecutableToolkitExample/Data/QuietStaticSampleObjectives.asset</a> · <a href='#asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleObjectives-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleSceneFlowChannel-asset'><h3>QuietStaticSampleSceneFlowChannel</h3><p>ScriptableObject asset</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel'><code>SceneFlowRequestChannel</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Data/QuietStaticSampleSceneFlowChannel.asset'>Samples~/ExecutableToolkitExample/Data/QuietStaticSampleSceneFlowChannel.asset</a> · <a href='#asset-Samples-ExecutableToolkitExample-Data-QuietStaticSampleSceneFlowChannel-asset'>Permalink</a></p></article>
+<article class='asset' data-entry id='asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleSystems-unity'><h3>QuietStaticSampleSystems</h3><p>Scene</p>
+<p>Persistent services and UI for the runnable sample.</p>
+<p>QS scripts <a href='index.html#api-QuietStatic.Toolkit.Flags.FlagManager'><code>FlagManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectiveManager'><code>ObjectiveManager</code></a>, <a href='index.html#api-QuietStatic.Toolkit.Objectives.ObjectivePresenter'><code>ObjectivePresenter</code></a>, <a href='index.html#api-QuietStatic.SceneFlowManager'><code>SceneFlowManager</code></a></p>
+<p class='source'><a href='../Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleSystems.unity'>Samples~/ExecutableToolkitExample/Scenes/QuietStaticSampleSystems.unity</a> · <a href='#asset-Samples-ExecutableToolkitExample-Scenes-QuietStaticSampleSystems-unity'>Permalink</a></p></article>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]').closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: entry.textContent.toLowerCase()
+    }))
+  }));
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    const details = target.closest('details');
+    if (details) details.open = true;
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>
