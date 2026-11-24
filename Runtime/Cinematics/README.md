@@ -1,6 +1,6 @@
 # Cinematics
 
-See [`CinematicsAndReadablesSetup.md`](../../docs/Runtime/CinematicsAndReadablesSetup.md)
+See [`CinematicsAndReadablesSetup.md`](../../docs/Guides/Runtime/CinematicsAndReadablesSetup.md)
 for complete component setup and generated example-prefab instructions.
 
 `CutsceneSequenceRunner` provides an ordered, scene-authored cutscene made from camera,
@@ -11,12 +11,26 @@ The runner also implements `ICinematicWaitSource`, so a definition-based
 `CinematicScenePlayer` can select and await a complete scene-authored runner as one
 activity. Keep the runner's **Play On Start** disabled when the scene player owns startup.
 
-Use **Cutscenes** in **Tools > Quiet Static > Workspace** to create a starter runner, browse all
+Use **Scene Tools > Cutscene Explorer** in **Tools > Quiet Static > Workspace** to create a starter runner, browse all
 cutscenes in loaded scenes, inspect their steps, select their objects, and preview a whole
 sequence or individual step in Play Mode. Scene references remain on the runner so camera
 poses, dialogue runners, and character controllers are explicit and safe to serialize.
 
-Use **Shots** in the Workspace toolbar to open the **Camera Shots** editor (also available
+The Cutscenes editor also adds, duplicates, reorders, deletes, and edits steps with Undo.
+Each step can assign a **Character Controller** and actions for character placement, visibility,
+facing, and animation. Actions run after start callbacks and before the camera shot. Animation
+playback does not delay progression; use the step timing or a wait source for its duration.
+**Find Character** searches the assigned controller's IDs. **Find Animation / Trigger in Project**
+searches Animator states (including nested states and override clips), trigger parameters, and
+project animation clips, including clips embedded in imported models. Clips outside the selected
+character's Animator are listed as unavailable; add them to that Animator Controller before use.
+Selecting a state stores its full path and layer, without changing the character's controller.
+**Find Shot in Scenes / Project Prefabs** searches named shots. Scene shots can be assigned from
+the same scene. Prefab shots copy their current framing and lens into the assigned scene director
+with an independent marker and ID; prefab focus targets are baked into the copied framing.
+Use **Edit Camera Shots** to reframe a shot or create another one.
+
+Use **Scene Tools > Camera Shot Editor** in the Workspace to open the **Camera Shots** editor (also available
 through **Open Shot Editor** on a camera director). Choose a cinematic camera from the loaded
 scenes, then create a named shot from the perspective Scene View or the current camera.
 New markers go in a shared **Shots** group beside the camera, so they do not move with it.
@@ -53,11 +67,9 @@ ordered UnityEvent sequences without embedding game-specific story logic.
 Cutscene
 ├── CutsceneSequenceRunner
 ├── CinematicCutsceneCameraDirector
+├── CutsceneCharacterController (optional)
 ├── ScreenFader
-├── FadeToClearOnStart
-└── Steps
-    ├── Camera pose + On Started callbacks
-    └── Character action + On Finished callbacks
+└── FadeToClearOnStart
 ```
 
 Keep progression, scene loading, and objectives in handlers invoked by sequence events.
@@ -120,8 +132,9 @@ per-beat UnityEvents are all configured there. This keeps reusable content out o
 objects while allowing local props, audio, lighting, and gameplay handlers to remain wired
 with UnityEvents.
 
-Use the Cinematics tab in **Tools > Quiet Static > Workspace** to create and search definitions, validate
-IDs, select assets, and find or play setups in loaded scenes. Existing
+Use the **Cinematics** tab in **Tools > Quiet Static > Workspace** to create and search
+definitions, select assets, and preview stable ID changes. Play definitions through the
+configured scene player. Existing
 `CutsceneSequenceRunner` scenes remain supported and can be migrated incrementally.
 
 ### Several cinematics at one location

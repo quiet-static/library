@@ -22,6 +22,7 @@ namespace QuietStatic.Toolkit.Cameras
 
         private Transform focusTarget;
         private bool isFocusing;
+        private object focusOwner;
 
         /// <summary>Gets whether scripted focus currently owns the camera.</summary>
         public bool IsFocusing => isFocusing;
@@ -68,7 +69,9 @@ namespace QuietStatic.Toolkit.Cameras
         /// <summary>
         /// Begins smoothly focusing the camera on a target.
         /// </summary>
-        public void BeginFocus(Transform newFocusTarget)
+        public void BeginFocus(Transform newFocusTarget) => BeginFocus(newFocusTarget, null);
+
+        internal void BeginFocus(Transform newFocusTarget, object owner)
         {
             if (newFocusTarget == null)
             {
@@ -76,6 +79,7 @@ namespace QuietStatic.Toolkit.Cameras
             }
 
             focusTarget = newFocusTarget;
+            focusOwner = owner;
             isFocusing = true;
 
             if (cameraController != null)
@@ -96,12 +100,18 @@ namespace QuietStatic.Toolkit.Cameras
 
             isFocusing = false;
             focusTarget = null;
+            focusOwner = null;
 
             if (cameraController != null)
             {
                 cameraController.SyncAnglesFromCurrentRotation();
                 cameraController.SetCameraControlEnabled(true);
             }
+        }
+
+        internal void EndFocus(object owner)
+        {
+            if (ReferenceEquals(focusOwner, owner)) EndFocus();
         }
 
         /// <summary>

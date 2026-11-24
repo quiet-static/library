@@ -60,6 +60,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 node.FindPropertyRelative("choices").arraySize = 0;
                 node.FindPropertyRelative("nextNodeIndex").intValue = -1;
                 node.FindPropertyRelative("flagsToSetOnEnter").arraySize = 0;
+                node.FindPropertyRelative("presentationTags").arraySize = 0;
                 if (nodes.arraySize == 1) serialized.FindProperty("startNodeIndex").intValue = 0;
             });
         }

@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Audio — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Audio</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer'><code>QuietStatic.Toolkit.Audio.AudioEventPlayer</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationChaseMemory.cs#L115'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationChaseMemory.cs, line 115</a></figcaption><pre><code>gunshot?.Play();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-audio-readme-md'><h1 id='guide-runtime-audio-readme-md-audio'>Audio</h1>
+<p>Audio helpers cover global music/SFX and localized event-driven playback.</p>
+<pre><code class="language-text">AudioManagers
+├── MusicManager
+└── SfxManager
+
+World Sound
+├── AudioSource (3D spatial blend)
+└── EventSound3D
+</code></pre>
+<p>Use <code>AudioHandler</code> from scene UnityEvents. Use <code>EventSound3D</code> or <code>AudioEventPlayer</code> for
+object-local sounds. Keep mixer routing and volume policy in persistent managers.</p>
+<p>When an additive content scene cannot reference the persistent handler hierarchy, use
+an <code>AudioRequestChannel</code> asset. <code>AudioRequestChannelListener</code> receives its typed
+<code>AudioCommand</code> stream and forwards commands to the music and SFX managers.</p>
+<h2 id='guide-runtime-audio-readme-md-random-overlays-for-a-music-cue'>Random overlays for a music cue</h2>
+<p>Add <code>RandomMusicOverlay</code> to a scene GameObject with a dedicated <code>AudioSource</code>.
+Assign the clip pool and minimum and maximum delays. Set the source's spatial blend
+and mixer group for 2D or positional playback.</p>
+<p>Request the music cue through the <code>AudioRequestChannel</code>, then call
+<code>overlay.Begin(channel, track)</code> with the same clip. The emitter waits for the persistent
+music source to play that clip before counting down. Pausing the cue suspends the
+countdown and pauses any playing overlay. Switching to a different clip stops the
+current overlay. Call <code>End()</code> when the scene's cue is finished to clear the association.</p>
+<h2 id='guide-runtime-audio-readme-md-npc-footsteps'>NPC footsteps</h2>
+<p>Use <code>NPCFootsteps</code> on an NPC's movement root with an audio request channel and
+footstep clips. It measures horizontal travel in LateUpdate, so NavMesh and scripted
+movement share the same cadence. Standing still, pausing, enabling an NPC, and large
+teleports reset the stride without playing a sound. Tune <code>stepDistance</code> for the gait;
+the default matches the player's walking cadence at 1.8 units per second.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioCommand'><summary><code>AudioCommand</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioCommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct AudioCommand</code>
+<p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Runtime/Audio/AudioRequestChannel.cs, line 26</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand'>Permalink</a></p>
+<p class='comment'>Typed cross-scene audio command.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-29-8'><code class='signature'>public AudioCommand( AudioCommandType type, AudioClip clip = null, float value = 0f, Vector3 position = default, float minDistance = 1f, float maxDistance = 15f, bool loop = false, Action&lt;EventSound3D&gt; soundCreated = null, Action&lt;AudioSource&gt; musicSourceFound = null)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-29-8'>Permalink</a></p>
+<p class='comment'>Creates an audio command with optional clip and numeric data.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new AudioCommand(type, clip, value, position, minDistance, maxDistance, loop, soundCreated, musicSourceFound);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-52-8'><code class='signature'>public AudioCommandType Type { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-52-8'>Permalink</a></p>
+<p class='comment'>Requested audio operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-55-8'><code class='signature'>public AudioClip Clip { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-55-8'>Permalink</a></p>
+<p class='comment'>Optional music clip used by playback commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-58-8'><code class='signature'>public float Value { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-58-8'>Permalink</a></p>
+<p class='comment'>Optional numeric argument used by volume commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-61-8'><code class='signature'>public Vector3 Position { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-61-8'>Permalink</a></p>
+<p class='comment'>World position used by positional sound commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-64-8'><code class='signature'>public float MinDistance { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-64-8'>Permalink</a></p>
+<p class='comment'>Full-volume distance used by positional sound commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-67-8'><code class='signature'>public float MaxDistance { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-67-8'>Permalink</a></p>
+<p class='comment'>Maximum audible distance used by positional sound commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-70-8'><code class='signature'>public bool Loop { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-70-8'>Permalink</a></p>
+<p class='comment'>Whether a positional sound repeats until stopped.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-73-8'><code class='signature'>public Action&lt;EventSound3D&gt; SoundCreated { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-73-8'>Permalink</a></p>
+<p class='comment'>Optional synchronous completion callback receiving the spawned sound.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-76-8'><code class='signature'>public Action&lt;AudioSource&gt; MusicSourceFound { get; }</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommand-Runtime-Audio-AudioRequestChannel-cs-76-8'>Permalink</a></p>
+<p class='comment'>Optional synchronous callback receiving the persistent music source.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioCommandType'><summary><code>AudioCommandType</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioCommandType</span></summary><div class='entry'>
+<code class='signature'>public enum AudioCommandType</code>
+<p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Runtime/Audio/AudioRequestChannel.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType'>Permalink</a></p>
+<p class='comment'>Operation carried by an AudioCommand.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-9-8'><code class='signature'>PlayMusic</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-10-8'><code class='signature'>StopMusic</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-11-8'><code class='signature'>PlayMusicWithFade</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-12-8'><code class='signature'>StopMusicWithFade</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-13-8'><code class='signature'>SetMusicVolume</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-14-8'><code class='signature'>PauseSpawnedSfx</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-15-8'><code class='signature'>ResumeSpawnedSfx</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-15-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-16-8'><code class='signature'>DespawnSpawnedSfx</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-16-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-17-8'><code class='signature'>EnableSfxSpawning</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-17-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-18-8'><code class='signature'>DisableSfxSpawning</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-18-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-19-8'><code class='signature'>PauseMusic</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-19-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-20-8'><code class='signature'>ResumeMusic</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-20-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-21-8'><code class='signature'>PlaySfxAtPosition</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-21-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-22-8'><code class='signature'>GetMusicSource</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioCommandType-Runtime-Audio-AudioRequestChannel-cs-22-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioEventPlayer'><summary><code>AudioEventPlayer</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioEventPlayer</span></summary><div class='entry'>
+<code class='signature'>public class AudioEventPlayer : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Runtime/Audio/AudioEventPlayer.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer'>Permalink</a></p>
+<p class='comment'>Used for emitting sounds from game objects upon interaction, or otherwise</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-77-8'><code class='signature'>public void Play()</code><p class='source'><a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Source, line 77</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-77-8'>Permalink</a></p>
+<p class='comment'>Plays one configured clip using the selected ordering mode.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationChaseMemory.cs#L115'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationChaseMemory.cs, line 115</a></figcaption><pre><code>gunshot?.Play();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-87-8'><code class='signature'>public void PlayContinuously()</code><p class='source'><a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-87-8'>Permalink</a></p>
+<p class='comment'>Plays the configured audio continuously until Stop is called. Calling this again replaces the currently playing continuous sound.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldAudioFeedback.cs'>Runtime/Interactions/HoldAudioFeedback.cs, line 56</a></figcaption><pre><code>audioPlayer?.PlayContinuously()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-99-8'><code class='signature'>public void Stop()</code><p class='source'><a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-99-8'>Permalink</a></p>
+<p class='comment'>Stops the continuous sound and destroys its temporary audio prefab. This method is parameterless so it can be assigned directly to a UnityEvent.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldAudioFeedback.cs'>Runtime/Interactions/HoldAudioFeedback.cs, line 53</a></figcaption><pre><code>audioPlayer?.Stop();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-143-8'><code class='signature'>public void SetRequestChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Source, line 143</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioEventPlayer-Runtime-Audio-AudioEventPlayer-cs-143-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent audio command channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetRequestChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel'><summary><code>AudioRequestChannel</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioRequestChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class AudioRequestChannel : CrossSceneCommandChannel&lt;AudioCommand&gt;</code>
+<p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Runtime/Audio/AudioRequestChannel.cs, line 82</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel'>Permalink</a></p>
+<p class='comment'>Relays global music and sound-effect requests without referencing persistent managers.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-90-8'><code class='signature'>public void PlayMusic(AudioClip clip)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-90-8'>Permalink</a></p>
+<p class='comment'>Requests immediate music playback.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs#L127'>Stolen &#183; Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs, line 127</a></figcaption><pre><code>requestChannel.PlayMusic(cue.clip);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-95-8'><code class='signature'>public void StopMusic()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 95</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-95-8'>Permalink</a></p>
+<p class='comment'>Requests that music stop immediately.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs#L83'>Stolen &#183; Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs, line 83</a></figcaption><pre><code>requestChannel?.StopMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-100-8'><code class='signature'>public void PlayWithFade(AudioClip clip)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 100</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-100-8'>Permalink</a></p>
+<p class='comment'>Requests a faded transition to a music clip.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs#L126'>Stolen &#183; Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs, line 126</a></figcaption><pre><code>requestChannel.PlayWithFade(cue.clip);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-107-8'><code class='signature'>public void StopWithFade()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 107</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-107-8'>Permalink</a></p>
+<p class='comment'>Requests that music fade out and stop.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs#L120'>Stolen &#183; Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs, line 120</a></figcaption><pre><code>requestChannel.StopWithFade();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-112-8'><code class='signature'>public void SetVolume(float volume)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 112</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-112-8'>Permalink</a></p>
+<p class='comment'>Requests a normalized music volume.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs#L125'>Stolen &#183; Assets/Stolen/Scripts/Runtime/SceneBgmPlayer.cs, line 125</a></figcaption><pre><code>requestChannel.SetVolume(Mathf.Clamp01(cue.volume));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-119-8'><code class='signature'>public void PauseSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 119</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-119-8'>Permalink</a></p>
+<p class='comment'>Requests that managed sound effects pause.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 118</a></figcaption><pre><code>requestChannel?.PauseSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-124-8'><code class='signature'>public void ResumeSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-124-8'>Permalink</a></p>
+<p class='comment'>Requests that channel-paused sound effects resume.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 124</a></figcaption><pre><code>requestChannel?.ResumeSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-129-8'><code class='signature'>public void DespawnSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 129</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-129-8'>Permalink</a></p>
+<p class='comment'>Requests that managed sound effects stop and despawn.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 130</a></figcaption><pre><code>requestChannel?.DespawnSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-134-8'><code class='signature'>public void EnableSfxSpawning()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 134</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-134-8'>Permalink</a></p>
+<p class='comment'>Requests that new sound-effect spawning be enabled.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 136</a></figcaption><pre><code>requestChannel?.EnableSfxSpawning();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-139-8'><code class='signature'>public void DisableSfxSpawning()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 139</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-139-8'>Permalink</a></p>
+<p class='comment'>Requests that new sound-effect spawning be disabled.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 142</a></figcaption><pre><code>requestChannel?.DisableSfxSpawning();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-144-8'><code class='signature'>public void PauseMusic()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 144</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-144-8'>Permalink</a></p>
+<p class='comment'>Requests that music pause while retaining playback position.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 148</a></figcaption><pre><code>requestChannel?.PauseMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-149-8'><code class='signature'>public void ResumeMusic()</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 149</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-149-8'>Permalink</a></p>
+<p class='comment'>Requests that paused music resume.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 154</a></figcaption><pre><code>requestChannel?.ResumeMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-163-8'><code class='signature'>public EventSound3D PlayAtPosition( AudioClip clip, Vector3 position, float minDistance = 1f, float maxDistance = 15f, float volume = 1f, bool loop = false)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannel.cs'>Source, line 163</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannel-Runtime-Audio-AudioRequestChannel-cs-163-8'>Permalink</a></p>
+<p class='comment'>Requests a positional sound and returns the receiver-created instance.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Runtime/Audio/AudioEventPlayer.cs, lines 132–139</a></figcaption><pre><code>return requestChannel.PlayAtPosition(
+    selectedClip,
+    origin.position,
+    minDistance,
+    maxDistance,
+    volume,
+    loop
+);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioRequestChannelListener'><summary><code>AudioRequestChannelListener</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioRequestChannelListener</span></summary><div class='entry'>
+<code class='signature'>public sealed class AudioRequestChannelListener : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/AudioRequestChannelListener.cs'>Runtime/Audio/AudioRequestChannelListener.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannelListener'>Permalink</a></p>
+<p class='comment'>Forwards cross-scene audio channel requests to the persistent audio managers.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioRequestChannelListener-Runtime-Audio-AudioRequestChannelListener-cs-39-8'><code class='signature'>public void SetChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Audio/AudioRequestChannelListener.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioRequestChannelListener-Runtime-Audio-AudioRequestChannelListener-cs-39-8'>Permalink</a></p>
+<p class='comment'>Changes the channel and updates the live subscription.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.EventSound3D'><summary><code>EventSound3D</code> <span class='source'>QuietStatic.Toolkit.Audio.EventSound3D</span></summary><div class='entry'>
+<code class='signature'>public class EventSound3D : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Runtime/Audio/EventSound3D.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D'>Permalink</a></p>
+<p class='comment'>Plays a temporary 3D sound from this GameObject and destroys the GameObject once playback finishes or is explicitly stopped.</p>
+<p class='comment'><strong>Remarks</strong> This component is intended for temporary world-space sound effects such as jumpscares, object impacts, door sounds, environmental stingers, or other event-driven audio that should come from a specific location in the scene. Because this script destroys its GameObject after playback ends, it works well on spawned audio prefabs that exist only long enough to play a sound.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-25-8'><code class='signature'>public bool IsPaused { get; private set; }</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-25-8'>Permalink</a></p>
+<p class='comment'>Gets whether this temporary sound is currently paused.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-28-8'><code class='signature'>public bool IsPlaying { get; }</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-28-8'>Permalink</a></p>
+<p class='comment'>Gets whether this temporary sound is actively playing.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-58-8'><code class='signature'>public void Play( AudioClip clip, float minDistance = 5f, float maxDistance = 100f, float volume = 1f, bool loop = false)</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-58-8'>Permalink</a></p>
+<p class='comment'>Plays the supplied audio clip as a fully 3D sound from this GameObject&#39;s position.</p>
+<p class='comment'><strong>clip</strong> The audio clip to play. If null, playback is skipped and a warning is logged.</p>
+<p class='comment'><strong>minDistance</strong> The distance from the sound source where the audio begins to attenuate.</p>
+<p class='comment'><strong>maxDistance</strong> The maximum distance at which the sound can still be heard.</p>
+<p class='comment'><strong>volume</strong> The playback volume for this sound. A value of 1 is full volume.</p>
+<p class='comment'><strong>loop</strong> Whether playback should repeat until explicitly stopped.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Play(clip, minDistance, maxDistance, volume, loop);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-97-8'><code class='signature'>public void Pause()</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 97</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-97-8'>Permalink</a></p>
+<p class='comment'>Pauses playback without allowing the temporary sound to clean itself up.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/UtilityAudioLifecycleTests.cs'>Tests/PlayMode/UtilityAudioLifecycleTests.cs, line 83</a></figcaption><pre><code>external.Pause();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-109-8'><code class='signature'>public void Resume()</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 109</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-109-8'>Permalink</a></p>
+<p class='comment'>Resumes playback when this sound was previously paused.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Resume();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-123-8'><code class='signature'>public void Stop()</code><p class='source'><a href='../../../Runtime/Audio/EventSound3D.cs'>Source, line 123</a> · <a href='#api-QuietStatic.Toolkit.Audio.EventSound3D-Runtime-Audio-EventSound3D-cs-123-8'>Permalink</a></p>
+<p class='comment'>Stops playback and destroys this temporary sound GameObject.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Audio/AudioEventPlayer.cs'>Runtime/Audio/AudioEventPlayer.cs, line 106</a></figcaption><pre><code>continuousSound.Stop();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.NPCFootsteps'><summary><code>NPCFootsteps</code> <span class='source'>QuietStatic.Toolkit.Audio.NPCFootsteps</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCFootsteps : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/NPCFootsteps.cs'>Runtime/Audio/NPCFootsteps.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Audio.NPCFootsteps'>Permalink</a></p>
+<p class='comment'>Plays positional footsteps from actual NPC travel, including scripted movement.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.NPCFootsteps-Runtime-Audio-NPCFootsteps-cs-77-8'><code class='signature'>public void SetRequestChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Audio/NPCFootsteps.cs'>Source, line 77</a> · <a href='#api-QuietStatic.Toolkit.Audio.NPCFootsteps-Runtime-Audio-NPCFootsteps-cs-77-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent audio command channel.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCFootstepsTests.cs'>Tests/EditMode/NPCFootstepsTests.cs, line 26</a></figcaption><pre><code>footsteps.SetRequestChannel(channel);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.PlayerFootsteps'><summary><code>PlayerFootsteps</code> <span class='source'>QuietStatic.Toolkit.Audio.PlayerFootsteps</span></summary><div class='entry'>
+<code class='signature'>public class PlayerFootsteps : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/PlayerFootsteps.cs'>Runtime/Audio/PlayerFootsteps.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Audio.PlayerFootsteps'>Permalink</a></p>
+<p class='comment'>Plays positional footstep sounds when the attached player controller emits a step.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.PlayerFootsteps-Runtime-Audio-PlayerFootsteps-cs-97-8'><code class='signature'>public void SetRequestChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Audio/PlayerFootsteps.cs'>Source, line 97</a> · <a href='#api-QuietStatic.Toolkit.Audio.PlayerFootsteps-Runtime-Audio-PlayerFootsteps-cs-97-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent audio command channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetRequestChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.RandomMusicOverlay'><summary><code>RandomMusicOverlay</code> <span class='source'>QuietStatic.Toolkit.Audio.RandomMusicOverlay</span></summary><div class='entry'>
+<code class='signature'>public sealed class RandomMusicOverlay : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Audio/RandomMusicOverlay.cs'>Runtime/Audio/RandomMusicOverlay.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Audio.RandomMusicOverlay'>Permalink</a></p>
+<p class='comment'>Plays a pool of random clips from a dedicated 2D or 3D scene AudioSource alongside a music cue.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.RandomMusicOverlay-Runtime-Audio-RandomMusicOverlay-cs-35-8'><code class='signature'>public void Begin(AudioRequestChannel channel, AudioClip track)</code><p class='source'><a href='../../../Runtime/Audio/RandomMusicOverlay.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Audio.RandomMusicOverlay-Runtime-Audio-RandomMusicOverlay-cs-35-8'>Permalink</a></p>
+<p class='comment'>Arms the emitter for a cue and starts its delay when that track becomes audible.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Begin(channel, track);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.RandomMusicOverlay-Runtime-Audio-RandomMusicOverlay-cs-45-8'><code class='signature'>public void End()</code><p class='source'><a href='../../../Runtime/Audio/RandomMusicOverlay.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Audio.RandomMusicOverlay-Runtime-Audio-RandomMusicOverlay-cs-45-8'>Permalink</a></p>
+<p class='comment'>Cancels the cue and stops any overlay played by this emitter.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.End();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer'><summary><code>SimpleMusicPlayer</code> <span class='source'>QuietStatic.Toolkit.Audio.SimpleMusicPlayer</span></summary><div class='entry'>
+<code class='signature'>public class SimpleMusicPlayer : ToolkitSingleton&lt;SimpleMusicPlayer&gt;</code>
+<p class='source'><a href='../../../Runtime/Audio/SimpleMusicPlayer.cs'>Runtime/Audio/SimpleMusicPlayer.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer'>Permalink</a></p>
+<p class='comment'>Provides a small, globally accessible music player for looping background music.</p>
+<p class='comment'><strong>Remarks</strong> This class is intentionally simple: it owns one AudioSource, plays one looping music clip at a time, and exposes basic playback and volume controls for other systems. Because it inherits from ToolkitSingleton{T}, other scripts can access the active instance without needing a direct scene reference, assuming the singleton has been initialized.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-75-8'><code class='signature'>public void PlayClip(AudioClip clip)</code><p class='source'><a href='../../../Runtime/Audio/SimpleMusicPlayer.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-75-8'>Permalink</a></p>
+<p class='comment'>Plays the given clip as looping background music.</p>
+<p class='comment'><strong>clip</strong> The music clip to play.</p>
+<p class='comment'><strong>Remarks</strong> If the same clip is already playing, this method does nothing. This prevents restarting the current track every time another script asks the music player to play the same clip.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.PlayClip(clip);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-99-8'><code class='signature'>public void Play()</code><p class='source'><a href='../../../Runtime/Audio/SimpleMusicPlayer.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-99-8'>Permalink</a></p>
+<p class='comment'>Plays the clip currently assigned to the music AudioSource.</p>
+<p class='comment'><strong>Remarks</strong> This is useful when the AudioSource already has a clip assigned in the Inspector and another script only needs to begin playback.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Play();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-114-8'><code class='signature'>public void Stop()</code><p class='source'><a href='../../../Runtime/Audio/SimpleMusicPlayer.cs'>Source, line 114</a> · <a href='#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-114-8'>Permalink</a></p>
+<p class='comment'>Stops the current music playback.</p>
+<p class='comment'><strong>Remarks</strong> The assigned clip remains on the AudioSource, so calling Play afterward will play the same clip again from the beginning.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Stop();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-128-8'><code class='signature'>public void SetVolume(float volume)</code><p class='source'><a href='../../../Runtime/Audio/SimpleMusicPlayer.cs'>Source, line 128</a> · <a href='#api-QuietStatic.Toolkit.Audio.SimpleMusicPlayer-Runtime-Audio-SimpleMusicPlayer-cs-128-8'>Permalink</a></p>
+<p class='comment'>Sets the music volume.</p>
+<p class='comment'><strong>volume</strong> Desired volume from 0 to 1. Values outside this range are clamped before being applied.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetVolume(volume);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

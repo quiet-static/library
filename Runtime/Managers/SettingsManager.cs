@@ -394,6 +394,14 @@ namespace QuietStatic
         private static void SaveBool(string key, bool value, Action<bool> apply) =>
             SaveInt(key, value ? 1 : 0, raw => apply(raw == 1));
 
+        /// <summary>Previews menu audio on the mixer. Missing values use the committed settings.</summary>
+        internal void PreviewMenuVolume(float? master = null, float? music = null, float? sfx = null)
+        {
+            SetMixerVolume(MasterVolumeParam, master ?? MasterVolume);
+            SetMixerVolume(MusicVolumeParam, music ?? MusicVolume);
+            SetMixerVolume(SfxVolumeParam, sfx ?? SfxVolume);
+        }
+
         private void SetMixerVolume(string parameterName, float sliderValue)
         {
             if (audioMixer == null)

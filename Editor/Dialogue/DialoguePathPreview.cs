@@ -38,7 +38,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             if (requirement.Mode == FlagRequirementMode.None) return true;
             if (requirement.Flags.Any(id => id != null && simulatedValues != null &&
                 simulatedValues.TryGetValue(id.Trim(), out var value) && value.Type != FlagValueType.Boolean)) return false;
-            string[] flags = requirement.Flags.Where(flag => !string.IsNullOrWhiteSpace(flag)).ToArray();
+            string[] flags = requirement.Flags.Where(flag => !string.IsNullOrWhiteSpace(flag))
+                .Select(flag => flag.Trim()).ToArray();
             bool all = flags.All(active.Contains);
             bool any = flags.Any(active.Contains);
             return requirement.Mode switch

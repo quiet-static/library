@@ -1,6 +1,7 @@
 using System.Collections;
 using QuietStatic.Toolkit.Core;
 using QuietStatic.Toolkit.State;
+using QuietStatic.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -64,9 +65,7 @@ namespace QuietStatic
 
         private Coroutine pauseSceneRoutine;
         private string resumeState;
-        private float resumeTimeScale = 1f;
-        private CursorLockMode resumeCursorLock;
-        private bool resumeCursorVisible;
+        private TimeScaleFreeze timeFreeze;
 
         /// <summary>Gets whether the additive pause scene is currently reconciling.</summary>
         public bool IsChangingPauseScene => pauseSceneRoutine != null;
@@ -81,6 +80,25 @@ namespace QuietStatic
             }
 
             RestoreGameplayCursor();
+        }
+
+        private void OnEnable()
+        {
+            if (Instance != this || gameStateManager == null) return;
+            gameStateManager.StateChanged += HandleStateChanged;
+            if (IsPaused) ApplyPausePresentation();
+        }
+
+        private void OnDisable()
+        {
+            if (gameStateManager != null) gameStateManager.StateChanged -= HandleStateChanged;
+            ReleasePausePresentation();
+        }
+
+        private void HandleStateChanged(string previousState, string currentState)
+        {
+            if (IsPaused) ApplyPausePresentation();
+            else ReleasePausePresentation();
         }
 
         /// <summary>
@@ -118,17 +136,7 @@ namespace QuietStatic
             }
 
             resumeState = gameStateManager.CurrentState;
-            resumeTimeScale = Time.timeScale;
-            resumeCursorLock = Cursor.lockState;
-            resumeCursorVisible = Cursor.visible;
             gameStateManager.SetState(pausedState);
-
-            if (pauseTimeScale)
-            {
-                Time.timeScale = 0f;
-            }
-
-            ApplyPausedCursor();
 
             if (usePauseScene && !string.IsNullOrWhiteSpace(pauseSceneName))
             {
@@ -146,17 +154,7 @@ namespace QuietStatic
                 return;
             }
 
-            if (pauseTimeScale)
-            {
-                Time.timeScale = resumeTimeScale;
-            }
-
             gameStateManager.SetState(string.IsNullOrEmpty(resumeState) ? gameplayState : resumeState);
-            if (manageCursor)
-            {
-                Cursor.lockState = resumeCursorLock;
-                Cursor.visible = resumeCursorVisible;
-            }
             resumeState = null;
 
             if (usePauseScene && !string.IsNullOrWhiteSpace(pauseSceneName))
@@ -171,8 +169,9 @@ namespace QuietStatic
         /// </summary>
         public void ForceResumeTime()
         {
-            Time.timeScale = 1f;
+            TimeScaleFreeze.SetResumeScale(1f);
             RestoreGameplayCursor();
+            ReleasePausePresentation();
         }
 
         private bool CanPause(string state)
@@ -219,15 +218,18 @@ namespace QuietStatic
             }
         }
 
-        private void ApplyPausedCursor()
+        private void ApplyPausePresentation()
         {
-            if (!manageCursor)
-            {
-                return;
-            }
+            if (!isActiveAndEnabled) return;
+            if (pauseTimeScale) timeFreeze ??= TimeScaleFreeze.Acquire();
+            if (manageCursor) ModalCursorPolicy.Claim(this);
+        }
 
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+        private void ReleasePausePresentation()
+        {
+            timeFreeze?.Dispose();
+            timeFreeze = null;
+            ModalCursorPolicy.Release(this);
         }
 
         private void RestoreGameplayCursor()
@@ -237,8 +239,7 @@ namespace QuietStatic
                 return;
             }
 
-            Cursor.lockState = gameplayCursorLockMode;
-            Cursor.visible = cursorVisibleDuringGameplay;
+            ModalCursorPolicy.SetBaseline(gameplayCursorLockMode, cursorVisibleDuringGameplay);
         }
 
         private static bool IsSceneLoaded(string sceneName)

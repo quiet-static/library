@@ -18,7 +18,8 @@ namespace QuietStatic.Toolkit.Audio
         DisableSfxSpawning,
         PauseMusic,
         ResumeMusic,
-        PlaySfxAtPosition
+        PlaySfxAtPosition,
+        GetMusicSource
     }
 
     /// <summary>Typed cross-scene audio command.</summary>
@@ -33,7 +34,8 @@ namespace QuietStatic.Toolkit.Audio
             float minDistance = 1f,
             float maxDistance = 15f,
             bool loop = false,
-            Action<EventSound3D> soundCreated = null)
+            Action<EventSound3D> soundCreated = null,
+            Action<AudioSource> musicSourceFound = null)
         {
             Type = type;
             Clip = clip;
@@ -43,6 +45,7 @@ namespace QuietStatic.Toolkit.Audio
             MaxDistance = maxDistance;
             Loop = loop;
             SoundCreated = soundCreated;
+            MusicSourceFound = musicSourceFound;
         }
 
         /// <summary>Requested audio operation.</summary>
@@ -68,6 +71,9 @@ namespace QuietStatic.Toolkit.Audio
 
         /// <summary>Optional synchronous completion callback receiving the spawned sound.</summary>
         public Action<EventSound3D> SoundCreated { get; }
+
+        /// <summary>Optional synchronous callback receiving the persistent music source.</summary>
+        public Action<AudioSource> MusicSourceFound { get; }
     }
 
     /// <summary>
@@ -143,6 +149,14 @@ namespace QuietStatic.Toolkit.Audio
         public void ResumeMusic()
         {
             Dispatch(new AudioCommand(AudioCommandType.ResumeMusic));
+        }
+
+        internal AudioSource GetMusicSource()
+        {
+            AudioSource source = null;
+            if (HasReceivers)
+                Dispatch(new AudioCommand(AudioCommandType.GetMusicSource, musicSourceFound: value => source = value));
+            return source;
         }
 
         /// <summary>Requests a positional sound and returns the receiver-created instance.</summary>

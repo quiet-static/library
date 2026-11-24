@@ -2,6 +2,8 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using QuietStatic.Toolkit.Dialogue;
+using QuietStatic.Toolkit.Editor.Dialogue;
+using UnityEditor;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 
@@ -15,7 +17,66 @@ namespace QuietStatic.Tests.EditMode
         public void SetUp() => tree = ScriptableObject.CreateInstance<DialogueTree>();
 
         [TearDown]
-        public void TearDown() => UnityEngine.Object.DestroyImmediate(tree);
+        public void TearDown()
+        {
+            Undo.ClearUndo(tree);
+            UnityEngine.Object.DestroyImmediate(tree);
+        }
+
+        [Test]
+        public void AddingChoiceStartsWithCleanConditionsAndSupportsUndo()
+        {
+            var original = new DialogueTree.Choice
+            {
+                text = "Existing", nextNodeIndex = 0, flagsToSet = new[] { "existing.flag" },
+                availabilityRequirement = new FlagRequirement(FlagRequirementMode.All, new[] { "required.flag" })
+            };
+            typeof(DialogueTree).GetField("nodes", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(tree, new[] { new DialogueTree.Node { id = "start", choices = new[] { original } } });
+            string before = EditorJsonUtility.ToJson(tree);
+            using var data = new SerializedObject(tree);
+            Undo.IncrementCurrentGroup();
+            typeof(DialogueWorkspaceWindow).GetMethod("AddChoice", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { data.FindProperty("nodes").GetArrayElementAtIndex(0).FindPropertyRelative("choices") });
+            data.ApplyModifiedProperties();
+            Assert.That(tree.Nodes[0].choices.Length, Is.EqualTo(2));
+            Assert.That(tree.Nodes[0].choices[0].text, Is.EqualTo("Existing"));
+            Assert.That(tree.Nodes[0].choices[0].availabilityRequirement.Flags, Is.EqualTo(new[] { "required.flag" }));
+            var added = tree.Nodes[0].choices[1];
+            Assert.That(added.nextNodeIndex, Is.EqualTo(-1));
+            Assert.That(added.flagsToSet, Is.Empty);
+            Assert.That(added.availabilityRequirement.Mode, Is.EqualTo(FlagRequirementMode.None));
+            Assert.That(added.availabilityRequirement.Flags, Is.Empty);
+            Assert.That(added.availabilityRequirement.Comparisons, Is.Empty);
+            Undo.FlushUndoRecordObjects();
+            Undo.PerformUndo();
+            Assert.That(EditorJsonUtility.ToJson(tree), Is.EqualTo(before));
+            Undo.ClearUndo(tree);
+        }
+
+        [Test]
+        public void ReconnectingNodesChangesOnlyTheSelectedTree()
+        {
+            var other = ScriptableObject.CreateInstance<DialogueTree>();
+            try
+            {
+                DialogueGraphCommands.AddNode(tree, "start");
+                DialogueGraphCommands.AddNode(tree, "end");
+                DialogueGraphCommands.AddNode(other, "start");
+                DialogueGraphCommands.AddNode(other, "end");
+                DialogueGraphCommands.ReconnectLinear(tree, "start", "end");
+                Assert.That(tree.Nodes[0].nextNodeIndex, Is.EqualTo(1));
+                Assert.That(other.Nodes[0].nextNodeIndex, Is.EqualTo(-1));
+                DialogueGraphCommands.ReconnectLinear(tree, "start", null);
+                Assert.That(tree.Nodes[0].nextNodeIndex, Is.EqualTo(-1));
+            }
+            finally
+            {
+                Undo.ClearUndo(tree);
+                Undo.ClearUndo(other);
+                UnityEngine.Object.DestroyImmediate(other);
+            }
+        }
 
         [Test]
         public void GetChoiceTexts_PreservesOrderAndNormalizesNullEntries()

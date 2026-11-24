@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor.Dialogue;
+using QuietStatic.Toolkit.Editor.Interactions;
 using QuietStatic.Toolkit.Interactions;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -47,6 +48,9 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 Scene scene = SceneManager.GetSceneAt(index);
                 if (scene.IsValid() && scene.isLoaded) scenes.Add(scene);
             }
+            PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (stage != null && stage.scene.isLoaded && !scenes.Contains(stage.scene))
+                scenes.Add(stage.scene);
             if (!selectedScene.IsValid() || !scenes.Contains(selectedScene))
                 selectedScene = scenes.FirstOrDefault();
             if (scope != null && scope.scene != selectedScene) scope = null;
@@ -55,6 +59,17 @@ namespace QuietStatic.Toolkit.Editor.Tooling
 
         public void OnSelected() => Refresh();
         public void OnDeselected() { }
+
+        internal void SetScope(GameObject target)
+        {
+            if (target == null || !target.scene.isLoaded) return;
+            if (!scenes.Contains(target.scene)) Refresh();
+            if (!scenes.Contains(target.scene)) return;
+            selectedScene = target.scene;
+            scope = target;
+            scroll = Vector2.zero;
+            gui?.MarkDirtyRepaint();
+        }
 
         private void Draw()
         {
@@ -72,17 +87,18 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 GUILayout.Label("GameObject scope", GUILayout.Width(112f));
                 GameObject pickedScope = EditorGUILayout.ObjectField(scope, typeof(GameObject), true) as GameObject;
                 if (pickedScope != scope && (pickedScope == null || pickedScope.scene == selectedScene)) scope = pickedScope;
-                if (GUILayout.Button("Use Selection", EditorStyles.toolbarButton, GUILayout.Width(90f)) &&
-                    Selection.activeGameObject != null && Selection.activeGameObject.scene == selectedScene)
-                    scope = Selection.activeGameObject;
+                using (new EditorGUI.DisabledScope(Selection.activeGameObject == null ||
+                           !Selection.activeGameObject.scene.isLoaded))
+                    if (GUILayout.Button("Use Selection", EditorStyles.toolbarButton, GUILayout.Width(90f)))
+                        SetScope(Selection.activeGameObject);
                 if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(45f))) scope = null;
             }
 
-            Transform[] transforms = Roots().SelectMany(root => root.GetComponentsInChildren<Transform>(true)).ToArray();
-            FlavorTextInteraction[] flavor = Components<FlavorTextInteraction>(transforms);
-            DialogueEventPlayer[] dialogue = Components<DialogueEventPlayer>(transforms);
-            Interactable[] other = Components<Interactable>(transforms)
-                .Where(item => item.GetComponent<FlavorTextInteraction>() == null).ToArray();
+            GameObject[] roots = Roots().ToArray();
+            FlavorTextInteraction[] flavor = Components<FlavorTextInteraction>(roots);
+            DialogueEventPlayer[] dialogue = Components<DialogueEventPlayer>(roots);
+            Component[] other = roots.SelectMany(InteractionTargetAuthoring.FindTargets)
+                .Where(item => item is not Interactable || item.GetComponent<FlavorTextInteraction>() == null).ToArray();
 
             EditorGUILayout.HelpBox(
                 $"{SceneLabel(selectedScene)} • {(scope == null ? "whole scene" : Path(scope.transform))} • " +
@@ -106,9 +122,10 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 var flavor = new SerializedObject(item);
                 var interaction = new SerializedObject(item.GetComponent<Interactable>());
                 flavor.Update(); interaction.Update();
-                EditorGUILayout.PropertyField(interaction.FindProperty("displayName"), new GUIContent("Prompt"));
+                InteractionTargetAuthoring.DrawPrompt(interaction);
                 EditorGUILayout.PropertyField(flavor.FindProperty("flavorText"), new GUIContent("Flavor Text"));
                 EditorGUILayout.PropertyField(flavor.FindProperty("channel"));
+                InteractionOutcomeEditor.DrawInteractionDetails(interaction);
                 if (flavor.ApplyModifiedProperties() | interaction.ApplyModifiedProperties()) MarkDirty(item.gameObject);
             }
         }
@@ -121,7 +138,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
                 DrawObjectHeader(item.gameObject);
-                var serialized = new SerializedObject(item);
+                using var serialized = new SerializedObject(item);
                 serialized.Update();
                 SerializedProperty treeProperty = serialized.FindProperty("dialogueTree");
                 using (new EditorGUILayout.HorizontalScope())
@@ -131,23 +148,33 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                         if (GUILayout.Button("Open Graph", GUILayout.Width(85f)))
                             DialogueWorkspaceWindow.Open(treeProperty.objectReferenceValue as DialogueTree);
                 }
+                EditorGUILayout.PropertyField(serialized.FindProperty("dialogueResolver"));
                 EditorGUILayout.PropertyField(serialized.FindProperty("focusTarget"));
                 EditorGUILayout.PropertyField(serialized.FindProperty("speaker"));
+                SerializedProperty startOnTriggerEnter = serialized.FindProperty("startOnTriggerEnter");
+                EditorGUILayout.PropertyField(startOnTriggerEnter);
+                if (startOnTriggerEnter.boolValue)
+                {
+                    EditorGUILayout.PropertyField(serialized.FindProperty("requiredTag"));
+                    EditorGUILayout.PropertyField(serialized.FindProperty("triggerOnce"));
+                    EditorGUILayout.PropertyField(serialized.FindProperty("startRequirement"), true);
+                }
                 if (serialized.ApplyModifiedProperties()) MarkDirty(item.gameObject);
             }
         }
 
-        private void DrawOther(IEnumerable<Interactable> items)
+        private void DrawOther(IEnumerable<Component> items)
         {
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Other Interaction Targets", EditorStyles.boldLabel);
-            foreach (Interactable item in items.Where(Matches))
+            foreach (Component item in items.Where(Matches))
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                DrawObjectHeader(item.gameObject);
-                var serialized = new SerializedObject(item);
+                DrawObjectHeader(item.gameObject, InteractionTargetAuthoring.For(item).Kind);
+                using var serialized = new SerializedObject(item);
                 serialized.Update();
-                EditorGUILayout.PropertyField(serialized.FindProperty("displayName"), new GUIContent("Prompt"));
+                InteractionTargetAuthoring.DrawPrompt(serialized);
+                InteractionOutcomeEditor.DrawInteractionDetails(serialized);
                 if (serialized.ApplyModifiedProperties()) MarkDirty(item.gameObject);
             }
         }
@@ -156,18 +183,19 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             ? new[] { scope }
             : selectedScene.GetRootGameObjects();
 
-        private static T[] Components<T>(IEnumerable<Transform> transforms) where T : Component =>
-            transforms.Select(transform => transform.GetComponent<T>()).Where(item => item != null).ToArray();
+        private static T[] Components<T>(IEnumerable<GameObject> roots) where T : Component =>
+            roots.SelectMany(root => root.GetComponentsInChildren<T>(true)).ToArray();
 
         private bool Matches(Component item) => string.IsNullOrEmpty(search) ||
             item.name.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
             Path(item.transform).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
 
-        private static void DrawObjectHeader(GameObject owner)
+        private static void DrawObjectHeader(GameObject owner, string kind = null)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                EditorGUILayout.LabelField(Path(owner.transform), EditorStyles.boldLabel);
+                string path = Path(owner.transform);
+                EditorGUILayout.LabelField(kind == null ? path : $"{path}  [{kind}]", EditorStyles.boldLabel);
                 if (GUILayout.Button("Select", GUILayout.Width(55f))) Selection.activeGameObject = owner;
             }
         }

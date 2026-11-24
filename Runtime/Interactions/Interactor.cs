@@ -9,7 +9,7 @@ namespace QuietStatic.Toolkit.Interactions
     /// </summary>
     public class Interactor : MonoBehaviour
     {
-        private const int MaxRaycastHits = 32;
+        private const string ThrowChargeLabel = "Throw strength";
 
         [Header("Raycast")]
         [Tooltip("Camera used to cast the interaction ray through the center of the screen.")]
@@ -42,6 +42,13 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Ignore colliders below PlayerManager's active player so a third-person body cannot block the camera ray.")]
         [SerializeField] private bool ignoreActivePlayerColliders;
 
+        [Header("Grabbing")]
+        [Tooltip("Optional attachment point for carried objects. Place it outside the player body.")]
+        [SerializeField] private Transform holdTransform;
+
+        [Tooltip("Player root used for throws and actor-specific interactions. Defaults to the active player when registered.")]
+        [SerializeField] private GameObject holderRoot;
+
         [Header("Feedback")]
         [Tooltip("Optional UI manager used to show the current interaction prompt.")]
         [SerializeField] private InteractionUIManager interactionUI;
@@ -70,6 +77,24 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Gets the activated progress target under the crosshair.</summary>
         public ActivatedProgressInteractable CurrentProgressTarget { get; private set; }
 
+        /// <summary>Gets the object carried by this interactor, if any.</summary>
+        public Grabbable HeldGrabbable { get; private set; }
+
+        /// <summary>Gets the player root supplied to context-dependent interactions.</summary>
+        internal GameObject Actor
+        {
+            get
+            {
+                if (holderRoot != null)
+                {
+                    return holderRoot;
+                }
+
+                GameObject activePlayer = RegisteredPlayer;
+                return activePlayer != null ? activePlayer : gameObject;
+            }
+        }
+
         /// <summary>
         /// Previously targeted object, used to clear UI and highlight state.
         /// </summary>
@@ -78,8 +103,8 @@ namespace QuietStatic.Toolkit.Interactions
         private ActivatedProgressInteractable previousProgressTarget;
         private HoldInteractable activeHoldTarget;
         private int holdStartedFrame = -1;
-        private readonly RaycastHit[] raycastHits =
-            new RaycastHit[MaxRaycastHits];
+        private bool showingThrowCharge;
+        private readonly InteractionTargetSelection targetSelection = new();
 
         /// <summary>
         /// UnityEvent-friendly entry point for an interact input.
@@ -87,6 +112,81 @@ namespace QuietStatic.Toolkit.Interactions
         public void HandleInteractInput()
         {
             TryInteract();
+        }
+
+        /// <summary>Starts charging the held object or throws it immediately at fixed strength.</summary>
+        public void HandleThrowPressed()
+        {
+            Grabbable held = HeldGrabbable;
+            if (!isActiveAndEnabled || held == null || !held.IsHeld)
+            {
+                return;
+            }
+
+            if (!held.UseChargeThrow)
+            {
+                ThrowHeld(held);
+                return;
+            }
+
+            if (held.BeginCharge())
+            {
+                StopHold();
+                ShowThrowCharge(held);
+            }
+        }
+
+        /// <summary>Throws the held object if a charge is still active.</summary>
+        public void HandleThrowReleased()
+        {
+            Grabbable held = HeldGrabbable;
+            if (isActiveAndEnabled && held != null && held.IsCharging)
+            {
+                ThrowHeld(held);
+            }
+        }
+
+        /// <summary>Clears the current charge while keeping the object in hand.</summary>
+        public void CancelThrowCharge()
+        {
+            if (HeldGrabbable != null)
+            {
+                HeldGrabbable.CancelCharge();
+            }
+
+            HideThrowCharge();
+        }
+
+        /// <summary>Drops the held object and clears any active charge.</summary>
+        public void HandleDropInput()
+        {
+            CancelThrowCharge();
+            if (HeldGrabbable != null)
+            {
+                HeldGrabbable.Drop();
+            }
+        }
+
+        internal bool CanGrab(Grabbable grabbable) =>
+            isActiveAndEnabled && grabbable != null && grabbable.CanGrab(holdTransform);
+
+        internal bool TryGrab(Grabbable grabbable)
+        {
+            if (!CanGrab(grabbable))
+            {
+                return false;
+            }
+
+            HandleDropInput();
+            if (HeldGrabbable != null || !CanGrab(grabbable) ||
+                !grabbable.TryGrab(holdTransform, ResolveHolderRoot()))
+            {
+                return false;
+            }
+
+            HeldGrabbable = grabbable;
+            grabbable.Released += OnGrabbableReleased;
+            return true;
         }
 
         private void Awake()
@@ -106,6 +206,77 @@ namespace QuietStatic.Toolkit.Interactions
         {
             RefreshTarget();
             UpdateHoldInteraction();
+            UpdateThrowCharge();
+        }
+
+        private GameObject ResolveHolderRoot()
+        {
+            if (holderRoot != null)
+            {
+                return holderRoot;
+            }
+
+            GameObject activePlayer = RegisteredPlayer;
+            return activePlayer != null ? activePlayer : holdTransform.root.gameObject;
+        }
+
+        private static GameObject RegisteredPlayer => PlayerManager.Instance != null
+            ? PlayerManager.Instance.Player
+            : null;
+
+        private void ThrowHeld(Grabbable held)
+        {
+            Transform aim = interactionCamera != null ? interactionCamera.transform : transform;
+            if (!held.Throw(aim.forward))
+            {
+                CancelThrowCharge();
+            }
+        }
+
+        private void OnGrabbableReleased(Grabbable released)
+        {
+            released.Released -= OnGrabbableReleased;
+            HeldGrabbable = null;
+            HideThrowCharge();
+        }
+
+        private void UpdateThrowCharge()
+        {
+            Grabbable held = HeldGrabbable;
+            if (held == null || !held.IsCharging)
+            {
+                HideThrowCharge();
+                return;
+            }
+
+            held.AdvanceCharge(Time.deltaTime);
+            ShowThrowCharge(held);
+        }
+
+        private void ShowThrowCharge(Grabbable held)
+        {
+            if (interactionUI == null)
+            {
+                interactionUI = InteractionUIManager.Instance;
+            }
+
+            if (interactionUI != null && held != null && held.IsCharging)
+            {
+                showingThrowCharge = true;
+                interactionUI.ShowProgress(ThrowChargeLabel, held.ChargeProgress);
+            }
+        }
+
+        private void HideThrowCharge()
+        {
+            if (showingThrowCharge)
+            {
+                showingThrowCharge = false;
+                if (interactionUI != null)
+                {
+                    interactionUI.HideAndResetProgress();
+                }
+            }
         }
 
         /// <summary>
@@ -113,7 +284,11 @@ namespace QuietStatic.Toolkit.Interactions
         /// </summary>
         public void RefreshTarget()
         {
-            GetTargetsFromCrosshair(
+            targetSelection.Find(
+                this, interactionCamera, range, interactionMask,
+                HeldGrabbable != null ? HeldGrabbable.transform : null,
+                ResolveIgnoredRoot(), ResolveInteractionOrigin(),
+                requireInteractionOriginInRange ? maximumInteractionOriginDistance : null,
                 out IInteractionTarget newTarget,
                 out HoldInteractable newHoldTarget,
                 out ActivatedProgressInteractable newProgressTarget);
@@ -195,6 +370,7 @@ namespace QuietStatic.Toolkit.Interactions
 
             if (CurrentHoldTarget != null)
             {
+                CancelThrowCharge();
                 activeHoldTarget = CurrentHoldTarget;
                 holdStartedFrame = Time.frameCount;
                 return CurrentHoldTarget.CanInteract();
@@ -213,212 +389,6 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>
         /// Finds the interactable hit by a ray through the camera center.
         /// </summary>
-        private void GetTargetsFromCrosshair(
-            out IInteractionTarget interactable,
-            out HoldInteractable holdInteractable,
-            out ActivatedProgressInteractable progressInteractable)
-        {
-            interactable = null;
-            holdInteractable = null;
-            progressInteractable = null;
-
-            if (interactionCamera == null)
-            {
-                return;
-            }
-
-            Ray ray = interactionCamera.ViewportPointToRay(
-                new Vector3(0.5f, 0.5f, 0f)
-            );
-
-            UnityEngine.Debug.DrawRay(ray.origin, ray.direction * range, Color.green);
-
-            int hitCount = Physics.RaycastNonAlloc(
-                ray,
-                raycastHits,
-                range,
-                interactionMask,
-                QueryTriggerInteraction.Collide);
-
-            if (hitCount == 0)
-            {
-                return;
-            }
-
-            SortHitsByDistance(raycastHits, hitCount);
-
-            Transform selectedOwner = null;
-            bool hasNonInteractiveOccluder = false;
-            Transform resolvedIgnoredRoot = ResolveIgnoredRoot();
-            Transform resolvedInteractionOrigin = ResolveInteractionOrigin();
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                RaycastHit hit = raycastHits[i];
-
-                if (resolvedIgnoredRoot != null &&
-                    hit.collider.transform.IsChildOf(resolvedIgnoredRoot))
-                {
-                    continue;
-                }
-
-                if (!TryGetInteractionTargets(
-                        hit.collider,
-                        out IInteractionTarget hitInteractable,
-                        out HoldInteractable hitHoldInteractable,
-                        out ActivatedProgressInteractable hitProgressInteractable,
-                        out Transform hitOwner))
-                {
-                    // The nearest collider still occludes everything behind it.
-                    if (!hit.collider.isTrigger && selectedOwner == null)
-                    {
-                        hasNonInteractiveOccluder = true;
-                    }
-
-                    continue;
-                }
-
-                if (!HasTargetableInteractionStage(
-                        hitInteractable,
-                        hitHoldInteractable,
-                        hitProgressInteractable))
-                {
-                    // Disabled interactions still have raycast colliders. Until they become
-                    // targetable, treat them like ordinary geometry so they cannot claim owner
-                    // selection and hide an explicitly pass-through target behind them.
-                    if (!hit.collider.isTrigger && selectedOwner == null)
-                    {
-                        hasNonInteractiveOccluder = true;
-                    }
-
-                    continue;
-                }
-
-                if (hasNonInteractiveOccluder &&
-                    !AllowsTargetingThroughOccluders(hitInteractable))
-                {
-                    continue;
-                }
-
-                if (requireInteractionOriginInRange &&
-                    !IsHitWithinInteractionOriginRange(
-                        hit,
-                        resolvedInteractionOrigin))
-                {
-                    if (selectedOwner == null)
-                    {
-                        return;
-                    }
-
-                    continue;
-                }
-
-                if (selectedOwner != null &&
-                    !hitOwner.IsChildOf(selectedOwner))
-                {
-                    continue;
-                }
-
-                interactable = hitInteractable;
-                holdInteractable = hitHoldInteractable;
-                progressInteractable = hitProgressInteractable;
-                selectedOwner = hitOwner;
-            }
-        }
-
-        private static bool AllowsTargetingThroughOccluders(
-            IInteractionTarget interactionTarget)
-        {
-            return interactionTarget is Interactable interactable &&
-                   interactable.AllowTargetingThroughOccluders;
-        }
-
-        private bool HasTargetableInteractionStage(
-            IInteractionTarget interactionTarget,
-            HoldInteractable holdInteraction,
-            ActivatedProgressInteractable progressInteraction)
-        {
-            if (progressInteraction != null &&
-                (progressInteraction.IsAvailable || progressInteraction.IsRunning))
-            {
-                return true;
-            }
-
-            if (holdInteraction != null &&
-                holdInteraction.IsEnabled &&
-                holdInteraction.IsInteractorTargetingEnabled)
-            {
-                return true;
-            }
-
-            return interactionTarget != null &&
-                   interactionTarget.IsInteractionAvailable(this);
-        }
-
-        private static void SortHitsByDistance(
-            RaycastHit[] hits,
-            int hitCount)
-        {
-            for (int i = 1; i < hitCount; i++)
-            {
-                RaycastHit current = hits[i];
-                int insertionIndex = i - 1;
-
-                while (insertionIndex >= 0 &&
-                    hits[insertionIndex].distance > current.distance)
-                {
-                    hits[insertionIndex + 1] = hits[insertionIndex];
-                    insertionIndex--;
-                }
-
-                hits[insertionIndex + 1] = current;
-            }
-        }
-
-        /// <summary>
-        /// Finds the nearest interaction-bearing transform above a collider. Resolving all
-        /// interaction types at that same hierarchy level prevents a child interaction
-        /// from being mixed with a different interaction on one of its parents.
-        /// </summary>
-        private static bool TryGetInteractionTargets(
-            Collider hitCollider,
-            out IInteractionTarget interactable,
-            out HoldInteractable holdInteractable,
-            out ActivatedProgressInteractable progressInteractable,
-            out Transform owner)
-        {
-            interactable = null;
-            holdInteractable = null;
-            progressInteractable = null;
-            owner = null;
-
-            if (hitCollider == null)
-            {
-                return false;
-            }
-
-            Transform current = hitCollider.transform;
-            while (current != null)
-            {
-                interactable = current.GetComponent<IInteractionTarget>();
-                holdInteractable = current.GetComponent<HoldInteractable>();
-                progressInteractable =
-                    current.GetComponent<ActivatedProgressInteractable>();
-
-                if (interactable != null ||
-                    holdInteractable != null ||
-                    progressInteractable != null)
-                {
-                    owner = current;
-                    return true;
-                }
-
-                current = current.parent;
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Updates the interaction prompt and highlight when the viewed target changes.
         /// </summary>
@@ -433,7 +403,10 @@ namespace QuietStatic.Toolkit.Interactions
                 CurrentProgressTarget == null)
             {
                 interactionUI?.HidePrompt();
-                interactionUI?.HideProgress();
+                if (!showingThrowCharge)
+                {
+                    interactionUI?.HideProgress();
+                }
                 return;
             }
 
@@ -506,21 +479,6 @@ namespace QuietStatic.Toolkit.Interactions
             }
 
             return PlayerManager.Instance.Player.transform;
-        }
-
-        private bool IsHitWithinInteractionOriginRange(
-            RaycastHit hit,
-            Transform resolvedInteractionOrigin)
-        {
-            if (resolvedInteractionOrigin == null)
-            {
-                return false;
-            }
-
-            return Vector3.Distance(
-                resolvedInteractionOrigin.position,
-                hit.point
-            ) <= maximumInteractionOriginDistance;
         }
 
         private void UpdateHoldInteraction()
@@ -628,6 +586,7 @@ namespace QuietStatic.Toolkit.Interactions
 
         private void OnDisable()
         {
+            HandleDropInput();
             StopHold();
             SetHighlight(CurrentInteractionTarget, false);
             SetHighlight(CurrentHoldTarget, false);

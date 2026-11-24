@@ -58,12 +58,7 @@ namespace QuietStatic.Toolkit.Cinematics
         private IEnumerator PerformFade(ScreenFadeRequest request)
         {
             if (screenFader != null)
-            {
-                screenFader.StopActiveFade();
-                yield return request.Target == ScreenFadeTarget.Black
-                    ? screenFader.FadeToBlackRoutine(request.Duration)
-                    : screenFader.FadeToClearRoutine(request.Duration);
-            }
+                yield return screenFader.ReplaceFadeRoutine(request.Target, request.Duration);
 
             request.Complete();
             if (ReferenceEquals(activeRequest, request))

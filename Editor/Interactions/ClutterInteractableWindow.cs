@@ -74,7 +74,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 var flavorObject = new SerializedObject(item);
                 interactionObject.Update();
                 flavorObject.Update();
-                EditorGUILayout.PropertyField(interactionObject.FindProperty("displayName"), new GUIContent("Prompt"));
+                InteractionTargetAuthoring.DrawPrompt(interactionObject);
                 EditorGUILayout.PropertyField(flavorObject.FindProperty("flavorText"), new GUIContent("Flavor Text"));
                 EditorGUILayout.PropertyField(flavorObject.FindProperty("channel"));
                 SerializedProperty custom = flavorObject.FindProperty("useCustomDuration");
@@ -123,9 +123,9 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         {
             if (target == null || EditorUtility.IsPersistent(target)) return null;
             Undo.RegisterCompleteObjectUndo(target, "Set Up Clutter Interactable");
-            Interactable interaction = target.GetComponent<Interactable>() ?? Undo.AddComponent<Interactable>(target);
-            FlavorTextInteraction flavor = target.GetComponent<FlavorTextInteraction>() ?? Undo.AddComponent<FlavorTextInteraction>(target);
-            if (target.GetComponentInChildren<InteractionHighlighter>(true) == null) Undo.AddComponent<InteractionHighlighter>(target);
+            Interactable interaction = EnsureComponent<Interactable>(target, true);
+            FlavorTextInteraction flavor = EnsureComponent<FlavorTextInteraction>(target, true);
+            EnsureHighlighter(target, true);
             if (!InteractionTargetColliderUtility.HasRaycastCollider(interaction)) AddBoundsCollider(target);
             int layer = LayerMask.NameToLayer("Interactables");
             if (layer >= 0) target.layer = layer;
@@ -135,20 +135,41 @@ namespace QuietStatic.Toolkit.Editor.Interactions
             return flavor;
         }
 
-        private static void AddBoundsCollider(GameObject target)
+        internal static T EnsureComponent<T>(GameObject target, bool useUndo) where T : Component
+        {
+            T existing = target.GetComponent<T>();
+            if (existing != null) return existing;
+            return useUndo ? Undo.AddComponent<T>(target) : target.AddComponent<T>();
+        }
+
+        internal static void EnsureHighlighter(GameObject target, bool useUndo)
+        {
+            if (target.GetComponentInChildren<InteractionHighlighter>(true) == null)
+                EnsureComponent<InteractionHighlighter>(target, useUndo);
+        }
+
+        internal static void AddBoundsCollider(GameObject target, bool isTrigger = true, bool useUndo = true,
+            GameObject colliderOwner = null)
         {
             Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
             if (renderers.Length == 0) return;
-            Bounds bounds = renderers[0].bounds;
-            for (int index = 1; index < renderers.Length; index++) bounds.Encapsulate(renderers[index].bounds);
-            BoxCollider collider = Undo.AddComponent<BoxCollider>(target);
-            collider.isTrigger = true;
-            collider.center = target.transform.InverseTransformPoint(bounds.center);
-            Vector3 scale = target.transform.lossyScale;
-            collider.size = new Vector3(
-                bounds.size.x / Mathf.Max(Mathf.Abs(scale.x), .0001f),
-                bounds.size.y / Mathf.Max(Mathf.Abs(scale.y), .0001f),
-                bounds.size.z / Mathf.Max(Mathf.Abs(scale.z), .0001f));
+            if (colliderOwner == null) colliderOwner = target;
+            Matrix4x4 worldToTarget = colliderOwner.transform.worldToLocalMatrix;
+            var bounds = new Bounds(worldToTarget.MultiplyPoint3x4(renderers[0].bounds.center), Vector3.zero);
+            foreach (Renderer renderer in renderers)
+            {
+                Matrix4x4 rendererToTarget = worldToTarget * renderer.localToWorldMatrix;
+                Bounds rendererBounds = renderer.localBounds;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    Vector3 direction = new((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1);
+                    bounds.Encapsulate(rendererToTarget.MultiplyPoint3x4(rendererBounds.center + Vector3.Scale(rendererBounds.extents, direction)));
+                }
+            }
+            BoxCollider collider = useUndo ? Undo.AddComponent<BoxCollider>(colliderOwner) : colliderOwner.AddComponent<BoxCollider>();
+            collider.isTrigger = isTrigger;
+            collider.center = bounds.center;
+            collider.size = Vector3.Max(bounds.size, Vector3.one * .01f);
         }
 
         private static void AssignChannel(FlavorTextInteraction flavor)

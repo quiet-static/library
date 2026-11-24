@@ -231,9 +231,10 @@ namespace QuietStatic
                 yield break;
             }
 
-            if (fadeChannel != null && fadeChannel.HasReceiver)
+            var route = new ScreenFadeRoute(fadeChannel, fader);
+            if (route.UsesChannel)
             {
-                yield return fadeChannel.FadeRoutine(
+                yield return route.FadeRoutine(
                     ScreenFadeTarget.Black,
                     fadeDuration);
 
@@ -246,19 +247,20 @@ namespace QuietStatic
                 yield break;
             }
 
-            if (fader == null)
+            ScreenFader directFader = route.DirectFader;
+            if (directFader == null)
             {
                 yield break;
             }
 
-            fader.FadeToBlack();
+            directFader.FadeToBlack();
 
             if (fadeWaitDuration > 0f)
             {
                 yield return new WaitForSecondsRealtime(fadeWaitDuration);
             }
 
-            fader.SetBlackInstant();
+            if (directFader != null) directFader.SetBlackInstant();
         }
 
         /// <summary>
@@ -271,20 +273,16 @@ namespace QuietStatic
                 return;
             }
 
-            if (fadeChannel != null && fadeChannel.HasReceiver)
+            var route = new ScreenFadeRoute(fadeChannel, fader);
+            if (route.UsesChannel)
             {
-                StartCoroutine(fadeChannel.FadeRoutine(
+                StartCoroutine(route.FadeRoutine(
                     ScreenFadeTarget.Clear,
                     fadeDuration));
                 return;
             }
 
-            if (fader == null)
-            {
-                return;
-            }
-
-            fader.FadeToClear();
+            if (route.DirectFader != null) route.DirectFader.FadeToClear();
         }
     }
 }

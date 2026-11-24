@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Jumpscare — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Jumpscare</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent'><code>QuietStatic.Toolkit.Jumpscare.JumpscareEvent</code></a>.</p><figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/JumpscarePlaybackTests.cs'>Tests/PlayMode/JumpscarePlaybackTests.cs, line 67</a></figcaption><pre><code>sequence.Play();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-jumpscare-readme-md'><h1 id='guide-runtime-jumpscare-readme-md-jumpscares'>Jumpscares</h1>
+<p><code>JumpscareTrigger</code> detects the player and starts a <code>JumpscareEvent</code>. The event coordinates
+visibility, audio, timing, and optional screen fading while broadcasting lifecycle events.</p>
+<pre><code class="language-text">Jumpscare Root
+├── JumpscareEvent
+├── Scare Visual (initially inactive)
+├── AudioSource
+└── Trigger Volume
+    └── JumpscareTrigger
+</code></pre>
+<p>Keep story consequences in event callbacks or handlers so the reusable sequence remains
+independent of flags, objectives, and scene loading.</p>
+<p><code>CustomJumpscare.prefab</code> is a neutral starting point with a separate visual anchor,
+2D audio source, flash overlay, reveal light, particle effect, and trigger volume.
+Replace or remove any optional child without changing the sequence component.</p>
+<p>The sequence exposes anticipation, reveal, cleanup, and finish events. Optional reveal
+objects, animator triggers, particles, lights, randomized stingers, overlay flash,
+camera shake, screen fading, recovery timing, and scaled/unscaled time can be combined
+per instance. Flash and camera shake automatically respect reduced-flashing and
+reduced-camera-motion preferences when accessibility handling is enabled.</p>
+<p>Triggers can also be invoked from a UnityEvent through <code>Trigger()</code>. Reusable triggers
+support cooldowns, activation limits, probability, and <code>ResetTrigger()</code>.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent'><summary><code>JumpscareEvent</code> <span class='source'>QuietStatic.Toolkit.Jumpscare.JumpscareEvent</span></summary><div class='entry'>
+<code class='signature'>public class JumpscareEvent : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Runtime/Jumpscare/JumpscareEvent.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent'>Permalink</a></p>
+<p class='comment'>Runs a simple, reusable jumpscare sequence.</p>
+<p class='comment'><strong>Remarks</strong> Supports both Inspector-assigned UnityEvents and static C# events. Use UnityEvents for local scene behavior such as animations, lights, and object activation. Use static C# events for systems that may exist in other scenes, such as objective, audio, analytics, UI, or progression managers.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-26-8'><code class='signature'>public event Action&lt;JumpscareEvent&gt; JumpscareStarted</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-26-8'>Permalink</a></p>
+<p class='comment'>Raised when any jumpscare begins, after its optional delay has completed.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-31-8'><code class='signature'>public event Action&lt;JumpscareEvent&gt; JumpscareFinished</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-31-8'>Permalink</a></p>
+<p class='comment'>Raised when any jumpscare finishes its cleanup and fade sequence.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-130-8'><code class='signature'>public bool IsRunning { get; }</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Source, line 130</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-130-8'>Permalink</a></p>
+<p class='comment'>Gets whether this jumpscare sequence is currently active.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-151-8'><code class='signature'>public void Play()</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Source, line 151</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-151-8'>Permalink</a></p>
+<p class='comment'>Starts the jumpscare sequence if it is not already running.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/JumpscarePlaybackTests.cs'>Tests/PlayMode/JumpscarePlaybackTests.cs, line 67</a></figcaption><pre><code>sequence.Play();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-162-8'><code class='signature'>public void Stop()</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareEvent.cs'>Source, line 162</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareEvent-Runtime-Jumpscare-JumpscareEvent-cs-162-8'>Permalink</a></p>
+<p class='comment'>Cancels the active sequence and restores all temporary presentation state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/JumpscarePlaybackTests.cs'>Tests/PlayMode/JumpscarePlaybackTests.cs, line 94</a></figcaption><pre><code>sequence.Stop();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger'><summary><code>JumpscareTrigger</code> <span class='source'>QuietStatic.Toolkit.Jumpscare.JumpscareTrigger</span></summary><div class='entry'>
+<code class='signature'>public class JumpscareTrigger : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Jumpscare/JumpscareTrigger.cs'>Runtime/Jumpscare/JumpscareTrigger.cs, line 18</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger'>Permalink</a></p>
+<p class='comment'>Trigger-volume helper that plays a JumpscareEvent when an allowed collider enters.</p>
+<p class='comment'><strong>Remarks</strong> This component is intended for simple jumpscare setups where entering a collider should start a configured jumpscare sequence. It can optionally filter by tag and optionally prevent itself from firing more than once. Typical usage: - Add this component to a GameObject with a Collider set to Is Trigger. - Assign a JumpscareEvent in the Inspector. - Leave requiredTag as &quot;Player&quot; if only the player should activate it.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger-Runtime-Jumpscare-JumpscareTrigger-cs-116-8'><code class='signature'>public void Trigger()</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareTrigger.cs'>Source, line 116</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger-Runtime-Jumpscare-JumpscareTrigger-cs-116-8'>Permalink</a></p>
+<p class='comment'>UnityEvent entry point that attempts activation without a collider/tag check.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/JumpscareTests.cs'>Tests/EditMode/JumpscareTests.cs, line 55</a></figcaption><pre><code>trigger.Trigger();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger-Runtime-Jumpscare-JumpscareTrigger-cs-125-8'><code class='signature'>public void ResetTrigger()</code><p class='source'><a href='../../../Runtime/Jumpscare/JumpscareTrigger.cs'>Source, line 125</a> · <a href='#api-QuietStatic.Toolkit.Jumpscare.JumpscareTrigger-Runtime-Jumpscare-JumpscareTrigger-cs-125-8'>Permalink</a></p>
+<p class='comment'>Clears reuse state so the trigger can activate again.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/JumpscareTests.cs'>Tests/EditMode/JumpscareTests.cs, line 57</a></figcaption><pre><code>trigger.ResetTrigger();</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

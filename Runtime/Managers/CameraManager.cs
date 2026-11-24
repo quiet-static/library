@@ -268,14 +268,20 @@ namespace QuietStatic
         /// <param name="focusTarget">World transform the camera should face.</param>
         public void BeginFocus(Transform focusTarget)
         {
+            BeginFocus(focusTarget, null);
+        }
+
+        internal CameraFocusController BeginFocus(Transform focusTarget, object owner)
+        {
             ResolveReferences();
 
             if (focusController == null || focusTarget == null)
             {
-                return;
+                return null;
             }
 
-            focusController.BeginFocus(focusTarget);
+            focusController.BeginFocus(focusTarget, owner);
+            return focusController;
         }
 
         /// <summary>Ends scripted focus and restores normal camera control.</summary>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Event — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Event</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.CrossSceneChannelSubscription-1'><code>QuietStatic.CrossSceneChannelSubscription-1</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs#L57-L59'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs, lines 57–59</a></figcaption><pre><code>new CrossSceneChannelSubscription&lt;GameOverPresentationChannel&gt;(
+Subscribe,
+Unsubscribe)</code></pre></figure></section>
+<section class='guide' id='guide-runtime-event-readme-md'><h1 id='guide-runtime-event-readme-md-cross-scene-commands'>Cross-scene commands</h1>
+<p>Commands and notifications have different ownership:</p>
+<ul>
+<li>Use a focused handler for a UnityEvent calling a persistent system from the same
+composed scene hierarchy.</li>
+<li>Use a <code>CrossSceneCommandChannel</code> asset when content and receiver scenes must not
+hold references to one another.</li>
+<li>Use events on the authoritative runtime component for observations that may have
+many consumers and do not ask that system to perform work. Always unsubscribe when
+the listener is disabled or destroyed.</li>
+</ul>
+<p>Concrete command channels retain UnityEvent-friendly methods such as
+<code>ShowMessage</code>, <code>RequestSave</code>, and <code>TransitionToScene</code>. Internally each method emits
+one typed <code>CommandRequested</code> payload. Persistent receivers should use
+<code>CrossSceneChannelSubscription&lt;T&gt;</code> so disabling a component or changing its channel
+always detaches from the exact asset previously subscribed.</p>
+<p>Command receivers consume the typed command stream; lifecycle notifications remain
+separate observation events.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.CrossSceneChannelSubscription-1'><summary><code>CrossSceneChannelSubscription</code> <span class='source'>QuietStatic.CrossSceneChannelSubscription-1</span></summary><div class='entry'>
+<code class='signature'>public sealed class CrossSceneChannelSubscription&lt;TChannel&gt; where TChannel : CrossSceneCommandChannel</code>
+<p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Runtime/Event/CrossSceneCommandChannel.cs, line 107</a> · <a href='#api-QuietStatic.CrossSceneChannelSubscription-1'>Permalink</a></p>
+<p class='comment'>Tracks the exact channel subscribed by a component so runtime channel changes cannot leave callbacks attached to an old asset.</p>
+<p class='comment'><strong>TChannel</strong> Concrete channel asset type.</p>
+<div class='member' id='api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-115-8'><code class='signature'>public CrossSceneChannelSubscription( Action&lt;TChannel&gt; subscribe, Action&lt;TChannel&gt; unsubscribe)</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 115</a> · <a href='#api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-115-8'>Permalink</a></p>
+<p class='comment'>Creates a tracked subscription using the supplied callbacks.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs#L57-L59'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs, lines 57–59</a></figcaption><pre><code>new CrossSceneChannelSubscription&lt;GameOverPresentationChannel&gt;(
+Subscribe,
+Unsubscribe)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-126-8'><code class='signature'>public TChannel Channel { get; }</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 126</a> · <a href='#api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-126-8'>Permalink</a></p>
+<p class='comment'>The channel currently subscribed, or null.</p>
+</div>
+<div class='member' id='api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-129-8'><code class='signature'>public void Bind(TChannel value)</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 129</a> · <a href='#api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-129-8'>Permalink</a></p>
+<p class='comment'>Moves the subscription to a new channel.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs#L74'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs, line 74</a></figcaption><pre><code>Subscription.Bind(requestChannel);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-147-8'><code class='signature'>public void Unbind()</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 147</a> · <a href='#api-QuietStatic.CrossSceneChannelSubscription-1-Runtime-Event-CrossSceneCommandChannel-cs-147-8'>Permalink</a></p>
+<p class='comment'>Removes callbacks from the channel that was actually subscribed.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs#L94'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/GameOverPresenter.cs, line 94</a></figcaption><pre><code>Subscription.Unbind();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.CrossSceneCommandChannel'><summary><code>CrossSceneCommandChannel</code> <span class='source'>QuietStatic.CrossSceneCommandChannel</span></summary><div class='entry'>
+<code class='signature'>public abstract class CrossSceneCommandChannel : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Runtime/Event/CrossSceneCommandChannel.cs, line 11</a> · <a href='#api-QuietStatic.CrossSceneCommandChannel'>Permalink</a></p>
+<p class='comment'>Non-generic base for ScriptableObject channels that bridge scene content and persistent systems.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.CrossSceneCommandChannel-1'><summary><code>CrossSceneCommandChannel</code> <span class='source'>QuietStatic.CrossSceneCommandChannel-1</span></summary><div class='entry'>
+<code class='signature'>public abstract class CrossSceneCommandChannel&lt;TCommand&gt; : CrossSceneCommandChannel</code>
+<p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Runtime/Event/CrossSceneCommandChannel.cs, line 17</a> · <a href='#api-QuietStatic.CrossSceneCommandChannel-1'>Permalink</a></p>
+<p class='comment'>Base for fire-and-forget channels that dispatch one strongly typed command stream.</p>
+<p class='comment'><strong>TCommand</strong> Payload describing the requested operation.</p>
+<div class='member' id='api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-21-8'><code class='signature'>public event Action&lt;TCommand&gt; CommandRequested</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 21</a> · <a href='#api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-21-8'>Permalink</a></p>
+<p class='comment'>Raised synchronously whenever a caller dispatches a command.</p>
+</div>
+<div class='member' id='api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-24-8'><code class='signature'>public bool HasReceivers { get; }</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 24</a> · <a href='#api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-24-8'>Permalink</a></p>
+<p class='comment'>Whether at least one enabled receiver is currently subscribed.</p>
+</div>
+<div class='member' id='api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-27-8'><code class='signature'>public string LastCorrelationId { get; private set; }</code><p class='source'><a href='../../../Runtime/Event/CrossSceneCommandChannel.cs'>Source, line 27</a> · <a href='#api-QuietStatic.CrossSceneCommandChannel-1-Runtime-Event-CrossSceneCommandChannel-cs-27-8'>Permalink</a></p>
+<p class='comment'>Correlation ID assigned to the most recently traced dispatch.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.RequiredCommandChannelAttribute'><summary><code>RequiredCommandChannelAttribute</code> <span class='source'>QuietStatic.RequiredCommandChannelAttribute</span></summary><div class='entry'>
+<code class='signature'>public sealed class RequiredCommandChannelAttribute : PropertyAttribute</code>
+<p class='source'><a href='../../../Runtime/Event/RequiredCommandChannelAttribute.cs'>Runtime/Event/RequiredCommandChannelAttribute.cs, line 10</a> · <a href='#api-QuietStatic.RequiredCommandChannelAttribute'>Permalink</a></p>
+<p class='comment'>Marks a serialized command-channel field that must be assigned for the component to participate in the project&#39;s canonical cross-scene command pipeline.</p>
+<div class='member' id='api-QuietStatic.RequiredCommandChannelAttribute-Runtime-Event-RequiredCommandChannelAttribute-cs-17-8'><code class='signature'>public RequiredCommandChannelAttribute(bool isReceiver = false)</code><p class='source'><a href='../../../Runtime/Event/RequiredCommandChannelAttribute.cs'>Source, line 17</a> · <a href='#api-QuietStatic.RequiredCommandChannelAttribute-Runtime-Event-RequiredCommandChannelAttribute-cs-17-8'>Permalink</a></p>
+<p class='comment'>Creates a required channel marker for a caller or receiver field.</p>
+<p class='comment'><strong>isReceiver</strong> True when the owning component is the persistent adapter that consumes this channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new RequiredCommandChannelAttribute(isReceiver);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.RequiredCommandChannelAttribute-Runtime-Event-RequiredCommandChannelAttribute-cs-23-8'><code class='signature'>public bool IsReceiver { get; }</code><p class='source'><a href='../../../Runtime/Event/RequiredCommandChannelAttribute.cs'>Source, line 23</a> · <a href='#api-QuietStatic.RequiredCommandChannelAttribute-Runtime-Event-RequiredCommandChannelAttribute-cs-23-8'>Permalink</a></p>
+<p class='comment'>Whether the owning component receives commands from the assigned channel.</p>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

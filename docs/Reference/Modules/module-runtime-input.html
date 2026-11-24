@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Input — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Input</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Input.InputBlockHandle'><code>QuietStatic.Toolkit.Input.InputBlockHandle</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L220'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 220</a></figcaption><pre><code>presentationInput?.Dispose();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-input-readme-md'><h1 id='guide-runtime-input-readme-md-input'>Input</h1>
+<p><code>PlayerInputReader</code> adapts Unity's Input System into the shared gameplay state used
+by player components.</p>
+<pre><code class="language-text">Player
+├── PlayerInput
+├── PlayerInputReader
+├── CharacterMotor
+├── PlayerController
+└── Interactor
+</code></pre>
+<p>Assign an Input Actions asset and action map to <code>PlayerInputReader</code>. Movement and look
+components can depend on <code>IMoveInputSource</code> and <code>ILookInputSource</code>; continuous hold
+activities use <code>IHoldInteractInputSource</code>. Interaction presses use the manager's
+buffered <code>QueueInteract</code>/<code>ConsumeInteract</code> path.</p>
+<h2 id='guide-runtime-input-readme-md-input-for-held-props'>Input for held props</h2>
+<p>Assign the player's <code>Interactor</code> to <strong>Grabbable Interactor</strong> on <code>PlayerInputReader</code>.
+Add optional Button actions to the same action map and match their names in the reader.
+<strong>Throw</strong> uses press and release, <strong>Drop</strong> releases the held prop without throwing it,
+and <strong>CancelThrow</strong> clears the charge while keeping the prop held. A missing action or
+blank action name leaves that input unbound. The reader cancels a charge if it or its
+action map is disabled. See <a href='../guides.html#guide-runtime-interactions-readme-md-grabbable-objects'>Grabbable objects</a>
+for the prop and HUD setup.</p>
+<h2 id='guide-runtime-input-readme-md-temporary-input-ownership'>Temporary input ownership</h2>
+<p><code>InputModeManager</code> still selects the normal gameplay, UI, or cutscene group from
+the global game state. Temporary activities can additionally acquire an
+<code>InputBlockHandle</code> for one or more <code>InputBlockGroups</code>.</p>
+<p>Claims compose: a group remains disabled until every owner has disposed its handle.
+Changing game state while a claim is active updates the desired mode without bypassing
+the block, and releasing a claim reapplies the latest desired mode.</p>
+<p>Use <code>InputContextClaim</code> when a UnityEvent needs to acquire and release ownership.
+The component releases automatically when disabled. Code-owned claims should be kept
+for the activity lifetime and disposed on every completion, failure, cancellation, and
+destruction path.</p>
+<p><code>InputSequenceMinigame</code> acquires a gameplay block by default. Use a separate Input
+Action map for minigame actions so disabling the player action map cannot interfere
+with prompts.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Input.ILookInputSource'><summary><code>ILookInputSource</code> <span class='source'>QuietStatic.Input.ILookInputSource</span></summary><div class='entry'>
+<code class='signature'>public interface ILookInputSource</code>
+<p class='source'><a href='../../../Runtime/Input/ILookInputSource.cs'>Runtime/Input/ILookInputSource.cs, line 18</a> · <a href='#api-QuietStatic.Input.ILookInputSource'>Permalink</a></p>
+<p class='comment'>Defines a reusable source of two-dimensional look input.</p>
+<p class='comment'><strong>Remarks</strong> Implement this interface on any component that can provide camera, aiming, or cursor-style look input. This keeps camera and aiming systems independent from a specific input implementation, such as Unity&#39;s old Input Manager, the newer Input System, AI-controlled look behavior, or scripted cutscene input. The returned value is intentionally generic. Implementations decide whether the vector represents mouse delta, controller stick input, touch movement, or another look source.</p>
+<div class='member' id='api-QuietStatic.Input.ILookInputSource-Runtime-Input-ILookInputSource-cs-32-8'><code class='signature'>Vector2 Look { get; }</code><p class='source'><a href='../../../Runtime/Input/ILookInputSource.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Input.ILookInputSource-Runtime-Input-ILookInputSource-cs-32-8'>Permalink</a></p>
+<p class='comment'>Gets the current look input vector.</p>
+<p class='comment'><strong>Value</strong> A two-dimensional look vector where X represents horizontal look input and Y represents vertical look input.</p>
+<p class='comment'><strong>Remarks</strong> Consumers usually read this once per frame and apply their own sensitivity, smoothing, clamping, or inversion settings. For example, a camera controller might use X to adjust yaw and Y to adjust pitch.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Input.IMoveInputSource'><summary><code>IMoveInputSource</code> <span class='source'>QuietStatic.Input.IMoveInputSource</span></summary><div class='entry'>
+<code class='signature'>public interface IMoveInputSource</code>
+<p class='source'><a href='../../../Runtime/Input/IMoveInputSource.cs'>Runtime/Input/IMoveInputSource.cs, line 18</a> · <a href='#api-QuietStatic.Input.IMoveInputSource'>Permalink</a></p>
+<p class='comment'>Defines a reusable source of movement-related player input.</p>
+<p class='comment'><strong>Remarks</strong> Implement this interface on any component that can provide movement controls to gameplay systems such as character motors, player controllers, or AI/input adapters. The purpose of this interface is to keep movement code independent from a specific input implementation. For example, one implementation could read from Unity&#39;s Input System, another could read from old Input Manager axes, and another could provide scripted input for cutscenes or tests.</p>
+<div class='member' id='api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-31-8'><code class='signature'>Vector2 Move { get; }</code><p class='source'><a href='../../../Runtime/Input/IMoveInputSource.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-31-8'>Permalink</a></p>
+<p class='comment'>Gets the current two-axis movement input.</p>
+<p class='comment'><strong>Remarks</strong> By convention, Vector2.x represents horizontal movement such as left/right or strafe input, while Vector2.y represents vertical movement such as forward/back input. Implementations may return raw input, normalized input, or processed input depending on the needs of the controller consuming this interface.</p>
+</div>
+<div class='member' id='api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-41-8'><code class='signature'>bool Sprint { get; }</code><p class='source'><a href='../../../Runtime/Input/IMoveInputSource.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-41-8'>Permalink</a></p>
+<p class='comment'>Gets whether the sprint input is currently being held.</p>
+<p class='comment'><strong>Remarks</strong> This should represent a held state rather than a one-frame press. Character movement systems can use this value to choose between walk, run, or sprint speeds.</p>
+</div>
+<div class='member' id='api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-58-8'><code class='signature'>bool ConsumeJump()</code><p class='source'><a href='../../../Runtime/Input/IMoveInputSource.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Input.IMoveInputSource-Runtime-Input-IMoveInputSource-cs-58-8'>Permalink</a></p>
+<p class='comment'>Consumes the current jump press so the jump action is handled only once.</p>
+<p class='comment'><strong>Remarks</strong> This method is useful for one-shot actions such as jumping, where a held button should not repeatedly trigger the action every frame. Implementations should usually return true once for a pending jump press, then clear that pending press so later calls return false until the player presses jump again.</p>
+<p class='comment'><strong>Returns</strong> true if a jump press was available and has now been consumed; otherwise, false.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/Player/PlayerController.cs'>Runtime/Characters/Player/PlayerController.cs, lines 97–101</a></figcaption><pre><code>motor.Tick(
+    inputSource.Move,
+    inputSource.Sprint,
+    inputSource.ConsumeJump()
+);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Input.InputBlockGroups'><summary><code>InputBlockGroups</code> <span class='source'>QuietStatic.Toolkit.Input.InputBlockGroups</span></summary><div class='entry'>
+<code class='signature'>public enum InputBlockGroups</code>
+<p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Runtime/Input/InputBlockGroups.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups'>Permalink</a></p>
+<p class='comment'>Input groups that a temporary owner can suppress.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-9-8'><code class='signature'>None = 0</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-10-8'><code class='signature'>Gameplay = 1 &lt;&lt; 0</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-11-8'><code class='signature'>UI = 1 &lt;&lt; 1</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-12-8'><code class='signature'>Cutscene = 1 &lt;&lt; 2</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-13-8'><code class='signature'>Pause = 1 &lt;&lt; 3</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-14-8'><code class='signature'>All = Gameplay | UI | Cutscene | Pause</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockGroups-Runtime-Input-InputBlockGroups-cs-14-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Input.InputBlockHandle'><summary><code>InputBlockHandle</code> <span class='source'>QuietStatic.Toolkit.Input.InputBlockHandle</span></summary><div class='entry'>
+<code class='signature'>public sealed class InputBlockHandle : IDisposable</code>
+<p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Runtime/Input/InputBlockGroups.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockHandle'>Permalink</a></p>
+<p class='comment'>Disposable ownership token returned by InputModeManager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockHandle-Runtime-Input-InputBlockGroups-cs-32-8'><code class='signature'>public bool IsActive { get; }</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockHandle-Runtime-Input-InputBlockGroups-cs-32-8'>Permalink</a></p>
+<p class='comment'>Whether this handle still owns an active input block.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputBlockHandle-Runtime-Input-InputBlockGroups-cs-35-8'><code class='signature'>public void Dispose()</code><p class='source'><a href='../../../Runtime/Input/InputBlockGroups.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Input.InputBlockHandle-Runtime-Input-InputBlockGroups-cs-35-8'>Permalink</a></p>
+<p class='comment'>Releases this claim. Repeated calls are safe.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L220'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 220</a></figcaption><pre><code>presentationInput?.Dispose();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Input.InputContextClaim'><summary><code>InputContextClaim</code> <span class='source'>QuietStatic.Toolkit.Input.InputContextClaim</span></summary><div class='entry'>
+<code class='signature'>public sealed class InputContextClaim : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Input/InputContextClaim.cs'>Runtime/Input/InputContextClaim.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Input.InputContextClaim'>Permalink</a></p>
+<p class='comment'>UnityEvent-facing owner of a composable input block claim.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-21-8'><code class='signature'>public bool IsClaimed { get; }</code><p class='source'><a href='../../../Runtime/Input/InputContextClaim.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-21-8'>Permalink</a></p>
+<p class='comment'>Whether this component currently owns a claim.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-37-8'><code class='signature'>public void Acquire()</code><p class='source'><a href='../../../Runtime/Input/InputContextClaim.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-37-8'>Permalink</a></p>
+<p class='comment'>Acquires this component&#39;s configured block. Suitable for UnityEvents.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Acquire();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-50-8'><code class='signature'>public void Release()</code><p class='source'><a href='../../../Runtime/Input/InputContextClaim.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Input.InputContextClaim-Runtime-Input-InputContextClaim-cs-50-8'>Permalink</a></p>
+<p class='comment'>Releases this component&#39;s block. Suitable for UnityEvents.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Release();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Input.PlayerInputReader'><summary><code>PlayerInputReader</code> <span class='source'>QuietStatic.Toolkit.Input.PlayerInputReader</span></summary><div class='entry'>
+<code class='signature'>public class PlayerInputReader : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Input/PlayerInputReader.cs'>Runtime/Input/PlayerInputReader.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Input.PlayerInputReader'>Permalink</a></p>
+<p class='comment'>Reads common gameplay actions from Unity&#39;s Input System and forwards them to a shared input state manager.</p>
+<p class='comment'><strong>Remarks</strong> This component does not decide when gameplay input is allowed. Register it with InputModeManager so that manager can enable or disable it based on the current game state.</p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

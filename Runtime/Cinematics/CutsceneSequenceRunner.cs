@@ -65,6 +65,13 @@ namespace QuietStatic.Toolkit.Cinematics
             /// <summary>Stable ID of the director-owned shot applied by this step.</summary>
             public string cameraShotId;
 
+            [Header("Characters")]
+            [Tooltip("Controller that applies this step's character actions after its start callbacks and before the camera shot.")]
+            public CutsceneCharacterController characterController;
+
+            [Tooltip("Placement, visibility, facing, and animation actions applied when this step begins. Animation playback does not delay the step; configure timing below.")]
+            public List<CutsceneCharacterController.CharacterStepAction> characterActions = new();
+
             [Header("Dialogue")]
             [Tooltip("Optional dialogue runner to start during this step. The sequence waits until this runner is finished before continuing.")]
             /// <summary>Optional dialogue runner started and awaited by this step.</summary>
@@ -253,18 +260,21 @@ namespace QuietStatic.Toolkit.Cinematics
         /// <returns>An enumerator used by Unity's coroutine system.</returns>
         private IEnumerator PlayStepRoutine(Step step)
         {
-            if (fadeOutBeforeStep > 0f && HasFadeReceiver())
+            var fadeOut = new ScreenFadeRoute(fadeChannel, fader);
+            if (fadeOutBeforeStep > 0f && fadeOut.IsAvailable)
             {
-                yield return FadeRoutine(ScreenFadeTarget.Black, fadeOutBeforeStep);
+                yield return fadeOut.FadeRoutine(ScreenFadeTarget.Black, fadeOutBeforeStep);
             }
 
             while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             step.onStepStarted?.Invoke();
+            if (step.characterController != null) step.characterController.ApplyActions(step.characterActions);
             ApplyCameraPose(step);
 
-            if (fadeInAfterCameraMove > 0f && HasFadeReceiver())
+            var fadeIn = new ScreenFadeRoute(fadeChannel, fader);
+            if (fadeInAfterCameraMove > 0f && fadeIn.IsAvailable)
             {
-                yield return FadeRoutine(ScreenFadeTarget.Clear, fadeInAfterCameraMove);
+                yield return fadeIn.FadeRoutine(ScreenFadeTarget.Clear, fadeInAfterCameraMove);
             }
 
             if (step.waitBeforeActivity > 0f)
@@ -305,26 +315,6 @@ namespace QuietStatic.Toolkit.Cinematics
 
             while (PauseManager.Instance != null && PauseManager.Instance.IsPaused) yield return null;
             step.onStepFinished?.Invoke();
-        }
-
-        private bool HasFadeReceiver()
-        {
-            return (fadeChannel != null && fadeChannel.HasReceiver) || fader != null;
-        }
-
-        private IEnumerator FadeRoutine(ScreenFadeTarget target, float duration)
-        {
-            if (fadeChannel != null && fadeChannel.HasReceiver)
-            {
-                yield return fadeChannel.FadeRoutine(target, duration);
-                yield break;
-            }
-
-            if (fader == null) yield break;
-            fader.StopActiveFade();
-            yield return target == ScreenFadeTarget.Black
-                ? fader.FadeToBlackRoutine(duration)
-                : fader.FadeToClearRoutine(duration);
         }
 
         private IEnumerator WaitForDuration(float duration)

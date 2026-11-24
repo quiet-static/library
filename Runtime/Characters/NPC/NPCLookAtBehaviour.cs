@@ -74,6 +74,8 @@ namespace QuietStatic.Toolkit.Characters.NPC
         private Transform temporaryTarget;
         private Vector3 targetOffset;
         private Vector3 temporaryTargetOffset;
+        private object temporaryLookOwner;
+        private (Transform Target, Vector3 Offset, bool Active) previousTemporaryLook;
 
         /// <summary>Gets whether this behavior rotates only the head.</summary>
         public bool HeadOnly => headOnly;
@@ -211,6 +213,23 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// </summary>
         public void StartTemporaryLookAt(Transform target, Vector3 worldOffset = default)
         {
+            ClearTemporaryLookOwner();
+            ApplyTemporaryLookAt(target, worldOffset);
+        }
+
+        internal void StartTemporaryLookAt(Transform target, Vector3 worldOffset, object owner)
+        {
+            if (temporaryLookOwner == null)
+            {
+                previousTemporaryLook = (temporaryTarget, temporaryTargetOffset, IsBehaviourActive);
+            }
+
+            temporaryLookOwner = owner;
+            ApplyTemporaryLookAt(target, worldOffset);
+        }
+
+        private void ApplyTemporaryLookAt(Transform target, Vector3 worldOffset)
+        {
             temporaryTarget = target;
             temporaryTargetOffset = worldOffset;
             ResetLookSmoothing();
@@ -220,8 +239,27 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <summary>Clears the temporary override and returns to the normal look target.</summary>
         public void StopTemporaryLook()
         {
+            ClearTemporaryLookOwner();
             temporaryTarget = null;
             temporaryTargetOffset = Vector3.zero;
+        }
+
+        internal void StopTemporaryLook(object owner)
+        {
+            if (!ReferenceEquals(temporaryLookOwner, owner)) return;
+
+            temporaryTarget = previousTemporaryLook.Target;
+            temporaryTargetOffset = previousTemporaryLook.Offset;
+            bool restoreActive = previousTemporaryLook.Active;
+            ClearTemporaryLookOwner();
+            ResetLookSmoothing();
+            SetBehaviourActive(restoreActive);
+        }
+
+        private void ClearTemporaryLookOwner()
+        {
+            temporaryLookOwner = null;
+            previousTemporaryLook = default;
         }
 
         /// <summary>Activates looking when a normal or temporary target is available.</summary>
@@ -247,6 +285,7 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <summary>Clears all targets and deactivates this behavior.</summary>
         public void StopLooking()
         {
+            ClearTemporaryLookOwner();
             target = null;
             temporaryTarget = null;
             targetOffset = Vector3.zero;

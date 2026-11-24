@@ -30,10 +30,10 @@ namespace QuietStatic.Toolkit.Editor.SceneFlow
             window.SetMap(selected);
         }
 
-        [MenuItem("Assets/Open in Scene Flow Workspace", true)]
+        [MenuItem(QuietStaticMenuPaths.AssetOpen + "Scene Flow", true)]
         private static bool ValidateOpenSelected() => Selection.activeObject is SceneFlowMap;
 
-        [MenuItem("Assets/Open in Scene Flow Workspace")]
+        [MenuItem(QuietStaticMenuPaths.AssetOpen + "Scene Flow")]
         private static void OpenSelected()
         {
             SceneFlowWorkspaceWindow window = GetWindow<SceneFlowWorkspaceWindow>("Scene Flow");

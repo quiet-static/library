@@ -3,6 +3,7 @@ using System.Linq;
 using QuietStatic.Toolkit.Characters.NPC;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Editor.Interactions;
+using QuietStatic.Toolkit.Editor.Tooling;
 using QuietStatic.Toolkit.Interactions;
 using QuietStatic.Toolkit.SceneFlow;
 using UnityEditor;
@@ -14,30 +15,54 @@ namespace QuietStatic.Toolkit.Editor.Setup
     /// <summary>Additive, undoable component bundles for selected scene objects.</summary>
     public static class GameObjectSetupMenu
     {
-        private const string Root = "GameObject/Quiet Static/Attach Setup/";
+        private const string MenuRoot = "GameObject/Quiet Static/";
+        private const string Root = MenuRoot + "Attach Setup/";
+        private const string ChooseSetupPath = MenuRoot + "Choose Setup…";
+        private const string InspectContentPath = MenuRoot + "Inspect Scene Content";
 
         /// <summary>Common toolkit compositions available from the Hierarchy context menu.</summary>
         public enum SetupKind
         {
             BasicInteraction, FlavorText, ConditionalMessage, Dialogue, Readable, Animated, Audio,
-            Hold, TimedProgress, StationaryNPC, DialogueNPC, FollowNPC, WanderNPC, WaypointNPC, SceneExit
+            Hold, TimedProgress, StationaryNPC, DialogueNPC, FollowNPC, WanderNPC, WaypointNPC, SceneExit,
+            DialogueTrigger
         }
 
-        [MenuItem(Root + "Interactions/Basic", false, 10)] private static void Basic(MenuCommand c) => Apply(c, SetupKind.BasicInteraction);
-        [MenuItem(Root + "Interactions/Flavor Text", false, 11)] private static void Flavor(MenuCommand c) => Apply(c, SetupKind.FlavorText);
-        [MenuItem(Root + "Interactions/Conditional Message", false, 12)] private static void Conditional(MenuCommand c) => Apply(c, SetupKind.ConditionalMessage);
-        [MenuItem(Root + "Interactions/Dialogue", false, 13)] private static void Dialogue(MenuCommand c) => Apply(c, SetupKind.Dialogue);
-        [MenuItem(Root + "Interactions/Readable", false, 14)] private static void Readable(MenuCommand c) => Apply(c, SetupKind.Readable);
-        [MenuItem(Root + "Interactions/Animated", false, 15)] private static void Animated(MenuCommand c) => Apply(c, SetupKind.Animated);
-        [MenuItem(Root + "Interactions/Audio", false, 16)] private static void Audio(MenuCommand c) => Apply(c, SetupKind.Audio);
-        [MenuItem(Root + "Interactions/Hold", false, 17)] private static void Hold(MenuCommand c) => Apply(c, SetupKind.Hold);
-        [MenuItem(Root + "Interactions/Timed Progress", false, 18)] private static void Progress(MenuCommand c) => Apply(c, SetupKind.TimedProgress);
+        [MenuItem(ChooseSetupPath, false, 10)]
+        private static void ChooseSetup(MenuCommand command) => GameObjectSetupWindow.Open(Targets(command));
+
+        [MenuItem(ChooseSetupPath, true)]
+        private static bool ValidateChooseSetup(MenuCommand command) => Validate(command);
+
+        [MenuItem(InspectContentPath, false, 11)]
+        private static void InspectContent(MenuCommand command) =>
+            ContentWorkspaceWindow.Open("scene-content", SceneContentTarget(command));
+
+        [MenuItem(InspectContentPath, true)]
+        private static bool ValidateInspectContent(MenuCommand command) => SceneContentTarget(command) != null;
+
+        private static GameObject SceneContentTarget(MenuCommand command)
+        {
+            var target = command.context as GameObject ?? Selection.activeGameObject;
+            return target != null && !EditorUtility.IsPersistent(target) && target.scene.isLoaded ? target : null;
+        }
+
+        [MenuItem(Root + "Interactions/Basic", false, 12)] private static void Basic(MenuCommand c) => Apply(c, SetupKind.BasicInteraction);
+        [MenuItem(Root + "Interactions/Flavor Text", false, 13)] private static void Flavor(MenuCommand c) => Apply(c, SetupKind.FlavorText);
+        [MenuItem(Root + "Interactions/Conditional Message", false, 14)] private static void Conditional(MenuCommand c) => Apply(c, SetupKind.ConditionalMessage);
+        [MenuItem(Root + "Interactions/Dialogue", false, 15)] private static void Dialogue(MenuCommand c) => Apply(c, SetupKind.Dialogue);
+        [MenuItem(Root + "Interactions/Readable", false, 16)] private static void Readable(MenuCommand c) => Apply(c, SetupKind.Readable);
+        [MenuItem(Root + "Interactions/Animated", false, 17)] private static void Animated(MenuCommand c) => Apply(c, SetupKind.Animated);
+        [MenuItem(Root + "Interactions/Audio", false, 18)] private static void Audio(MenuCommand c) => Apply(c, SetupKind.Audio);
+        [MenuItem(Root + "Interactions/Hold", false, 19)] private static void Hold(MenuCommand c) => Apply(c, SetupKind.Hold);
+        [MenuItem(Root + "Interactions/Timed Progress", false, 20)] private static void Progress(MenuCommand c) => Apply(c, SetupKind.TimedProgress);
         [MenuItem(Root + "NPCs/Stationary", false, 30)] private static void NPC(MenuCommand c) => Apply(c, SetupKind.StationaryNPC);
         [MenuItem(Root + "NPCs/Dialogue with Resolver", false, 31)] private static void NPCDialogue(MenuCommand c) => Apply(c, SetupKind.DialogueNPC);
         [MenuItem(Root + "NPCs/Follow", false, 32)] private static void Follow(MenuCommand c) => Apply(c, SetupKind.FollowNPC);
         [MenuItem(Root + "NPCs/Wander", false, 33)] private static void Wander(MenuCommand c) => Apply(c, SetupKind.WanderNPC);
         [MenuItem(Root + "NPCs/Waypoint Route", false, 34)] private static void Route(MenuCommand c) => Apply(c, SetupKind.WaypointNPC);
         [MenuItem(Root + "Scene Objects/Scene Exit Trigger", false, 50)] private static void Exit(MenuCommand c) => Apply(c, SetupKind.SceneExit);
+        [MenuItem(Root + "Scene Objects/Dialogue Trigger", false, 51)] private static void DialogueTrigger(MenuCommand c) => Apply(c, SetupKind.DialogueTrigger);
 
         [MenuItem(Root + "Interactions/Basic", true)]
         [MenuItem(Root + "Interactions/Flavor Text", true)]
@@ -54,6 +79,7 @@ namespace QuietStatic.Toolkit.Editor.Setup
         [MenuItem(Root + "NPCs/Wander", true)]
         [MenuItem(Root + "NPCs/Waypoint Route", true)]
         [MenuItem(Root + "Scene Objects/Scene Exit Trigger", true)]
+        [MenuItem(Root + "Scene Objects/Dialogue Trigger", true)]
         private static bool Validate(MenuCommand command) => !EditorApplication.isPlayingOrWillChangePlaymode && Targets(command).Any();
 
         private static GameObject[] Targets(MenuCommand command)
@@ -66,15 +92,25 @@ namespace QuietStatic.Toolkit.Editor.Setup
 
         private static void Apply(MenuCommand command, SetupKind kind)
         {
+            GameObject[] targets = Targets(command);
+            int applied = ApplyToTargets(targets, kind);
+            if (applied > 0)
+                Debug.Log($"Quiet Static applied {kind} to {applied} of {targets.Length} selected object(s). Configure the content and references in the Inspector.");
+        }
+
+        internal static int ApplyToTargets(GameObject[] targets, SetupKind kind)
+        {
             Undo.IncrementCurrentGroup();
             int group = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Quiet Static: " + kind);
+            int applied = 0;
             try
             {
-                foreach (GameObject target in Targets(command)) Attach(target, kind);
+                foreach (GameObject target in targets)
+                    if (Attach(target, kind)) applied++;
             }
             finally { Undo.CollapseUndoOperations(group); }
-            Debug.Log($"Quiet Static {kind} setup complete. Configure content and any unassigned references in the Inspector.");
+            return applied;
         }
 
         /// <summary>
@@ -95,6 +131,14 @@ namespace QuietStatic.Toolkit.Editor.Setup
                 Debug.LogWarning($"Skipped {target.name}: it already has a different interaction type.", target);
                 return false;
             }
+            if (kind == SetupKind.DialogueTrigger &&
+                (target.GetComponentInParent<IInteractionTarget>(true) != null ||
+                 target.GetComponentInParent<HoldInteractable>(true) != null ||
+                 target.GetComponentInParent<ActivatedProgressInteractable>(true) != null))
+            {
+                Debug.LogWarning($"Skipped {target.name}: put the Dialogue Trigger on a separate object outside the interaction target's hierarchy.", target);
+                return false;
+            }
             Type movement = kind == SetupKind.FollowNPC ? typeof(NPCFollowBehaviour) : kind == SetupKind.WanderNPC ? typeof(NPCWanderBehaviour) :
                 kind == SetupKind.WaypointNPC ? typeof(NPCWaypointRouteBehaviour) : null;
             if (movement != null && new[] { typeof(NPCFollowBehaviour), typeof(NPCWanderBehaviour), typeof(NPCWaypointRouteBehaviour) }
@@ -105,10 +149,12 @@ namespace QuietStatic.Toolkit.Editor.Setup
             }
 
             Component interaction = null;
+            bool newInteraction = false;
             if (isInteraction)
             {
-                bool newInteraction = target.GetComponent(interactionType) == null;
-                interaction = target.GetComponent(interactionType) ?? Undo.AddComponent(target, interactionType);
+                interaction = target.GetComponent(interactionType);
+                newInteraction = interaction == null;
+                if (newInteraction) interaction = Undo.AddComponent(target, interactionType);
                 if (target.GetComponentInChildren<InteractionHighlighter>(true) == null) Add<InteractionHighlighter>(target);
                 if (!InteractionTargetColliderUtility.HasRaycastCollider(interaction)) AddCollider(target);
                 int layer = LayerMask.NameToLayer("Interactables");
@@ -152,7 +198,7 @@ namespace QuietStatic.Toolkit.Editor.Setup
                 case SetupKind.FollowNPC:
                 case SetupKind.WanderNPC:
                 case SetupKind.WaypointNPC:
-                    ConfigureNPC(target, kind, movement);
+                    ConfigureNPC(target, kind, movement, newInteraction);
                     break;
                 case SetupKind.SceneExit:
                     var exit = Add<SceneTransitionTrigger>(target);
@@ -160,11 +206,26 @@ namespace QuietStatic.Toolkit.Editor.Setup
                     AssignUnique<SceneFlowMap>(exit, "sceneFlowMap");
                     if (!target.GetComponents<Collider>().Any(collider => collider.isTrigger)) AddCollider(target);
                     break;
+                case SetupKind.DialogueTrigger:
+                    ConfigureDialogueTrigger(target);
+                    break;
             }
             return true;
         }
 
-        private static void ConfigureNPC(GameObject target, SetupKind kind, Type movement)
+        private static void ConfigureDialogueTrigger(GameObject target)
+        {
+            if (target.GetComponent<DialogueEventPlayer>() == null)
+            {
+                var player = Undo.AddComponent<DialogueEventPlayer>(target);
+                using var data = new SerializedObject(player);
+                data.FindProperty("startOnTriggerEnter").boolValue = true;
+                data.ApplyModifiedProperties();
+            }
+            if (!target.GetComponents<Collider>().Any(collider => collider.isTrigger)) AddCollider(target);
+        }
+
+        private static void ConfigureNPC(GameObject target, SetupKind kind, Type movement, bool newInteraction)
         {
             Add<NPCController>(target);
             var look = Add<NPCLookAtBehaviour>(target);
@@ -191,7 +252,15 @@ namespace QuietStatic.Toolkit.Editor.Setup
                 Assign(dialogue, "dialogueEventPlayer", Add<DialogueEventPlayer>(target));
                 // Preserve a fixed conversation on existing NPCs; opt new NPCs into resolver authoring.
                 if (dialogue.DialogueTree == null) Assign(dialogue, "dialogueResolver", Add<DialogueTreeResolver>(target));
-                Wire(target.GetComponent<Interactable>(), "onInteractionSucceeded", dialogue, "StartDialogue");
+                var interaction = target.GetComponent<Interactable>();
+                if (newInteraction)
+                {
+                    Assign(interaction, "dialogueAction", dialogue);
+                }
+                else if (interaction.DialogueAction == null)
+                {
+                    Wire(interaction, "onInteractionSucceeded", dialogue, "StartDialogue");
+                }
             }
             if (dialogue != null)
             {

@@ -31,6 +31,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         private Vector2 inspectorScroll;
         private string search = string.Empty;
         private readonly List<string> references = new();
+        private bool showSafeIdRename;
 
         public abstract string Id { get; }
         public abstract string DisplayName { get; }
@@ -65,6 +66,10 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 string savedPath = AssetDatabase.GUIDToAssetPath(savedGuid);
                 Select(assets.FirstOrDefault(asset => AssetDatabase.GetAssetPath(asset) == savedPath) ?? assets.FirstOrDefault());
             }
+            else if (inspector == null)
+            {
+                inspector = UnityEditor.Editor.CreateEditor(selected);
+            }
             gui?.MarkDirtyRepaint();
         }
 
@@ -76,14 +81,18 @@ namespace QuietStatic.Toolkit.Editor.Tooling
 
         private void Draw()
         {
+            List<UnityEngine.Object> visible = Visible();
+            float listWidth = Mathf.Clamp(root.resolvedStyle.width * 0.29f, 128f, 280f);
             using (new EditorGUILayout.HorizontalScope())
             {
-                using (new EditorGUILayout.VerticalScope(GUILayout.Width(300f)))
+                using (new EditorGUILayout.VerticalScope(GUILayout.Width(listWidth)))
                 {
-                    EditorGUILayout.LabelField($"{DisplayName} ({Visible().Count})", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField($"Assets ({visible.Count})", EditorStyles.boldLabel);
                     if (GUILayout.Button("Create Asset")) ShowCreateMenu();
                     listScroll = EditorGUILayout.BeginScrollView(listScroll, EditorStyles.helpBox);
-                    foreach (UnityEngine.Object asset in Visible())
+                    if (visible.Count == 0)
+                        EditorGUILayout.HelpBox(assets.Count == 0 ? "No assets yet." : "No assets match this search.", MessageType.Info);
+                    foreach (UnityEngine.Object asset in visible)
                     {
                         Color previous = GUI.backgroundColor;
                         if (asset == selected) GUI.backgroundColor = new Color(0.55f, 0.75f, 1f);
@@ -94,20 +103,24 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 }
                 using (new EditorGUILayout.VerticalScope())
                 {
-                    if (selected == null) { EditorGUILayout.HelpBox("No matching assets found.", MessageType.Info); return; }
+                    if (selected == null) return;
+                    EditorGUILayout.LabelField(selected.name, EditorStyles.largeLabel);
+                    EditorGUILayout.LabelField(AssetDatabase.GetAssetPath(selected), EditorStyles.miniLabel);
+                    if (!visible.Contains(selected))
+                        EditorGUILayout.LabelField("Selected asset is outside the current search.", EditorStyles.wordWrappedMiniLabel);
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        EditorGUILayout.LabelField(selected.name, EditorStyles.largeLabel);
-                        if (GUILayout.Button("Ping", GUILayout.Width(55f))) { Selection.activeObject = selected; EditorGUIUtility.PingObject(selected); }
-                        if (GUILayout.Button("References", GUILayout.Width(80f))) ScanReferences();
-                        if (GUILayout.Button("Duplicate", GUILayout.Width(75f))) DuplicateSelected();
-                        if (GUILayout.Button("Delete", GUILayout.Width(55f))) DeleteSelected();
                         DrawActions(selected);
+                        Rect actionsRect = EditorGUILayout.GetControlRect(false, GUILayout.Width(74f));
+                        if (EditorGUI.DropdownButton(actionsRect,
+                                new GUIContent("Actions", "Locate, find references, duplicate, or delete the selected asset."),
+                                FocusType.Keyboard, EditorStyles.miniPullDown))
+                            ShowAssetActions(actionsRect);
+                        GUILayout.FlexibleSpace();
                     }
-                    EditorGUILayout.LabelField(AssetDatabase.GetAssetPath(selected), EditorStyles.miniLabel);
                     inspectorScroll = EditorGUILayout.BeginScrollView(inspectorScroll);
                     DrawSupplementary(selected);
-                    inspector?.OnInspectorGUI();
+                    DrawInspector(selected, inspector);
                     if (references.Count > 0)
                     {
                         EditorGUILayout.Space();
@@ -125,6 +138,8 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             }
         }
 
+        protected virtual void DrawInspector(UnityEngine.Object asset, UnityEditor.Editor editor) => editor?.OnInspectorGUI();
+
         private List<UnityEngine.Object> Visible() => assets.Where(asset => string.IsNullOrWhiteSpace(search) ||
             asset.name.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
             EditorJsonUtility.ToJson(asset).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
@@ -133,10 +148,39 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         {
             selected = value;
             references.Clear();
+            showSafeIdRename = false;
+            inspectorScroll = Vector2.zero;
             string path = selected == null ? string.Empty : AssetDatabase.GetAssetPath(selected);
             EditorPrefs.SetString($"QuietStatic.ContentWorkspace.Asset.{Id}", AssetDatabase.AssetPathToGUID(path));
             if (inspector != null) UnityEngine.Object.DestroyImmediate(inspector);
             inspector = selected == null ? null : UnityEditor.Editor.CreateEditor(selected);
+        }
+
+        internal void RevealAsset(UnityEngine.Object asset)
+        {
+            if (asset != selected && assets.Contains(asset)) Select(asset);
+        }
+
+        protected bool ShowSafeIdRename()
+        {
+            showSafeIdRename = EditorGUILayout.Foldout(showSafeIdRename,
+                new GUIContent("Safe ID Rename", "Preview the serialized references that will change before renaming an ID."), true);
+            return showSafeIdRename;
+        }
+
+        private void ShowAssetActions(Rect anchor)
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Locate in Project"), false, () =>
+            {
+                Selection.activeObject = selected;
+                EditorGUIUtility.PingObject(selected);
+            });
+            menu.AddItem(new GUIContent("Find Asset References"), false, ScanReferences);
+            menu.AddItem(new GUIContent("Duplicate Asset"), false, DuplicateSelected);
+            menu.AddSeparator(string.Empty);
+            menu.AddItem(new GUIContent("Delete Asset…"), false, DeleteSelected);
+            menu.DropDown(anchor);
         }
 
         private void ScanReferences()
@@ -184,13 +228,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             try
             {
                 ContentIdChangePreview preview = ContentIdChangeService.PreviewRename(source, kind, oldId, newId);
-                string examples = string.Join("\n", preview.References.Take(8).Select(reference => "• " + reference.Label));
-                if (preview.References.Count > 8) examples += $"\n…and {preview.References.Count - 8} more";
-                if (!EditorUtility.DisplayDialog("Rename Stable ID?",
-                        $"Rename '{preview.OldId}' to '{preview.NewId}'?\n\n{preview.References.Count} serialized consumer(s) will be updated.\n{examples}",
-                        "Apply Rename", "Cancel")) return;
-                ContentIdChangeService.Apply(preview);
-                Refresh();
+                ContentIdReferenceWindow.PreviewRename(preview, Refresh);
             }
             catch (Exception exception) { EditorUtility.DisplayDialog("Rename Failed", exception.Message, "OK"); }
         }
@@ -228,18 +266,22 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         {
             if (asset is not FlagDatabase database) return;
             if (GUILayout.Button("Scan Usage", GUILayout.Width(80f)))
-                SetReferenceResults((database.Flags ?? Array.Empty<FlagDatabase.FlagDefinition>())
-                    .Where(flag => flag != null && !string.IsNullOrWhiteSpace(flag.id))
-                    .SelectMany(flag => ToolkitValidation.FindFlagReferences(flag.id))
-                    .Select(issue => AssetDatabase.GetAssetPath(issue.Context)));
+            {
+                var ids = (database.Flags ?? Array.Empty<FlagDatabase.FlagDefinition>()).Where(flag => flag != null).Select(flag => flag.id);
+                try
+                {
+                    ContentIdReferenceWindow.ShowFlagUsage(ContentIdChangeService.FindReferenceMatches(
+                        ContentIdKind.Flag, ids, AssetDatabase.GetAssetPath(database), includeClosedScenes: false));
+                }
+                catch (Exception exception) { EditorUtility.DisplayDialog("Flag Usage Scan Failed", exception.Message, "OK"); }
+            }
             if (GUILayout.Button("Export JSON", GUILayout.Width(85f))) FlagCatalogJsonExporter.ExportWithSavePanel(database);
         }
         protected override void DrawSupplementary(UnityEngine.Object asset)
         {
-            if (asset is not FlagDatabase) return;
+            if (asset is not FlagDatabase || !ShowSafeIdRename()) return;
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField("Safe ID Rename", EditorStyles.boldLabel);
                 oldId = EditorGUILayout.TextField("Current ID", oldId);
                 newId = EditorGUILayout.TextField("New ID", newId);
                 if (GUILayout.Button("Preview and Rename")) PreviewAndApplyRename(asset, ContentIdKind.Flag, oldId, newId);
@@ -262,10 +304,10 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         }
         protected override void DrawSupplementary(UnityEngine.Object asset)
         {
-            if (asset is not ObjectiveDefinition definition) return;
+            if (asset is not ObjectiveDefinition definition || !ShowSafeIdRename()) return;
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField($"Safe ID Rename • {definition.Id}", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Current ID", definition.Id);
                 newId = EditorGUILayout.TextField("New ID", newId);
                 if (GUILayout.Button("Preview and Rename")) PreviewAndApplyRename(asset, ContentIdKind.Objective, definition.Id, newId);
             }
@@ -282,9 +324,9 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         protected override IReadOnlyList<Type> AssetTypes => new[] { typeof(GameStateDatabase) };
         protected override void DrawSupplementary(UnityEngine.Object asset)
         {
+            if (!ShowSafeIdRename()) return;
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField("Safe ID Rename", EditorStyles.boldLabel);
                 oldId = EditorGUILayout.TextField("Current ID", oldId);
                 newId = EditorGUILayout.TextField("New ID", newId);
                 if (GUILayout.Button("Preview and Rename")) PreviewAndApplyRename(asset, ContentIdKind.GameState, oldId, newId);
@@ -301,10 +343,10 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         protected override IReadOnlyList<Type> AssetTypes => new[] { typeof(CinematicDatabase), typeof(CinematicDefinition) };
         protected override void DrawSupplementary(UnityEngine.Object asset)
         {
-            if (asset is not CinematicDefinition definition) return;
+            if (asset is not CinematicDefinition definition || !ShowSafeIdRename()) return;
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField($"Safe ID Rename • {definition.Id}", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Current ID", definition.Id);
                 newId = EditorGUILayout.TextField("New ID", newId);
                 if (GUILayout.Button("Preview and Rename")) PreviewAndApplyRename(asset, ContentIdKind.Cinematic, definition.Id, newId);
             }
@@ -313,6 +355,8 @@ namespace QuietStatic.Toolkit.Editor.Tooling
     [ContentWorkspaceTab]
     public sealed class DialogueCatalogWorkspaceTab : AssetCatalogWorkspaceTab
     {
+        private DialogueTree editingTree;
+        private int editingNode;
         public override string Id => "dialogue";
         public override string DisplayName => "Dialogue";
         public override int Order => 50;
@@ -320,6 +364,36 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         protected override void DrawActions(UnityEngine.Object asset)
         {
             if (GUILayout.Button("Open Graph", GUILayout.Width(80f))) DialogueWorkspaceWindow.Open(asset as DialogueTree);
+        }
+        protected override void DrawInspector(UnityEngine.Object asset, UnityEditor.Editor editor)
+        {
+            if (asset is not DialogueTree tree) return;
+            if (editingTree != tree) { editingTree = tree; editingNode = tree.StartNodeIndex; }
+            if (tree.GeneratedFromJson)
+            {
+                EditorGUILayout.HelpBox("Generated dialogue is read-only. Open the graph workspace to create an editable copy.", MessageType.Info);
+            }
+            using var data = new SerializedObject(tree);
+            data.Update();
+            using (new EditorGUI.DisabledScope(tree.GeneratedFromJson))
+            {
+                if (GUILayout.Button("Add Node"))
+                {
+                    DialogueGraphCommands.AddNode(tree, "node-" + Guid.NewGuid().ToString("N")[..8]);
+                    editingNode = tree.Nodes.Length - 1;
+                    data.Update();
+                }
+                editingNode = DialogueWorkspaceWindow.DrawNodePicker(tree, editingNode);
+                SerializedProperty nodes = data.FindProperty("nodes");
+                if (editingNode >= 0 && editingNode < nodes.arraySize)
+                {
+                    DialogueWorkspaceWindow.DrawNodeFields(tree, nodes.GetArrayElementAtIndex(editingNode), editingNode);
+                    if (GUILayout.Button("Set as Entry Node"))
+                        data.FindProperty("startNodeIndex").intValue = editingNode;
+                }
+                data.ApplyModifiedProperties();
+            }
+            if (GUILayout.Button("Save Tree")) AssetDatabase.SaveAssetIfDirty(tree);
         }
     }
     [ContentWorkspaceTab]
@@ -399,7 +473,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         {
             DrawDefaultInspector();
             EditorGUILayout.Space();
-            if (GUILayout.Button("Open in Content Workspace")) ContentWorkspaceWindow.Open("objectives");
+            if (GUILayout.Button("Open in Content Workspace")) ContentWorkspaceWindow.Open("objectives", target);
         }
     }
 }

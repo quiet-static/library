@@ -16,6 +16,7 @@
 
 using System;
 using QuietStatic.Toolkit.Core;
+using QuietStatic.Toolkit.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -128,6 +129,14 @@ namespace QuietStatic.Toolkit.Dialogue
             HideDialogueUI();
         }
 
+        private void OnEnable()
+        {
+            if (Instance == this && IsVisible && controlCursor)
+                ModalCursorPolicy.Claim(this);
+        }
+
+        private void OnDisable() => ModalCursorPolicy.Release(this);
+
         /// <summary>
         /// Keeps the cursor available while dialogue is visible.
         /// </summary>
@@ -141,11 +150,11 @@ namespace QuietStatic.Toolkit.Dialogue
 
             if (!IsVisible || !controlCursor)
             {
+                ModalCursorPolicy.Release(this);
                 return;
             }
 
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            ModalCursorPolicy.Claim(this);
         }
 
         /// <summary>
@@ -517,11 +526,15 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            Cursor.lockState = visible
-                ? CursorLockMode.None
-                : hiddenCursorLockMode;
-
-            Cursor.visible = visible || cursorVisibleWhenHidden;
+            if (visible)
+            {
+                if (isActiveAndEnabled) ModalCursorPolicy.Claim(this);
+            }
+            else
+            {
+                ModalCursorPolicy.SetBaseline(hiddenCursorLockMode, cursorVisibleWhenHidden);
+                ModalCursorPolicy.Release(this);
+            }
         }
     }
 }

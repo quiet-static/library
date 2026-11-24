@@ -8,11 +8,13 @@ namespace QuietStatic
     /// </summary>
     public class PlayerLookHandler : MonoBehaviour
     {
+        internal const float DefaultEyeHeight = 1.6f;
+
         [Tooltip("NPC look-at behavior that should target the active player.")]
         [SerializeField] private NPCLookAtBehaviour lookAt;
 
         [Tooltip("Vertical offset used when the player has no humanoid head bone.")]
-        [SerializeField, Min(0f)] private float fallbackEyeHeight = 1.6f;
+        [SerializeField, Min(0f)] private float fallbackEyeHeight = DefaultEyeHeight;
 
         /// <summary>Starts looking at the player registered with <see cref="PlayerManager"/>.</summary>
         public void LookAtPlayer()
@@ -73,7 +75,13 @@ namespace QuietStatic
                 return false;
             }
 
-            GameObject player = PlayerManager.Instance.Player;
+            ResolvePlayerAim(PlayerManager.Instance.Player, fallbackEyeHeight, out target, out offset);
+            return true;
+        }
+
+        internal static void ResolvePlayerAim(GameObject player, float eyeHeight, out Transform target, out Vector3 offset)
+        {
+            offset = Vector3.zero;
             Animator playerAnimator = player.GetComponentInChildren<Animator>();
             if (playerAnimator != null && playerAnimator.isHuman)
             {
@@ -81,13 +89,12 @@ namespace QuietStatic
                 if (head != null)
                 {
                     target = head;
-                    return true;
+                    return;
                 }
             }
 
             target = player.transform;
-            offset = Vector3.up * fallbackEyeHeight;
-            return true;
+            offset = Vector3.up * eyeHeight;
         }
     }
 }

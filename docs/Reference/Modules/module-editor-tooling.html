@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor / Tooling — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Editor / Tooling</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1'><code>QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SharedEditorToolingTests.cs#L45'>Stolen &#183; Assets/Tests/Editor/SharedEditorToolingTests.cs, line 45</a></figcaption><pre><code>var model = new AssetPickerModel&lt;DialogueTree&gt;(new[] { other, alpha });</code></pre></figure></section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab'><summary><code>AssetCatalogWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public abstract class AssetCatalogWorkspaceTab : IContentWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab'>Permalink</a></p>
+<p class='comment'>Shared searchable asset catalog used by focused Content Workspace tabs.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-35-8'><code class='signature'>public abstract string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-35-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-36-8'><code class='signature'>public abstract string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-36-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-37-8'><code class='signature'>public abstract int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-37-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-41-8'><code class='signature'>public VisualElement CreateContent()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-41-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.CreateContent();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-49-8'><code class='signature'>public void SetSearch(string value)</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 49</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-49-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetSearch(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-50-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-50-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-71-8'><code class='signature'>public void OnSelected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-71-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnSelected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-72-8'><code class='signature'>public void OnDeselected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-72-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnDeselected();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1'><summary><code>AssetPickerModel</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1</span></summary><div class='entry'>
+<code class='signature'>public sealed class AssetPickerModel&lt;T&gt; where T : UnityEngine.Object</code>
+<p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Editor/Tooling/SearchableAssetPicker.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1'>Permalink</a></p>
+<p class='comment'>Deterministic searchable index of project assets of one Unity type.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-15-8'><code class='signature'>public AssetPickerModel(IEnumerable&lt;T&gt; assets)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-15-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SharedEditorToolingTests.cs#L45'>Stolen &#183; Assets/Tests/Editor/SharedEditorToolingTests.cs, line 45</a></figcaption><pre><code>var model = new AssetPickerModel&lt;DialogueTree&gt;(new[] { other, alpha });</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-23-8'><code class='signature'>public IReadOnlyList&lt;T&gt; Search(string query)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-23-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SharedEditorToolingTests.cs#L47'>Stolen &#183; Assets/Tests/Editor/SharedEditorToolingTests.cs, line 47</a></figcaption><pre><code>Assert.That(model.Search(string.Empty)[0], Is.SameAs(alpha));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-32-8'><code class='signature'>public static AssetPickerModel&lt;T&gt; BuildProjectIndex()</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.AssetPickerModel-1-Editor-Tooling-SearchableAssetPicker-cs-32-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = AssetPickerModel&lt;T&gt;.BuildProjectIndex();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab'><summary><code>CinematicsWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicsWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 296</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-300-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 300</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-300-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-301-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 301</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-301-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-302-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 302</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.CinematicsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-302-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview'><summary><code>ContentIdChangePreview</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview</span></summary><div class='entry'>
+<code class='signature'>public sealed class ContentIdChangePreview</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Editor/Tooling/ContentIdChangeService.cs, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-28-8'><code class='signature'>public ContentIdKind Kind { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-28-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-32-8'><code class='signature'>public string OldId { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-32-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-33-8'><code class='signature'>public string NewId { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-33-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-34-8'><code class='signature'>public IReadOnlyList&lt;ContentIdReference&gt; References { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangePreview-Editor-Tooling-ContentIdChangeService-cs-34-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService'><summary><code>ContentIdChangeService</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService</span></summary><div class='entry'>
+<code class='signature'>public static class ContentIdChangeService</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Editor/Tooling/ContentIdChangeService.cs, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService'>Permalink</a></p>
+<p class='comment'>Previewed project-wide serialized ID rename transaction for content catalogs.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-40-8'><code class='signature'>public static ContentIdChangePreview PreviewRename(UnityEngine.Object source, ContentIdKind kind, string oldId, string newId)</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-40-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/ContentIdChangeServiceTests.cs#L37-L38'>Stolen &#183; Assets/Tests/Editor/ContentIdChangeServiceTests.cs, lines 37–38</a></figcaption><pre><code>ContentIdChangePreview preview = ContentIdChangeService.PreviewRename(
+    source, ContentIdKind.Flag, &quot;rename.unique.old&quot;, &quot;rename.unique.new&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-55-8'><code class='signature'>public static void Apply(ContentIdChangePreview preview)</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-55-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/ContentIdChangeServiceTests.cs#L40'>Stolen &#183; Assets/Tests/Editor/ContentIdChangeServiceTests.cs, line 40</a></figcaption><pre><code>ContentIdChangeService.Apply(preview);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-75-8'><code class='signature'>public static IReadOnlyList&lt;ContentIdReference&gt; FindReferences(ContentIdKind kind, string id, string excludedPath = null)</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdChangeService-Editor-Tooling-ContentIdChangeService-cs-75-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = ContentIdChangeService.FindReferences(kind, id, excludedPath);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind'><summary><code>ContentIdKind</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentIdKind</span></summary><div class='entry'>
+<code class='signature'>public enum ContentIdKind</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Editor/Tooling/ContentIdChangeService.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-32'><code class='signature'>Flag</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-32'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-38'><code class='signature'>Objective</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-38'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-49'><code class='signature'>GameState</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-49'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-60'><code class='signature'>Cinematic</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdKind-Editor-Tooling-ContentIdChangeService-cs-11-60'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference'><summary><code>ContentIdReference</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentIdReference</span></summary><div class='entry'>
+<code class='signature'>public sealed class ContentIdReference</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Editor/Tooling/ContentIdChangeService.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-17-8'><code class='signature'>public string AssetPath { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-17-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-18-8'><code class='signature'>public string ObjectName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-18-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-19-8'><code class='signature'>public string PropertyPath { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-19-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-20-8'><code class='signature'>public string Label { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentIdChangeService.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentIdReference-Editor-Tooling-ContentIdChangeService-cs-20-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabAttribute'><summary><code>ContentWorkspaceTabAttribute</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabAttribute</span></summary><div class='entry'>
+<code class='signature'>public sealed class ContentWorkspaceTabAttribute : Attribute</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Editor/Tooling/ContentWorkspaceTabs.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabAttribute'>Permalink</a></p>
+<p class='comment'>Marks a tab for automatic registration in the Content Workspace.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery'><summary><code>ContentWorkspaceTabDiscovery</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery</span></summary><div class='entry'>
+<code class='signature'>public static class ContentWorkspaceTabDiscovery</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Editor/Tooling/ContentWorkspaceTabs.cs, line 42</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery'>Permalink</a></p>
+<p class='comment'>Discovers workspace adapters from editor assemblies in stable display order.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery-Editor-Tooling-ContentWorkspaceTabs-cs-44-8'><code class='signature'>public static IReadOnlyList&lt;IContentWorkspaceTab&gt; Discover()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery-Editor-Tooling-ContentWorkspaceTabs-cs-44-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/ContentWorkspaceTabDiscoveryTests.cs#L68'>Stolen &#183; Assets/Tests/Editor/ContentWorkspaceTabDiscoveryTests.cs, line 68</a></figcaption><pre><code>var tabs = ContentWorkspaceTabDiscovery.Discover();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery-Editor-Tooling-ContentWorkspaceTabs-cs-49-8'><code class='signature'>public static IReadOnlyList&lt;IContentWorkspaceTab&gt; Create(IEnumerable&lt;Type&gt; types)</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 49</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceTabDiscovery-Editor-Tooling-ContentWorkspaceTabs-cs-49-8'>Permalink</a></p>
+<p class='comment'>Creates adapters from an explicit type set for deterministic unit testing.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/ContentWorkspaceTabDiscoveryTests.cs#L47-L48'>Stolen &#183; Assets/Tests/Editor/ContentWorkspaceTabDiscoveryTests.cs, lines 47–48</a></figcaption><pre><code>var tabs = ContentWorkspaceTabDiscovery.Create(
+    new[] { typeof(LaterTab), typeof(StubTab), typeof(EarlierTab) });</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow'><summary><code>ContentWorkspaceWindow</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow</span></summary><div class='entry'>
+<code class='signature'>public sealed class ContentWorkspaceWindow : EditorWindow</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Editor/Tooling/ContentWorkspaceWindow.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow'>Permalink</a></p>
+<p class='comment'>Single tabbed home for project content databases and definitions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-25-8'><code class='signature'>public static void Open()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-25-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>ContentWorkspaceWindow.Open();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-31-8'><code class='signature'>public static void Open(string tabId)</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-31-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 436</a></figcaption><pre><code>ContentWorkspaceWindow.Open(&quot;objectives&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-37-8'><code class='signature'>public void CreateGUI()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ContentWorkspaceWindow-Editor-Tooling-ContentWorkspaceWindow-cs-37-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CreateGUI();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab'><summary><code>DialogueCatalogWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class DialogueCatalogWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 315</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-320-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 320</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-320-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-321-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 321</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-321-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-322-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 322</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-322-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab'><summary><code>DialogueResolversWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class DialogueResolversWorkspaceTab : IContentWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Editor/Tooling/DialogueResolversWorkspaceTab.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab'>Permalink</a></p>
+<p class='comment'>Edits scene-local dialogue selectors together in the Content Workspace.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-27-8'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-27-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-29-8'><code class='signature'>public string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-29-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-31-8'><code class='signature'>public int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-31-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-34-8'><code class='signature'>public VisualElement CreateContent()</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-34-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.CreateContent();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-38-8'><code class='signature'>public void SetSearch(string value)</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-38-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetSearch(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-45-8'><code class='signature'>public void OnSelected()</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-45-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnSelected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-57-8'><code class='signature'>public void OnDeselected()</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-57-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnDeselected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-66-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Editor/Tooling/DialogueResolversWorkspaceTab.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.DialogueResolversWorkspaceTab-Editor-Tooling-DialogueResolversWorkspaceTab-cs-66-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview'><summary><code>EditorCommandPreview</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview</span></summary><div class='entry'>
+<code class='signature'>public sealed class EditorCommandPreview</code>
+<p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Editor/Tooling/EditorCommandService.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview'>Permalink</a></p>
+<p class='comment'>Immutable preview required before a mutating editor command can apply.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-10-8'><code class='signature'>public EditorCommandPreview(string token, IEnumerable&lt;string&gt; changes)</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-10-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new EditorCommandPreview(token, changes);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-19-8'><code class='signature'>public string Token { get; }</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-19-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-20-8'><code class='signature'>public IReadOnlyList&lt;string&gt; Changes { get; }</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-20-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-21-8'><code class='signature'>public bool HasChanges { get; }</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandPreview-Editor-Tooling-EditorCommandService-cs-21-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService'><summary><code>EditorCommandService</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.EditorCommandService</span></summary><div class='entry'>
+<code class='signature'>public static class EditorCommandService</code>
+<p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Editor/Tooling/EditorCommandService.cs, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService'>Permalink</a></p>
+<p class='comment'>Runs editor commands with one enforced preview-before-apply lifecycle.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-40-8'><code class='signature'>public static EditorCommandPreview Preview(IPreviewedEditorCommand command)</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-40-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SharedEditorToolingTests.cs#L57'>Stolen &#183; Assets/Tests/Editor/SharedEditorToolingTests.cs, line 57</a></figcaption><pre><code>EditorCommandPreview changedPreview = EditorCommandService.Preview(changed);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-44-8'><code class='signature'>public static bool Apply(IPreviewedEditorCommand command, EditorCommandPreview preview)</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-44-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SharedEditorToolingTests.cs#L58'>Stolen &#183; Assets/Tests/Editor/SharedEditorToolingTests.cs, line 58</a></figcaption><pre><code>Assert.That(EditorCommandService.Apply(changed, changedPreview), Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-53-8'><code class='signature'>public static void Export(IEditorExportCommand command)</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.EditorCommandService-Editor-Tooling-EditorCommandService-cs-53-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>EditorCommandService.Export(command);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab'><summary><code>FlagsWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagsWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 220</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-225-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 225</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-225-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-226-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 226</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-226-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-227-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 227</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.FlagsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-227-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab'><summary><code>GameStatesWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class GameStatesWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 276</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-281-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 281</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-281-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-282-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 282</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-282-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-283-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 283</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GameStatesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-283-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController'><summary><code>GraphDocumentController</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController</span></summary><div class='entry'>
+<code class='signature'>public sealed class GraphDocumentController : IDisposable</code>
+<p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Editor/Tooling/GraphDocumentController.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController'>Permalink</a></p>
+<p class='comment'>Owns the editor lifecycle shared by graph documents without depending on a canvas API.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-17-8'><code class='signature'>public GraphDocumentController()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-17-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L50'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, line 50</a></figcaption><pre><code>using var controller = new GraphDocumentController();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-22-8'><code class='signature'>public UnityEngine.Object Document { get; }</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-22-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-23-8'><code class='signature'>public SerializedObject SerializedDocument { get; }</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-23-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-24-8'><code class='signature'>public string SelectedNodeId { get; }</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-24-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-25-8'><code class='signature'>public float Zoom { get; }</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-25-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-26-8'><code class='signature'>public bool HasDocument { get; }</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-26-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-27-8'><code class='signature'>public event Action Changed</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-27-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-28-8'><code class='signature'>public event Action FrameAllRequested</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-28-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-29-8'><code class='signature'>public event Action&lt;string&gt; FrameSelectionRequested</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-29-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-32-8'><code class='signature'>public void SetDocument(UnityEngine.Object value)</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-32-8'>Permalink</a></p>
+<p class='comment'>Changes the active asset and safely clears document-local selection.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L51'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, line 51</a></figcaption><pre><code>controller.SetDocument(tree);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-43-8'><code class='signature'>public void Refresh(Func&lt;string, bool&gt; containsNodeId)</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-43-8'>Permalink</a></p>
+<p class='comment'>Retains selection only when the rebuilt model still contains its stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L61'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, line 61</a></figcaption><pre><code>controller.Refresh(_ =&gt; false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-55-8'><code class='signature'>public void SelectNode(string stableId)</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-55-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L52'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, line 52</a></figcaption><pre><code>controller.SelectNode(&quot;removed-node&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-61-8'><code class='signature'>public void SetZoom(float value)</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-61-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L53'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, line 53</a></figcaption><pre><code>controller.SetZoom(99f);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-67-8'><code class='signature'>public void RequestFrameAll()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-67-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RequestFrameAll();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-69-8'><code class='signature'>public void RequestFrameSelection()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 69</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-69-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RequestFrameSelection();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-75-8'><code class='signature'>public void Mutate(string undoName, Action&lt;SerializedObject&gt; mutation)</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-75-8'>Permalink</a></p>
+<p class='comment'>Runs one serialized mutation with Undo and marks the asset dirty.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/GraphEditorFoundationTests.cs#L55-L56'>Stolen &#183; Assets/Tests/Editor/GraphEditorFoundationTests.cs, lines 55–56</a></figcaption><pre><code>controller.Mutate(&quot;Set Entry Node&quot;, serialized =&gt;
+    serialized.FindProperty(&quot;startNodeIndex&quot;).intValue = 7);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-88-8'><code class='signature'>public void Save()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 88</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-88-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Save();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-94-8'><code class='signature'>public void Revert()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 94</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-94-8'>Permalink</a></p>
+<p class='comment'>Discards unsaved asset changes by synchronously reimporting its source file.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Revert();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-105-8'><code class='signature'>public void Dispose()</code><p class='source'><a href='../../../Editor/Tooling/GraphDocumentController.cs'>Source, line 105</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphDocumentController-Editor-Tooling-GraphDocumentController-cs-105-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Dispose();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore'><summary><code>GraphLayoutStore</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore</span></summary><div class='entry'>
+<code class='signature'>public sealed class GraphLayoutStore : ScriptableSingleton&lt;GraphLayoutStore&gt;</code>
+<p class='source'><a href='../../../Editor/Tooling/GraphLayoutStore.cs'>Editor/Tooling/GraphLayoutStore.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore'>Permalink</a></p>
+<p class='comment'>Stores graph presentation state in project editor metadata, keyed by asset GUID and stable node ID. Runtime assets never receive layout fields or dirty-state changes.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-26-8'><code class='signature'>public bool TryGetPosition(UnityEngine.Object asset, string nodeId, out Vector2 position)</code><p class='source'><a href='../../../Editor/Tooling/GraphLayoutStore.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-26-8'>Permalink</a></p>
+<p class='comment'>Gets a saved position for a node in a specific asset document.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.TryGetPosition(asset, nodeId, out var position);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-32-8'><code class='signature'>public void SetPosition( UnityEngine.Object asset, string nodeId, Vector2 position, string undoName = &quot;Move Graph Node&quot;)</code><p class='source'><a href='../../../Editor/Tooling/GraphLayoutStore.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-32-8'>Permalink</a></p>
+<p class='comment'>Sets a node position and records the metadata change with Unity Undo.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetPosition(asset, nodeId, position, undoName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-42-8'><code class='signature'>public void RemoveDocument(UnityEngine.Object asset, string undoName = &quot;Clear Graph Layout&quot;)</code><p class='source'><a href='../../../Editor/Tooling/GraphLayoutStore.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.GraphLayoutStore-Editor-Tooling-GraphLayoutStore-cs-42-8'>Permalink</a></p>
+<p class='comment'>Removes all presentation metadata belonging to one asset document.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RemoveDocument(asset, undoName);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab'><summary><code>IContentWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public interface IContentWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Editor/Tooling/ContentWorkspaceTabs.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab'>Permalink</a></p>
+<p class='comment'>Editor-only adapter implemented by one tab in the unified content workspace.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-17-8'><code class='signature'>string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-17-8'>Permalink</a></p>
+<p class='comment'>Gets the stable tab identifier used for persisted selection.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-20-8'><code class='signature'>string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-20-8'>Permalink</a></p>
+<p class='comment'>Gets the user-facing tab label.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-23-8'><code class='signature'>int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-23-8'>Permalink</a></p>
+<p class='comment'>Gets the deterministic display order.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-26-8'><code class='signature'>VisualElement CreateContent()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-26-8'>Permalink</a></p>
+<p class='comment'>Creates this tab&#39;s retained-mode UI root.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.CreateContent();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-29-8'><code class='signature'>void SetSearch(string search)</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-29-8'>Permalink</a></p>
+<p class='comment'>Updates the shared workspace search filter.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Editor/Tooling/ContentWorkspaceWindow.cs, line 46</a></figcaption><pre><code>selected.SetSearch(change.newValue);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-32-8'><code class='signature'>void Refresh()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-32-8'>Permalink</a></p>
+<p class='comment'>Refreshes assets, selection, references, and validation state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Editor/Tooling/ContentWorkspaceWindow.cs, line 49</a></figcaption><pre><code>toolbar.Add(new ToolbarButton(() =&gt; selected?.Refresh()) { text = &quot;Refresh&quot; });</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-35-8'><code class='signature'>void OnSelected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-35-8'>Permalink</a></p>
+<p class='comment'>Notifies the adapter that its tab became visible.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Editor/Tooling/ContentWorkspaceWindow.cs, line 105</a></figcaption><pre><code>selected.OnSelected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-38-8'><code class='signature'>void OnDeselected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceTabs.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IContentWorkspaceTab-Editor-Tooling-ContentWorkspaceTabs-cs-38-8'>Permalink</a></p>
+<p class='comment'>Notifies the adapter that its tab is no longer visible.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceWindow.cs'>Editor/Tooling/ContentWorkspaceWindow.cs, line 93</a></figcaption><pre><code>selected?.OnDeselected();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.IEditorExportCommand'><summary><code>IEditorExportCommand</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.IEditorExportCommand</span></summary><div class='entry'>
+<code class='signature'>public interface IEditorExportCommand</code>
+<p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Editor/Tooling/EditorCommandService.cs, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IEditorExportCommand'>Permalink</a></p>
+<p class='comment'>Read-only export contract shared by workspace and graph toolbar commands.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IEditorExportCommand-Editor-Tooling-EditorCommandService-cs-34-8'><code class='signature'>void Export()</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IEditorExportCommand-Editor-Tooling-EditorCommandService-cs-34-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Export();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand'><summary><code>IPreviewedEditorCommand</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand</span></summary><div class='entry'>
+<code class='signature'>public interface IPreviewedEditorCommand</code>
+<p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Editor/Tooling/EditorCommandService.cs, line 25</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand'>Permalink</a></p>
+<p class='comment'>Preview/apply contract shared by imports and other mutating editor operations.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand-Editor-Tooling-EditorCommandService-cs-27-8'><code class='signature'>EditorCommandPreview Preview()</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand-Editor-Tooling-EditorCommandService-cs-27-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.Preview();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand-Editor-Tooling-EditorCommandService-cs-28-8'><code class='signature'>void Apply(EditorCommandPreview preview)</code><p class='source'><a href='../../../Editor/Tooling/EditorCommandService.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IPreviewedEditorCommand-Editor-Tooling-EditorCommandService-cs-28-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Apply(preview);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge'><summary><code>IStableGraphEdge</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge</span></summary><div class='entry'>
+<code class='signature'>public interface IStableGraphEdge</code>
+<p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Editor/Tooling/StableGraphModel.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge'>Permalink</a></p>
+<p class='comment'>Identifies a directed graph edge and its stable endpoint IDs.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-18-8'><code class='signature'>string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-18-8'>Permalink</a></p>
+<p class='comment'>Gets the edge&#39;s document-local identifier.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-21-8'><code class='signature'>string SourceId { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-21-8'>Permalink</a></p>
+<p class='comment'>Gets the source node ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-24-8'><code class='signature'>string TargetId { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphEdge-Editor-Tooling-StableGraphModel-cs-24-8'>Permalink</a></p>
+<p class='comment'>Gets the destination node ID.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphNode'><summary><code>IStableGraphNode</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.IStableGraphNode</span></summary><div class='entry'>
+<code class='signature'>public interface IStableGraphNode</code>
+<p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Editor/Tooling/StableGraphModel.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphNode'>Permalink</a></p>
+<p class='comment'>Identifies a graph node independently of its visual position or array index.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphNode-Editor-Tooling-StableGraphModel-cs-11-8'><code class='signature'>string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.IStableGraphNode-Editor-Tooling-StableGraphModel-cs-11-8'>Permalink</a></p>
+<p class='comment'>Gets the node&#39;s non-empty, document-local identifier.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCCrowdControllerEditor'><summary><code>NPCCrowdControllerEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCCrowdControllerEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCCrowdControllerEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCCrowdControllerEditor.cs'>Editor/Tooling/NPCCrowdControllerEditor.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCCrowdControllerEditor'>Permalink</a></p>
+<p class='comment'>Ordered crowd inspector with skipped/duplicate member diagnostics and cumulative startup timing previews.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCCrowdControllerEditor-Editor-Tooling-NPCCrowdControllerEditor-cs-77-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCCrowdControllerEditor.cs'>Source, line 77</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCCrowdControllerEditor-Editor-Tooling-NPCCrowdControllerEditor-cs-77-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCDoorOpenerEditor'><summary><code>NPCDoorOpenerEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCDoorOpenerEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCDoorOpenerEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCDoorEditors.cs'>Editor/Tooling/NPCDoorEditors.cs, line 96</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCDoorOpenerEditor'>Permalink</a></p>
+<p class='comment'>Conditional probe inspector with layer and runtime detection feedback.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCDoorOpenerEditor-Editor-Tooling-NPCDoorEditors-cs-127-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCDoorEditors.cs'>Source, line 127</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCDoorOpenerEditor-Editor-Tooling-NPCDoorEditors-cs-127-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCPathDoorEditor'><summary><code>NPCPathDoorEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCPathDoorEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCPathDoorEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCDoorEditors.cs'>Editor/Tooling/NPCDoorEditors.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCPathDoorEditor'>Permalink</a></p>
+<p class='comment'>Inspector diagnostics for the interaction-backed NPC path-door adapter.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCPathDoorEditor-Editor-Tooling-NPCDoorEditors-cs-34-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCDoorEditors.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCPathDoorEditor-Editor-Tooling-NPCDoorEditors-cs-34-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueControllerEditor'><summary><code>NPCQueueControllerEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueControllerEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCQueueControllerEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCQueueControllerEditor.cs'>Editor/Tooling/NPCQueueControllerEditor.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueControllerEditor'>Permalink</a></p>
+<p class='comment'>Compact queue-layout inspector with authoring diagnostics for references that the runtime intentionally tolerates or filters.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueControllerEditor-Editor-Tooling-NPCQueueControllerEditor-cs-92-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCQueueControllerEditor.cs'>Source, line 92</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueControllerEditor-Editor-Tooling-NPCQueueControllerEditor-cs-92-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueMemberEditor'><summary><code>NPCQueueMemberEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueMemberEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCQueueMemberEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCQueueMemberEditor.cs'>Editor/Tooling/NPCQueueMemberEditor.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueMemberEditor'>Permalink</a></p>
+<p class='comment'>Queue-member inspector that keeps phase configuration compact and validates its scene-local adapters, mode names, and animation triggers.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueMemberEditor-Editor-Tooling-NPCQueueMemberEditor-cs-88-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCQueueMemberEditor.cs'>Source, line 88</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCQueueMemberEditor-Editor-Tooling-NPCQueueMemberEditor-cs-88-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteBehaviourEditor'><summary><code>NPCWaypointRouteBehaviourEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteBehaviourEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCWaypointRouteBehaviourEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCWaypointRouteBehaviourEditor.cs'>Editor/Tooling/NPCWaypointRouteBehaviourEditor.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteBehaviourEditor'>Permalink</a></p>
+<p class='comment'>Route-runner inspector with conditional traversal fields and route/adapter validation.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteBehaviourEditor-Editor-Tooling-NPCWaypointRouteBehaviourEditor-cs-65-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCWaypointRouteBehaviourEditor.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteBehaviourEditor-Editor-Tooling-NPCWaypointRouteBehaviourEditor-cs-65-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteEditor'><summary><code>NPCWaypointRouteEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCWaypointRouteEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/NPCWaypointRouteEditor.cs'>Editor/Tooling/NPCWaypointRouteEditor.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteEditor'>Permalink</a></p>
+<p class='comment'>Inspector for explicit route ordering with an idempotent, Undo-aware hierarchy refresh.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteEditor-Editor-Tooling-NPCWaypointRouteEditor-cs-38-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/NPCWaypointRouteEditor.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Characters.NPC.NPCWaypointRouteEditor-Editor-Tooling-NPCWaypointRouteEditor-cs-38-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectiveDatabaseInspector'><summary><code>ObjectiveDatabaseInspector</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ObjectiveDatabaseInspector</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectiveDatabaseInspector : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 429</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectiveDatabaseInspector'>Permalink</a></p>
+<p class='comment'>Adds a direct Content Workspace shortcut to the normal database Inspector.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectiveDatabaseInspector-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-432-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 432</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectiveDatabaseInspector-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-432-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab'><summary><code>ObjectivesWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectivesWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 252</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-256-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 256</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-256-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-257-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 257</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-257-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-258-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 258</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ObjectivesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-258-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab'><summary><code>ProblemsWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class ProblemsWorkspaceTab : IContentWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 375</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab'>Permalink</a></p>
+<p class='comment'>Combined, navigable validation output using the canonical toolkit rules.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-382-8'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 382</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-382-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-383-8'><code class='signature'>public string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 383</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-383-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-384-8'><code class='signature'>public int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 384</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-384-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-385-8'><code class='signature'>public VisualElement CreateContent()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 385</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-385-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.CreateContent();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-390-8'><code class='signature'>public void SetSearch(string value)</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 390</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-390-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetSearch(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-391-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 391</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-391-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-401-8'><code class='signature'>public void OnSelected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 401</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-401-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnSelected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-402-8'><code class='signature'>public void OnDeselected()</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 402</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ProblemsWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-402-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnDeselected();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab'><summary><code>ReadablesWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReadablesWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 371</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-97'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 371</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-97'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-139'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 371</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-139'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-190'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 371</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReadablesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-371-190'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult'><summary><code>ReferenceResult</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ReferenceResult</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReferenceResult</code>
+<p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Editor/Tooling/ResultsPanels.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult'>Permalink</a></p>
+<p class='comment'>One navigable serialized reference displayed by shared tooling.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-14-8'><code class='signature'>public ReferenceResult(string message, UnityEngine.Object context = null, string assetPath = null)</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-14-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new ReferenceResult(message, context, assetPath);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-21-8'><code class='signature'>public string Message { get; }</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-21-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-22-8'><code class='signature'>public UnityEngine.Object Context { get; }</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-22-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-23-8'><code class='signature'>public string AssetPath { get; }</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResult-Editor-Tooling-ResultsPanels-cs-23-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel'><summary><code>ReferenceResultsPanel</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReferenceResultsPanel : VisualElement</code>
+<p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Editor/Tooling/ResultsPanels.cs, line 27</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel'>Permalink</a></p>
+<p class='comment'>Reusable UI Toolkit list for references with consistent navigation behavior.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel-Editor-Tooling-ResultsPanels-cs-32-8'><code class='signature'>public ReferenceResultsPanel()</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel-Editor-Tooling-ResultsPanels-cs-32-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new ReferenceResultsPanel();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel-Editor-Tooling-ResultsPanels-cs-39-8'><code class='signature'>public void SetResults(string title, IEnumerable&lt;ReferenceResult&gt; results)</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ReferenceResultsPanel-Editor-Tooling-ResultsPanels-cs-39-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetResults(title, results);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab'><summary><code>SceneContentWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneContentWorkspaceTab : IContentWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Editor/Tooling/SceneContentWorkspaceTab.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab'>Permalink</a></p>
+<p class='comment'>Scene and hierarchy scoped editing for authored interaction content.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-27-8'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-27-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-28-8'><code class='signature'>public string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-28-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-29-8'><code class='signature'>public int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-29-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-31-8'><code class='signature'>public VisualElement CreateContent()</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-31-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.CreateContent();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-37-8'><code class='signature'>public void SetSearch(string value)</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-37-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetSearch(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-43-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-43-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-57-8'><code class='signature'>public void OnSelected()</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-57-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnSelected();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-58-8'><code class='signature'>public void OnDeselected()</code><p class='source'><a href='../../../Editor/Tooling/SceneContentWorkspaceTab.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneContentWorkspaceTab-Editor-Tooling-SceneContentWorkspaceTab-cs-58-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnDeselected();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab'><summary><code>SceneFlowCatalogWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneFlowCatalogWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 359</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-362-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 362</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-362-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-363-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 363</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-363-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-364-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 364</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SceneFlowCatalogWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-364-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1'><summary><code>SearchableAssetPicker</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1</span></summary><div class='entry'>
+<code class='signature'>public sealed class SearchableAssetPicker&lt;T&gt; : VisualElement where T : UnityEngine.Object</code>
+<p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Editor/Tooling/SearchableAssetPicker.cs, line 47</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1'>Permalink</a></p>
+<p class='comment'>Reusable UI Toolkit asset picker with one shared search and selection contract.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-53-8'><code class='signature'>public SearchableAssetPicker(string searchLabel = &quot;Search&quot;)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-53-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new SearchableAssetPicker&lt;T&gt;(searchLabel);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-71-8'><code class='signature'>public event Action&lt;T&gt; SelectionChanged</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-71-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-73-8'><code class='signature'>public void SetModel(AssetPickerModel&lt;T&gt; value)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-73-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetModel(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-79-8'><code class='signature'>public void SetSearch(string value)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-79-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetSearch(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-81-8'><code class='signature'>public void Refresh(string query = null)</code><p class='source'><a href='../../../Editor/Tooling/SearchableAssetPicker.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.SearchableAssetPicker-1-Editor-Tooling-SearchableAssetPicker-cs-81-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh(query);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue'><summary><code>StableGraphIssue</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue</span></summary><div class='entry'>
+<code class='signature'>public sealed class StableGraphIssue</code>
+<p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Editor/Tooling/StableGraphModel.cs, line 42</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue'>Permalink</a></p>
+<p class='comment'>One deterministic structural diagnostic produced by a stable graph.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-51-8'><code class='signature'>public StableGraphIssueKind Kind { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-51-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-52-8'><code class='signature'>public string SubjectId { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-52-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-53-8'><code class='signature'>public string Message { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssue-Editor-Tooling-StableGraphModel-cs-53-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind'><summary><code>StableGraphIssueKind</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind</span></summary><div class='entry'>
+<code class='signature'>public enum StableGraphIssueKind</code>
+<p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Editor/Tooling/StableGraphModel.cs, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind'>Permalink</a></p>
+<p class='comment'>Classifies a structural graph problem without depending on Unity GUI APIs.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-30-8'><code class='signature'>EmptyNodeId</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 30</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-30-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-31-8'><code class='signature'>DuplicateNodeId</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-31-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-32-8'><code class='signature'>EmptyEdgeId</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-32-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-33-8'><code class='signature'>DuplicateEdgeId</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-33-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-34-8'><code class='signature'>BrokenSource</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-34-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-35-8'><code class='signature'>BrokenTarget</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-35-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-36-8'><code class='signature'>MissingEntry</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-36-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-37-8'><code class='signature'>UnreachableNode</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-37-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-38-8'><code class='signature'>ProhibitedCycle</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphIssueKind-Editor-Tooling-StableGraphModel-cs-38-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2'><summary><code>StableGraphModel</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2</span></summary><div class='entry'>
+<code class='signature'>public sealed class StableGraphModel&lt;TNode, TEdge&gt; where TNode : IStableGraphNode where TEdge : IStableGraphEdge</code>
+<p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Editor/Tooling/StableGraphModel.cs, line 60</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2'>Permalink</a></p>
+<p class='comment'>Immutable, ID-based graph projection shared by editor documents. Runtime asset ordering and editor layout are deliberately outside this type.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-67-8'><code class='signature'>public StableGraphModel( IEnumerable&lt;TNode&gt; nodes, IEnumerable&lt;TEdge&gt; edges, string entryNodeId, bool allowCycles = true)</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-67-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StableGraphModelTests.cs#L64-L67'>Stolen &#183; Assets/Tests/Editor/StableGraphModelTests.cs, lines 64–67</a></figcaption><pre><code>var cyclic = new StableGraphModel&lt;Node, Edge&gt;(
+    new[] { new Node(&quot;a&quot;), new Node(&quot;b&quot;) },
+    new[] { new Edge(&quot;ab&quot;, &quot;a&quot;, &quot;b&quot;), new Edge(&quot;ba&quot;, &quot;b&quot;, &quot;a&quot;) },
+    &quot;a&quot;, allowCycles: false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-81-8'><code class='signature'>public IReadOnlyList&lt;TNode&gt; Nodes { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-81-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-82-8'><code class='signature'>public IReadOnlyList&lt;TEdge&gt; Edges { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-82-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-83-8'><code class='signature'>public string EntryNodeId { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-83-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-84-8'><code class='signature'>public IReadOnlyList&lt;StableGraphIssue&gt; Issues { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 84</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-84-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-85-8'><code class='signature'>public bool IsValid { get; }</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-85-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-87-8'><code class='signature'>public bool TryGetNode(string id, out TNode node)</code><p class='source'><a href='../../../Editor/Tooling/StableGraphModel.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StableGraphModel-2-Editor-Tooling-StableGraphModel-cs-87-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StableGraphModelTests.cs#L38'>Stolen &#183; Assets/Tests/Editor/StableGraphModelTests.cs, line 38</a></figcaption><pre><code>Assert.That(graph.TryGetNode(&quot;end&quot;, out Node node), Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab'><summary><code>StorySequencesWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class StorySequencesWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 372</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-102'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 372</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-102'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-150'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 372</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-150'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-207'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Source, line 372</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.StorySequencesWorkspaceTab-Editor-Tooling-ContentWorkspaceCatalogTabs-cs-372-207'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel'><summary><code>ValidationResultsPanel</code> <span class='source'>QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel</span></summary><div class='entry'>
+<code class='signature'>public sealed class ValidationResultsPanel : VisualElement</code>
+<p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Editor/Tooling/ResultsPanels.cs, line 67</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel'>Permalink</a></p>
+<p class='comment'>Reusable validation list ordered by the package&#39;s shared issue ordering.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel-Editor-Tooling-ResultsPanels-cs-72-8'><code class='signature'>public ValidationResultsPanel()</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel-Editor-Tooling-ResultsPanels-cs-72-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new ValidationResultsPanel();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel-Editor-Tooling-ResultsPanels-cs-78-8'><code class='signature'>public void SetIssues(IEnumerable&lt;ValidationIssue&gt; issues)</code><p class='source'><a href='../../../Editor/Tooling/ResultsPanels.cs'>Source, line 78</a> · <a href='#api-QuietStatic.Toolkit.Editor.Tooling.ValidationResultsPanel-Editor-Tooling-ResultsPanels-cs-78-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetIssues(issues);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

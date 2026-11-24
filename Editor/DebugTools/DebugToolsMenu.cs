@@ -18,8 +18,8 @@ namespace QuietStatic.Toolkit.DebugTools.Editor
     public static class DebugToolsMenu
     {
         private const string DashboardMenuPath = "Tools/Quiet Static/Debug Dashboard";
-        private const string GameObjectDashboardMenuPath = "GameObject/Quiet Static/Debug Tools Dashboard";
-        private const string GameObjectTeleportAreaMenuPath = "GameObject/Quiet Static/Debug Teleport Area";
+        private const string GameObjectDashboardMenuPath = "GameObject/Quiet Static/Debug Tools/Create Dashboard";
+        private const string GameObjectTeleportAreaMenuPath = "GameObject/Quiet Static/Debug Tools/Create Teleport Area";
 
         /// <summary>
         /// Creates a dashboard below the current Hierarchy selection from the global Tools menu.
@@ -37,7 +37,7 @@ namespace QuietStatic.Toolkit.DebugTools.Editor
         /// Unity menu context; its <see cref="MenuCommand.context"/> is the selected parent when
         /// the command was opened from the Hierarchy.
         /// </param>
-        [MenuItem(GameObjectDashboardMenuPath, false, 10)]
+        [MenuItem(GameObjectDashboardMenuPath, false, 70)]
         private static void CreateDashboardFromGameObjectMenu(MenuCommand command)
         {
             CreateDashboard(command.context as GameObject);
@@ -75,7 +75,7 @@ namespace QuietStatic.Toolkit.DebugTools.Editor
         /// Unity menu context; its <see cref="MenuCommand.context"/> is the selected parent when
         /// invoked from the Hierarchy.
         /// </param>
-        [MenuItem(GameObjectTeleportAreaMenuPath, false, 11)]
+        [MenuItem(GameObjectTeleportAreaMenuPath, false, 71)]
         private static void CreateTeleportAreaFromGameObjectMenu(MenuCommand command)
         {
             CreateTeleportArea(command.context as GameObject);

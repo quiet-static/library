@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Settings — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Settings</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView'><code>QuietStatic.Toolkit.Settings.SettingsMenuView</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/SettingsPlayerVerification.cs#L121'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/SettingsPlayerVerification.cs, line 121</a></figcaption><pre><code>view.RequestBack();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-settings-readme-md'><h1 id='guide-runtime-settings-readme-md-settings'>Settings</h1>
+<p><code>QuietStatic.SettingsManager</code> is the authoritative settings owner. Keep one
+instance in the persistent System scene. It owns saved values and applies them to
+audio, display, post-processing, accessibility, and gameplay systems; it does not own
+menu widgets. <code>SettingsMenuView</code> binds scene or prefab controls to its public setters.</p>
+<h2 id='guide-runtime-settings-readme-md-reusable-accessibility-menu'>Reusable accessibility menu</h2>
+<p>The package includes <code>SettingsMenu.prefab</code>, <code>TitleMenu.prefab</code>, <code>PauseMenu.prefab</code>, and an
+<code>InputRebindControl.prefab</code> row under <code>Runtime/UI/Prefabs</code>. All player-facing text uses
+TextMeshPro. Put the settings
+manager and <code>InputBindingOverridesLoader</code> in the persistent Systems scene.
+Assign the game's InputActionAsset to the loader, then add one rebind row per
+action and select its action reference and binding index.</p>
+<p><code>SettingsManager.SettingChanged</code> publishes a <code>GameSettingId</code> after every
+change. Managers can subscribe directly and read the typed property from
+<code>SettingsManager.Instance</code>. Scene-authored reactions can instead use a
+<code>SettingsChangeRelay</code>. <code>AccessibilitySettingsApplier</code> covers common component
+switches, subtitle sizing, speaker labels, and high-contrast prompt events.</p>
+<p>The starter menu exposes master, music, SFX, look sensitivity, and VSync. Extend or
+replace <code>SettingsMenuView</code> when a project needs the manager's additional accessibility,
+resolution, brightness, ambience, or dialogue settings. The audio mixer may expose
+<code>AmbienceVolume</code> and <code>DialogueVolume</code> in addition to master, music, and SFX. Missing
+mixer parameters are harmless, allowing projects to adopt controls gradually.</p>
+<p>Moving the Master, Music, or SFX slider previews the volume on the assigned mixer
+immediately. <strong>Apply</strong> commits pending settings. <strong>Back</strong> discards pending changes and
+restores the committed mixer volumes. Disabling the view also restores the committed
+mixer volumes if a preview was active.</p>
+<p>Use <code>ClosedCaptionPresenter.ShowCaption(string)</code> from meaningful sound events.
+It automatically suppresses captions when the player's preference is off.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.AccessibilitySettingsApplier'><summary><code>AccessibilitySettingsApplier</code> <span class='source'>QuietStatic.Toolkit.Settings.AccessibilitySettingsApplier</span></summary><div class='entry'>
+<code class='signature'>public sealed class AccessibilitySettingsApplier : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/AccessibilitySettingsApplier.cs'>Runtime/Settings/AccessibilitySettingsApplier.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Settings.AccessibilitySettingsApplier'>Permalink</a></p>
+<p class='comment'>Applies common accessibility preferences to scene-specific presentation objects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.AccessibilitySettingsApplier-Runtime-Settings-AccessibilitySettingsApplier-cs-48-8'><code class='signature'>public void Apply()</code><p class='source'><a href='../../../Runtime/Settings/AccessibilitySettingsApplier.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Settings.AccessibilitySettingsApplier-Runtime-Settings-AccessibilitySettingsApplier-cs-48-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SettingsAccessibilityTests.cs'>Tests/EditMode/SettingsAccessibilityTests.cs, line 188</a></figcaption><pre><code>applier.Apply();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter'><summary><code>ClosedCaptionPresenter</code> <span class='source'>QuietStatic.Toolkit.Settings.ClosedCaptionPresenter</span></summary><div class='entry'>
+<code class='signature'>public sealed class ClosedCaptionPresenter : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/ClosedCaptionPresenter.cs'>Runtime/Settings/ClosedCaptionPresenter.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter'>Permalink</a></p>
+<p class='comment'>UnityEvent-friendly presenter for meaningful non-dialogue sound captions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter-Runtime-Settings-ClosedCaptionPresenter-cs-19-8'><code class='signature'>public void ShowCaption(string caption)</code><p class='source'><a href='../../../Runtime/Settings/ClosedCaptionPresenter.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter-Runtime-Settings-ClosedCaptionPresenter-cs-19-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowCaption(caption);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter-Runtime-Settings-ClosedCaptionPresenter-cs-29-8'><code class='signature'>public void Hide()</code><p class='source'><a href='../../../Runtime/Settings/ClosedCaptionPresenter.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Settings.ClosedCaptionPresenter-Runtime-Settings-ClosedCaptionPresenter-cs-29-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Hide();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.InputBindingOverridesLoader'><summary><code>InputBindingOverridesLoader</code> <span class='source'>QuietStatic.Toolkit.Settings.InputBindingOverridesLoader</span></summary><div class='entry'>
+<code class='signature'>public sealed class InputBindingOverridesLoader : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/InputBindingOverridesLoader.cs'>Runtime/Settings/InputBindingOverridesLoader.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputBindingOverridesLoader'>Permalink</a></p>
+<p class='comment'>Loads and resets saved Input System binding overrides for a game&#39;s action asset.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputBindingOverridesLoader-Runtime-Settings-InputBindingOverridesLoader-cs-16-8'><code class='signature'>public void ResetAllBindings()</code><p class='source'><a href='../../../Runtime/Settings/InputBindingOverridesLoader.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputBindingOverridesLoader-Runtime-Settings-InputBindingOverridesLoader-cs-16-8'>Permalink</a></p>
+<p class='comment'>UnityEvent entry point that restores every binding in the assigned asset.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetAllBindings();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.InputRebindControl'><summary><code>InputRebindControl</code> <span class='source'>QuietStatic.Toolkit.Settings.InputRebindControl</span></summary><div class='entry'>
+<code class='signature'>public sealed class InputRebindControl : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Runtime/Settings/InputRebindControl.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl'>Permalink</a></p>
+<p class='comment'>Reusable UI row that interactively rebinds one Input System binding.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-37-8'><code class='signature'>public void BeginRebind()</code><p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-37-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.BeginRebind();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-52-8'><code class='signature'>public void RefreshLabel()</code><p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-52-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RefreshLabel();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-77-8'><code class='signature'>public static void LoadOverrides(InputActionAsset asset)</code><p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Source, line 77</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-77-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SettingsAccessibilityTests.cs'>Tests/EditMode/SettingsAccessibilityTests.cs, line 165</a></figcaption><pre><code>InputRebindControl.LoadOverrides(asset);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-83-8'><code class='signature'>public static void SaveOverrides(InputActionAsset asset)</code><p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-83-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SettingsAccessibilityTests.cs'>Tests/EditMode/SettingsAccessibilityTests.cs, line 163</a></figcaption><pre><code>InputRebindControl.SaveOverrides(asset);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-90-8'><code class='signature'>public static void ResetOverrides(InputActionAsset asset)</code><p class='source'><a href='../../../Runtime/Settings/InputRebindControl.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Settings.InputRebindControl-Runtime-Settings-InputRebindControl-cs-90-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SettingsAccessibilityTests.cs'>Tests/EditMode/SettingsAccessibilityTests.cs, line 168</a></figcaption><pre><code>InputRebindControl.ResetOverrides(asset);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.SettingsChangeRelay'><summary><code>SettingsChangeRelay</code> <span class='source'>QuietStatic.Toolkit.Settings.SettingsChangeRelay</span></summary><div class='entry'>
+<code class='signature'>public sealed class SettingsChangeRelay : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/SettingsChangeRelay.cs'>Runtime/Settings/SettingsChangeRelay.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsChangeRelay'>Permalink</a></p>
+<p class='comment'>Converts settings notifications into Inspector-configured UnityEvents.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Settings.SettingsMenuView'><summary><code>SettingsMenuView</code> <span class='source'>QuietStatic.Toolkit.Settings.SettingsMenuView</span></summary><div class='entry'>
+<code class='signature'>public sealed class SettingsMenuView : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Settings/SettingsMenuView.cs'>Runtime/Settings/SettingsMenuView.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView'>Permalink</a></p>
+<p class='comment'>Binds a small, presentation-neutral settings menu to the persistent settings manager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-40-8'><code class='signature'>public UnityEvent BackRequested { get; }</code><p class='source'><a href='../../../Runtime/Settings/SettingsMenuView.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-40-8'>Permalink</a></p>
+<p class='comment'>Event raised by the neutral Back button for its containing menu.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-136-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Runtime/Settings/SettingsMenuView.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-136-8'>Permalink</a></p>
+<p class='comment'>Refreshes every control without invoking its change callback.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-175-8'><code class='signature'>public void ApplyChanges()</code><p class='source'><a href='../../../Runtime/Settings/SettingsMenuView.cs'>Source, line 175</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-175-8'>Permalink</a></p>
+<p class='comment'>Applies and saves all staged values together. Back discards uncommitted edits.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ApplyChanges();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-239-8'><code class='signature'>public void RequestBack()</code><p class='source'><a href='../../../Runtime/Settings/SettingsMenuView.cs'>Source, line 239</a> · <a href='#api-QuietStatic.Toolkit.Settings.SettingsMenuView-Runtime-Settings-SettingsMenuView-cs-239-8'>Permalink</a></p>
+<p class='comment'>Requests that the parent menu return to its previous page.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/SettingsPlayerVerification.cs#L121'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/SettingsPlayerVerification.cs, line 121</a></figcaption><pre><code>view.RequestBack();</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

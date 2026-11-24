@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Utilities — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Utilities</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateChannel'><code>QuietStatic.Toolkit.Utilities.ObjectStateChannel</code></a>.</p><figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 134</a></figcaption><pre><code>channel.ActivateState(dinner);</code></pre></figure></section>
+<section class='guide' id='guide-runtime-utilities-readme-md'><h1 id='guide-runtime-utilities-readme-md-utilities'>Utilities</h1>
+<ul>
+<li><code>FaceTarget</code> rotates an object toward a target.</li>
+<li><code>SetActiveEvent</code> exposes activation changes to UnityEvents/animation events.</li>
+<li><code>TriggerOnce</code> invokes a callback only on the first valid trigger entry while active
+and enabled. Entries received while disabled do not consume the one-shot event;
+re-enabling after it has fired does not reset it.</li>
+</ul>
+<p>Use these for small, local behaviors. When a component starts coordinating multiple
+systems or owning progression state, move that responsibility to a focused handler.</p>
+<p><code>ObjectStateChannel</code> is the cross-scene command path for an <code>ObjectStateHandler</code>.
+Its <code>ActivateState</code> and <code>ClearState</code> UnityEvent methods emit typed commands without
+requiring the caller to reference the scene object that owns the visuals.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.FaceTarget'><summary><code>FaceTarget</code> <span class='source'>QuietStatic.Toolkit.Utilities.FaceTarget</span></summary><div class='entry'>
+<code class='signature'>public class FaceTarget : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Utilities/FaceTarget.cs'>Runtime/Utilities/FaceTarget.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Utilities.FaceTarget'>Permalink</a></p>
+<p class='comment'>Rotates this GameObject so it faces a target transform over time.</p>
+<p class='comment'><strong>Remarks</strong> This component is useful for simple NPC facing, props that should turn toward the player, cutscene characters, cameras, or other objects that need to smoothly look at a target without requiring a full animation or AI system. By default, rotation is limited to the Y axis so the object stays upright. Disable onlyYaw if the object should pitch up or down toward the target too.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.FaceTarget-Runtime-Utilities-FaceTarget-cs-36-8'><code class='signature'>public void SetTarget(Transform newTarget)</code><p class='source'><a href='../../../Runtime/Utilities/FaceTarget.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Utilities.FaceTarget-Runtime-Utilities-FaceTarget-cs-36-8'>Permalink</a></p>
+<p class='comment'>Assigns the target this object should face.</p>
+<p class='comment'><strong>newTarget</strong> The new transform to face. Pass null to stop facing a target.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetTarget(newTarget);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateChannel'><summary><code>ObjectStateChannel</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectStateChannel : CrossSceneCommandChannel&lt;ObjectStateCommand&gt;</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Runtime/Utilities/ObjectStateChannel.cs, line 39</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateChannel'>Permalink</a></p>
+<p class='comment'>Relays object-state requests between scenes without holding references to scene objects.</p>
+<p class='comment'><strong>Remarks</strong> Assign this asset to an ObjectStateHandler, then invoke ActivateState or ClearState from UnityEvents in any scene. Every enabled handler listening to this channel will receive the request.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateChannel-Runtime-Utilities-ObjectStateChannel-cs-50-8'><code class='signature'>public void ActivateState(ObjectStateDefinition state)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateChannel-Runtime-Utilities-ObjectStateChannel-cs-50-8'>Permalink</a></p>
+<p class='comment'>Requests that enabled listeners activate the supplied state definition.</p>
+<p class='comment'><strong>state</strong> State selected through code or a UnityEvent asset picker.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 134</a></figcaption><pre><code>channel.ActivateState(dinner);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateChannel-Runtime-Utilities-ObjectStateChannel-cs-68-8'><code class='signature'>public void ClearState()</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateChannel-Runtime-Utilities-ObjectStateChannel-cs-68-8'>Permalink</a></p>
+<p class='comment'>Requests that enabled listeners disable every configured state object.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 147</a></figcaption><pre><code>channel.ClearState();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommand'><summary><code>ObjectStateCommand</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateCommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct ObjectStateCommand</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Runtime/Utilities/ObjectStateChannel.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommand'>Permalink</a></p>
+<p class='comment'>Typed cross-scene object-state command.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-16-8'><code class='signature'>public ObjectStateCommand( ObjectStateCommandType type, ObjectStateDefinition state = null)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-16-8'>Permalink</a></p>
+<p class='comment'>Creates an object-state command.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Runtime/Utilities/ObjectStateChannel.cs, lines 62–64</a></figcaption><pre><code>Dispatch(new ObjectStateCommand(
+    ObjectStateCommandType.Activate,
+    state));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-25-8'><code class='signature'>public ObjectStateCommandType Type { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-25-8'>Permalink</a></p>
+<p class='comment'>Requested object-state operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-28-8'><code class='signature'>public ObjectStateDefinition State { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommand-Runtime-Utilities-ObjectStateChannel-cs-28-8'>Permalink</a></p>
+<p class='comment'>Definition selected by an activate command.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType'><summary><code>ObjectStateCommandType</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateCommandType</span></summary><div class='entry'>
+<code class='signature'>public enum ObjectStateCommandType</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Runtime/Utilities/ObjectStateChannel.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType'>Permalink</a></p>
+<p class='comment'>Operation carried by an ObjectStateCommand.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType-Runtime-Utilities-ObjectStateChannel-cs-8-8'><code class='signature'>Activate</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 8</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType-Runtime-Utilities-ObjectStateChannel-cs-8-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType-Runtime-Utilities-ObjectStateChannel-cs-9-8'><code class='signature'>Clear</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateCommandType-Runtime-Utilities-ObjectStateChannel-cs-9-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition'><summary><code>ObjectStateDefinition</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectStateDefinition : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateDefinition.cs'>Runtime/Utilities/ObjectStateDefinition.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition'>Permalink</a></p>
+<p class='comment'>Identifies a reusable object state that can be selected from Inspector UnityEvents.</p>
+<p class='comment'><strong>Remarks</strong> The asset is only an identity and display description. Each ObjectStateHandler decides which scene objects represent this state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition-Runtime-Utilities-ObjectStateDefinition-cs-26-8'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateDefinition.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition-Runtime-Utilities-ObjectStateDefinition-cs-26-8'>Permalink</a></p>
+<p class='comment'>Gets the stable identifier assigned to this state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition-Runtime-Utilities-ObjectStateDefinition-cs-29-8'><code class='signature'>public string Description { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateDefinition.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateDefinition-Runtime-Utilities-ObjectStateDefinition-cs-29-8'>Permalink</a></p>
+<p class='comment'>Gets the editor-facing description of this state.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler'><summary><code>ObjectStateHandler</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectStateHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Runtime/Utilities/ObjectStateHandler.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler'>Permalink</a></p>
+<p class='comment'>Activates the scene objects mapped to one state and deactivates objects from every other configured state.</p>
+<p class='comment'><strong>Remarks</strong> Pass an ObjectStateDefinition to ActivateState from a UnityEvent to select a state through the Inspector asset picker. A state may contain any number of objects, including zero objects for an intentionally empty state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-66-8'><code class='signature'>public ObjectStateDefinition CurrentState { get; private set; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-66-8'>Permalink</a></p>
+<p class='comment'>Gets the currently selected state, or null when all states are cleared.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-69-8'><code class='signature'>public void ResetToStartingState()</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 69</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-69-8'>Permalink</a></p>
+<p class='comment'>Restores the authored state when beginning a fresh session.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetToStartingState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-110-8'><code class='signature'>public void SetChannel(ObjectStateChannel value)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 110</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-110-8'>Permalink</a></p>
+<p class='comment'>Changes the cross-scene request channel and updates subscriptions immediately.</p>
+<p class='comment'><strong>value</strong> New channel, or null to stop receiving channel requests.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 181</a></figcaption><pre><code>handler.SetChannel(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-131-8'><code class='signature'>public void ActivateState(ObjectStateDefinition state)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 131</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-131-8'>Permalink</a></p>
+<p class='comment'>Selects a configured state, enabling its objects and disabling all other state objects.</p>
+<p class='comment'><strong>state</strong> Definition selected through code or the UnityEvent object picker.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 60</a></figcaption><pre><code>handler.ActivateState(emptyDish);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-137-8'><code class='signature'>public void ClearState()</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 137</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-137-8'>Permalink</a></p>
+<p class='comment'>Disables every configured state object and clears the current state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 44</a></figcaption><pre><code>handler.ClearState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-143-8'><code class='signature'>public bool IsStateActive(ObjectStateDefinition state)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 143</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-143-8'>Permalink</a></p>
+<p class='comment'>Checks whether the supplied definition is currently selected.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 78</a></figcaption><pre><code>Assert.That(handler.IsStateActive(emptyHand), Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-150-8'><code class='signature'>public bool TryActivateStateById(string stateId)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 150</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler-Runtime-Utilities-ObjectStateHandler-cs-150-8'>Permalink</a></p>
+<p class='comment'>Activates the configured state with the supplied stable ID.</p>
+<p class='comment'><strong>Returns</strong> True when a matching configured state was activated.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Saving/ObjectStateSaveParticipant.cs'>Runtime/Saving/ObjectStateSaveParticipant.cs, line 75</a></figcaption><pre><code>stateHandler.TryActivateStateById(payload.stateId)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.SetActiveEvent'><summary><code>SetActiveEvent</code> <span class='source'>QuietStatic.Toolkit.Utilities.SetActiveEvent</span></summary><div class='entry'>
+<code class='signature'>public class SetActiveEvent : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Utilities/SetActiveEvent.cs'>Runtime/Utilities/SetActiveEvent.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Utilities.SetActiveEvent'>Permalink</a></p>
+<p class='comment'>Inspector-friendly helper for enabling or disabling a target GameObject.</p>
+<p class='comment'><strong>Remarks</strong> This component is useful for UnityEvents, animation events, timeline signals, buttons, triggers, and other systems that need to toggle an object without writing a custom script for each case.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-37-8'><code class='signature'>public void SetActive(bool active)</code><p class='source'><a href='../../../Runtime/Utilities/SetActiveEvent.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-37-8'>Permalink</a></p>
+<p class='comment'>Sets the active state of the configured target GameObject.</p>
+<p class='comment'><strong>active</strong> True to activate the target; false to deactivate it.</p>
+<p class='comment'><strong>Remarks</strong> If no target is assigned, this method safely does nothing.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetActive(active);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-50-8'><code class='signature'>public void Show()</code><p class='source'><a href='../../../Runtime/Utilities/SetActiveEvent.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-50-8'>Permalink</a></p>
+<p class='comment'>Activates the configured target GameObject.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Show();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-58-8'><code class='signature'>public void Hide()</code><p class='source'><a href='../../../Runtime/Utilities/SetActiveEvent.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Utilities.SetActiveEvent-Runtime-Utilities-SetActiveEvent-cs-58-8'>Permalink</a></p>
+<p class='comment'>Deactivates the configured target GameObject.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Hide();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding'><summary><code>StateBinding</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding</span></summary><div class='entry'>
+<code class='signature'>public sealed class StateBinding</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Runtime/Utilities/ObjectStateHandler.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding'>Permalink</a></p>
+<p class='comment'>Maps a reusable state definition to its scene visuals.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-31-12'><code class='signature'>public ObjectStateDefinition State { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-31-12'>Permalink</a></p>
+<p class='comment'>Gets the definition represented by this binding.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-34-12'><code class='signature'>public IReadOnlyList&lt;GameObject&gt; Objects { get; }</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-34-12'>Permalink</a></p>
+<p class='comment'>Gets the objects active for this binding.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-37-12'><code class='signature'>public StateBinding(ObjectStateDefinition state, params GameObject[] objects)</code><p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateBinding-Runtime-Utilities-ObjectStateHandler-cs-37-12'>Permalink</a></p>
+<p class='comment'>Creates a state-to-objects mapping.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectStateHandlerTests.cs'>Tests/EditMode/ObjectStateHandlerTests.cs, line 40</a></figcaption><pre><code>new ObjectStateHandler.StateBinding(emptyDish, emptyDishVisual)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateChangedUnityEvent'><summary><code>StateChangedUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateChangedUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class StateChangedUnityEvent : UnityEvent&lt;ObjectStateDefinition&gt;</code>
+<p class='source'><a href='../../../Runtime/Utilities/ObjectStateHandler.cs'>Runtime/Utilities/ObjectStateHandler.cs, line 47</a> · <a href='#api-QuietStatic.Toolkit.Utilities.ObjectStateHandler.StateChangedUnityEvent'>Permalink</a></p>
+<p class='comment'>UnityEvent whose argument is the newly selected state, or null when cleared.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Utilities.TriggerOnce'><summary><code>TriggerOnce</code> <span class='source'>QuietStatic.Toolkit.Utilities.TriggerOnce</span></summary><div class='entry'>
+<code class='signature'>public class TriggerOnce : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Utilities/TriggerOnce.cs'>Runtime/Utilities/TriggerOnce.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Utilities.TriggerOnce'>Permalink</a></p>
+<p class='comment'>Invokes a UnityEvent the first time a valid collider enters this trigger.</p>
+<p class='comment'><strong>Remarks</strong> This component is useful for one-shot gameplay events such as starting a cutscene, playing a scare, enabling an object, updating an objective, or setting off any other Inspector-configured response when the player enters a trigger volume. The trigger can optionally filter entering colliders by tag and can disable itself after firing so it does not continue receiving trigger callbacks.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.TriggerOnce-Runtime-Utilities-TriggerOnce-cs-36-8'><code class='signature'>public bool HasTriggered { get; }</code><p class='source'><a href='../../../Runtime/Utilities/TriggerOnce.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Utilities.TriggerOnce-Runtime-Utilities-TriggerOnce-cs-36-8'>Permalink</a></p>
+<p class='comment'>Whether this one-shot event has already fired.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Utilities.TriggerOnce-Runtime-Utilities-TriggerOnce-cs-38-8'><code class='signature'>public void RestoreTriggered(bool value)</code><p class='source'><a href='../../../Runtime/Utilities/TriggerOnce.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Utilities.TriggerOnce-Runtime-Utilities-TriggerOnce-cs-38-8'>Permalink</a></p>
+<p class='comment'>Restores the latch without invoking the event.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RestoreTriggered(value);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

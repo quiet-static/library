@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Interactions — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Interactions</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable'><code>QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs#L84'>Stolen &#183; Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs, line 84</a></figcaption><pre><code>Assert.That(microwave.TryActivate(), Is.False);</code></pre></figure></section>
+<section class='guide' id='guide-runtime-interactions-readme-md'><h1 id='guide-runtime-interactions-readme-md-interactions'>Interactions</h1>
+<p>See <a href='../guides.html#guide-docs-guides-runtime-cinematicsandreadablessetup-md'><code>CinematicsAndReadablesSetup.md</code></a>
+for the complete readable-item overlay recipe and example generator.</p>
+<p>For complete Inspector-oriented setup recipes and reusable target prefabs, see
+<a href='../guides.html#guide-docs-guides-runtime-commoncomponentrecipes-md'><code>docs/Guides/Runtime/CommonComponentRecipes.md</code></a>.</p>
+<p><code>Interactor</code> selects one target from the center of a camera, while
+<code>Interactable</code> owns an object's requirements and success/failure behavior.
+<code>InteractionHighlighter</code> handles presentation, and <code>InteractableUnlock</code> reacts
+to progression flags.</p>
+<p>Binary <code>InteractableUnlock</code> components also expose idempotent <code>Activate</code>, <code>Deactivate</code>,
+and <code>SetActivated</code> methods. Use those when autonomous systems need a specific state;
+retain <code>UnlockInteraction</code> for player-facing toggle callbacks.</p>
+<pre><code class="language-text">Player
+`-- Interactor
+    `-- Interaction Origin: PlayerCamera
+
+Locked Door
+|-- Collider
+|-- Interactable
+|   |-- Requirement: HasDoorKey
+|   `-- On Succeeded -&gt; Door animation
+`-- InteractionHighlighter
+</code></pre>
+<p>Put behavior in the interactable's UnityEvents or focused handler components.
+Keep the global manager out of content-object references.</p>
+<p>Use an <code>InteractionUIChannel</code> when prompts or messages originate in replaceable
+content scenes. Its persistent listener consumes a single typed command stream;
+prompt, progress-meter, and message methods remain suitable for UnityEvents.</p>
+<h2 id='guide-runtime-interactions-readme-md-flavor-text-clutter'>Flavor-text clutter</h2>
+<p>Use <code>FlavorTextInteraction</code> for a short optional observation attached to environmental
+clutter. It listens to the neighboring <code>Interactable</code> and publishes its text through
+<code>InteractionUIChannel</code> after a successful inspection. It contains no dialogue flow,
+flags, objective state, or progression behavior.</p>
+<p>Open <strong>Tools &gt; Quiet Static &gt; Workspace</strong> and choose <strong>Clutter</strong> to set up selected
+scene objects. The tool adds or repairs the interaction target, highlighter, trigger
+collider, interaction layer, UI channel, and flavor component without duplicating
+components. Prompts and flavor text can then be edited in that tool or in the
+Workspace's <strong>Scene Content</strong> tab.</p>
+<p>Use a <code>DialogueEventPlayer</code> and <code>DialogueTree</code> when text needs speakers, several beats,
+choices, flags, focus, or completion events. Use <code>ReadableInteractionTrigger</code> for
+long-form material that opens a modal document view.</p>
+<h2 id='guide-runtime-interactions-readme-md-letters-and-readable-items'>Letters and readable items</h2>
+<p>Create a <strong>Readable Content</strong> asset for each letter, note, or other long-form item. Add
+<code>ReadableInteractionTrigger</code> beside the item's <code>Interactable</code>, then assign the content and
+the shared <code>InteractionUIChannel</code>. A successful interaction automatically publishes the
+readable without the item referencing a UI scene. Use the trigger's <strong>On Opened</strong> event for
+behavior that begins once the overlay is visible. Use <strong>On Closed</strong> for follow-up thoughts,
+dialogue, flags, objectives, or other behavior that should occur after the player finishes
+reading. These events belong to the placed trigger so they can safely reference scene handlers.</p>
+<p>In the persistent UI scene, add <code>ReadableOverlayHandler</code> and assign the same channel, a
+root <code>CanvasGroup</code>, translucent backdrop <code>Image</code>, and TextMeshPro title/body/close labels.
+Connect the close button to <code>ReadableOverlayHandler.Close()</code>. The handler blocks UI
+raycasts while visible and can close via Escape; its opened/closed events can be wired to
+the project's input-lock handler. The backdrop opacity and all displayed text remain
+Inspector-configurable.</p>
+<p>Use <code>ConditionalInteractionMessage</code> when a success or failure UnityEvent should send
+different text for different flag states. Its ordered rules evaluate <code>FlagRequirement</code>
+objects and publish the first matching message through the same channel.</p>
+<h2 id='guide-runtime-interactions-readme-md-project-owned-targets'>Project-owned targets</h2>
+<p>Projects can keep specialized interaction policy without adding it to the
+toolkit. Implement <code>IInteractionTarget</code> on the project component and the same
+<code>Interactor</code> will select and invoke it. Implement <code>IInteractionFocusReceiver</code>
+when the project needs to own prompt or highlight presentation. Otherwise the
+Interactor uses the target's <code>DisplayName</code> and a child
+<code>InteractionHighlighter</code>.</p>
+<p>This is the intended boundary for character identities, story rules, or
+project-specific event payloads. The centralized Interactor remains the sole
+selection and input authority.</p>
+<h2 id='guide-runtime-interactions-readme-md-third-person-setup'>Third-person setup</h2>
+<p>Put the <code>Interactor</code> on the gameplay camera and use a longer camera ray than
+the player's physical reach:</p>
+<ol>
+<li>Assign the gameplay camera and an interaction layer mask.</li>
+<li>Enable <strong>Use Active Player As Origin</strong>.</li>
+<li>Enable <strong>Require Interaction Origin In Range</strong> and set the physical reach.</li>
+<li>Enable <strong>Ignore Active Player Colliders</strong> so the visible player body cannot
+block the camera ray.</li>
+<li>Route the Interact input action to <code>HandleInteractInput()</code>.</li>
+</ol>
+<p>The camera ray answers &quot;what is the player aiming at?&quot; while the origin-distance
+check answers &quot;can the active player reach it?&quot; Trigger colliders remain valid
+raycast targets because the Interactor queries colliders with
+<code>QueryTriggerInteraction.Collide</code>; they no longer imply proximity-driven input.</p>
+<h2 id='guide-runtime-interactions-readme-md-grabbable-objects'>Grabbable objects</h2>
+<ol>
+<li>Enable <strong>Is Grabbable</strong> on an <code>Interactable</code> in the scene or in Prefab Mode.
+Configure the added <code>Grabbable</code> companion. Give the object a dynamic <code>Rigidbody</code>
+with collision detection enabled and a solid collider on a layer the player can target.</li>
+<li>On the player's <code>Interactor</code>, assign <strong>Hold Transform</strong> to a hand or carry point
+outside the player's colliders. Assign <strong>Holder Root</strong> when the active <code>PlayerManager</code>
+player or the hold transform's root is unsuitable as the throwing character.</li>
+<li>Keep <strong>Interact</strong> wired to <code>Interactor.HandleInteractInput</code> for pickup. In the
+existing gameplay action map, add <strong>Throw</strong> and <strong>Drop</strong> Button actions and an
+optional <strong>CancelThrow</strong> Button action. Assign the <code>Interactor</code> to <strong>Grabbable
+Interactor</strong> on <code>PlayerInputReader</code> and match the action names. Use standard button
+presses. Projects with custom input can call <code>HandleThrowPressed</code>,
+<code>HandleThrowReleased</code>, <code>HandleDropInput</code>, and <code>CancelThrowCharge</code> directly, and
+should cancel an active charge when gameplay input is disabled.</li>
+<li>Assign the existing HUD progress root and slider on <code>InteractionUIManager</code> to
+show <strong>Throw strength</strong> while charging. Holding <strong>Throw</strong> builds charge from the
+minimum to the maximum impulse, and releasing throws in the camera's aim direction.
+With <strong>Use Charge Throw</strong> unchecked, pressing <strong>Throw</strong> immediately applies the
+maximum impulse. <strong>Drop</strong> releases the object and <strong>CancelThrow</strong> keeps it in hand.
+Picking up another grabbable drops the previous one.</li>
+</ol>
+<p><strong>Hold Position Offset</strong> and <strong>Hold Rotation Offset</strong> adjust the prop relative to
+the hold transform. <strong>Throw Direction Offset</strong> adjusts its launch angle relative to
+the aim direction. <strong>Min Throw Force</strong> and <strong>Max Throw Force</strong> set the impulse in
+newton-seconds, and <strong>Charge Duration</strong> sets the time to full strength. A duration
+of zero reaches full strength as soon as the button is pressed.</p>
+<h3 id='guide-runtime-interactions-readme-md-react-to-throw-impacts'>React to throw impacts</h3>
+<p><strong>Publish Throw Collision Events</strong> controls whether the prop raises
+<code>Grabbable.ThrowImpacted</code>. <strong>Impact Event Policy</strong> defaults to <strong>First Impact Only</strong>.
+Use <strong>Every Impact Until Sleeping</strong> to report subsequent collisions while the prop
+is moving. Ordinary drops never publish throw-impact events.</p>
+<p>The event carries the thrown <code>Interactable</code>, its display name as <code>ObjectIdentifier</code>,
+the <code>Thrower</code>, and collision data such as <code>HitCollider</code>, <code>Point</code>, and <code>Impulse</code>.
+This example lets a window run a scene effect when a particular prop hits it.
+Assign the prop and window collider in the Inspector, then wire <strong>On Window Hit</strong>.</p>
+<pre><code class="language-csharp">using QuietStatic.Toolkit.Interactions;
+using UnityEngine;
+using UnityEngine.Events;
+
+public sealed class WindowThrowReaction : MonoBehaviour
+{
+    [SerializeField] private Grabbable watchedProp;
+    [SerializeField] private Collider windowCollider;
+    [SerializeField] private UnityEvent onWindowHit;
+
+    private void OnEnable()
+    {
+        if (watchedProp != null)
+        {
+            watchedProp.ThrowImpacted += OnImpact;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (watchedProp != null)
+        {
+            watchedProp.ThrowImpacted -= OnImpact;
+        }
+    }
+
+    private void OnImpact(ThrowImpactEvent impact)
+    {
+        if (impact.HitCollider == windowCollider)
+        {
+            onWindowHit?.Invoke();
+        }
+    }
+}
+</code></pre>
+<h2 id='guide-runtime-interactions-readme-md-hold-interactions'>Hold interactions</h2>
+<p>Use <code>HoldInteractable</code> for continuous work such as sweeping or bathing. It
+remains separate from the one-shot <code>Interactable</code>, but the player's
+<code>Interactor</code> detects both with the same raycast and uses the same Interact
+action.</p>
+<ol>
+<li>Add a collider and <code>HoldInteractable</code> to the world object.</li>
+<li>Configure its hover prompt, meter name, duration, requirements, and
+completion event.</li>
+<li>Assign the optional progress root, label, and Slider on
+<code>InteractionUIManager</code>.</li>
+<li>Add <code>HoldInteractableUnlock</code> to a visual and select Animator Float or Shrink.</li>
+</ol>
+<p>The progress UnityEvent emits a normalized value every frame. Completion
+events can be wired to a scene handler that advances the project's clock; the
+content object does not need to reference a persistent time manager directly.</p>
+<h2 id='guide-runtime-interactions-readme-md-cross-scene-player-activities'>Cross-scene player activities</h2>
+<p><code>HoldActivitySequence</code> can disable <strong>Require Collider Focus</strong> when a locked activity
+should consume held interaction input without continued aiming. In that mode it
+temporarily removes the hold from <code>Interactor</code> raycast selection and sends its
+prompt and progress through <code>InteractionUIChannel</code>. Held-input state is published by the
+persistent player service through the same <code>PlayerActivityChannel</code>; the world object does
+not resolve an input manager.</p>
+<p>The same sequence can publish an optional camera focus target and yaw/pitch ranges through
+<code>PlayerActivityChannel</code>. The persistent player handler applies a limited-look region to
+<code>CameraController</code> while keeping positional movement locked. <code>PlayerActivityHandler</code> may
+also scale an optional progress visual and activate an <code>ObjectStateDefinition</code> on
+completion. Add <code>HoldAudioFeedback</code> beside
+a hold and configure an <code>AudioEventPlayer</code> when looping audio should follow held input.</p>
+<p>Use <code>PlayerActivityContext</code>, <code>PlayerActivityChannel</code>, <code>HoldActivitySequence</code>, and
+<code>PlayerActivityHandler</code> for cross-scene activities.</p>
+<h2 id='guide-runtime-interactions-readme-md-activated-progress-interactions'>Activated progress interactions</h2>
+<p>Use <code>ActivatedProgressInteractable</code> when one press should start work that
+continues on its own. Assign the reusable <code>WorldSpaceProgressBar</code> prefab and,
+optionally, an attachment-point Transform. The component instantiates and
+controls its own meter. An existing progress-bar child can be assigned instead
+when a scene needs custom placement. The player may look or walk away after
+starting it; the object owns its timer and fills its attached 3D meter until
+completion.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable'><summary><code>ActivatedProgressInteractable</code> <span class='source'>QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable</span></summary><div class='entry'>
+<code class='signature'>public class ActivatedProgressInteractable : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Runtime/Interactions/ActivatedProgressInteractable.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable'>Permalink</a></p>
+<p class='comment'>Starts a timed world-space interaction on a single button press and completes independently after its attached progress meter fills.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-79-8'><code class='signature'>public string HoverPrompt { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets the prompt displayed while this interaction is available.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-82-8'><code class='signature'>public float Progress { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-82-8'>Permalink</a></p>
+<p class='comment'>Gets normalized completion progress.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-85-8'><code class='signature'>public bool IsRunning { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-85-8'>Permalink</a></p>
+<p class='comment'>Gets whether the timed process is currently advancing.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-88-8'><code class='signature'>public bool IsComplete { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 88</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-88-8'>Permalink</a></p>
+<p class='comment'>Gets whether the process has reached full progress.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-91-8'><code class='signature'>public bool IsEnabled { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 91</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-91-8'>Permalink</a></p>
+<p class='comment'>Gets whether this interaction is enabled at runtime.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-94-8'><code class='signature'>public bool IsAvailable { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 94</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-94-8'>Permalink</a></p>
+<p class='comment'>Gets whether the process can currently be started.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-117-8'><code class='signature'>public bool TryActivate()</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 117</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-117-8'>Permalink</a></p>
+<p class='comment'>Attempts to start the timed process.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs#L84'>Stolen &#183; Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs, line 84</a></figcaption><pre><code>Assert.That(microwave.TryActivate(), Is.False);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-139-8'><code class='signature'>public void SetProgress(float normalizedProgress)</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 139</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-139-8'>Permalink</a></p>
+<p class='comment'>Sets normalized progress, supporting save restoration and tests.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs#L106'>Stolen &#183; Assets/Tests/PlayMode/HouseDinnerInteractionPlayModeTests.cs, line 106</a></figcaption><pre><code>microwave.SetProgress(1f);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-157-8'><code class='signature'>public void ResetProgress()</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 157</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-157-8'>Permalink</a></p>
+<p class='comment'>Returns the interaction and its meter to their initial state.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetProgress();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-169-8'><code class='signature'>public void SetEnabled(bool isEnabled)</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 169</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-169-8'>Permalink</a></p>
+<p class='comment'>Changes whether the interaction can be started.</p>
+<p class='comment'><strong>isEnabled</strong> New runtime enabled state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 86</a></figcaption><pre><code>progressInteraction.SetEnabled(false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-172-8'><code class='signature'>public void RestoreProgress(float normalizedProgress, bool available)</code><p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Source, line 172</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable-Runtime-Interactions-ActivatedProgressInteractable-cs-172-8'>Permalink</a></p>
+<p class='comment'>Restores a stable checkpoint without replaying completion flags, sounds, or callbacks.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RestoreProgress(normalizedProgress, available);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.CleanableMess'><summary><code>CleanableMess</code> <span class='source'>QuietStatic.Toolkit.Interactions.CleanableMess</span></summary><div class='entry'>
+<code class='signature'>public sealed class CleanableMess : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/CleanableMess.cs'>Runtime/Interactions/CleanableMess.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Interactions.CleanableMess'>Permalink</a></p>
+<p class='comment'>Shrinks a mess visual with a hold meter, leaving its interaction target stable until completion.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.CleanableMess-Runtime-Interactions-CleanableMess-cs-20-8'><code class='signature'>public HoldInteractable Interaction { get; }</code><p class='source'><a href='../../../Runtime/Interactions/CleanableMess.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Interactions.CleanableMess-Runtime-Interactions-CleanableMess-cs-20-8'>Permalink</a></p>
+<p class='comment'>The reusable hold interaction that owns this mess&#39;s progress.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage'><summary><code>ConditionalInteractionMessage</code> <span class='source'>QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage</span></summary><div class='entry'>
+<code class='signature'>public sealed class ConditionalInteractionMessage : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Runtime/Interactions/ConditionalInteractionMessage.cs, line 18</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage'>Permalink</a></p>
+<p class='comment'>Selects interaction feedback from ordered flag requirements and publishes it through an InteractionUIChannel.</p>
+<p class='comment'><strong>Remarks</strong> Wire ShowMessage to an Interactable success or failure UnityEvent. The first configured rule whose requirement is met wins. This component owns conditional presentation only; the Interactable continues to own whether the interaction itself succeeds.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-67-8'><code class='signature'>public IReadOnlyList&lt;MessageRule&gt; Rules { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-67-8'>Permalink</a></p>
+<p class='comment'>Gets the configured ordered rules.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-71-8'><code class='signature'>public string DefaultMessage { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-71-8'>Permalink</a></p>
+<p class='comment'>Gets the fallback text used when no rule matches.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-77-8'><code class='signature'>public void ShowMessage()</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 77</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-77-8'>Permalink</a></p>
+<p class='comment'>Resolves and publishes the currently applicable message. This parameterless method is suitable for Interactable UnityEvents.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowMessage();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-97-8'><code class='signature'>public bool TryResolveMessage(out string message)</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 97</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage-Runtime-Interactions-ConditionalInteractionMessage-cs-97-8'>Permalink</a></p>
+<p class='comment'>Finds the first message matching the current flag state.</p>
+<p class='comment'><strong>message</strong> Resolved message, or an empty string when none applies.</p>
+<p class='comment'><strong>Returns</strong> True when a non-empty rule or fallback message was found.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.TryResolveMessage(out var message);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction'><summary><code>FlavorTextInteraction</code> <span class='source'>QuietStatic.Toolkit.Interactions.FlavorTextInteraction</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlavorTextInteraction : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/FlavorTextInteraction.cs'>Runtime/Interactions/FlavorTextInteraction.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction'>Permalink</a></p>
+<p class='comment'>Shows lightweight environmental flavor text when an Interactable succeeds.</p>
+<p class='comment'><strong>Remarks</strong> This component deliberately contains no flags, dialogue nodes, choices, or story state. Use it for optional observations attached to clutter and environmental props.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-32-8'><code class='signature'>public string FlavorText { get; }</code><p class='source'><a href='../../../Runtime/Interactions/FlavorTextInteraction.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-32-8'>Permalink</a></p>
+<p class='comment'>Gets the authored observation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-35-8'><code class='signature'>public InteractionUIChannel Channel { get; }</code><p class='source'><a href='../../../Runtime/Interactions/FlavorTextInteraction.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-35-8'>Permalink</a></p>
+<p class='comment'>Gets the configured UI channel.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-51-8'><code class='signature'>public void ShowFlavorText()</code><p class='source'><a href='../../../Runtime/Interactions/FlavorTextInteraction.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Interactions.FlavorTextInteraction-Runtime-Interactions-FlavorTextInteraction-cs-51-8'>Permalink</a></p>
+<p class='comment'>Shows the current flavor text. Useful for previews and UnityEvents.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowFlavorText();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable.FloatUnityEvent'><summary><code>FloatUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable.FloatUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class FloatUnityEvent : UnityEvent&lt;float&gt;</code>
+<p class='source'><a href='../../../Runtime/Interactions/ActivatedProgressInteractable.cs'>Runtime/Interactions/ActivatedProgressInteractable.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ActivatedProgressInteractable.FloatUnityEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.HoldInteractable.FloatUnityEvent'><summary><code>FloatUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Interactions.HoldInteractable.FloatUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class FloatUnityEvent : UnityEvent&lt;float&gt;</code>
+<p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Runtime/Interactions/HoldInteractable.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable.FloatUnityEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.Grabbable'><summary><code>Grabbable</code> <span class='source'>QuietStatic.Toolkit.Interactions.Grabbable</span></summary><div class='entry'>
+<code class='signature'>public sealed class Grabbable : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Runtime/Interactions/Grabbable.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable'>Permalink</a></p>
+<p class='comment'>Holds, drops, and throws a physical object picked up through an Interactable.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-64-8'><code class='signature'>public event Action&lt;Grabbable&gt; Released</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-64-8'>Permalink</a></p>
+<p class='comment'>Raised after the object is released, including when it is disabled while held.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-67-8'><code class='signature'>public event Action&lt;ThrowImpactEvent&gt; ThrowImpacted</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-67-8'>Permalink</a></p>
+<p class='comment'>Raised for impacts allowed by this object&#39;s throw collision settings.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-70-8'><code class='signature'>public bool IsHeld { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-70-8'>Permalink</a></p>
+<p class='comment'>Gets whether this object is attached to a player&#39;s hold transform.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-73-8'><code class='signature'>public bool IsThrown { get; }</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets whether this object is still in motion from a deliberate throw.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-76-8'><code class='signature'>public bool IsCharging { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-76-8'>Permalink</a></p>
+<p class='comment'>Gets whether the player is currently charging a throw.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-79-8'><code class='signature'>public float ChargeProgress { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets the current throw strength on a scale from zero to one.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-82-8'><code class='signature'>public bool UseChargeThrow { get; }</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-82-8'>Permalink</a></p>
+<p class='comment'>Gets whether the throw input charges before release.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-104-8'><code class='signature'>public bool CanGrab(Transform anchor)</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 104</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-104-8'>Permalink</a></p>
+<p class='comment'>Checks whether an active hold transform and a dynamic Rigidbody are available for a pickup.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 158</a></figcaption><pre><code>grabbable.CanGrab(holdTransform)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-118-8'><code class='signature'>public bool TryGrab(Transform anchor, GameObject actor)</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 118</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-118-8'>Permalink</a></p>
+<p class='comment'>Attaches the object to the supplied hold transform and suspends its physics.</p>
+<p class='comment'><strong>anchor</strong> Player hand or another transform used to carry the object.</p>
+<p class='comment'><strong>actor</strong> The player&#39;s root GameObject used for attribution and collision exclusion.</p>
+<p class='comment'><strong>Returns</strong> True if the object was picked up.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 169</a></figcaption><pre><code>grabbable.TryGrab(holdTransform, ResolveHolderRoot())</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-159-8'><code class='signature'>public bool BeginCharge()</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 159</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-159-8'>Permalink</a></p>
+<p class='comment'>Starts charging a held object and reports whether a new charge began.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 119</a></figcaption><pre><code>held.BeginCharge()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-169-8'><code class='signature'>public void AdvanceCharge(float deltaTime)</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 169</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-169-8'>Permalink</a></p>
+<p class='comment'>Advances an active charge by the supplied number of gameplay seconds.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/GrabbablePlayModeTests.cs'>Tests/PlayMode/GrabbablePlayModeTests.cs, line 90</a></figcaption><pre><code>grabbable.AdvanceCharge(0.5f);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-186-8'><code class='signature'>public void CancelCharge()</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 186</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-186-8'>Permalink</a></p>
+<p class='comment'>Clears the pending charge without releasing the object.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 141</a></figcaption><pre><code>HeldGrabbable.CancelCharge();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-194-8'><code class='signature'>public bool Drop()</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 194</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-194-8'>Permalink</a></p>
+<p class='comment'>Releases the held object without applying a throw impulse.</p>
+<p class='comment'><strong>Returns</strong> True if an object was released.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 153</a></figcaption><pre><code>HeldGrabbable.Drop();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-199-8'><code class='signature'>public bool Throw(Vector3 forward)</code><p class='source'><a href='../../../Runtime/Interactions/Grabbable.cs'>Source, line 199</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Grabbable-Runtime-Interactions-Grabbable-cs-199-8'>Permalink</a></p>
+<p class='comment'>Releases the held object with a physics impulse based on its current charge settings.</p>
+<p class='comment'><strong>forward</strong> World-space direction from which to apply the configured aim offset.</p>
+<p class='comment'><strong>Returns</strong> True if the object was thrown.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 215</a></figcaption><pre><code>held.Throw(aim.forward)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence'><summary><code>HoldActivitySequence</code> <span class='source'>QuietStatic.Toolkit.Interactions.HoldActivitySequence</span></summary><div class='entry'>
+<code class='signature'>public class HoldActivitySequence : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence'>Permalink</a></p>
+<p class='comment'>Adapts a world-space hold interaction into a cross-scene seated sequence. The world object owns when the activity is available; the player scene owns its effects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-46-8'><code class='signature'>public bool IsSeated { get; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 46</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-46-8'>Permalink</a></p>
+<p class='comment'>Whether the player is in this temporary seated activity.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-52-8'><code class='signature'>public bool RequiresColliderFocus { get; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-52-8'>Permalink</a></p>
+<p class='comment'>Gets whether eating must remain under the crosshair. When false, the seated sequence owns hold input and its collider is optional.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-153-8'><code class='signature'>public void BeginSitting()</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 153</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-153-8'>Permalink</a></p>
+<p class='comment'>Locks the player into the seated activity and enables eating.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.BeginSitting();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-178-8'><code class='signature'>public void CancelSitting()</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 178</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-178-8'>Permalink</a></p>
+<p class='comment'>Ends sitting early and restores player control.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CancelSitting();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-194-8'><code class='signature'>public void BeginActivity()</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 194</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-194-8'>Permalink</a></p>
+<p class='comment'>Begins the configured player activity.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.BeginActivity();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-197-8'><code class='signature'>public void CancelActivity()</code><p class='source'><a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Source, line 197</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldActivitySequence-Runtime-Interactions-HoldActivitySequence-cs-197-8'>Permalink</a></p>
+<p class='comment'>Cancels the configured player activity.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CancelActivity();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.HoldAudioFeedback'><summary><code>HoldAudioFeedback</code> <span class='source'>QuietStatic.Toolkit.Interactions.HoldAudioFeedback</span></summary><div class='entry'>
+<code class='signature'>public sealed class HoldAudioFeedback : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/HoldAudioFeedback.cs'>Runtime/Interactions/HoldAudioFeedback.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldAudioFeedback'>Permalink</a></p>
+<p class='comment'>Plays looping audio only while a HoldInteractable is actively receiving held input. Audio stops on release, cancellation, disable, or completion.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.HoldInteractable'><summary><code>HoldInteractable</code> <span class='source'>QuietStatic.Toolkit.Interactions.HoldInteractable</span></summary><div class='entry'>
+<code class='signature'>public class HoldInteractable : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Runtime/Interactions/HoldInteractable.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable'>Permalink</a></p>
+<p class='comment'>Defines a continuous interaction completed by holding the normal interact action. This is deliberately separate from the one-shot Interactable.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-18-8'><code class='signature'>public event Action&lt;float&gt; ProgressChanged</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-18-8'>Permalink</a></p>
+<p class='comment'>Raised whenever normalized progress changes.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-21-8'><code class='signature'>public event Action Completed</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-21-8'>Permalink</a></p>
+<p class='comment'>Raised once when the meter reaches one.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-24-8'><code class='signature'>public event Action HoldBegan</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-24-8'>Permalink</a></p>
+<p class='comment'>Raised whenever a new held-input interval begins.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-27-8'><code class='signature'>public event Action HoldEnded</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-27-8'>Permalink</a></p>
+<p class='comment'>Raised whenever held input ends, is cancelled, or completes.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-70-8'><code class='signature'>public string HoverPrompt { get; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-70-8'>Permalink</a></p>
+<p class='comment'>Gets the prompt displayed while this interaction is targeted.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-73-8'><code class='signature'>public string ProgressName { get; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets the label displayed beside the progress bar.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-76-8'><code class='signature'>public float Progress { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-76-8'>Permalink</a></p>
+<p class='comment'>Gets normalized hold progress.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-79-8'><code class='signature'>public bool IsEnabled { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets whether this interaction is enabled at runtime.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-86-8'><code class='signature'>public bool IsInteractorTargetingEnabled { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-86-8'>Permalink</a></p>
+<p class='comment'>Gets whether an Interactor may acquire this hold through its crosshair raycast. Sequence components can temporarily disable this while they own input directly.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-89-8'><code class='signature'>public bool IsBeingHeld { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 89</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-89-8'>Permalink</a></p>
+<p class='comment'>Gets whether this interaction is currently receiving held input.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-92-8'><code class='signature'>public bool IsComplete { get; }</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 92</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-92-8'>Permalink</a></p>
+<p class='comment'>Gets whether hold progress has reached completion.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-96-8'><code class='signature'>public bool CanInteract()</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 96</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-96-8'>Permalink</a></p>
+<p class='comment'>Checks the runtime enabled state and configured flag requirement.</p>
+<p class='comment'><strong>Returns</strong> True when hold progress may advance.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 357</a></figcaption><pre><code>return CurrentHoldTarget.CanInteract();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-105-8'><code class='signature'>public bool Advance(float deltaTime)</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 105</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-105-8'>Permalink</a></p>
+<p class='comment'>Advances the meter by elapsed seconds.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 212</a></figcaption><pre><code>holdInteraction.Advance(0.1f);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-125-8'><code class='signature'>public void Cancel()</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 125</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-125-8'>Permalink</a></p>
+<p class='comment'>Cancels an active hold, optionally retaining its progress.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 214</a></figcaption><pre><code>holdInteraction.Cancel();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-136-8'><code class='signature'>public void SetProgress(float normalizedProgress)</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-136-8'>Permalink</a></p>
+<p class='comment'>Sets normalized progress, useful for save restoration and tests.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetProgress(normalizedProgress);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-156-8'><code class='signature'>public void SetEnabled(bool isEnabled)</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 156</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-156-8'>Permalink</a></p>
+<p class='comment'>Changes whether hold progress can advance.</p>
+<p class='comment'><strong>isEnabled</strong> New runtime enabled state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 210</a></figcaption><pre><code>holdInteraction.SetEnabled(true);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-167-8'><code class='signature'>public void SetInteractorTargetingEnabled(bool isEnabled)</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 167</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-167-8'>Permalink</a></p>
+<p class='comment'>Changes whether crosshair-based interactors may target this hold.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 196</a></figcaption><pre><code>holdInteraction.SetInteractorTargetingEnabled(false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-171-8'><code class='signature'>public void ResetProgress()</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractable.cs'>Source, line 171</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractable-Runtime-Interactions-HoldInteractable-cs-171-8'>Permalink</a></p>
+<p class='comment'>Returns hold progress to zero.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 161</a></figcaption><pre><code>holdInteractable.ResetProgress();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.HoldInteractableUnlock'><summary><code>HoldInteractableUnlock</code> <span class='source'>QuietStatic.Toolkit.Interactions.HoldInteractableUnlock</span></summary><div class='entry'>
+<code class='signature'>public class HoldInteractableUnlock : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/HoldInteractableUnlock.cs'>Runtime/Interactions/HoldInteractableUnlock.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractableUnlock'>Permalink</a></p>
+<p class='comment'>Applies a hold meter&#39;s normalized progress continuously to a visual.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.HoldInteractableUnlock-Runtime-Interactions-HoldInteractableUnlock-cs-64-8'><code class='signature'>public void ApplyProgress(float progress)</code><p class='source'><a href='../../../Runtime/Interactions/HoldInteractableUnlock.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Interactions.HoldInteractableUnlock-Runtime-Interactions-HoldInteractableUnlock-cs-64-8'>Permalink</a></p>
+<p class='comment'>Applies a normalized meter value immediately.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ApplyProgress(progress);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.IInteractionFocusReceiver'><summary><code>IInteractionFocusReceiver</code> <span class='source'>QuietStatic.Toolkit.Interactions.IInteractionFocusReceiver</span></summary><div class='entry'>
+<code class='signature'>public interface IInteractionFocusReceiver</code>
+<p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Runtime/Interactions/IInteractionTarget.cs, line 31</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionFocusReceiver'>Permalink</a></p>
+<p class='comment'>Optional focus callback for targets that own project-specific highlighting or prompt presentation.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.IInteractionFocusReceiver-Runtime-Interactions-IInteractionTarget-cs-34-8'><code class='signature'>void SetInteractionFocused(bool focused)</code><p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionFocusReceiver-Runtime-Interactions-IInteractionTarget-cs-34-8'>Permalink</a></p>
+<p class='comment'>Notifies the target when crosshair focus changes.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetInteractionFocused(focused);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.IInteractionTarget'><summary><code>IInteractionTarget</code> <span class='source'>QuietStatic.Toolkit.Interactions.IInteractionTarget</span></summary><div class='entry'>
+<code class='signature'>public interface IInteractionTarget</code>
+<p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Runtime/Interactions/IInteractionTarget.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionTarget'>Permalink</a></p>
+<p class='comment'>Contract used by Interactor to target both toolkit and project-owned interaction components.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-12-8'><code class='signature'>string DisplayName { get; }</code><p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-12-8'>Permalink</a></p>
+<p class='comment'>Player-facing name displayed while this target is focused.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-15-8'><code class='signature'>Transform InteractionTransform { get; }</code><p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-15-8'>Permalink</a></p>
+<p class='comment'>Transform that owns the interaction and its optional highlighter.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-21-8'><code class='signature'>bool IsInteractionAvailable(Interactor interactor)</code><p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-21-8'>Permalink</a></p>
+<p class='comment'>Returns whether this target can currently be focused and attempted by the supplied interactor.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 361</a></figcaption><pre><code>CurrentInteractionTarget.IsInteractionAvailable(this)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-24-8'><code class='signature'>bool TryInteract(Interactor interactor)</code><p class='source'><a href='../../../Runtime/Interactions/IInteractionTarget.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Interactions.IInteractionTarget-Runtime-Interactions-IInteractionTarget-cs-24-8'>Permalink</a></p>
+<p class='comment'>Attempts the interaction and returns whether it succeeded.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 364</a></figcaption><pre><code>bool succeeded = CurrentInteractionTarget.TryInteract(this);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.Interactable'><summary><code>Interactable</code> <span class='source'>QuietStatic.Toolkit.Interactions.Interactable</span></summary><div class='entry'>
+<code class='signature'>public class Interactable : MonoBehaviour, IInteractionTarget</code>
+<p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Runtime/Interactions/Interactable.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable'>Permalink</a></p>
+<p class='comment'>Defines a world interaction with optional grabbing, flag requirements, progression effects, and Inspector-configured success or failure callbacks.</p>
+<p class='comment'><strong>Remarks</strong> The component owns interaction rules, not input or UI. An Interactor attempts the action, C# events notify interested listeners, and serialized UnityEvents drive local behavior such as animation or audio.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-21-8'><code class='signature'>public event Action&lt;Interactable, Interactor&gt; InteractionSucceeded</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-21-8'>Permalink</a></p>
+<p class='comment'>Raised after any interactable completes successfully.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-24-8'><code class='signature'>public event Action&lt;Interactable, Interactor&gt; InteractionFailed</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-24-8'>Permalink</a></p>
+<p class='comment'>Raised after an enabled interactable fails its requirements.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-61-8'><code class='signature'>public string DisplayName { get; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-61-8'>Permalink</a></p>
+<p class='comment'>Gets the player-facing interaction label.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-68-8'><code class='signature'>public bool AllowTargetingThroughOccluders { get; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-68-8'>Permalink</a></p>
+<p class='comment'>Gets whether camera targeting may look past nearer colliders that do not own an interaction. This is intended for deliberately reachable targets behind counters or similar scene geometry, not as a global replacement for interaction occlusion.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-71-8'><code class='signature'>public Transform InteractionTransform { get; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-71-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-74-8'><code class='signature'>public bool IsEnabled { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 74</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-74-8'>Permalink</a></p>
+<p class='comment'>Gets whether this component currently accepts interaction attempts.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-80-8'><code class='signature'>public bool IsGrabbable { get; set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 80</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-80-8'>Permalink</a></p>
+<p class='comment'>Gets or sets whether this interaction may pick up the object. Disabling grabbing releases the object and retains its Grabbable settings.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-107-8'><code class='signature'>public bool CanInteract()</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 107</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-107-8'>Permalink</a></p>
+<p class='comment'>Checks the runtime enabled state and configured flag requirement.</p>
+<p class='comment'><strong>Returns</strong> True when an interaction attempt would succeed.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StolenSceneArchitectureTests.cs#L265'>Stolen &#183; Assets/Tests/Editor/StolenSceneArchitectureTests.cs, line 265</a></figcaption><pre><code>Assert.That(interaction.CanInteract(), Is.True, &quot;NPC passage checks must remain allowed.&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-113-8'><code class='signature'>public bool IsInteractionAvailable(Interactor interactor)</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 113</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-113-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.IsInteractionAvailable(interactor);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-123-8'><code class='signature'>public bool TryInteract(Interactor interactor = null)</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 123</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-123-8'>Permalink</a></p>
+<p class='comment'>Attempts the interaction and invokes the matching event path.</p>
+<p class='comment'><strong>interactor</strong> Optional actor that initiated the attempt.</p>
+<p class='comment'><strong>Returns</strong> True when the success path ran; otherwise false.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/GrabbablePlayModeTests.cs'>Tests/PlayMode/GrabbablePlayModeTests.cs, line 83</a></figcaption><pre><code>Assert.That(interactable.TryInteract(player), Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-156-8'><code class='signature'>public void Interact()</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 156</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-156-8'>Permalink</a></p>
+<p class='comment'>Attempts this interaction without an actor. This parameterless entry point is suitable for UI Buttons and other Inspector-configured UnityEvents.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractableUnityEventTests.cs'>Tests/EditMode/InteractableUnityEventTests.cs, line 25</a></figcaption><pre><code>interactable.Interact();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-163-8'><code class='signature'>public void SetEnabled(bool isEnabled)</code><p class='source'><a href='../../../Runtime/Interactions/Interactable.cs'>Source, line 163</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactable-Runtime-Interactions-Interactable-cs-163-8'>Permalink</a></p>
+<p class='comment'>Changes whether this object accepts interaction attempts.</p>
+<p class='comment'><strong>isEnabled</strong> New interaction state.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationCleaningTask.cs#L132'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationCleaningTask.cs, line 132</a></figcaption><pre><code>broom.SetEnabled(isActiveAndEnabled &amp;&amp; noticed &amp;&amp; !broomHeld);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock'><summary><code>InteractableUnlock</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractableUnlock</span></summary><div class='entry'>
+<code class='signature'>public class InteractableUnlock : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Runtime/Interactions/InteractableUnlock.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock'>Permalink</a></p>
+<p class='comment'>Drives an Animator trigger from a direct interaction callback or from a configured flag requirement becoming satisfied.</p>
+<p class='comment'><strong>Remarks</strong> Direct callers may always use UnlockInteraction. Automatic flag reactions only occur when FlagRequirement.IsConfigured is true, preventing the default None requirement from reacting to every global flag change.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-51-8'><code class='signature'>public event Action&lt;bool&gt; StateChanged</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-51-8'>Permalink</a></p>
+<p class='comment'>Raised after the logical activated state changes successfully.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-54-8'><code class='signature'>public bool IsActivated { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 54</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-54-8'>Permalink</a></p>
+<p class='comment'>Gets the logical activated state owned by this animation adapter.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-57-8'><code class='signature'>public bool IsBinary { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-57-8'>Permalink</a></p>
+<p class='comment'>Gets whether this adapter has distinct ON and OFF triggers.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-131-8'><code class='signature'>public void UnlockInteraction()</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 131</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-131-8'>Permalink</a></p>
+<p class='comment'>Fires the next configured Animator trigger immediately. This method is suitable for Interactable success events and other direct callbacks.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.UnlockInteraction();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-150-8'><code class='signature'>public bool Activate()</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 150</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-150-8'>Permalink</a></p>
+<p class='comment'>Idempotently requests the logical ON state.</p>
+<p class='comment'><strong>Returns</strong> True when the component is already ON or the ON trigger was fired.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Runtime/Characters/NPC/NPCPathDoor.cs, line 125</a></figcaption><pre><code>animatedState.Activate()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-157-8'><code class='signature'>public bool Deactivate()</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 157</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-157-8'>Permalink</a></p>
+<p class='comment'>Idempotently requests the logical OFF state.</p>
+<p class='comment'><strong>Returns</strong> True when the component is already OFF or the OFF trigger was fired.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L561'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 561</a></figcaption><pre><code>danBackRoomDoor?.Deactivate();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-165-8'><code class='signature'>public bool SetActivated(bool activated)</code><p class='source'><a href='../../../Runtime/Interactions/InteractableUnlock.cs'>Source, line 165</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractableUnlock-Runtime-Interactions-InteractableUnlock-cs-165-8'>Permalink</a></p>
+<p class='comment'>Idempotently applies an activated state without toggling it.</p>
+<p class='comment'><strong>activated</strong> True for the ON state; false for the OFF state.</p>
+<p class='comment'><strong>Returns</strong> True when the requested state is active; otherwise false.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.SetActivated(activated);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'><summary><code>InteractionHighlighter</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionHighlighter</span></summary><div class='entry'>
+<code class='signature'>public class InteractionHighlighter : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractionHighlighter.cs'>Runtime/Interactions/InteractionHighlighter.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter'>Permalink</a></p>
+<p class='comment'>Adjusts renderer brightness for interaction feedback without replacing materials.</p>
+<p class='comment'><strong>Remarks</strong> This component uses MaterialPropertyBlock so each renderer can appear brighter without changing the original shared material asset or creating runtime material instances.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionHighlighter-Runtime-Interactions-InteractionHighlighter-cs-65-8'><code class='signature'>public void SetHighlighted(bool highlighted)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionHighlighter.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHighlighter-Runtime-Interactions-InteractionHighlighter-cs-65-8'>Permalink</a></p>
+<p class='comment'>Enables or disables the interaction brightness effect.</p>
+<p class='comment'><strong>highlighted</strong> true to brighten the object; false to clear the shader overrides.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 764</a></figcaption><pre><code>highlighter?.SetHighlighted(highlighted);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel'><summary><code>InteractionUIChannel</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionUIChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class InteractionUIChannel : CrossSceneCommandChannel&lt;InteractionUICommand&gt;</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Runtime/Interactions/InteractionUIChannel.cs, line 61</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel'>Permalink</a></p>
+<p class='comment'>Relays interaction UI requests between scenes without referencing scene objects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-69-8'><code class='signature'>public event Action&lt;ReadableContentDefinition, UnityEngine.Object&gt; ReadableOpened</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 69</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-69-8'>Permalink</a></p>
+<p class='comment'>Raised after the overlay displays readable content.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-72-8'><code class='signature'>public event Action&lt;ReadableContentDefinition, UnityEngine.Object&gt; ReadableClosed</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-72-8'>Permalink</a></p>
+<p class='comment'>Raised after the displayed readable content closes.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-75-8'><code class='signature'>public void ShowPrompt(string prompt)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-75-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners display an interaction prompt.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 148</a></figcaption><pre><code>interactionUIChannel?.ShowPrompt(holdInteractable.HoverPrompt);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-83-8'><code class='signature'>public void HidePrompt()</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-83-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners hide the current interaction prompt.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/RequestChannelTests.cs'>Tests/EditMode/RequestChannelTests.cs, line 212</a></figcaption><pre><code>first.HidePrompt();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-90-8'><code class='signature'>public void ShowMessage(string text)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-90-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners display a message using their default duration.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationCleaningTask.cs#L113'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationCleaningTask.cs, line 113</a></figcaption><pre><code>interactionUI?.ShowMessage(&quot;I&#39;ll sweep up these five messes before I do anything else.&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-98-8'><code class='signature'>public void ShowMessageForSeconds(string text, float seconds)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 98</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-98-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners display a message for a custom duration.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationBackRoomBoundary.cs#L60'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationBackRoomBoundary.cs, line 60</a></figcaption><pre><code>interactionUI?.ShowMessageForSeconds(message, messageDuration);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-107-8'><code class='signature'>public void ShowProgress(string label, float normalizedProgress)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 107</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-107-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners display a named, normalized progress meter.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L799-L800'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, lines 799–800</a></figcaption><pre><code>interactionUIChannel?.ShowProgress($&quot;Pepper spray cooldown � {remaining:0.0}s&quot;,
+    1-remaining/Mathf.Max(.25f,sprayCooldown));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-117-8'><code class='signature'>public void HideProgress()</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 117</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-117-8'>Permalink</a></p>
+<p class='comment'>Requests that listeners hide the current progress meter.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L807'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 807</a></figcaption><pre><code>interactionUIChannel?.HideProgress();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-124-8'><code class='signature'>public void ShowReadable( ReadableContentDefinition definition, UnityEngine.Object source = null)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-124-8'>Permalink</a></p>
+<p class='comment'>Shows a modal long-form readable such as a letter or note.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/ReadableInteractionTrigger.cs'>Runtime/Interactions/ReadableInteractionTrigger.cs, line 53</a></figcaption><pre><code>channel.ShowReadable(content, this);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-136-8'><code class='signature'>public void HideReadable()</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannel-Runtime-Interactions-InteractionUIChannel-cs-136-8'>Permalink</a></p>
+<p class='comment'>Hides the current long-form readable.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/ReadableOverlayHandler.cs'>Runtime/Interactions/ReadableOverlayHandler.cs, line 83</a></figcaption><pre><code>channel?.HideReadable();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannelListener'><summary><code>InteractionUIChannelListener</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionUIChannelListener</span></summary><div class='entry'>
+<code class='signature'>public sealed class InteractionUIChannelListener : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannelListener.cs'>Runtime/Interactions/InteractionUIChannelListener.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannelListener'>Permalink</a></p>
+<p class='comment'>Forwards cross-scene interaction UI channel requests to the persistent UI manager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUIChannelListener-Runtime-Interactions-InteractionUIChannelListener-cs-39-8'><code class='signature'>public void SetChannel(InteractionUIChannel value)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannelListener.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUIChannelListener-Runtime-Interactions-InteractionUIChannelListener-cs-39-8'>Permalink</a></p>
+<p class='comment'>Changes the channel and updates the live subscription.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand'><summary><code>InteractionUICommand</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionUICommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct InteractionUICommand</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Runtime/Interactions/InteractionUIChannel.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand'>Permalink</a></p>
+<p class='comment'>Typed cross-scene interaction UI command.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-23-8'><code class='signature'>public InteractionUICommand( InteractionUICommandType type, string text = &quot;&quot;, float seconds = 0f, float progress = 0f, ReadableContentDefinition readable = null, UnityEngine.Object readableSource = null)</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-23-8'>Permalink</a></p>
+<p class='comment'>Creates an interaction UI command.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new InteractionUICommand(type, text, seconds, progress, readable, readableSource);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-40-8'><code class='signature'>public InteractionUICommandType Type { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-40-8'>Permalink</a></p>
+<p class='comment'>Requested interaction UI operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-43-8'><code class='signature'>public string Text { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-43-8'>Permalink</a></p>
+<p class='comment'>Prompt or message text carried by the command.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-46-8'><code class='signature'>public float Seconds { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 46</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-46-8'>Permalink</a></p>
+<p class='comment'>Optional display duration for timed messages.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-49-8'><code class='signature'>public float Progress { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 49</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-49-8'>Permalink</a></p>
+<p class='comment'>Optional normalized progress carried by progress commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-52-8'><code class='signature'>public ReadableContentDefinition Readable { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-52-8'>Permalink</a></p>
+<p class='comment'>Optional long-form readable content carried by the command.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-55-8'><code class='signature'>public UnityEngine.Object ReadableSource { get; }</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommand-Runtime-Interactions-InteractionUIChannel-cs-55-8'>Permalink</a></p>
+<p class='comment'>Optional scene object that requested the readable.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType'><summary><code>InteractionUICommandType</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionUICommandType</span></summary><div class='entry'>
+<code class='signature'>public enum InteractionUICommandType</code>
+<p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Runtime/Interactions/InteractionUIChannel.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType'>Permalink</a></p>
+<p class='comment'>Operation carried by an InteractionUICommand.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-9-8'><code class='signature'>ShowPrompt</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-10-8'><code class='signature'>HidePrompt</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-11-8'><code class='signature'>ShowMessage</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-12-8'><code class='signature'>ShowTimedMessage</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-13-8'><code class='signature'>ShowProgress</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-14-8'><code class='signature'>HideProgress</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-15-8'><code class='signature'>ShowReadable</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-15-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-16-8'><code class='signature'>HideReadable</code><p class='source'><a href='../../../Runtime/Interactions/InteractionUIChannel.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionUICommandType-Runtime-Interactions-InteractionUIChannel-cs-16-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.Interactor'><summary><code>Interactor</code> <span class='source'>QuietStatic.Toolkit.Interactions.Interactor</span></summary><div class='entry'>
+<code class='signature'>public class Interactor : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Runtime/Interactions/Interactor.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor'>Permalink</a></p>
+<p class='comment'>Detects and interacts with nearby interactable objects using a camera-center raycast. Also updates interaction UI and optional highlighting for the current target.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-68-8'><code class='signature'>public Interactable CurrentTarget { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-68-8'>Permalink</a></p>
+<p class='comment'>Gets the interactable currently under the center crosshair.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-73-8'><code class='signature'>public IInteractionTarget CurrentInteractionTarget { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets the toolkit or project-owned interaction target under the crosshair.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-76-8'><code class='signature'>public HoldInteractable CurrentHoldTarget { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-76-8'>Permalink</a></p>
+<p class='comment'>Gets the hold interactable currently under the center crosshair.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-79-8'><code class='signature'>public ActivatedProgressInteractable CurrentProgressTarget { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets the activated progress target under the crosshair.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-82-8'><code class='signature'>public Grabbable HeldGrabbable { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-82-8'>Permalink</a></p>
+<p class='comment'>Gets the object carried by this interactor, if any.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-99-8'><code class='signature'>public void HandleInteractInput()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-99-8'>Permalink</a></p>
+<p class='comment'>UnityEvent-friendly entry point for an interact input.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.HandleInteractInput();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-105-8'><code class='signature'>public void HandleThrowPressed()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 105</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-105-8'>Permalink</a></p>
+<p class='comment'>Starts charging the held object or throws it immediately at fixed strength.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Input/PlayerInputReader.cs'>Runtime/Input/PlayerInputReader.cs, line 256</a></figcaption><pre><code>grabbableInteractor.HandleThrowPressed();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-127-8'><code class='signature'>public void HandleThrowReleased()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 127</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-127-8'>Permalink</a></p>
+<p class='comment'>Throws the held object if a charge is still active.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Input/PlayerInputReader.cs'>Runtime/Input/PlayerInputReader.cs, line 261</a></figcaption><pre><code>grabbableInteractor.HandleThrowReleased();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-137-8'><code class='signature'>public void CancelThrowCharge()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 137</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-137-8'>Permalink</a></p>
+<p class='comment'>Clears the current charge while keeping the object in hand.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Input/PlayerInputReader.cs'>Runtime/Input/PlayerInputReader.cs, line 136</a></figcaption><pre><code>grabbableInteractor.CancelThrowCharge();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-148-8'><code class='signature'>public void HandleDropInput()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 148</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-148-8'>Permalink</a></p>
+<p class='comment'>Drops the held object and clears any active charge.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Input/PlayerInputReader.cs'>Runtime/Input/PlayerInputReader.cs, line 232</a></figcaption><pre><code>grabbableInteractor.HandleDropInput();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-270-8'><code class='signature'>public void RefreshTarget()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 270</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-270-8'>Permalink</a></p>
+<p class='comment'>Raycasts from the center of the assigned camera and updates target feedback.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/NecklaceTargetingTests.cs#L50'>Stolen &#183; Assets/Tests/Editor/NecklaceTargetingTests.cs, line 50</a></figcaption><pre><code>interactor.RefreshTarget();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-336-8'><code class='signature'>public bool TryInteract()</code><p class='source'><a href='../../../Runtime/Interactions/Interactor.cs'>Source, line 336</a> · <a href='#api-QuietStatic.Toolkit.Interactions.Interactor-Runtime-Interactions-Interactor-cs-336-8'>Permalink</a></p>
+<p class='comment'>Attempts to interact with the object currently under the crosshair.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InteractorTargetSelectionTests.cs'>Tests/EditMode/InteractorTargetSelectionTests.cs, line 448</a></figcaption><pre><code>Assert.That(interactor.TryInteract(), Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule'><summary><code>MessageRule</code> <span class='source'>QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule</span></summary><div class='entry'>
+<code class='signature'>public sealed class MessageRule</code>
+<p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Runtime/Interactions/ConditionalInteractionMessage.cs, line 23</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule'>Permalink</a></p>
+<p class='comment'>One ordered flag condition and the message it selects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-37-12'><code class='signature'>public string Label { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-37-12'>Permalink</a></p>
+<p class='comment'>Gets the optional authoring label.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-40-12'><code class='signature'>public FlagRequirement Requirement { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-40-12'>Permalink</a></p>
+<p class='comment'>Gets the flag requirement evaluated for this rule.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-43-12'><code class='signature'>public string Message { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ConditionalInteractionMessage.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ConditionalInteractionMessage.MessageRule-Runtime-Interactions-ConditionalInteractionMessage-cs-43-12'>Permalink</a></p>
+<p class='comment'>Gets the player-facing message.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel'><summary><code>PlayerActivityChannel</code> <span class='source'>QuietStatic.Toolkit.Interactions.PlayerActivityChannel</span></summary><div class='entry'>
+<code class='signature'>public class PlayerActivityChannel : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Runtime/Interactions/PlayerActivityChannel.cs, line 34</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel'>Permalink</a></p>
+<p class='comment'>Carries a seated progress activity from a world-scene interaction to the persistent player scene without either scene directly referencing the other.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-40-8'><code class='signature'>public event Action&lt;PlayerActivityContext&gt; ContextBegan</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-40-8'>Permalink</a></p>
+<p class='comment'>Raised with the complete seated position and camera configuration.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-43-8'><code class='signature'>public event Action&lt;float&gt; ProgressChanged</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-43-8'>Permalink</a></p>
+<p class='comment'>Raised with normalized activity progress.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-46-8'><code class='signature'>public event Action Completed</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 46</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-46-8'>Permalink</a></p>
+<p class='comment'>Raised when the activity is complete.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-49-8'><code class='signature'>public event Action Cancelled</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 49</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-49-8'>Permalink</a></p>
+<p class='comment'>Raised if the activity ends without completion.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-52-8'><code class='signature'>public bool InteractHeld { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-52-8'>Permalink</a></p>
+<p class='comment'>Gets the interaction-button state published by the persistent player service.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-55-8'><code class='signature'>public void SetInteractHeld(bool interactHeld)</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-55-8'>Permalink</a></p>
+<p class='comment'>Publishes the current interaction-button state for the active world activity.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/Player/PlayerActivityHandler.cs'>Runtime/Characters/Player/PlayerActivityHandler.cs, lines 91–92</a></figcaption><pre><code>activityChannel.SetInteractHeld(GameInputManager.Instance != null &amp;&amp;
+                                GameInputManager.Instance.InteractHeld);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-58-8'><code class='signature'>public void Begin()</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-58-8'>Permalink</a></p>
+<p class='comment'>Begins the seated eating state without repositioning the player.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Begin();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-62-8'><code class='signature'>public void Begin(Transform playerAnchor)</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-62-8'>Permalink</a></p>
+<p class='comment'>Begins the seated eating state at a world-space player anchor.</p>
+<p class='comment'><strong>playerAnchor</strong> Position and facing direction used by the player.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Begin(playerAnchor);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-70-8'><code class='signature'>public void Begin( Transform playerAnchor, Transform cameraFocusTarget, float horizontalLookRange, float verticalLookRange, bool snapCameraToFocus = true)</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-70-8'>Permalink</a></p>
+<p class='comment'>Begins eating with an optional constrained camera focus.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, lines 164–169</a></figcaption><pre><code>channel?.Begin(
+    playerAnchor,
+    cameraFocusTarget,
+    horizontalLookRange,
+    verticalLookRange,
+    snapCameraToFocus);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-87-8'><code class='signature'>public void ReportProgress(float progress)</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-87-8'>Permalink</a></p>
+<p class='comment'>Publishes normalized consumption progress.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 200</a></figcaption><pre><code>channel?.ReportProgress(progress)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-91-8'><code class='signature'>public void Complete()</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 91</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-91-8'>Permalink</a></p>
+<p class='comment'>Completes the seated eating state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 207</a></figcaption><pre><code>channel?.Complete();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-94-8'><code class='signature'>public void Cancel()</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 94</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityChannel-Runtime-Interactions-PlayerActivityChannel-cs-94-8'>Permalink</a></p>
+<p class='comment'>Cancels the seated eating state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/HoldActivitySequence.cs'>Runtime/Interactions/HoldActivitySequence.cs, line 86</a></figcaption><pre><code>channel?.Cancel();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext'><summary><code>PlayerActivityContext</code> <span class='source'>QuietStatic.Toolkit.Interactions.PlayerActivityContext</span></summary><div class='entry'>
+<code class='signature'>public readonly struct PlayerActivityContext</code>
+<p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Runtime/Interactions/PlayerActivityChannel.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext'>Permalink</a></p>
+<p class='comment'>Context used to position the player and constrain camera look during an activity.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-9-8'><code class='signature'>public PlayerActivityContext( Transform playerAnchor, Transform cameraFocusTarget, float horizontalLookRange, float verticalLookRange, bool snapCameraToFocus)</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-9-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Runtime/Interactions/PlayerActivityChannel.cs, lines 77–82</a></figcaption><pre><code>var context = new PlayerActivityContext(
+    playerAnchor,
+    cameraFocusTarget,
+    horizontalLookRange,
+    verticalLookRange,
+    snapCameraToFocus);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-23-8'><code class='signature'>public Transform PlayerAnchor { get; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-23-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-24-8'><code class='signature'>public Transform CameraFocusTarget { get; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-24-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-25-8'><code class='signature'>public float HorizontalLookRange { get; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-25-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-26-8'><code class='signature'>public float VerticalLookRange { get; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-26-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-27-8'><code class='signature'>public bool SnapCameraToFocus { get; }</code><p class='source'><a href='../../../Runtime/Interactions/PlayerActivityChannel.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Interactions.PlayerActivityContext-Runtime-Interactions-PlayerActivityChannel-cs-27-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition'><summary><code>ReadableContentDefinition</code> <span class='source'>QuietStatic.Toolkit.Interactions.ReadableContentDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReadableContentDefinition : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Interactions/ReadableContentDefinition.cs'>Runtime/Interactions/ReadableContentDefinition.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition'>Permalink</a></p>
+<p class='comment'>Reusable text content displayed by a readable overlay.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-22-8'><code class='signature'>public string Title { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ReadableContentDefinition.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-22-8'>Permalink</a></p>
+<p class='comment'>Readable heading.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-25-8'><code class='signature'>public string Body { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ReadableContentDefinition.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-25-8'>Permalink</a></p>
+<p class='comment'>Readable body text.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-28-8'><code class='signature'>public string CloseLabel { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ReadableContentDefinition.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableContentDefinition-Runtime-Interactions-ReadableContentDefinition-cs-28-8'>Permalink</a></p>
+<p class='comment'>Optional close-control label.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ReadableInteractionTrigger'><summary><code>ReadableInteractionTrigger</code> <span class='source'>QuietStatic.Toolkit.Interactions.ReadableInteractionTrigger</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReadableInteractionTrigger : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/ReadableInteractionTrigger.cs'>Runtime/Interactions/ReadableInteractionTrigger.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableInteractionTrigger'>Permalink</a></p>
+<p class='comment'>Shows configured readable content when its item interaction succeeds.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableInteractionTrigger-Runtime-Interactions-ReadableInteractionTrigger-cs-51-8'><code class='signature'>public void Show()</code><p class='source'><a href='../../../Runtime/Interactions/ReadableInteractionTrigger.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableInteractionTrigger-Runtime-Interactions-ReadableInteractionTrigger-cs-51-8'>Permalink</a></p>
+<p class='comment'>Shows this trigger&#39;s content directly, including from a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Show();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler'><summary><code>ReadableOverlayHandler</code> <span class='source'>QuietStatic.Toolkit.Interactions.ReadableOverlayHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class ReadableOverlayHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Interactions/ReadableOverlayHandler.cs'>Runtime/Interactions/ReadableOverlayHandler.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler'>Permalink</a></p>
+<p class='comment'>Renders long-form interaction text over a translucent backdrop.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler-Runtime-Interactions-ReadableOverlayHandler-cs-46-8'><code class='signature'>public bool IsVisible { get; private set; }</code><p class='source'><a href='../../../Runtime/Interactions/ReadableOverlayHandler.cs'>Source, line 46</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler-Runtime-Interactions-ReadableOverlayHandler-cs-46-8'>Permalink</a></p>
+<p class='comment'>Gets whether readable content is currently visible.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler-Runtime-Interactions-ReadableOverlayHandler-cs-80-8'><code class='signature'>public void Close()</code><p class='source'><a href='../../../Runtime/Interactions/ReadableOverlayHandler.cs'>Source, line 80</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ReadableOverlayHandler-Runtime-Interactions-ReadableOverlayHandler-cs-80-8'>Permalink</a></p>
+<p class='comment'>Closes the overlay. Connect this to the UI close button.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Close();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent'><summary><code>ThrowImpactEvent</code> <span class='source'>QuietStatic.Toolkit.Interactions.ThrowImpactEvent</span></summary><div class='entry'>
+<code class='signature'>public readonly struct ThrowImpactEvent</code>
+<p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Runtime/Interactions/ThrowImpactEvent.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent'>Permalink</a></p>
+<p class='comment'>Snapshot of a deliberately thrown object&#39;s impact for scene and game-specific listeners.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-38-8'><code class='signature'>public Grabbable Grabbable { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-38-8'>Permalink</a></p>
+<p class='comment'>Gets the object that was deliberately thrown.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-41-8'><code class='signature'>public Interactable Interactable { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-41-8'>Permalink</a></p>
+<p class='comment'>Gets the originating interaction for exact object identity.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-44-8'><code class='signature'>public string ObjectIdentifier { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-44-8'>Permalink</a></p>
+<p class='comment'>Gets the interaction display name at the time of impact.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-47-8'><code class='signature'>public GameObject Thrower { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 47</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-47-8'>Permalink</a></p>
+<p class='comment'>Gets the actor responsible for the throw.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-50-8'><code class='signature'>public GameObject HitObject { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-50-8'>Permalink</a></p>
+<p class='comment'>Gets the GameObject reported by Unity for the object struck.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-53-8'><code class='signature'>public Collider HitCollider { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-53-8'>Permalink</a></p>
+<p class='comment'>Gets the specific collider struck, useful for identifying a character in its hierarchy.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-56-8'><code class='signature'>public Vector3 Point { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-56-8'>Permalink</a></p>
+<p class='comment'>Gets the first contact position in world space.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-59-8'><code class='signature'>public Vector3 Normal { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 59</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-59-8'>Permalink</a></p>
+<p class='comment'>Gets the surface normal of the first contact in world space.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-62-8'><code class='signature'>public Vector3 RelativeVelocity { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-62-8'>Permalink</a></p>
+<p class='comment'>Gets the relative linear velocity at impact.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-65-8'><code class='signature'>public Vector3 Impulse { get; }</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEvent-Runtime-Interactions-ThrowImpactEvent-cs-65-8'>Permalink</a></p>
+<p class='comment'>Gets the total physics impulse applied to resolve the collision.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy'><summary><code>ThrowImpactEventPolicy</code> <span class='source'>QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy</span></summary><div class='entry'>
+<code class='signature'>public enum ThrowImpactEventPolicy</code>
+<p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Runtime/Interactions/ThrowImpactEvent.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy'>Permalink</a></p>
+<p class='comment'>Controls which solid collisions are reported during a deliberate throw.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy-Runtime-Interactions-ThrowImpactEvent-cs-9-8'><code class='signature'>FirstImpactOnly</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy-Runtime-Interactions-ThrowImpactEvent-cs-9-8'>Permalink</a></p>
+<p class='comment'>Report only the first valid impact of each throw.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy-Runtime-Interactions-ThrowImpactEvent-cs-12-8'><code class='signature'>EveryImpactUntilSleeping</code><p class='source'><a href='../../../Runtime/Interactions/ThrowImpactEvent.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Interactions.ThrowImpactEventPolicy-Runtime-Interactions-ThrowImpactEvent-cs-12-8'>Permalink</a></p>
+<p class='comment'>Report each new impact until the Rigidbody settles or the object is grabbed again.</p>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

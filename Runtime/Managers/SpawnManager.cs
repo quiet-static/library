@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using QuietStatic.Toolkit.Core;
 using QuietStatic.Toolkit.Spawning;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace QuietStatic
 {
@@ -213,9 +214,9 @@ namespace QuietStatic
             return SpawnPlacementUtility.FindSpawnPoint(spawnId);
         }
 
-        private SpawnPoint ResolveSpawnPoint(string spawnId)
+        internal SpawnPoint ResolveSpawnPoint(string spawnId, ISet<Scene> excludedScenes = null)
         {
-            SpawnPoint spawnPoint = FindSpawnPoint(spawnId);
+            SpawnPoint spawnPoint = SpawnPlacementUtility.FindSpawnPoint(spawnId, excludedScenes);
 
             if (spawnPoint == null &&
                 !string.IsNullOrWhiteSpace(fallbackSpawnId) &&
@@ -224,7 +225,7 @@ namespace QuietStatic
                     fallbackSpawnId.Trim(),
                     System.StringComparison.Ordinal))
             {
-                spawnPoint = FindSpawnPoint(fallbackSpawnId);
+                spawnPoint = SpawnPlacementUtility.FindSpawnPoint(fallbackSpawnId, excludedScenes);
             }
 
             return spawnPoint;

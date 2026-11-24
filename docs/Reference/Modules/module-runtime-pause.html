@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Pause — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Pause</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener'><code>QuietStatic.Toolkit.Pause.PauseRequestChannelListener</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs#L171'>Stolen &#183; Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs, line 171</a></figcaption><pre><code>listener.SetChannel(channel);</code></pre></figure></section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Pause.PauseCommand'><summary><code>PauseCommand</code> <span class='source'>QuietStatic.Toolkit.Pause.PauseCommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct PauseCommand</code>
+<p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Runtime/Pause/PauseRequestChannel.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommand'>Permalink</a></p>
+<p class='comment'>Typed request for changing the global paused state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommand-Runtime-Pause-PauseRequestChannel-cs-18-8'><code class='signature'>public PauseCommand(PauseCommandType type)</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommand-Runtime-Pause-PauseRequestChannel-cs-18-8'>Permalink</a></p>
+<p class='comment'>Creates a pause command.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Runtime/Pause/PauseRequestChannel.cs, line 32</a></figcaption><pre><code>new PauseCommand(PauseCommandType.Toggle)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommand-Runtime-Pause-PauseRequestChannel-cs-21-8'><code class='signature'>public PauseCommandType Type { get; }</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommand-Runtime-Pause-PauseRequestChannel-cs-21-8'>Permalink</a></p>
+<p class='comment'>Requested pause operation.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Pause.PauseCommandType'><summary><code>PauseCommandType</code> <span class='source'>QuietStatic.Toolkit.Pause.PauseCommandType</span></summary><div class='entry'>
+<code class='signature'>public enum PauseCommandType</code>
+<p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Runtime/Pause/PauseRequestChannel.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommandType'>Permalink</a></p>
+<p class='comment'>Operations accepted by the persistent pause service.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-8-8'><code class='signature'>Toggle</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 8</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-8-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-9-8'><code class='signature'>Pause</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-10-8'><code class='signature'>Resume</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-11-8'><code class='signature'>ForceResume</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseCommandType-Runtime-Pause-PauseRequestChannel-cs-11-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Pause.PauseInputHandler'><summary><code>PauseInputHandler</code> <span class='source'>QuietStatic.Toolkit.Pause.PauseInputHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class PauseInputHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Pause/PauseInputHandler.cs'>Runtime/Pause/PauseInputHandler.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseInputHandler'>Permalink</a></p>
+<p class='comment'>Submits pause toggles from an Inspector-assigned input action.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseInputHandler-Runtime-Pause-PauseInputHandler-cs-32-8'><code class='signature'>public void SetPauseAction(InputActionReference value)</code><p class='source'><a href='../../../Runtime/Pause/PauseInputHandler.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseInputHandler-Runtime-Pause-PauseInputHandler-cs-32-8'>Permalink</a></p>
+<p class='comment'>Assigns the dedicated pause action and refreshes the active subscription.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/InputSequenceIntegrationTests.cs'>Tests/EditMode/InputSequenceIntegrationTests.cs, line 193</a></figcaption><pre><code>handler.SetPauseAction(actionReference);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseInputHandler-Runtime-Pause-PauseInputHandler-cs-53-8'><code class='signature'>public void SetRequestChannel(PauseRequestChannel value)</code><p class='source'><a href='../../../Runtime/Pause/PauseInputHandler.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseInputHandler-Runtime-Pause-PauseInputHandler-cs-53-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent pause request channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetRequestChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Pause.PauseRequestChannel'><summary><code>PauseRequestChannel</code> <span class='source'>QuietStatic.Toolkit.Pause.PauseRequestChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class PauseRequestChannel : CrossSceneCommandChannel&lt;PauseCommand&gt;</code>
+<p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Runtime/Pause/PauseRequestChannel.cs, line 25</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannel'>Permalink</a></p>
+<p class='comment'>Relays pause requests across scene lifetime boundaries.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-32-8'><code class='signature'>public void Toggle()</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-32-8'>Permalink</a></p>
+<p class='comment'>Requests a pause-state toggle.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Pause/PauseInputHandler.cs'>Runtime/Pause/PauseInputHandler.cs, line 107</a></figcaption><pre><code>requestChannel.Toggle();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-35-8'><code class='signature'>public void Pause()</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-35-8'>Permalink</a></p>
+<p class='comment'>Requests entering the paused state.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Pause();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-38-8'><code class='signature'>public void Resume()</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-38-8'>Permalink</a></p>
+<p class='comment'>Requests resuming gameplay.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/UI/Menu/PauseMenuView.cs'>Runtime/UI/Menu/PauseMenuView.cs, line 83</a></figcaption><pre><code>pauseRequestChannel?.Resume()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-41-8'><code class='signature'>public void ForceResume()</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannel.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannel-Runtime-Pause-PauseRequestChannel-cs-41-8'>Permalink</a></p>
+<p class='comment'>Requests fail-safe restoration of time and cursor state.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ForceResume();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener'><summary><code>PauseRequestChannelListener</code> <span class='source'>QuietStatic.Toolkit.Pause.PauseRequestChannelListener</span></summary><div class='entry'>
+<code class='signature'>public sealed class PauseRequestChannelListener : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Pause/PauseRequestChannelListener.cs'>Runtime/Pause/PauseRequestChannelListener.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener'>Permalink</a></p>
+<p class='comment'>Executes pause commands through the assigned persistent authority.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener-Runtime-Pause-PauseRequestChannelListener-cs-28-8'><code class='signature'>public void SetChannel(PauseRequestChannel value)</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannelListener.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener-Runtime-Pause-PauseRequestChannelListener-cs-28-8'>Permalink</a></p>
+<p class='comment'>Assigns the channel and refreshes an active subscription.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs#L171'>Stolen &#183; Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs, line 171</a></figcaption><pre><code>listener.SetChannel(channel);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener-Runtime-Pause-PauseRequestChannelListener-cs-38-8'><code class='signature'>public void SetPauseManager(PauseManager value)</code><p class='source'><a href='../../../Runtime/Pause/PauseRequestChannelListener.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Pause.PauseRequestChannelListener-Runtime-Pause-PauseRequestChannelListener-cs-38-8'>Permalink</a></p>
+<p class='comment'>Assigns the same-scene pause authority.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs#L170'>Stolen &#183; Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs, line 170</a></figcaption><pre><code>listener.SetPauseManager(pauseManager);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

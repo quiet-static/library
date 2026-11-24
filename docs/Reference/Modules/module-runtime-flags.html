@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Flags — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Flags</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement'><code>QuietStatic.Toolkit.Flags.FlagRequirement</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/HouseCarSequenceController.cs#L22'>Stolen &#183; Assets/Stolen/Scripts/Runtime/HouseCarSequenceController.cs, line 22</a></figcaption><pre><code>new()</code></pre></figure></section>
+<section class='guide' id='guide-runtime-flags-readme-md'><h1 id='guide-runtime-flags-readme-md-flags-and-relationship-values'>Flags and relationship values</h1>
+<p>Flags have globally unique string IDs and an explicit value kind: Boolean, Integer,
+Float, or String. <code>FlagDatabase</code> owns authored definitions and defaults; one persistent
+<code>FlagManager</code> owns session state. Definitions are never mutated by runtime setters.
+Existing assets default to Boolean and existing SetFlag/ClearFlag/HasFlag behavior is
+preserved. Numeric/string values have no implicit Boolean truthiness.</p>
+<h2 id='guide-runtime-flags-readme-md-multiple-catalogs'>Multiple catalogs</h2>
+<p>Create project-owned databases in the Content Workspace Flags tab. For example:</p>
+<pre><code class="language-text">Data/Databases/
+  SharedFlags.asset          story.started (Boolean)
+  AlexFlags.asset            npc.alex.trust (Integer), npc.alex.confided (Boolean)
+  JamieFlags.asset           npc.jamie.affection (Float), npc.jamie.nickname (String)
+</code></pre>
+<p>Assign the legacy <strong>Database</strong> field and any <strong>Additional Flag Databases</strong> on the one
+persistent FlagManager. Either field can supply catalogs; the legacy field may be empty.
+Only explicitly assigned catalogs are available at runtime. Editor flag pickers search
+all imported catalogs and show catalog names, types, and descriptions. A picker result
+therefore still needs its catalog assigned to the runtime manager.</p>
+<p>IDs must be unique across catalogs, including catalogs belonging to different NPCs.
+Repeating the same database reference is harmless; repeating an ID in different
+entries fails manager initialization rather than choosing a definition arbitrarily.
+Validation detects duplicate IDs and invalid types/defaults. Safe ID Rename checks
+other catalogs for collisions both during preview and before applying the rename.
+<code>Database</code> remains the legacy single-asset API; <code>Databases</code> exposes the complete set.</p>
+<p>Without assigned catalogs the manager retains its legacy arbitrary-Boolean-ID mode.
+Typed values always require a definition. With catalogs assigned, unknown IDs cannot
+be set. Existing Boolean flags start false; Starting Flags supplies their initial true
+values. Integer, Float, and String definitions have authored defaults. Float defaults
+and values must be finite. Null strings normalize to empty strings.</p>
+<h2 id='guide-runtime-flags-readme-md-reading-and-changing-values'>Reading and changing values</h2>
+<pre><code class="language-csharp">flags.SetFlag(&quot;npc.alex.confided&quot;);
+flags.SetInteger(&quot;npc.alex.trust&quot;, 10);
+flags.AddInteger(&quot;npc.alex.trust&quot;, 2);
+flags.SetFloat(&quot;npc.jamie.affection&quot;, 1.5f);
+flags.AddFloat(&quot;npc.jamie.affection&quot;, 0.25f);
+flags.SetString(&quot;npc.jamie.nickname&quot;, &quot;Jay&quot;);
+if (flags.TryGetValue(&quot;npc.alex.trust&quot;, out FlagValue value))
+    Debug.Log(value.Integer); // Read the payload matching value.Type.
+</code></pre>
+<p>SetValue and typed setters return false for unknown IDs, mismatched kinds, nonfinite
+floats, or overflowing integer addition. Successful no-op assignments return true and
+raise no events. Existing Boolean setters act only on Boolean IDs. <code>ActiveFlags</code>
+contains true Boolean IDs, not numeric/string values. <code>ValueChanged</code> identifies single
+value changes; <code>FlagsChanged</code> also fires on typed mutations so objectives and other
+existing listeners reevaluate. Bulk clear/restore emits collection notifications.</p>
+<p>Use <code>FlagHandler</code> from scene UnityEvents: configure Values To Set and call SetValues,
+or configure Value Flag Id and call SetBoolean, SetInteger, SetFloat, SetString,
+AddInteger, or AddFloat. Existing SetFlag/SetFlags remain Boolean operations. Dialogue
+node/choice flag-to-set lists and dependency rules also remain Boolean operations.</p>
+<h2 id='guide-runtime-flags-readme-md-requirements-and-preview'>Requirements and preview</h2>
+<p>Any existing FlagRequirement can combine its Boolean mode/list with additional typed
+Comparisons. All comparisons must pass along with the Boolean condition. Use mode None
+for a comparison-only rule, such as <code>npc.alex.trust &gt;= Integer 10</code>. Such a rule counts
+as configured for automatic objective activation/completion. Supported operators are
+Equal, NotEqual, Greater, GreaterOrEqual, Less, and LessOrEqual. Ordering works only
+for numeric kinds. Comparisons require matching types; String equality is ordinal,
+Float equality is exact, and invalid conditions fail closed. Boolean mode lists must
+not contain numeric/string IDs; use a comparison instead.</p>
+<p>Dialogue Workspace Path Preview accepts Simulated Flags and explicit Simulated Values.
+A non-Boolean comparison without a simulated value fails rather than silently passing.
+Simulation never changes runtime state. The debug dashboard displays values from all
+runtime catalogs unless its optional database override narrows the display.</p>
+<h2 id='guide-runtime-flags-readme-md-saving-and-authoring-json'>Saving and authoring JSON</h2>
+<p>Save schema 2 stores Boolean state and typed values, including defaults. Restore is
+validated before state changes and occurs before scene/story evaluation. Failed load
+rollback restores both kinds of state. Version-1 saves migrate by preserving their
+Boolean IDs and using catalog defaults for newly introduced typed values. ClearAllFlags
+and legacy RestoreFlags reset typed overrides to their defaults. Changing an ID's kind
+in a shipped catalog requires an explicit save migration.</p>
+<p>Export JSON preserves <code>valueType</code> (Boolean/Integer/Float/String), <code>defaultInteger</code>,
+<code>defaultFloat</code>, and <code>defaultString</code> in flag catalog items. Legacy catalogs without those
+fields import as Boolean with zero/empty defaults. Objective and dialogue condition JSON
+also preserve <code>comparisons</code> with <code>flagId</code>, <code>comparison</code>, and a serialized <code>expected</code>
+FlagValue. The existing schema-1 envelopes remain readable; external narrative authoring
+tools must preserve these extension fields to round-trip typed content. Back up and
+compare exports when using authorers that predate typed values.</p>
+<p>Keep stable IDs, preview imports/renames, and use project-owned prefab variants.
+Do not use progression values for rapidly changing health, physics, or movement state.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagComparison'><summary><code>FlagComparison</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagComparison</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagComparison</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Runtime/Flags/FlagComparison.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison'>Permalink</a></p>
+<p class='comment'>One condition on a typed flag, usable by any FlagRequirement.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-13-8'><code class='signature'>public string flagId</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-14-8'><code class='signature'>public FlagComparisonOperator comparison</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-15-8'><code class='signature'>public FlagValue expected</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-15-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-17-8'><code class='signature'>public bool IsMet(FlagManager manager)</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-17-8'>Permalink</a></p>
+<p class='comment'>Evaluates without coercing kinds; unknown IDs and invalid comparisons fail closed.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.IsMet(manager);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-23-8'><code class='signature'>public bool IsMet(FlagValue actual)</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparison-Runtime-Flags-FlagComparison-cs-23-8'>Permalink</a></p>
+<p class='comment'>Compares an explicitly supplied value, also used by editor-only path simulation.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.IsMet(actual);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator'><summary><code>FlagComparisonOperator</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagComparisonOperator</span></summary><div class='entry'>
+<code class='signature'>public enum FlagComparisonOperator</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Runtime/Flags/FlagComparison.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator'>Permalink</a></p>
+<p class='comment'>Typed comparison operations. Ordering is supported only for numeric values.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-41'><code class='signature'>Equal</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-41'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-48'><code class='signature'>NotEqual</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-48'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-58'><code class='signature'>Greater</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-58'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-67'><code class='signature'>GreaterOrEqual</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-67'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-83'><code class='signature'>Less</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-83'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-89'><code class='signature'>LessOrEqual</code><p class='source'><a href='../../../Runtime/Flags/FlagComparison.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagComparisonOperator-Runtime-Flags-FlagComparison-cs-7-89'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagDatabase'><summary><code>FlagDatabase</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagDatabase</span></summary><div class='entry'>
+<code class='signature'>public class FlagDatabase : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Runtime/Flags/FlagDatabase.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase'>Permalink</a></p>
+<p class='comment'>Defines an optional project-level database of known gameplay flag identifiers.</p>
+<p class='comment'><strong>Remarks</strong> This asset is useful when a project wants a central reference list for flags that may be set by dialogue, interactions, cutscenes, objectives, or other gameplay systems. The runtime flag manager can still support arbitrary string ids. This database is primarily intended for organization, documentation, editor setup, and reuse across scenes.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase-Runtime-Flags-FlagDatabase-cs-74-8'><code class='signature'>public FlagDefinition[] Flags { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 74</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase-Runtime-Flags-FlagDatabase-cs-74-8'>Permalink</a></p>
+<p class='comment'>Gets the known flag definitions stored in this database.</p>
+<p class='comment'><strong>Remarks</strong> The returned array is intended for lookup, validation, editor tooling, or display. Runtime systems should avoid modifying this array directly.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition'><summary><code>FlagDefinition</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition</span></summary><div class='entry'>
+<code class='signature'>public class FlagDefinition</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Runtime/Flags/FlagDatabase.cs, line 27</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition'>Permalink</a></p>
+<p class='comment'>Describes one known gameplay flag.</p>
+<p class='comment'><strong>Remarks</strong> The id should be the exact string used by runtime systems. The description is editor-facing documentation for designers, programmers, or anyone wiring flag-dependent behavior in the Inspector.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-30-12'><code class='signature'>/// &lt;summary&gt;Runtime flag identifier.&lt;/summary&gt; public string id</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 30</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-30-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-35-12'><code class='signature'>public FlagValueType valueType</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-35-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-38-12'><code class='signature'>public int defaultInteger</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-38-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-41-12'><code class='signature'>public float defaultFloat</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-41-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-44-12'><code class='signature'>public string defaultString</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-44-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-48-12'><code class='signature'>public FlagValue DefaultValue { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-48-12'>Permalink</a></p>
+<p class='comment'>Gets the authored initial value; Boolean flags start false.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-56-12'><code class='signature'>/// &lt;summary&gt;Editor-facing documentation for this flag.&lt;/summary&gt; public string description</code><p class='source'><a href='../../../Runtime/Flags/FlagDatabase.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagDatabase.FlagDefinition-Runtime-Flags-FlagDatabase-cs-56-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagIdAttribute'><summary><code>FlagIdAttribute</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagIdAttribute</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagIdAttribute : PropertyAttribute</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagIdAttribute.cs'>Runtime/Flags/FlagIdAttribute.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagIdAttribute'>Permalink</a></p>
+<p class='comment'>Displays a string flag id as a dropdown populated from all imported FlagDatabase catalogs.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagRequirement'><summary><code>FlagRequirement</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagRequirement</span></summary><div class='entry'>
+<code class='signature'>public class FlagRequirement</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Runtime/Flags/FlagRequirement.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement'>Permalink</a></p>
+<p class='comment'>Serializable progression requirement checked against a FlagManager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-35-8'><code class='signature'>public IReadOnlyList&lt;FlagComparison&gt; Comparisons { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-35-8'>Permalink</a></p>
+<p class='comment'>Additional typed comparisons, combined using AND.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-37-8'><code class='signature'>public FlagRequirement()</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-37-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/HouseCarSequenceController.cs#L22'>Stolen &#183; Assets/Stolen/Scripts/Runtime/HouseCarSequenceController.cs, line 22</a></figcaption><pre><code>new()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-42-8'><code class='signature'>public FlagRequirement(FlagRequirementMode mode, IEnumerable&lt;string&gt; flags) : this(mode, flags, null)</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-42-8'>Permalink</a></p>
+<p class='comment'>Creates a Boolean requirement from a mode and stable IDs.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationCleaningTaskTests.cs#L85'>Stolen &#183; Assets/Tests/Editor/StationCleaningTaskTests.cs, line 85</a></figcaption><pre><code>Set(necklace, &quot;requirement&quot;, new FlagRequirement(FlagRequirementMode.All, new[] { &quot;station.cleaning.complete&quot; }));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-45-8'><code class='signature'>public FlagRequirement( FlagRequirementMode mode, IEnumerable&lt;string&gt; flags, IEnumerable&lt;FlagComparison&gt; comparisons)</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-45-8'>Permalink</a></p>
+<p class='comment'>Creates a Boolean requirement with additional typed comparisons.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/TypedFlagTests.cs'>Tests/EditMode/TypedFlagTests.cs, lines 127–129</a></figcaption><pre><code>var requirement = new FlagRequirement(FlagRequirementMode.All, new[] { &quot;story.started&quot; }, new[] {
+    new FlagComparison { flagId = &quot;npc.alex.trust&quot;, comparison = FlagComparisonOperator.GreaterOrEqual, expected = FlagValue.From(8) }
+});</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-60-8'><code class='signature'>public FlagRequirementMode Mode { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 60</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-60-8'>Permalink</a></p>
+<p class='comment'>Gets the configured evaluation mode.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-63-8'><code class='signature'>public IReadOnlyList&lt;string&gt; Flags { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 63</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-63-8'>Permalink</a></p>
+<p class='comment'>Gets the stable flag IDs evaluated by this requirement.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-72-8'><code class='signature'>public bool IsConfigured { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-72-8'>Permalink</a></p>
+<p class='comment'>Gets whether this requirement contains an explicit flag-based condition.</p>
+<p class='comment'><strong>Remarks</strong> Boolean mode None and empty Boolean lists alone are unconfigured. An explicit typed comparison also configures the requirement, including with Boolean mode None.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-82-8'><code class='signature'>public bool IsMet(FlagManager flagSet = null)</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirement-Runtime-Flags-FlagRequirement-cs-82-8'>Permalink</a></p>
+<p class='comment'>Evaluates this requirement against the supplied or active flag manager.</p>
+<p class='comment'><strong>flagSet</strong> Optional manager override. Uses the singleton when omitted.</p>
+<p class='comment'><strong>Returns</strong> True when the configured requirement mode is satisfied.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/FlagRequirementTests.cs'>Tests/EditMode/FlagRequirementTests.cs, line 30</a></figcaption><pre><code>Assert.That(requirement.IsMet(flags), Is.EqualTo(expected));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode'><summary><code>FlagRequirementMode</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagRequirementMode</span></summary><div class='entry'>
+<code class='signature'>public enum FlagRequirementMode</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Runtime/Flags/FlagRequirement.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-10-8'><code class='signature'>None</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-11-8'><code class='signature'>All</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-12-8'><code class='signature'>Any</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-13-8'><code class='signature'>NotAll</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-14-8'><code class='signature'>NotAny</code><p class='source'><a href='../../../Runtime/Flags/FlagRequirement.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagRequirementMode-Runtime-Flags-FlagRequirement-cs-14-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagValue'><summary><code>FlagValue</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagValue</span></summary><div class='entry'>
+<code class='signature'>public struct FlagValue : IEquatable&lt;FlagValue&gt;</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Runtime/Flags/FlagValue.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue'>Permalink</a></p>
+<p class='comment'>A serializable, explicitly typed progression value. No implicit conversions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-19-8'><code class='signature'>public FlagValueType Type { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-19-8'>Permalink</a></p>
+<p class='comment'>Gets the stored kind.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-21-8'><code class='signature'>public bool Boolean { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-21-8'>Permalink</a></p>
+<p class='comment'>Gets the Boolean payload. Check Type before reading.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-23-8'><code class='signature'>public int Integer { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-23-8'>Permalink</a></p>
+<p class='comment'>Gets the Integer payload. Check Type before reading.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-25-8'><code class='signature'>public float Float { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-25-8'>Permalink</a></p>
+<p class='comment'>Gets the Float payload. Check Type before reading.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-27-8'><code class='signature'>public string String { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-27-8'>Permalink</a></p>
+<p class='comment'>Gets the String payload. Check Type before reading.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-29-8'><code class='signature'>public bool IsValid { get; }</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-29-8'>Permalink</a></p>
+<p class='comment'>Whether the kind and its payload are supported.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-32-8'><code class='signature'>public static FlagValue From(bool value)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-32-8'>Permalink</a></p>
+<p class='comment'>Creates an explicitly typed Boolean value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagValue.From(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-34-8'><code class='signature'>public static FlagValue From(int value)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-34-8'>Permalink</a></p>
+<p class='comment'>Creates an explicitly typed Integer value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagValue.From(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-36-8'><code class='signature'>public static FlagValue From(float value)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-36-8'>Permalink</a></p>
+<p class='comment'>Creates an explicitly typed Float value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagValue.From(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-38-8'><code class='signature'>public static FlagValue From(string value)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-38-8'>Permalink</a></p>
+<p class='comment'>Creates an explicitly typed String value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagValue.From(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-39-8'><code class='signature'>public bool Equals(FlagValue other)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-39-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-47-8'><code class='signature'>public override bool Equals(object obj)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 47</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-47-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-48-8'><code class='signature'>public override int GetHashCode()</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValue-Runtime-Flags-FlagValue-cs-48-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagValueEntry'><summary><code>FlagValueEntry</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagValueEntry</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagValueEntry</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Runtime/Flags/FlagValue.cs, line 58</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueEntry'>Permalink</a></p>
+<p class='comment'>One stable ID and its value in an Inspector operation or save snapshot.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-61-8'><code class='signature'>public string flagId</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-61-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-62-8'><code class='signature'>public FlagValue value</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-62-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-64-8'><code class='signature'>public FlagValueEntry()</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-64-8'>Permalink</a></p>
+<p class='comment'>Creates an empty serializable entry.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new FlagValueEntry();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-66-8'><code class='signature'>public FlagValueEntry(string flagId, FlagValue value)</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueEntry-Runtime-Flags-FlagValue-cs-66-8'>Permalink</a></p>
+<p class='comment'>Creates a snapshot or assignment for a stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/TypedFlagTests.cs'>Tests/EditMode/TypedFlagTests.cs, lines 156–157</a></figcaption><pre><code>Assert.Throws&lt;ArgumentException&gt;(() =&gt; manager.RestoreValues(null, new[] {
+    new FlagValueEntry(&quot;npc.alex.trust&quot;, FlagValue.From(&quot;wrong&quot;)) }));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagValueType'><summary><code>FlagValueType</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagValueType</span></summary><div class='entry'>
+<code class='signature'>public enum FlagValueType</code>
+<p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Runtime/Flags/FlagValue.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueType'>Permalink</a></p>
+<p class='comment'>Stable serialized kinds; Boolean is zero for existing assets.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-32'><code class='signature'>Boolean = 0</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-32'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-45'><code class='signature'>Integer = 1</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-45'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-58'><code class='signature'>Float = 2</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-58'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-69'><code class='signature'>String = 3</code><p class='source'><a href='../../../Runtime/Flags/FlagValue.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagValueType-Runtime-Flags-FlagValue-cs-7-69'>Permalink</a></p>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

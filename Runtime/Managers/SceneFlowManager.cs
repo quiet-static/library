@@ -101,6 +101,7 @@ namespace QuietStatic
         /// Prevents multiple scene transitions from running simultaneously.
         /// </summary>
         private bool isTransitioning;
+        private SceneTransitionRequest activeTransitionRequest;
         private float requestFadeDuration = -1f;
         private CrossSceneChannelSubscription<SceneFlowRequestChannel>
             requestSubscription;
@@ -121,7 +122,15 @@ namespace QuietStatic
         public void RecoverInterruptedTransition()
         {
             isTransitioning = false;
+            activeTransitionRequest = null;
             ResolveScreenFader()?.SetClearInstant();
+        }
+
+        /// <summary>Releases transition ownership only if the interrupted request is still active.</summary>
+        public void RecoverInterruptedTransition(SceneTransitionRequest request)
+        {
+            if (request != null && ReferenceEquals(activeTransitionRequest, request))
+                RecoverInterruptedTransition();
         }
 
         /// <summary>Most recent terminal transition result, if a request has finished.</summary>
@@ -362,9 +371,13 @@ namespace QuietStatic
             return TransitionToSceneRoutine(request, requestChannel);
         }
 
+        internal IEnumerator TransitionToSceneRoutine(SceneTransitionRequest request, ICollection<Scene> acquiredScenes) =>
+            TransitionToSceneRoutine(request, requestChannel, acquiredScenes);
+
         private IEnumerator TransitionToSceneRoutine(
             SceneTransitionRequest request,
-            SceneFlowRequestChannel resultChannel)
+            SceneFlowRequestChannel resultChannel,
+            ICollection<Scene> acquiredScenes = null)
         {
             string targetSceneName =
                 request != null ? request.TargetSceneName : string.Empty;
@@ -404,6 +417,7 @@ namespace QuietStatic
             }
 
             isTransitioning = true;
+            activeTransitionRequest = request;
             requestFadeDuration = request.FadeDuration;
             TransitionStarted?.Invoke(targetSceneName);
 
@@ -415,7 +429,7 @@ namespace QuietStatic
                     transitionFader);
             }
 
-            yield return LoadSceneAdditiveRoutine(targetSceneName);
+            yield return LoadSceneAdditiveRoutine(targetSceneName, acquiredScenes);
 
             if (!IsSceneLoaded(targetSceneName))
             {
@@ -444,7 +458,7 @@ namespace QuietStatic
                     continue;
                 }
 
-                yield return LoadSceneAdditiveRoutine(sceneName);
+                yield return LoadSceneAdditiveRoutine(sceneName, acquiredScenes);
 
                 if (!IsSceneLoaded(sceneName))
                 {
@@ -536,7 +550,7 @@ namespace QuietStatic
         private ScreenFader ResolveScreenFader()
         {
             if (!fadeDuringTransitions ||
-                (screenFadeChannel != null && screenFadeChannel.HasReceiver))
+                ScreenFadeRoute.HasChannelReceiver(screenFadeChannel))
             {
                 return null;
             }
@@ -549,39 +563,17 @@ namespace QuietStatic
             return screenFader;
         }
 
-        private bool CanFade(ScreenFader directFader)
-        {
-            return fadeDuringTransitions &&
-                   ((screenFadeChannel != null && screenFadeChannel.HasReceiver) ||
-                    directFader != null);
-        }
+        private bool CanFade(ScreenFader directFader) =>
+            fadeDuringTransitions && new ScreenFadeRoute(screenFadeChannel, directFader).IsAvailable;
 
         private IEnumerator FadeRoutine(
             ScreenFadeTarget target,
             ScreenFader directFader)
         {
-            if (screenFadeChannel != null && screenFadeChannel.HasReceiver)
-            {
-                yield return screenFadeChannel.FadeRoutine(
-                    target,
-                    requestFadeDuration >= 0f ? requestFadeDuration : transitionFadeDuration);
-                yield break;
-            }
-
-            if (directFader == null) yield break;
-            directFader.StopActiveFade();
-            if (requestFadeDuration >= 0f)
-            {
-                yield return target == ScreenFadeTarget.Black
-                    ? directFader.FadeToBlackRoutine(requestFadeDuration)
-                    : directFader.FadeToClearRoutine(requestFadeDuration);
-            }
-            else
-            {
-                yield return target == ScreenFadeTarget.Black
-                    ? directFader.FadeToBlackRoutine()
-                    : directFader.FadeToClearRoutine();
-            }
+            float? requestedDuration = requestFadeDuration >= 0f ? requestFadeDuration : null;
+            var route = new ScreenFadeRoute(screenFadeChannel, directFader);
+            return route.FadeRoutine(target, requestedDuration ?? transitionFadeDuration,
+                useDirectDefaults: !requestedDuration.HasValue);
         }
 
         private IEnumerator FinishFailedTransition(
@@ -604,6 +596,7 @@ namespace QuietStatic
             SceneFlowRequestChannel resultChannel)
         {
             isTransitioning = false;
+            activeTransitionRequest = null;
             PublishTransitionResult(result, resultChannel);
         }
 
@@ -635,7 +628,9 @@ namespace QuietStatic
         /// <summary>
         /// Loads a scene additively only when it is not already loaded.
         /// </summary>
-        public IEnumerator LoadSceneAdditiveRoutine(string sceneName)
+        public IEnumerator LoadSceneAdditiveRoutine(string sceneName) => LoadSceneAdditiveRoutine(sceneName, null);
+
+        private IEnumerator LoadSceneAdditiveRoutine(string sceneName, ICollection<Scene> acquiredScenes)
         {
             if (string.IsNullOrWhiteSpace(sceneName))
             {
@@ -697,6 +692,9 @@ namespace QuietStatic
 
                 yield return operation;
 
+                Scene loadedScene = SceneManager.GetSceneByName(sceneName);
+                if (loadedScene.IsValid() && loadedScene.isLoaded)
+                    acquiredScenes?.Add(loadedScene);
                 SceneLoaded?.Invoke(sceneName);
             }
             finally
@@ -756,14 +754,18 @@ namespace QuietStatic
         /// <summary>
         /// Unloads a scene when it is currently loaded.
         /// </summary>
-        private IEnumerator UnloadSceneIfLoadedRoutine(string sceneName)
+        private IEnumerator UnloadSceneIfLoadedRoutine(string sceneName) =>
+            UnloadSceneIfLoadedRoutine(SceneManager.GetSceneByName(sceneName));
+
+        internal IEnumerator UnloadSceneIfLoadedRoutine(Scene scene)
         {
-            if (!IsSceneLoaded(sceneName))
+            if (!scene.IsValid() || !scene.isLoaded)
             {
                 yield break;
             }
 
-            AsyncOperation operation = SceneManager.UnloadSceneAsync(sceneName);
+            string sceneName = scene.name;
+            AsyncOperation operation = SceneManager.UnloadSceneAsync(scene);
 
             if (operation == null)
             {

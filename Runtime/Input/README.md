@@ -17,6 +17,16 @@ components can depend on `IMoveInputSource` and `ILookInputSource`; continuous h
 activities use `IHoldInteractInputSource`. Interaction presses use the manager's
 buffered `QueueInteract`/`ConsumeInteract` path.
 
+## Input for held props
+
+Assign the player's `Interactor` to **Grabbable Interactor** on `PlayerInputReader`.
+Add optional Button actions to the same action map and match their names in the reader.
+**Throw** uses press and release, **Drop** releases the held prop without throwing it,
+and **CancelThrow** clears the charge while keeping the prop held. A missing action or
+blank action name leaves that input unbound. The reader cancels a charge if it or its
+action map is disabled. See [Grabbable objects](../Interactions/README.md#grabbable-objects)
+for the prop and HUD setup.
+
 ## Temporary input ownership
 
 `InputModeManager` still selects the normal gameplay, UI, or cutscene group from

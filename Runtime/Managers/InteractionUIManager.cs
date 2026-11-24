@@ -37,13 +37,13 @@ namespace QuietStatic
         [Tooltip("Text used for a persistent interaction prompt, such as Press E to Interact.")]
         [SerializeField] private TMP_Text promptText;
 
-        [Tooltip("Optional root shown while a hold interaction is progressing.")]
+        [Tooltip("Optional root shown while an interaction uses the progress meter.")]
         [SerializeField] private GameObject progressRoot;
 
-        [Tooltip("Optional label describing the hold interaction meter.")]
+        [Tooltip("Optional label describing the interaction progress meter.")]
         [SerializeField] private TMP_Text progressLabel;
 
-        [Tooltip("Optional normalized bar used by hold interactions.")]
+        [Tooltip("Optional normalized bar used by interactions with progress.")]
         [SerializeField] private Slider progressSlider;
 
         [Header("Message Settings")]
@@ -138,7 +138,7 @@ namespace QuietStatic
             onPromptHidden?.Invoke();
         }
 
-        /// <summary>Shows a named, normalized hold-interaction meter.</summary>
+        /// <summary>Shows a named, normalized interaction progress meter.</summary>
         public void ShowProgress(string label, float normalizedProgress)
         {
             if (progressLabel != null)
@@ -159,12 +159,27 @@ namespace QuietStatic
             }
         }
 
-        /// <summary>Hides the hold-interaction meter.</summary>
+        /// <summary>Hides the interaction progress meter.</summary>
         public void HideProgress()
         {
             if (progressRoot != null)
             {
                 progressRoot.SetActive(false);
+            }
+        }
+
+        /// <summary>Hides and clears the current contents of the progress meter.</summary>
+        internal void HideAndResetProgress()
+        {
+            HideProgress();
+            if (progressSlider != null)
+            {
+                progressSlider.SetValueWithoutNotify(0f);
+            }
+
+            if (progressLabel != null)
+            {
+                progressLabel.text = string.Empty;
             }
         }
 

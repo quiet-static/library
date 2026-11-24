@@ -93,7 +93,7 @@ namespace QuietStatic.Toolkit.Dialogue
         public DialogueTree CurrentDialogueTree =>
             IsDialogueActive ? dialogueRunner.Tree : null;
 
-        private Transform currentFocusTarget;
+        private DialogueSession activeSession;
         private readonly System.Collections.Generic.HashSet<UnityEngine.Object> inputSuspensions = new();
 
         /// <summary>Temporarily prevents advancing or choosing while a scene presentation owns the dialogue.</summary>
@@ -101,6 +101,24 @@ namespace QuietStatic.Toolkit.Dialogue
 
         /// <summary>Releases a scene presentation's input claim without changing the active node.</summary>
         public void ResumeInput(UnityEngine.Object owner) => inputSuspensions.Remove(owner);
+
+        private readonly System.Collections.Generic.HashSet<UnityEngine.Object> presentationSuspensions = new();
+
+        /// <summary>Defers node text and hides the current UI while a visual interlude owns presentation.</summary>
+        public void SuspendPresentation(UnityEngine.Object owner)
+        {
+            if(owner==null)return;
+            presentationSuspensions.Add(owner);
+            dialogueUIManager?.HideDialogueUI();
+        }
+
+        /// <summary>Starts presenting the current node only after the last visual interlude releases it.</summary>
+        public void ResumePresentation(UnityEngine.Object owner)
+        {
+            if(!presentationSuspensions.Remove(owner))return;
+            presentationSuspensions.RemoveWhere(value=>value==null);
+            if(presentationSuspensions.Count==0 && IsDialogueActive)PresentNode(CurrentNode);
+        }
 
         private bool IsInputSuspended
         {
@@ -135,7 +153,7 @@ namespace QuietStatic.Toolkit.Dialogue
             {
                 dialogueRunner.DialogueStarted += HandleRunnerStarted;
                 dialogueRunner.NodeChanged += HandleNodeChanged;
-                dialogueRunner.DialogueEnded += HandleRunnerEnded;
+                dialogueRunner.SessionEnded += FinishDialogueState;
             }
 
             if (dialogueUIManager != null)
@@ -154,7 +172,8 @@ namespace QuietStatic.Toolkit.Dialogue
             {
                 dialogueRunner.DialogueStarted -= HandleRunnerStarted;
                 dialogueRunner.NodeChanged -= HandleNodeChanged;
-                dialogueRunner.DialogueEnded -= HandleRunnerEnded;
+                if (OwnsSession(activeSession)) dialogueRunner.EndDialogue();
+                dialogueRunner.SessionEnded -= FinishDialogueState;
             }
 
             if (dialogueUIManager != null)
@@ -170,8 +189,17 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <param name="dialogueTree">Dialogue tree to play.</param>
         /// <param name="focusTarget">Optional world-space target for cameras or other systems.</param>
         /// <returns>True if dialogue started successfully; otherwise, false.</returns>
-        public bool StartDialogue(DialogueTree dialogueTree, Transform focusTarget = null)
+        public bool StartDialogue(DialogueTree dialogueTree, Transform focusTarget = null) =>
+            OwnsSession(StartDialogueSession(dialogueTree, focusTarget));
+
+        internal bool OwnsSession(DialogueSession session) =>
+            session != null && dialogueRunner != null && dialogueRunner.ActiveSession == session;
+
+        internal DialogueSession StartDialogueSession(
+            DialogueTree dialogueTree, Transform focusTarget, Action<DialogueSession> onAccepted = null)
         {
+            if (!isActiveAndEnabled) return null;
+
             if (dialogueTree == null)
             {
                 GameLogger.Warning(
@@ -179,7 +207,7 @@ namespace QuietStatic.Toolkit.Dialogue
                     this,
                     $"{nameof(DialogueManager)} cannot start dialogue because no DialogueTree was provided."
                 );
-                return false;
+                return null;
             }
 
             if (dialogueRunner == null)
@@ -189,7 +217,7 @@ namespace QuietStatic.Toolkit.Dialogue
                     this,
                     $"{nameof(DialogueManager)} cannot start dialogue because no DialogueRunner is assigned."
                 );
-                return false;
+                return null;
             }
 
             if (IsDialogueActive)
@@ -199,20 +227,13 @@ namespace QuietStatic.Toolkit.Dialogue
                     this,
                     $"{nameof(DialogueManager)} cannot start dialogue because another dialogue is already active."
                 );
-                return false;
+                return null;
             }
 
-            currentFocusTarget = focusTarget;
-            dialogueRunner.SetTree(dialogueTree);
-            dialogueRunner.StartDialogue();
-
-            if (dialogueRunner.IsRunning)
-            {
-                return true;
-            }
-
-            currentFocusTarget = null;
-            return false;
+            var session = new DialogueSession(dialogueTree, focusTarget);
+            onAccepted?.Invoke(session);
+            dialogueRunner.StartDialogue(session);
+            return session;
         }
 
         /// <summary>
@@ -270,9 +291,12 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            DialogueTree startedDialogue = runner.Tree;
-            DialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
-            onDialogueStarted?.Invoke(startedDialogue, currentFocusTarget);
+            DialogueSession session = runner.ActiveSession;
+            if (session == null) return;
+            activeSession = session;
+            DialogueStarted?.Invoke(session.Tree, session.FocusTarget);
+            if (OwnsSession(session))
+                onDialogueStarted?.Invoke(session.Tree, session.FocusTarget);
         }
 
         /// <summary>
@@ -287,9 +311,20 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            NodeChanged?.Invoke(runner.Tree, node);
+            DialogueSession session = runner.ActiveSession;
+            if (session == null || runner.CurrentNode != node) return;
+            NodeChanged?.Invoke(session.Tree, node);
+            if (!OwnsSession(session) || runner.CurrentNode != node) return;
 
-            if (dialogueUIManager == null)
+            presentationSuspensions.RemoveWhere(owner=>owner==null);
+            if(presentationSuspensions.Count==0)PresentNode(node);
+            if (OwnsSession(session) && runner.CurrentNode == node)
+                session.PresentNode(node);
+        }
+
+        private void PresentNode(DialogueTree.Node node)
+        {
+            if (dialogueUIManager == null || node==null)
             {
                 return;
             }
@@ -314,33 +349,28 @@ namespace QuietStatic.Toolkit.Dialogue
         }
 
         /// <summary>
-        /// Finishes manager state when the runner reports that dialogue ended.
+        /// Clears dialogue state, hides UI, and raises dialogue-ended events.
         /// </summary>
-        /// <param name="runner">Runner that ended dialogue.</param>
-        private void HandleRunnerEnded(DialogueRunner runner)
+        private void FinishDialogueState(DialogueSession session)
         {
-            if (runner != dialogueRunner)
+            session.ReleaseFocus();
+            if (activeSession != session)
             {
+                session.Finish();
                 return;
             }
 
-            FinishDialogueState(runner.Tree);
-        }
+            activeSession = null;
+            presentationSuspensions.Clear();
 
-        /// <summary>
-        /// Clears dialogue state, hides UI, and raises dialogue-ended events.
-        /// </summary>
-        private void FinishDialogueState(DialogueTree endedDialogue)
-        {
-            currentFocusTarget = null;
-
-            if (dialogueUIManager != null)
+            try
             {
-                dialogueUIManager.HideDialogueUI();
+                if (dialogueUIManager != null)
+                    dialogueUIManager.HideDialogueUI();
+                DialogueEnded?.Invoke(session.Tree);
             }
-
-            DialogueEnded?.Invoke(endedDialogue);
-            onDialogueEnded?.Invoke(endedDialogue);
+            finally { session.Finish(); }
+            onDialogueEnded?.Invoke(session.Tree);
         }
     }
 }

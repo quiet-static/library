@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Dialogue — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Dialogue</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer'><code>QuietStatic.Toolkit.Dialogue.DialogueEventPlayer</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L306'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 306</a></figcaption><pre><code>assaultDialogue.TryStartDefaultDialogue()</code></pre></figure></section>
+<section class='guide' id='guide-runtime-dialogue-readme-md'><h1 id='guide-runtime-dialogue-readme-md-dialogue'>Dialogue</h1>
+<p><code>DialogueTree</code> stores branching content, <code>DialogueRunner</code> owns traversal state,
+<code>DialogueManager</code> coordinates the persistent runner with UI, and
+<code>DialogueEventPlayer</code> provides scene-local UnityEvent entry points.</p>
+<pre><code class="language-text">Systems
+|-- DialogueManager
+|   `-- DialogueRunner
+`-- DialogueUIManager
+
+Scene object
+`-- DialogueEventPlayer
+</code></pre>
+<p>Create a tree through <strong>Assets &gt; Create &gt; Quiet Static Toolkit &gt; Dialogue</strong>. Configure
+node text, choices, next indexes, and optional flags. Presentation should subscribe to
+runner events instead of being embedded in the tree or runner.</p>
+<p>Dialogue JSON authoring is also supported. Select a version 1 dialogue JSON file and
+choose <strong>Assets &gt; Quiet Static &gt; Import Dialogue JSON</strong>. Generated trees are
+written to <code>Assets/Generated/Dialogue</code> by default or to the JSON's <code>unityAssetPath</code>
+when supplied. Reimport updates the asset at that path in place. The importer resolves
+stable node IDs to runtime indexes.</p>
+<p>Choices may include an optional flag-backed availability requirement. Inspector-authored
+choices use <code>FlagRequirement</code>; JSON choices use a readable condition object:</p>
+<pre><code class="language-json">{
+  &quot;text&quot;: &quot;Ask about the letter&quot;,
+  &quot;next&quot;: &quot;letter&quot;,
+  &quot;condition&quot;: { &quot;mode&quot;: &quot;All&quot;, &quot;flags&quot;: [&quot;FoundLetter&quot;] },
+  &quot;flagsToSet&quot;: [&quot;AskedAboutLetter&quot;]
+}
+</code></pre>
+<p>Supported modes are <code>None</code>, <code>All</code>, <code>Any</code>, <code>NotAll</code>, and <code>NotAny</code>. The UI displays only
+available choices and maps visible buttons back to authored choice indexes. If no authored
+choice is available, the node behaves as a linear node and uses its normal next-node path.</p>
+<h2 id='guide-runtime-dialogue-readme-md-presentation-during-a-visual-interlude'>Presentation during a visual interlude</h2>
+<p>Use <code>DialogueManager.SuspendPresentation(owner)</code> to hide the dialogue UI and defer node
+presentation. <code>NodeChanged</code> still fires, so scene cues can respond to the active node.
+Call <code>ResumePresentation(owner)</code> with the same owner when the interlude finishes.
+After the final owner releases presentation, the manager presents the current node if
+its session is still active. Manage input separately with <code>SuspendInput(owner)</code> and
+<code>ResumeInput(owner)</code> if the interlude also needs to block dialogue input.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice'><summary><code>Choice</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueTree.Choice</span></summary><div class='entry'>
+<code class='signature'>public class Choice</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Runtime/Dialogue/DialogueTree.cs, line 26</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice'>Permalink</a></p>
+<p class='comment'>Represents one selectable response from a dialogue node.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-29-12'><code class='signature'>/// &lt;summary&gt;Player-facing choice text.&lt;/summary&gt; public string text</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-29-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-35-12'><code class='signature'>public int nextNodeIndex = -1</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-35-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-39-12'><code class='signature'>/// &lt;summary&gt;Flags set after this choice is selected.&lt;/summary&gt; public string[] flagsToSet</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-39-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-45-12'><code class='signature'>public FlagRequirement availabilityRequirement = new()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-45-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-50-12'><code class='signature'>public bool IsAvailable(FlagManager flagManager = null)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Choice-Runtime-Dialogue-DialogueTree-cs-50-12'>Permalink</a></p>
+<p class='comment'>Returns whether this choice is available for the current flags.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.IsAvailable(flagManager);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer'><summary><code>DialogueEventPlayer</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueEventPlayer</span></summary><div class='entry'>
+<code class='signature'>public class DialogueEventPlayer : MonoBehaviour, ICinematicWaitSource</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Runtime/Dialogue/DialogueEventPlayer.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer'>Permalink</a></p>
+<p class='comment'>Scene-local wrapper for communicating with the persistent DialogueManager. Scene objects and NPCs may supply dialogue context dynamically without holding direct references to the manager in the Systems scene.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-26-8'><code class='signature'>public static bool TriggerStartsEnabled { get; set; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-26-8'>Permalink</a></p>
+<p class='comment'>Gets or sets whether optional collider triggers may start dialogue. Direct calls to the dialogue start methods are unaffected.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-70-8'><code class='signature'>public event Action&lt;DialogueTree, Transform&gt; DialogueEnded</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-70-8'>Permalink</a></p>
+<p class='comment'>Raised when dialogue started by this wrapper ends. Arguments are the ended tree and its speaker.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-73-8'><code class='signature'>public event Action&lt;DialogueTree.Node&gt; NodeChanged</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-73-8'>Permalink</a></p>
+<p class='comment'>Raised for each node presented by this player&#39;s own dialogue session.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-76-8'><code class='signature'>public DialogueTree.Node CurrentNode { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-76-8'>Permalink</a></p>
+<p class='comment'>Gets the current node of this player&#39;s active session.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-84-8'><code class='signature'>public bool IsRunning { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 84</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-84-8'>Permalink</a></p>
+<p class='comment'>Gets whether dialogue started by this wrapper is still active.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-87-8'><code class='signature'>public bool HasTriggered { get; private set; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-87-8'>Permalink</a></p>
+<p class='comment'>Gets whether the optional collider trigger has already fired.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-90-8'><code class='signature'>public bool CanStartDialogue { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-90-8'>Permalink</a></p>
+<p class='comment'>Gets whether the configured flag requirement currently permits dialogue.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-123-8'><code class='signature'>public void StartDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 123</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-123-8'>Permalink</a></p>
+<p class='comment'>Starts the dialogue configured in this component&#39;s Inspector.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs, line 167</a></figcaption><pre><code>dialoguePlayer.StartDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-129-8'><code class='signature'>public void Play()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 129</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-129-8'>Permalink</a></p>
+<p class='comment'>Starts the configured dialogue through the cinematic wait-source contract.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Play();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-138-8'><code class='signature'>public bool TryStartDefaultDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 138</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-138-8'>Permalink</a></p>
+<p class='comment'>Attempts to start the dialogue configured in this component&#39;s Inspector.</p>
+<p class='comment'><strong>Returns</strong> True when the persistent dialogue manager accepts the dialogue.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L306'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 306</a></figcaption><pre><code>assaultDialogue.TryStartDefaultDialogue()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-146-8'><code class='signature'>public bool TryStartDialogue( DialogueTree tree, Transform requestedFocusTarget, Transform requestedSpeaker)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 146</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-146-8'>Permalink</a></p>
+<p class='comment'>Starts dialogue using context supplied by a scene object or NPC.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L777'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 777</a></figcaption><pre><code>recoveryDialogueStarted=sprayRecoveryDialogue.TryStartDialogue(tree,assaultFocus,dan!=null?dan.transform:null);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-188-8'><code class='signature'>public void StopDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 188</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-188-8'>Permalink</a></p>
+<p class='comment'>Stops the active dialogue through the persistent dialogue manager.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L269'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 269</a></figcaption><pre><code>sprayRecoveryDialogue.StopDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-194-8'><code class='signature'>public void AdvanceDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 194</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-194-8'>Permalink</a></p>
+<p class='comment'>Advances the active dialogue to its next linear node.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.AdvanceDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-201-8'><code class='signature'>public void ChooseDialogueOption(int choiceIndex)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 201</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-201-8'>Permalink</a></p>
+<p class='comment'>Selects an option on the active dialogue node.</p>
+<p class='comment'><strong>choiceIndex</strong> Zero-based choice index.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ChooseDialogueOption(choiceIndex);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-208-8'><code class='signature'>public void SetDefaultDialogue(DialogueTree tree)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 208</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-208-8'>Permalink</a></p>
+<p class='comment'>Changes the dialogue tree used by parameterless start methods and triggers.</p>
+<p class='comment'><strong>tree</strong> New default dialogue tree.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/BetaSequenceAuthoring.cs#L179'>Stolen &#183; Assets/Stolen/Scripts/Editor/BetaSequenceAuthoring.cs, line 179</a></figcaption><pre><code>lead.SetDefaultDialogue(AssetDatabase.LoadAssetAtPath&lt;DialogueTree&gt;(DialogueRoot + &quot;/deduction_true-gun-leadin.asset&quot;));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-215-8'><code class='signature'>public void SetDefaultFocusTarget(Transform target)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 215</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-215-8'>Permalink</a></p>
+<p class='comment'>Changes the default camera focus target.</p>
+<p class='comment'><strong>target</strong> New default focus target.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetDefaultFocusTarget(target);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-222-8'><code class='signature'>public void SetDefaultSpeaker(Transform source)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 222</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-222-8'>Permalink</a></p>
+<p class='comment'>Changes the default speaker transform.</p>
+<p class='comment'><strong>source</strong> New default speaker.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetDefaultSpeaker(source);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-230-8'><code class='signature'>public void ResetTrigger()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 230</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-230-8'>Permalink</a></p>
+<p class='comment'>Allows an opt-in one-shot collider trigger to start its dialogue again.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L511'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 511</a></figcaption><pre><code>confrontationDialogue.ResetTrigger();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-236-8'><code class='signature'>public void RestoreTriggered(bool value)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueEventPlayer.cs'>Source, line 236</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueEventPlayer-Runtime-Dialogue-DialogueEventPlayer-cs-236-8'>Permalink</a></p>
+<p class='comment'>Restores a collider&#39;s one-shot latch without replaying its conversation.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs#L234'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs, line 234</a></figcaption><pre><code>dialogue.RestoreTriggered(saved.triggered);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule'><summary><code>DialogueRule</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule</span></summary><div class='entry'>
+<code class='signature'>public sealed class DialogueRule</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Runtime/Dialogue/DialogueTreeResolver.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule'>Permalink</a></p>
+<p class='comment'>One ordered conversation and its availability conditions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-30-12'><code class='signature'>public string Label { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 30</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-30-12'>Permalink</a></p>
+<p class='comment'>Gets the authoring label.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-32-12'><code class='signature'>public DialogueTree Tree { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-32-12'>Permalink</a></p>
+<p class='comment'>Gets the candidate tree.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-34-12'><code class='signature'>public FlagRequirement Requirement { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-34-12'>Permalink</a></p>
+<p class='comment'>Gets the required condition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-36-12'><code class='signature'>public FlagRequirement BlockingRequirement { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-36-12'>Permalink</a></p>
+<p class='comment'>Gets the condition that prevents selection.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-39-12'><code class='signature'>public bool IsAvailable(FlagManager flags = null)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver.DialogueRule-Runtime-Dialogue-DialogueTreeResolver-cs-39-12'>Permalink</a></p>
+<p class='comment'>Evaluates this rule without changing story flags.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.IsAvailable(flags);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner'><summary><code>DialogueRunner</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueRunner</span></summary><div class='entry'>
+<code class='signature'>public class DialogueRunner : MonoBehaviour, ICinematicWaitSource</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Runtime/Dialogue/DialogueRunner.cs, line 28</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner'>Permalink</a></p>
+<p class='comment'>Traverses a DialogueTree at runtime and exposes progress events.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-33-8'><code class='signature'>public event Action&lt;DialogueRunner&gt; DialogueStarted</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-33-8'>Permalink</a></p>
+<p class='comment'>Raised whenever any DialogueRunner starts.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-38-8'><code class='signature'>public event Action&lt;DialogueRunner, DialogueTree.Node&gt; NodeChanged</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-38-8'>Permalink</a></p>
+<p class='comment'>Raised whenever any DialogueRunner changes to a new node.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-43-8'><code class='signature'>public event Action&lt;DialogueRunner&gt; DialogueEnded</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-43-8'>Permalink</a></p>
+<p class='comment'>Raised whenever any DialogueRunner ends.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-65-8'><code class='signature'>public DialogueTree.Node CurrentNode { get; private set; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-65-8'>Permalink</a></p>
+<p class='comment'>Gets the dialogue node currently being presented.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-68-8'><code class='signature'>public DialogueTree Tree { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-68-8'>Permalink</a></p>
+<p class='comment'>Gets the dialogue tree currently assigned to this runner.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-73-8'><code class='signature'>public bool IsRunning { get; private set; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets whether this runner is currently traversing dialogue.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-76-8'><code class='signature'>public int AvailableChoiceCount { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-76-8'>Permalink</a></p>
+<p class='comment'>Number of choices currently visible under active flag state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-99-8'><code class='signature'>public void SetTree(DialogueTree tree)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-99-8'>Permalink</a></p>
+<p class='comment'>Assigns the dialogue tree this runner should traverse.</p>
+<p class='comment'><strong>tree</strong> Dialogue tree to assign.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueJsonImporterTests.cs#L103'>Stolen &#183; Assets/Tests/Editor/DialogueJsonImporterTests.cs, line 103</a></figcaption><pre><code>runner.SetTree(first);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-107-8'><code class='signature'>public void StartDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 107</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-107-8'>Permalink</a></p>
+<p class='comment'>Starts the assigned dialogue tree from its configured start node.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueJsonImporterTests.cs#L104'>Stolen &#183; Assets/Tests/Editor/DialogueJsonImporterTests.cs, line 104</a></figcaption><pre><code>runner.StartDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-125-8'><code class='signature'>public void Play()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 125</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-125-8'>Permalink</a></p>
+<p class='comment'>Starts dialogue through the generic cinematic wait-source contract.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Play();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-133-8'><code class='signature'>public void Advance()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 133</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-133-8'>Permalink</a></p>
+<p class='comment'>Advances from the current node using the node&#39;s default flow.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueFlowContentTests.cs#L84'>Stolen &#183; Assets/Tests/Editor/DialogueFlowContentTests.cs, line 84</a></figcaption><pre><code>runner.Advance();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-152-8'><code class='signature'>public void Choose(int choiceIndex)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 152</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-152-8'>Permalink</a></p>
+<p class='comment'>Selects a choice from the current node.</p>
+<p class='comment'><strong>choiceIndex</strong> Index of the selected choice.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueJsonImporterTests.cs#L106'>Stolen &#183; Assets/Tests/Editor/DialogueJsonImporterTests.cs, line 106</a></figcaption><pre><code>runner.Choose(0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-166-8'><code class='signature'>public void ChooseAvailable(int visibleChoiceIndex)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 166</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-166-8'>Permalink</a></p>
+<p class='comment'>Selects by visible UI index and maps back to authored choice order.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueFlowContentTests.cs#L82'>Stolen &#183; Assets/Tests/Editor/DialogueFlowContentTests.cs, line 82</a></figcaption><pre><code>runner.ChooseAvailable(0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-175-8'><code class='signature'>public string[] GetAvailableChoiceTexts()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 175</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-175-8'>Permalink</a></p>
+<p class='comment'>Gets labels for choices currently available.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/DialogueFlowContentTests.cs#L81'>Stolen &#183; Assets/Tests/Editor/DialogueFlowContentTests.cs, line 81</a></figcaption><pre><code>Assert.AreEqual(&quot;Continue&quot;, runner.GetAvailableChoiceTexts()[0], node.id);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-188-8'><code class='signature'>public void EndDialogue()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueRunner.cs'>Source, line 188</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueRunner-Runtime-Dialogue-DialogueRunner-cs-188-8'>Permalink</a></p>
+<p class='comment'>Ends the current dialogue traversal.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Managers/DialogueManager.cs'>Runtime/Managers/DialogueManager.cs, line 276</a></figcaption><pre><code>dialogueRunner.EndDialogue();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueTree'><summary><code>DialogueTree</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueTree</span></summary><div class='entry'>
+<code class='signature'>public class DialogueTree : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Runtime/Dialogue/DialogueTree.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree'>Permalink</a></p>
+<p class='comment'>ScriptableObject asset containing a reusable branching dialogue tree.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-159-8'><code class='signature'>public Node[] Nodes { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 159</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-159-8'>Permalink</a></p>
+<p class='comment'>Gets all dialogue nodes in this tree.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-164-8'><code class='signature'>public int StartNodeIndex { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 164</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-164-8'>Permalink</a></p>
+<p class='comment'>Gets the first node index for this tree.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-167-8'><code class='signature'>public bool GeneratedFromJson { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 167</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-167-8'>Permalink</a></p>
+<p class='comment'>Gets whether this asset is generated from dialogue JSON.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-170-8'><code class='signature'>public string SourceJsonPath { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 170</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-170-8'>Permalink</a></p>
+<p class='comment'>Gets the project-relative JSON source path for generated assets.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-178-8'><code class='signature'>public bool TryGetNode(int index, out Node node)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 178</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree-Runtime-Dialogue-DialogueTree-cs-178-8'>Permalink</a></p>
+<p class='comment'>Attempts to retrieve a node by index.</p>
+<p class='comment'><strong>index</strong> Node index to retrieve.</p>
+<p class='comment'><strong>node</strong> Returned node when found; otherwise, null.</p>
+<p class='comment'><strong>Returns</strong> True if the node exists; otherwise, false.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/DialogueTreeTests.cs'>Tests/EditMode/DialogueTreeTests.cs, line 179</a></figcaption><pre><code>Assert.That(tree.TryGetNode(index, out DialogueTree.Node node), Is.False);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver'><summary><code>DialogueTreeResolver</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueTreeResolver</span></summary><div class='entry'>
+<code class='signature'>public sealed class DialogueTreeResolver : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Runtime/Dialogue/DialogueTreeResolver.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver'>Permalink</a></p>
+<p class='comment'>Selects a dialogue tree from current story flags without starting or consuming it.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-53-8'><code class='signature'>public IReadOnlyList&lt;DialogueRule&gt; Rules { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-53-8'>Permalink</a></p>
+<p class='comment'>Gets the ordered authoring rules.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-55-8'><code class='signature'>public DialogueTree FallbackTree { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-55-8'>Permalink</a></p>
+<p class='comment'>Gets the optional fallback.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-58-8'><code class='signature'>public bool TryResolve(out DialogueTree tree, FlagManager flags = null)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTreeResolver.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTreeResolver-Runtime-Dialogue-DialogueTreeResolver-cs-58-8'>Permalink</a></p>
+<p class='comment'>Finds the first eligible tree using current flags; never mutates progression.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/DialogueTreeResolverTests.cs'>Tests/EditMode/DialogueTreeResolverTests.cs, line 41</a></figcaption><pre><code>Assert.That(resolver.TryResolve(out _, flags), Is.False);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node'><summary><code>Node</code> <span class='source'>QuietStatic.Toolkit.Dialogue.DialogueTree.Node</span></summary><div class='entry'>
+<code class='signature'>public class Node</code>
+<p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Runtime/Dialogue/DialogueTree.cs, line 58</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node'>Permalink</a></p>
+<p class='comment'>Represents one dialogue node in the tree.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-61-12'><code class='signature'>/// &lt;summary&gt;Stable authoring identifier for this node.&lt;/summary&gt; public string id</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-61-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-66-12'><code class='signature'>/// &lt;summary&gt;Player-facing speaker name.&lt;/summary&gt; public string speaker</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-66-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-71-12'><code class='signature'>/// &lt;summary&gt;Player-facing dialogue line.&lt;/summary&gt; public string line</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-71-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-76-12'><code class='signature'>/// &lt;summary&gt;Presentation tags associated with this node.&lt;/summary&gt; public string[] presentationTags</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-76-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-81-12'><code class='signature'>/// &lt;summary&gt;Optional responses available from this node.&lt;/summary&gt; public Choice[] choices</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-81-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-86-12'><code class='signature'>public int nextNodeIndex = -1</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-86-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-90-12'><code class='signature'>/// &lt;summary&gt;Flags set when this node becomes active.&lt;/summary&gt; public string[] flagsToSetOnEnter</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-90-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-99-12'><code class='signature'>public bool HasChoices { get; }</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-99-12'>Permalink</a></p>
+<p class='comment'>Gets whether this node has at least one response choice.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-102-12'><code class='signature'>public bool HasPresentationTag(string tag)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 102</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-102-12'>Permalink</a></p>
+<p class='comment'>Returns whether this node contains a presentation tag.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.HasPresentationTag(tag);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-111-12'><code class='signature'>public string[] GetChoiceTexts()</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 111</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-111-12'>Permalink</a></p>
+<p class='comment'>Gets the display text for every response choice.</p>
+<p class='comment'><strong>Returns</strong> Array of choice display strings.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.GetChoiceTexts();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-129-12'><code class='signature'>public int[] GetAvailableChoiceIndexes(FlagManager flagManager = null)</code><p class='source'><a href='../../../Runtime/Dialogue/DialogueTree.cs'>Source, line 129</a> · <a href='#api-QuietStatic.Toolkit.Dialogue.DialogueTree.Node-Runtime-Dialogue-DialogueTree-cs-129-12'>Permalink</a></p>
+<p class='comment'>Gets authored indexes for choices currently available.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.GetAvailableChoiceIndexes(flagManager);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

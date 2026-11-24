@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Editor</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter'><code>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/StolenPolishVerification.cs#L23-L24'>Stolen &#183; Assets/Stolen/Scripts/Editor/StolenPolishVerification.cs, lines 23–24</a></figcaption><pre><code>var plan = NarrativeBatchJsonImporter.Preflight(&quot;Assets/Generated/NarrativeSources&quot;,
+    &quot;Assets/Generated/Narrative&quot;, &quot;Assets/Stolen/Data/Definitions/Narrative/Dialogue&quot;);</code></pre></figure></section>
+<section class='guide' id='guide-editor-readme-md'><h1 id='guide-editor-readme-md-editor-tools'>Editor tools</h1>
+<p>These scripts add Unity Editor-only workflow commands and are excluded from builds.</p>
+<ul>
+<li>Game-facing authoring, setup, sample, and validation commands live under
+<code>Tools &gt; Quiet Static &gt; Workspace</code> and task-oriented companion entries.</li>
+<li>The Workspace <strong>Scene Content</strong> tab filters interactions and dialogue references by
+loaded scene or GameObject subtree. Its <strong>Clutter</strong> toolbar action opens the dedicated
+flavor-text interaction setup and repair tool.</li>
+<li><code>BatchExtractMaterials</code> extracts embedded materials from selected model assets under
+<code>Tools &gt; Quiet Static &gt; Asset Utilities &gt; Materials</code>.</li>
+<li><code>BatchMaterialCreator</code> creates materials in bulk for selected textures under the same
+material-utilities menu.</li>
+</ul>
+<p>Select the source assets in the Project window, then use the matching Quiet Static menu
+command. Run tools on a small selection first and keep generated assets beside their
+source art so references remain understandable.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange'><summary><code>AssetChange</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange</span></summary><div class='entry'>
+<code class='signature'>public sealed class AssetChange</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 107</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange'>Permalink</a></p>
+<p class='comment'>One concrete Unity asset change resolved during batch preflight.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-130-12'><code class='signature'>public Document SourceDocument { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 130</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-130-12'>Permalink</a></p>
+<p class='comment'>The source document responsible for this change.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-133-12'><code class='signature'>public string ContentId { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 133</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-133-12'>Permalink</a></p>
+<p class='comment'>The catalog, tree, or item ID represented by the target asset.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-136-12'><code class='signature'>public string AssetPath { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-136-12'>Permalink</a></p>
+<p class='comment'>Canonical project-relative path of the affected Unity asset.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-139-12'><code class='signature'>public Type AssetType { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 139</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-139-12'>Permalink</a></p>
+<p class='comment'>Expected Unity object type at AssetPath.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-142-12'><code class='signature'>public AssetChangeKind Kind { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 142</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChange-Editor-NarrativeBatchJsonImporter-cs-142-12'>Permalink</a></p>
+<p class='comment'>The preflighted effect on the asset.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind'><summary><code>AssetChangeKind</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind</span></summary><div class='entry'>
+<code class='signature'>public enum AssetChangeKind</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 59</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind'>Permalink</a></p>
+<p class='comment'>The effect a reviewed batch import will have on a Unity asset.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-62-12'><code class='signature'>Create</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-62-12'>Permalink</a></p>
+<p class='comment'>No asset currently exists at the target path.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-65-12'><code class='signature'>Update</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-65-12'>Permalink</a></p>
+<p class='comment'>The existing asset will be updated in place and retain its GUID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-68-12'><code class='signature'>Regenerate</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-68-12'>Permalink</a></p>
+<p class='comment'>The existing asset will be replaced with a newly generated asset.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-71-12'><code class='signature'>Delete</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.AssetChangeKind-Editor-NarrativeBatchJsonImporter-cs-71-12'>Permalink</a></p>
+<p class='comment'>The existing asset will be removed by a replacement import.</p>
+</div>
+</div></details>
+<details data-entry id='api-BatchExtractMaterials'><summary><code>BatchExtractMaterials</code> <span class='source'>BatchExtractMaterials</span></summary><div class='entry'>
+<code class='signature'>public class BatchExtractMaterials : EditorWindow</code>
+<p class='source'><a href='../../../Editor/BatchExtractMaterials.cs'>Editor/BatchExtractMaterials.cs, line 18</a> · <a href='#api-BatchExtractMaterials'>Permalink</a></p>
+<p class='comment'>Extracts embedded model materials in batches and optionally remaps duplicates to existing assets.</p>
+<p class='comment'><strong>Remarks</strong> Open from Tools &gt; Quiet Static &gt; Asset Utilities &gt; Materials &gt; Batch Extract Materials, choose an Assets-relative destination, add model assets, review each extraction/remapping decision, and then apply. Model importer changes are saved and reimported, so use version control before processing large batches.</p>
+</div></details>
+<details data-entry id='api-BulkMaterialCreator'><summary><code>BulkMaterialCreator</code> <span class='source'>BulkMaterialCreator</span></summary><div class='entry'>
+<code class='signature'>public class BulkMaterialCreator : ScriptableWizard</code>
+<p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Editor/BatchMaterialCreator.cs, line 16</a> · <a href='#api-BulkMaterialCreator'>Permalink</a></p>
+<p class='comment'>Creates one material beside each selected texture and assigns that texture to a shader property.</p>
+<p class='comment'><strong>Remarks</strong> Open from Tools &gt; Quiet Static &gt; Asset Utilities &gt; Materials &gt; Bulk Material Creator. Asset creation is not automatically reversible, so verify the shader, property name, and selection before confirming.</p>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-18-4'><code class='signature'>public string PropertyName = &quot;_MainTex&quot;</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 18</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-18-4'>Permalink</a></p>
+</div>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-21-4'><code class='signature'>public string Suffix</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 21</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-21-4'>Permalink</a></p>
+</div>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-24-4'><code class='signature'>public Shader Shader</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 24</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-24-4'>Permalink</a></p>
+</div>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-28-4'><code class='signature'>public static void CreateWizard()</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 28</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-28-4'>Permalink</a></p>
+<p class='comment'>Opens the material creation wizard.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>BulkMaterialCreator.CreateWizard();</code></pre></figure>
+</div>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-31-4'><code class='signature'>public void OnWizardUpdate()</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 31</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-31-4'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnWizardUpdate();</code></pre></figure>
+</div>
+<div class='member' id='api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-34-4'><code class='signature'>public void OnWizardCreate()</code><p class='source'><a href='../../../Editor/BatchMaterialCreator.cs'>Source, line 34</a> · <a href='#api-BulkMaterialCreator-Editor-BatchMaterialCreator-cs-34-4'>Permalink</a></p>
+<p class='comment'>Creates material assets for all selected Texture2D assets.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnWizardCreate();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document'><summary><code>Document</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document</span></summary><div class='entry'>
+<code class='signature'>public sealed class Document</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 75</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document'>Permalink</a></p>
+<p class='comment'>A preflighted source document, ordered for safe import.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-92-12'><code class='signature'>public string RelativePath { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 92</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-92-12'>Permalink</a></p>
+<p class='comment'>Forward-slash path relative to the manifest.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-95-12'><code class='signature'>public string SourcePath { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 95</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-95-12'>Permalink</a></p>
+<p class='comment'>Absolute path to the source JSON file.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-98-12'><code class='signature'>public DocumentKind Kind { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 98</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-98-12'>Permalink</a></p>
+<p class='comment'>Declared and verified document kind.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-101-12'><code class='signature'>public string Identity { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 101</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Document-Editor-NarrativeBatchJsonImporter-cs-101-12'>Permalink</a></p>
+<p class='comment'>Stable catalog or tree identifier read from the document.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind'><summary><code>DocumentKind</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind</span></summary><div class='entry'>
+<code class='signature'>public enum DocumentKind</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 49</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind'>Permalink</a></p>
+<p class='comment'>Supported document kinds in a narrative batch.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-51-12'><code class='signature'>Flags</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-51-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-52-12'><code class='signature'>Objectives</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-52-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-53-12'><code class='signature'>Readables</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-53-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-54-12'><code class='signature'>Dialogue</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 54</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-54-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-55-12'><code class='signature'>Cinematic</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.DocumentKind-Editor-NarrativeBatchJsonImporter-cs-55-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter'><summary><code>NarrativeAuthoringJsonExporter</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter</span></summary><div class='entry'>
+<code class='signature'>public static class NarrativeAuthoringJsonExporter</code>
+<p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Editor/NarrativeAuthoringJsonExporter.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter'>Permalink</a></p>
+<p class='comment'>Coordinates a reviewable authoring snapshot of existing narrative assets.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-57-8'><code class='signature'>public static SnapshotResult ExportProjectSnapshot( string outputFolder, FlagDatabase flagDatabase = null, ObjectiveDatabase objectiveDatabase = null, IEnumerable&lt;ReadableContentDefinition&gt; readables = null, IEnumerable&lt;DialogueTree&gt; dialogues = null, bool overwriteExisting = false)</code><p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-57-8'>Permalink</a></p>
+<p class='comment'>Exports supplied assets, or discovers their project-wide counterparts when omitted.</p>
+<p class='comment'><strong>Remarks</strong> All JSON is built and importer-validated before the first file is written. Existing JSON is preserved by default so app-side authoring edits remain the source of truth. Dialogue is written below dialogues/current and linked back to flags.json.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NarrativeJsonMigrationTests.cs'>Tests/EditMode/NarrativeJsonMigrationTests.cs, lines 142–148</a></figcaption><pre><code>NarrativeAuthoringJsonExporter.ExportProjectSnapshot(
+    outputFolder,
+    flags,
+    objectives,
+    new[] { readable },
+    new[] { dialogue },
+    overwriteExisting: true);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-123-8'><code class='signature'>public static void ExportProjectSnapshotFromCommandLine()</code><p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Source, line 123</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-123-8'>Permalink</a></p>
+<p class='comment'>Command-line entry point using -narrativeSnapshotOutput &lt;folder&gt;.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeAuthoringJsonExporter.ExportProjectSnapshotFromCommandLine();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-149-8'><code class='signature'>public static void ExportProjectSnapshotWithFolderPanel()</code><p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Source, line 149</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter-Editor-NarrativeAuthoringJsonExporter-cs-149-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeAuthoringJsonExporter.ExportProjectSnapshotWithFolderPanel();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchImportWindow'><summary><code>NarrativeBatchImportWindow</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchImportWindow</span></summary><div class='entry'>
+<code class='signature'>public sealed class NarrativeBatchImportWindow : EditorWindow</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchImportWindow.cs'>Editor/NarrativeBatchImportWindow.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchImportWindow'>Permalink</a></p>
+<p class='comment'>Presents the fully validated effects of a narrative batch before the user confirms import.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchImportWindow-Editor-NarrativeBatchImportWindow-cs-29-8'><code class='signature'>public static void Open( string manifestOrFolderPath, string narrativeFolder = NarrativeBatchJsonImporter.DefaultNarrativeOutputFolder, string dialogueFolder = NarrativeBatchJsonImporter.DefaultDialogueOutputFolder)</code><p class='source'><a href='../../../Editor/NarrativeBatchImportWindow.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchImportWindow-Editor-NarrativeBatchImportWindow-cs-29-8'>Permalink</a></p>
+<p class='comment'>Opens a preview for a manifest or manifest-containing folder.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeBatchImportWindow.Open(manifestOrFolderPath, narrativeFolder, dialogueFolder);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter'><summary><code>NarrativeBatchJsonImporter</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter</span></summary><div class='entry'>
+<code class='signature'>public static class NarrativeBatchJsonImporter</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter'>Permalink</a></p>
+<p class='comment'>Explicitly imports a complete dialogue-authoring export after validating its manifest.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-20-8'><code class='signature'>public const string ManifestFileName = &quot;quiet-static.narrative-manifest.json&quot;</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-20-8'>Permalink</a></p>
+<p class='comment'>Required filename for a dialogue-authoring export manifest.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-23-8'><code class='signature'>public const string DefaultNarrativeOutputFolder = &quot;Assets/Generated/Narrative&quot;</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-23-8'>Permalink</a></p>
+<p class='comment'>Default output folder used by NarrativeContentJsonImporter.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-26-8'><code class='signature'>public const string DefaultDialogueOutputFolder = &quot;Assets/Generated/Dialogue&quot;</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-26-8'>Permalink</a></p>
+<p class='comment'>Default output folder used by DialogueJsonImporter.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-266-8'><code class='signature'>public static Result Import( string manifestOrFolderPath, string narrativeOutputFolder = DefaultNarrativeOutputFolder, string dialogueOutputFolder = DefaultDialogueOutputFolder)</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 266</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-266-8'>Permalink</a></p>
+<p class='comment'>Imports every document in a manifest, or in the supplied manifest-containing folder.</p>
+<p class='comment'><strong>Remarks</strong> All files are read and their manifest kind, JSON, schema, and top-level identity are checked before generated assets are changed. Flags are always imported before content that can refer to them, and dialogue is imported last.</p>
+<p class='comment'><strong>manifestOrFolderPath</strong> Absolute or project-relative path to the manifest or its containing folder.</p>
+<p class='comment'><strong>narrativeOutputFolder</strong> Assets folder for flags, objectives, and readables.</p>
+<p class='comment'><strong>dialogueOutputFolder</strong> Assets folder for dialogue trees.</p>
+<p class='comment'><strong>Returns</strong> The validated plan and its created or updated Unity assets.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NarrativeBatchJsonImporterTests.cs'>Tests/EditMode/NarrativeBatchJsonImporterTests.cs, lines 145–148</a></figcaption><pre><code>NarrativeBatchJsonImporter.Result first = NarrativeBatchJsonImporter.Import(
+    exportFolder,
+    narrativeOutputFolder,
+    dialogueOutputFolder);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-294-8'><code class='signature'>public static Result ImportReviewedPlan(Plan reviewedPlan)</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 294</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-294-8'>Permalink</a></p>
+<p class='comment'>Imports a previously reviewed plan only when a fresh preflight produces the same sources, targets, and asset operations.</p>
+<p class='comment'><strong>reviewedPlan</strong> The exact plan shown to the user for confirmation.</p>
+<p class='comment'><strong>Returns</strong> The freshly validated plan and its created or updated Unity assets.</p>
+<p class='comment'><strong>Throws PreviewOutOfDateException</strong> Thrown when files or affected Unity assets changed after the preview was built.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NarrativeBatchJsonImporterTests.cs'>Tests/EditMode/NarrativeBatchJsonImporterTests.cs, lines 174–175</a></figcaption><pre><code>NarrativeBatchJsonImporter.Result second =
+    NarrativeBatchJsonImporter.ImportReviewedPlan(updatePlan);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-347-8'><code class='signature'>public static Plan Preflight( string manifestOrFolderPath, string narrativeOutputFolder = DefaultNarrativeOutputFolder, string dialogueOutputFolder = DefaultDialogueOutputFolder)</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 347</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-347-8'>Permalink</a></p>
+<p class='comment'>Reads and validates a narrative batch without creating or changing generated assets.</p>
+<p class='comment'><strong>manifestOrFolderPath</strong> Absolute or project-relative path to the manifest or its containing folder.</p>
+<p class='comment'><strong>Returns</strong> An immutable plan in deterministic import order.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/StolenPolishVerification.cs#L23-L24'>Stolen &#183; Assets/Stolen/Scripts/Editor/StolenPolishVerification.cs, lines 23–24</a></figcaption><pre><code>var plan = NarrativeBatchJsonImporter.Preflight(&quot;Assets/Generated/NarrativeSources&quot;,
+    &quot;Assets/Generated/Narrative&quot;, &quot;Assets/Stolen/Data/Definitions/Narrative/Dialogue&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-494-8'><code class='signature'>public static void OpenImportPreview()</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 494</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter-Editor-NarrativeBatchJsonImporter-cs-494-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeBatchJsonImporter.OpenImportPreview();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter'><summary><code>NarrativeContentJsonExporter</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter</span></summary><div class='entry'>
+<code class='signature'>public static class NarrativeContentJsonExporter</code>
+<p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Editor/NarrativeContentJsonExporter.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter'>Permalink</a></p>
+<p class='comment'>Exports existing objective and readable assets to narrative-authorer JSON.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-87-8'><code class='signature'>public static IReadOnlyList&lt;string&gt; ValidateObjectives( ObjectiveDatabase database, string catalogId = null)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-87-8'>Permalink</a></p>
+<p class='comment'>Validates an objective database for lossless authorer export.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.ValidateObjectives(database, catalogId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-140-8'><code class='signature'>public static string BuildObjectivesJson( ObjectiveDatabase database, string catalogId = null, bool replaceObjectiveAssets = true)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 140</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-140-8'>Permalink</a></p>
+<p class='comment'>Builds version-one objective-catalog JSON in database order. By default Unity replaces and groups the definition assets on import while preserving the database.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.BuildObjectivesJson(database, catalogId, replaceObjectiveAssets);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-175-8'><code class='signature'>public static string ExportObjectives( ObjectiveDatabase database, string outputPath, string catalogId = null, bool replaceObjectiveAssets = true)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 175</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-175-8'>Permalink</a></p>
+<p class='comment'>Exports an objective database to a version-one JSON catalog.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.ExportObjectives(database, outputPath, catalogId, replaceObjectiveAssets);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-185-8'><code class='signature'>public static string ExportObjectivesWithSavePanel(ObjectiveDatabase database)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 185</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-185-8'>Permalink</a></p>
+<p class='comment'>Prompts for a destination and exports an objective database.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 263</a></figcaption><pre><code>NarrativeContentJsonExporter.ExportObjectivesWithSavePanel(database);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-199-8'><code class='signature'>public static IReadOnlyList&lt;string&gt; ValidateReadables( IEnumerable&lt;ReadableContentDefinition&gt; definitions, string catalogId)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 199</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-199-8'>Permalink</a></p>
+<p class='comment'>Validates readable assets for one authorer catalog.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.ValidateReadables(definitions, catalogId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-233-8'><code class='signature'>public static string BuildReadablesJson( IEnumerable&lt;ReadableContentDefinition&gt; definitions, string catalogId)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 233</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-233-8'>Permalink</a></p>
+<p class='comment'>Builds version-one readable-catalog JSON in supplied order.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NarrativeJsonMigrationTests.cs'>Tests/EditMode/NarrativeJsonMigrationTests.cs, lines 393–395</a></figcaption><pre><code>string json = NarrativeContentJsonExporter.BuildReadablesJson(
+    new[] { readable },
+    &quot;readables&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-249-8'><code class='signature'>public static string ExportReadables( IEnumerable&lt;ReadableContentDefinition&gt; definitions, string outputPath, string catalogId = null)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 249</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-249-8'>Permalink</a></p>
+<p class='comment'>Exports readable assets to one version-one JSON catalog.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.ExportReadables(definitions, outputPath, catalogId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-261-8'><code class='signature'>public static string ExportReadablesWithSavePanel( IEnumerable&lt;ReadableContentDefinition&gt; definitions)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonExporter.cs'>Source, line 261</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonExporter-Editor-NarrativeContentJsonExporter-cs-261-8'>Permalink</a></p>
+<p class='comment'>Prompts for a destination and exports readable assets.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = NarrativeContentJsonExporter.ExportReadablesWithSavePanel(definitions);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter'><summary><code>NarrativeContentJsonImporter</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter</span></summary><div class='entry'>
+<code class='signature'>public static class NarrativeContentJsonImporter</code>
+<p class='source'><a href='../../../Editor/NarrativeContentJsonImporter.cs'>Editor/NarrativeContentJsonImporter.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter'>Permalink</a></p>
+<p class='comment'>Imports versioned narrative content catalogs into the existing runtime ScriptableObjects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-114-8'><code class='signature'>public static UnityEngine.Object Import(TextAsset source, string outputFolder = DefaultOutputFolder)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonImporter.cs'>Source, line 114</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-114-8'>Permalink</a></p>
+<p class='comment'>Validates and imports a flag, objective, or readable content catalog.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/BetaSequenceAuthoring.cs#L37-L38'>Stolen &#183; Assets/Stolen/Scripts/Editor/BetaSequenceAuthoring.cs, lines 37–38</a></figcaption><pre><code>NarrativeContentJsonImporter.Import(AssetDatabase.LoadAssetAtPath&lt;TextAsset&gt;(
+    $&quot;Assets/Generated/NarrativeSources/{name}.json&quot;), &quot;Assets/Generated/Narrative&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-144-8'><code class='signature'>public static void ValidateJson(string json, string sourcePath = &quot;&lt;input&gt;&quot;)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonImporter.cs'>Source, line 144</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-144-8'>Permalink</a></p>
+<p class='comment'>Fully validates narrative content JSON without changing assets.</p>
+<p class='comment'><strong>json</strong> Flag, objective, or readable catalog JSON.</p>
+<p class='comment'><strong>sourcePath</strong> Path or label included in validation messages.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeContentJsonImporter.ValidateJson(json, sourcePath);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-154-8'><code class='signature'>public static void PreflightImport( string json, string outputFolder = DefaultOutputFolder, string sourcePath = &quot;&lt;input&gt;&quot;)</code><p class='source'><a href='../../../Editor/NarrativeContentJsonImporter.cs'>Source, line 154</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeContentJsonImporter-Editor-NarrativeContentJsonImporter-cs-154-8'>Permalink</a></p>
+<p class='comment'>Validates narrative JSON and any existing Unity assets that a replacement import would remove, without changing the project.</p>
+<p class='comment'><strong>json</strong> Flag, objective, or readable catalog JSON.</p>
+<p class='comment'><strong>outputFolder</strong> Assets folder used to resolve generated targets.</p>
+<p class='comment'><strong>sourcePath</strong> Path or label included in validation messages.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>NarrativeContentJsonImporter.PreflightImport(json, outputFolder, sourcePath);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan'><summary><code>Plan</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan</span></summary><div class='entry'>
+<code class='signature'>public sealed class Plan</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 150</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan'>Permalink</a></p>
+<p class='comment'>An immutable, fully preflighted import plan.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-167-12'><code class='signature'>public string ManifestPath { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 167</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-167-12'>Permalink</a></p>
+<p class='comment'>Absolute path to the validated manifest.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-170-12'><code class='signature'>public string NarrativeOutputFolder { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 170</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-170-12'>Permalink</a></p>
+<p class='comment'>Normalized output folder used for narrative content without explicit targets.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-173-12'><code class='signature'>public string DialogueOutputFolder { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 173</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-173-12'>Permalink</a></p>
+<p class='comment'>Normalized output folder used for dialogue without explicit targets.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-176-12'><code class='signature'>public IReadOnlyList&lt;Document&gt; Documents { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 176</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-176-12'>Permalink</a></p>
+<p class='comment'>Documents in flags, objectives, readables, then dialogue order.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-179-12'><code class='signature'>public IReadOnlyList&lt;AssetChange&gt; AssetChanges { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 179</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Plan-Editor-NarrativeBatchJsonImporter-cs-179-12'>Permalink</a></p>
+<p class='comment'>Every created, updated, regenerated, or deleted Unity asset.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.PreviewOutOfDateException'><summary><code>PreviewOutOfDateException</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.PreviewOutOfDateException</span></summary><div class='entry'>
+<code class='signature'>public sealed class PreviewOutOfDateException : InvalidOperationException</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 185</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.PreviewOutOfDateException'>Permalink</a></p>
+<p class='comment'>Thrown when a source file or affected Unity asset changed after a plan was reviewed.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result'><summary><code>Result</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result</span></summary><div class='entry'>
+<code class='signature'>public sealed class Result</code>
+<p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 196</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result'>Permalink</a></p>
+<p class='comment'>Imported assets paired with the plan that produced them.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result-Editor-NarrativeBatchJsonImporter-cs-205-12'><code class='signature'>public Plan Plan { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 205</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result-Editor-NarrativeBatchJsonImporter-cs-205-12'>Permalink</a></p>
+<p class='comment'>The plan validated before any generated asset was changed.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result-Editor-NarrativeBatchJsonImporter-cs-208-12'><code class='signature'>public IReadOnlyList&lt;UnityEngine.Object&gt; ImportedAssets { get; }</code><p class='source'><a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Source, line 208</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeBatchJsonImporter.Result-Editor-NarrativeBatchJsonImporter-cs-208-12'>Permalink</a></p>
+<p class='comment'>Created or updated assets in the same order as Plan.Documents.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult'><summary><code>SnapshotResult</code> <span class='source'>QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult</span></summary><div class='entry'>
+<code class='signature'>public sealed class SnapshotResult</code>
+<p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Editor/NarrativeAuthoringJsonExporter.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult'>Permalink</a></p>
+<p class='comment'>Paths written or deliberately preserved by one snapshot export.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult-Editor-NarrativeAuthoringJsonExporter-cs-31-12'><code class='signature'>public IReadOnlyList&lt;string&gt; WrittenPaths { get; }</code><p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult-Editor-NarrativeAuthoringJsonExporter-cs-31-12'>Permalink</a></p>
+<p class='comment'>Absolute JSON paths written by the export.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult-Editor-NarrativeAuthoringJsonExporter-cs-34-12'><code class='signature'>public IReadOnlyList&lt;string&gt; PreservedPaths { get; }</code><p class='source'><a href='../../../Editor/NarrativeAuthoringJsonExporter.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Editor.NarrativeAuthoringJsonExporter.SnapshotResult-Editor-NarrativeAuthoringJsonExporter-cs-34-12'>Permalink</a></p>
+<p class='comment'>Existing source-of-truth paths left unchanged.</p>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

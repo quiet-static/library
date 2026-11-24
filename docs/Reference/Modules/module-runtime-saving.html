@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Saving — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Saving</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Saving.ISaveParticipant'><code>QuietStatic.Toolkit.Saving.ISaveParticipant</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L164'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, line 164</a></figcaption><pre><code>string json = participant.CaptureSaveState();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-saving-readme-md'><h1 id='guide-runtime-saving-readme-md-saving'>Saving</h1>
+<p><code>SaveManager</code> writes versioned JSON slots beneath <code>Application.persistentDataPath</code>.
+It coordinates systems that already own authoritative state rather than replacing them.</p>
+<p>Version 2 stores:</p>
+<ul>
+<li>the active content scene;</li>
+<li>the spawn point used when the slot is loaded;</li>
+<li>active Boolean progression flags and typed Integer/Float/String values; and</li>
+<li>JSON payloads from explicitly implemented <code>ISaveParticipant</code> components.</li>
+</ul>
+<p>Add one <code>SaveManager</code> to the persistent Systems scene. Create a
+<code>SaveRequestChannel</code> asset and assign it to the manager when content scenes should
+request save operations without referencing the persistent object.
+The manager consumes the channel's typed <code>SaveCommand</code> stream; the asset's
+<code>RequestSave</code>, <code>RequestLoad</code>, and <code>RequestDelete</code> methods remain the UnityEvent API.</p>
+<p>Use <code>Checkpoint.Save()</code> from a UnityEvent, or enable its trigger behavior. The
+checkpoint's arrival spawn ID should match a <code>SpawnPoint</code> in the saved scene. The
+player must be registered with <code>SpawnManager</code> under the Save Manager's configured
+target ID before restoration can place it.</p>
+<p><code>ISaveParticipant</code> is intentionally opt-in. IDs must remain stable and unique, and
+participants own the schema inside their JSON payload. Do not use it to serialize
+arbitrary scene hierarchies.</p>
+<p>Save files keep a <code>.bak</code> copy when an existing slot is replaced. Increase
+<code>SaveGameData.CurrentVersion</code> only alongside explicit migration support.</p>
+<p>Use <code>TryGetSlotMetadata</code> to populate save-menu rows without loading gameplay.
+Metadata includes the scene, arrival point, schema version, UTC timestamp, and
+whether the primary file had to be recovered from its backup.</p>
+<p>Add <code>ObjectStateSaveParticipant</code> beside an <code>ObjectStateHandler</code> to persist that
+handler. Give the participant a globally unique save ID and ensure every referenced
+<code>ObjectStateDefinition</code> has a stable ID. This remains opt-in so decorative state
+handlers do not silently increase save scope.</p>
+<p>Version-1 saves migrate explicitly on read: their Boolean IDs are retained and new
+non-Boolean values use catalog defaults. Version-2 saves preserve typed values before
+scene startup and during failure rollback. Unknown or mistyped version-2 entries fail
+restoration rather than coercing values. Changing an existing flag's kind requires a
+project migration, just as changing a stable ID does.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.Checkpoint'><summary><code>Checkpoint</code> <span class='source'>QuietStatic.Toolkit.Saving.Checkpoint</span></summary><div class='entry'>
+<code class='signature'>public sealed class Checkpoint : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Saving/Checkpoint.cs'>Runtime/Saving/Checkpoint.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Saving.Checkpoint'>Permalink</a></p>
+<p class='comment'>UnityEvent- and trigger-friendly adapter for saving at a named arrival point.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.Checkpoint-Runtime-Saving-Checkpoint-cs-35-8'><code class='signature'>public void Save()</code><p class='source'><a href='../../../Runtime/Saving/Checkpoint.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Saving.Checkpoint-Runtime-Saving-Checkpoint-cs-35-8'>Permalink</a></p>
+<p class='comment'>Saves this checkpoint. Suitable for a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Save();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.Checkpoint-Runtime-Saving-Checkpoint-cs-50-8'><code class='signature'>public void ResetCheckpoint()</code><p class='source'><a href='../../../Runtime/Saving/Checkpoint.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.Saving.Checkpoint-Runtime-Saving-Checkpoint-cs-50-8'>Permalink</a></p>
+<p class='comment'>Allows this checkpoint&#39;s trigger to save again.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetCheckpoint();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.ISaveParticipant'><summary><code>ISaveParticipant</code> <span class='source'>QuietStatic.Toolkit.Saving.ISaveParticipant</span></summary><div class='entry'>
+<code class='signature'>public interface ISaveParticipant</code>
+<p class='source'><a href='../../../Runtime/Saving/ISaveParticipant.cs'>Runtime/Saving/ISaveParticipant.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Saving.ISaveParticipant'>Permalink</a></p>
+<p class='comment'>Optional boundary for scene systems that own small pieces of persistent state.</p>
+<p class='comment'><strong>Remarks</strong> Implementations are responsible for producing and consuming their own JSON payload. IDs must be stable and unique across every loaded scene.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-13-8'><code class='signature'>string SaveId { get; }</code><p class='source'><a href='../../../Runtime/Saving/ISaveParticipant.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-13-8'>Permalink</a></p>
+<p class='comment'>Stable identifier stored in the save file.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-16-8'><code class='signature'>string CaptureSaveState()</code><p class='source'><a href='../../../Runtime/Saving/ISaveParticipant.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-16-8'>Permalink</a></p>
+<p class='comment'>Captures this participant&#39;s state as JSON.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L164'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, line 164</a></figcaption><pre><code>string json = participant.CaptureSaveState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-19-8'><code class='signature'>void RestoreSaveState(string json)</code><p class='source'><a href='../../../Runtime/Saving/ISaveParticipant.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Saving.ISaveParticipant-Runtime-Saving-ISaveParticipant-cs-19-8'>Permalink</a></p>
+<p class='comment'>Restores a previously captured JSON payload.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L168'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, line 168</a></figcaption><pre><code>participant.RestoreSaveState(json);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant'><summary><code>ObjectStateSaveParticipant</code> <span class='source'>QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectStateSaveParticipant : MonoBehaviour, ISaveParticipant</code>
+<p class='source'><a href='../../../Runtime/Saving/ObjectStateSaveParticipant.cs'>Runtime/Saving/ObjectStateSaveParticipant.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant'>Permalink</a></p>
+<p class='comment'>Opts one ObjectStateHandler into save-game capture and restoration.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-28-8'><code class='signature'>public string SaveId { get; }</code><p class='source'><a href='../../../Runtime/Saving/ObjectStateSaveParticipant.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-28-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-36-8'><code class='signature'>public string CaptureSaveState()</code><p class='source'><a href='../../../Runtime/Saving/ObjectStateSaveParticipant.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-36-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 135</a></figcaption><pre><code>string json = participant.CaptureSaveState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-48-8'><code class='signature'>public void RestoreSaveState(string json)</code><p class='source'><a href='../../../Runtime/Saving/ObjectStateSaveParticipant.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Saving.ObjectStateSaveParticipant-Runtime-Saving-ObjectStateSaveParticipant-cs-48-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 137</a></figcaption><pre><code>participant.RestoreSaveState(json);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveCommand'><summary><code>SaveCommand</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveCommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct SaveCommand</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Runtime/Saving/SaveRequestChannel.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommand'>Permalink</a></p>
+<p class='comment'>Typed cross-scene save-slot command.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-18-8'><code class='signature'>public SaveCommand( SaveCommandType type, int slot, string arrivalSpawnId = &quot;&quot;)</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-18-8'>Permalink</a></p>
+<p class='comment'>Creates a save-slot command.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Runtime/Saving/SaveRequestChannel.cs, lines 58–61</a></figcaption><pre><code>Dispatch(new SaveCommand(
+    SaveCommandType.Save,
+    slot,
+    arrivalSpawnId));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-29-8'><code class='signature'>public SaveCommandType Type { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-29-8'>Permalink</a></p>
+<p class='comment'>Requested save-slot operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-32-8'><code class='signature'>public int Slot { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-32-8'>Permalink</a></p>
+<p class='comment'>Zero-based slot supplied by the caller.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-35-8'><code class='signature'>public string ArrivalSpawnId { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommand-Runtime-Saving-SaveRequestChannel-cs-35-8'>Permalink</a></p>
+<p class='comment'>Optional spawn used after restoring this save.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveCommandType'><summary><code>SaveCommandType</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveCommandType</span></summary><div class='entry'>
+<code class='signature'>public enum SaveCommandType</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Runtime/Saving/SaveRequestChannel.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommandType'>Permalink</a></p>
+<p class='comment'>Operation carried by a SaveCommand.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-9-8'><code class='signature'>Save</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-10-8'><code class='signature'>Load</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-11-8'><code class='signature'>Delete</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveCommandType-Runtime-Saving-SaveRequestChannel-cs-11-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveManager.SaveErrorUnityEvent'><summary><code>SaveErrorUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveManager.SaveErrorUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveErrorUnityEvent : UnityEvent&lt;int, string&gt;</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Runtime/Saving/SaveManager.cs, line 24</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager.SaveErrorUnityEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveGameData'><summary><code>SaveGameData</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveGameData</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveGameData</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Runtime/Saving/SaveGameData.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData'>Permalink</a></p>
+<p class='comment'>Serializable snapshot written to a save-game slot.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-11-8'><code class='signature'>public const int CurrentVersion = 2</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-11-8'>Permalink</a></p>
+<p class='comment'>Current save schema version.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-14-8'><code class='signature'>public int version = CurrentVersion</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-14-8'>Permalink</a></p>
+<p class='comment'>Schema version used to validate and migrate this save.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-17-8'><code class='signature'>public string savedAtUtc</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-17-8'>Permalink</a></p>
+<p class='comment'>ISO-8601 UTC timestamp recorded when the save was written.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-20-8'><code class='signature'>public string activeScene</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-20-8'>Permalink</a></p>
+<p class='comment'>Name of the active scene when the save was captured.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-23-8'><code class='signature'>public string arrivalSpawnId</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-23-8'>Permalink</a></p>
+<p class='comment'>Optional spawn ID used to place the player after scene restoration.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-26-8'><code class='signature'>public List&lt;string&gt; activeFlags = new List&lt;string&gt;()</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-26-8'>Permalink</a></p>
+<p class='comment'>Flag IDs active when the save was captured.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-29-8'><code class='signature'>public List&lt;QuietStatic.Toolkit.Flags.FlagValueEntry&gt; flagValues = new()</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-29-8'>Permalink</a></p>
+<p class='comment'>Version-two typed progression values. Version-one saves use catalog defaults.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-32-8'><code class='signature'>public List&lt;SaveParticipantData&gt; participants = new List&lt;SaveParticipantData&gt;()</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveGameData-Runtime-Saving-SaveGameData-cs-32-8'>Permalink</a></p>
+<p class='comment'>Opaque payloads captured from registered save participants.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveManager'><summary><code>SaveManager</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveManager</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveManager : ToolkitSingleton&lt;SaveManager&gt;</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Runtime/Saving/SaveManager.cs, line 18</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager'>Permalink</a></p>
+<p class='comment'>Coordinates versioned save slots using the existing flag, scene-flow, and spawn systems.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-59-8'><code class='signature'>public bool IsLoading { get; private set; }</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 59</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-59-8'>Permalink</a></p>
+<p class='comment'>Whether a save restoration is currently running.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-62-8'><code class='signature'>public Func&lt;SaveGameData, string&gt; ValidateCheckpoint { get; set; }</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-62-8'>Permalink</a></p>
+<p class='comment'>Optional game-owned validation. Return an explanation to reject a checkpoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-64-8'><code class='signature'>public string LastError { get; private set; }</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-64-8'>Permalink</a></p>
+<p class='comment'>Last operation failure, suitable for menu feedback.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-65-8'><code class='signature'>public event Action&lt;int, bool, string&gt; LoadCompleted</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-65-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-67-8'><code class='signature'>public event Action LoadStarted</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-67-8'>Permalink</a></p>
+<p class='comment'>Raised after preflight succeeds and before destination loading begins.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-90-8'><code class='signature'>public void SetRequestChannel(SaveRequestChannel value)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-90-8'>Permalink</a></p>
+<p class='comment'>Changes the cross-scene channel and updates its live subscription.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs#L201'>Stolen &#183; Assets/Tests/PlayMode/StolenPauseMenuIntegrationTests.cs, line 201</a></figcaption><pre><code>saveManager.SetRequestChannel(channel);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-100-8'><code class='signature'>public bool SaveSlot(int slot, string arrivalSpawnId = &quot;&quot;)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 100</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-100-8'>Permalink</a></p>
+<p class='comment'>Saves the current world state to a slot.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SaveResumeContractTests.cs#L67'>Stolen &#183; Assets/Tests/Editor/SaveResumeContractTests.cs, line 67</a></figcaption><pre><code>Assert.That(manager.SaveSlot(0, &quot;&quot;), Is.False);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-135-8'><code class='signature'>public void SaveSlot(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 135</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-135-8'>Permalink</a></p>
+<p class='comment'>UnityEvent-friendly overload that saves without an arrival spawn.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SaveSlot(slot);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-138-8'><code class='signature'>public void LoadSlot(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 138</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-138-8'>Permalink</a></p>
+<p class='comment'>Begins restoring a save slot.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs#L61'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs, line 61</a></figcaption><pre><code>SaveManager.Instance.LoadSlot(0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-161-8'><code class='signature'>public bool DeleteSlot(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 161</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-161-8'>Permalink</a></p>
+<p class='comment'>Deletes a save slot if it exists.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SaveResumeContractTests.cs#L76'>Stolen &#183; Assets/Tests/Editor/SaveResumeContractTests.cs, line 76</a></figcaption><pre><code>manager.DeleteSlot(0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-194-8'><code class='signature'>public bool HasSave(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 194</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-194-8'>Permalink</a></p>
+<p class='comment'>Returns whether a valid slot file exists.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/SaveResumeContractTests.cs#L72'>Stolen &#183; Assets/Tests/Editor/SaveResumeContractTests.cs, line 72</a></figcaption><pre><code>Assert.That(manager.HasSave(0), Is.False, &quot;File existence alone must not enable Continue.&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-202-8'><code class='signature'>public bool TryGetSlotMetadata( int slot, out SaveSlotMetadata metadata, out string error)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 202</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-202-8'>Permalink</a></p>
+<p class='comment'>Reads lightweight slot information without changing gameplay state.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs#L47-L48'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs, lines 47–48</a></figcaption><pre><code>bool available = SaveManager.Instance != null &amp;&amp;
+    SaveManager.Instance.TryGetSlotMetadata(0, out _, out error);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-406-8'><code class='signature'>public static IEnumerator RunGuarded( IEnumerator routine, Action&lt;Exception&gt; onException)</code><p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Source, line 406</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager-Runtime-Saving-SaveManager-cs-406-8'>Permalink</a></p>
+<p class='comment'>Runs nested restoration/recovery iterators and reports exceptions to the caller.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs#L327-L329'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs, lines 327–329</a></figcaption><pre><code>SaveManager.RunGuarded(
+SceneFlowManager.Instance.TransitionToSceneRoutine(new SceneTransitionRequest(&quot;Intro&quot;)),
+exception =&gt; ShowNotice(&quot;Recovery failed. Restart the game to retry Continue. &quot; + exception.Message))</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveParticipantData'><summary><code>SaveParticipantData</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveParticipantData</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveParticipantData</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Runtime/Saving/SaveGameData.cs, line 36</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveParticipantData'>Permalink</a></p>
+<p class='comment'>Serialized state owned by one registered save participant.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-40-8'><code class='signature'>public string id</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-40-8'>Permalink</a></p>
+<p class='comment'>Stable ID of the participant that owns this payload.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-43-8'><code class='signature'>public string json</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-43-8'>Permalink</a></p>
+<p class='comment'>Participant-owned JSON payload.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-45-8'><code class='signature'>public SaveParticipantData(string id, string json)</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveParticipantData-Runtime-Saving-SaveGameData-cs-45-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 24</a></figcaption><pre><code>new SaveParticipantData(&quot;clock&quot;, &quot;{\&quot;hour\&quot;:3}&quot;)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveRequestChannel'><summary><code>SaveRequestChannel</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveRequestChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveRequestChannel : CrossSceneCommandChannel&lt;SaveCommand&gt;</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Runtime/Saving/SaveRequestChannel.cs, line 41</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveRequestChannel'>Permalink</a></p>
+<p class='comment'>Relays save-slot requests from scene content to the persistent save manager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-48-8'><code class='signature'>public event Action&lt;int, bool&gt; SaveCompleted</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-48-8'>Permalink</a></p>
+<p class='comment'>Raised after a requested save finishes, with its slot and success state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-56-8'><code class='signature'>public void RequestSave(int slot, string arrivalSpawnId = &quot;&quot;)</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-56-8'>Permalink</a></p>
+<p class='comment'>Requests a save in the supplied slot.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/RequestChannelTests.cs'>Tests/EditMode/RequestChannelTests.cs, line 167</a></figcaption><pre><code>saving.RequestSave(3, &quot;Entry&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-65-8'><code class='signature'>public void RequestLoad(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-65-8'>Permalink</a></p>
+<p class='comment'>Requests that the supplied slot be loaded.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 48</a></figcaption><pre><code>channel.RequestLoad(3);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-71-8'><code class='signature'>public void RequestDelete(int slot)</code><p class='source'><a href='../../../Runtime/Saving/SaveRequestChannel.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveRequestChannel-Runtime-Saving-SaveRequestChannel-cs-71-8'>Permalink</a></p>
+<p class='comment'>Requests deletion of the supplied slot.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 49</a></figcaption><pre><code>channel.RequestDelete(4);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata'><summary><code>SaveSlotMetadata</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveSlotMetadata</span></summary><div class='entry'>
+<code class='signature'>public sealed class SaveSlotMetadata</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Runtime/Saving/SaveGameData.cs, line 53</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata'>Permalink</a></p>
+<p class='comment'>Lightweight information suitable for displaying a save slot in UI.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-55-8'><code class='signature'>public SaveSlotMetadata( int slot, int version, string savedAtUtc, string activeScene, string arrivalSpawnId, bool recoveredFromBackup)</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-55-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, lines 66–72</a></figcaption><pre><code>var metadata = new SaveSlotMetadata(
+    2,
+    1,
+    &quot;2026-07-31T06:00:00.0000000Z&quot;,
+    &quot;House&quot;,
+    &quot;FrontDoor&quot;,
+    false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-72-8'><code class='signature'>public int Slot { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-72-8'>Permalink</a></p>
+<p class='comment'>Gets the zero-based slot index.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-75-8'><code class='signature'>public int Version { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-75-8'>Permalink</a></p>
+<p class='comment'>Gets the save schema version.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-78-8'><code class='signature'>public string SavedAtUtc { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 78</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-78-8'>Permalink</a></p>
+<p class='comment'>Gets the stored ISO-8601 UTC timestamp.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-81-8'><code class='signature'>public string ActiveScene { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-81-8'>Permalink</a></p>
+<p class='comment'>Gets the scene recorded by the save.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-84-8'><code class='signature'>public string ArrivalSpawnId { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 84</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-84-8'>Permalink</a></p>
+<p class='comment'>Gets the optional arrival spawn ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-87-8'><code class='signature'>public bool RecoveredFromBackup { get; }</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-87-8'>Permalink</a></p>
+<p class='comment'>Gets whether metadata was recovered from the backup file.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-90-8'><code class='signature'>public bool TryGetSavedAt(out DateTime savedAt)</code><p class='source'><a href='../../../Runtime/Saving/SaveGameData.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveSlotMetadata-Runtime-Saving-SaveGameData-cs-90-8'>Permalink</a></p>
+<p class='comment'>Attempts to parse the stored UTC timestamp.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SavingTests.cs'>Tests/EditMode/SavingTests.cs, line 74</a></figcaption><pre><code>Assert.That(metadata.TryGetSavedAt(out System.DateTime savedAt), Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Saving.SaveManager.SlotUnityEvent'><summary><code>SlotUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Saving.SaveManager.SlotUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class SlotUnityEvent : UnityEvent&lt;int&gt;</code>
+<p class='source'><a href='../../../Runtime/Saving/SaveManager.cs'>Runtime/Saving/SaveManager.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Saving.SaveManager.SlotUnityEvent'>Permalink</a></p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Handlers — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Handlers</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler'><code>QuietStatic.Toolkit.Flags.FlagHandler</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L659'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 659</a></figcaption><pre><code>introductionCompleteFlags?.SetFlags();</code></pre></figure></section>
+<section class='guide' id='guide-runtime-handlers-readme-md'><h1 id='guide-runtime-handlers-readme-md-handlers'>Handlers</h1>
+<p>Handlers are UnityEvent-friendly entry points between scene objects and persistent
+systems. They keep triggers, animation events, and UI buttons from referencing managers.</p>
+<pre><code class="language-text">system_callers
+|-- InteractionHandler
+|-- FlagHandler
+|-- ObjectiveHandler
+|-- SpawnHandler
+|-- PlayerLockHandler
+|-- PlayerLookHandler
+`-- AudioHandler
+</code></pre>
+<p>Place handlers in the persistent System or Player scene, or add the focused
+handler needed by a trigger. Drag a handler method into the scene object's
+UnityEvent. Prefer one handler responsibility per component.</p>
+<p>Use a ScriptableObject command channel instead when the caller and receiver live in
+independently loaded scenes and therefore cannot safely serialize references to one
+another. Channels carry commands; handlers remain the convenient local UnityEvent edge.</p>
+<p><code>SceneTransitionHandler</code> bridges successful interactions, buttons, animation events,
+and Timeline signals to the persistent scene-flow system. Prefer a configured
+<code>SceneFlowMap</code> connection and request channel; <code>Transition()</code> is the parameterless
+UnityEvent entry point. A mapped transition carries its connection ID into the
+destination definition; direct transitions can provide an optional custom condition ID.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioHandler'><summary><code>AudioHandler</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioHandler</span></summary><div class='entry'>
+<code class='signature'>public class AudioHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler'>Permalink</a></p>
+<p class='comment'>Exposes audio-manager requests to scene objects and optionally coordinates spawned sound effects and music around dialogue sessions.</p>
+<p class='comment'><strong>Remarks</strong> Place this on a persistent handler object. Scene buttons, triggers, and timelines can reference these methods without holding a direct reference to the music manager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-85-8'><code class='signature'>public void PlayMusic(AudioClip clip)</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-85-8'>Permalink</a></p>
+<p class='comment'>Starts a music clip immediately.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.PlayMusic(clip);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-91-8'><code class='signature'>public void StopMusic()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 91</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-91-8'>Permalink</a></p>
+<p class='comment'>Stops the current music immediately.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-97-8'><code class='signature'>public void PlayWithFade(AudioClip clip)</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 97</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-97-8'>Permalink</a></p>
+<p class='comment'>Transitions to a music clip using the manager&#39;s configured fade.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.PlayWithFade(clip);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-103-8'><code class='signature'>public void StopWithFade()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 103</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-103-8'>Permalink</a></p>
+<p class='comment'>Stops the current music using the manager&#39;s configured fade.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopWithFade();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-110-8'><code class='signature'>public void SetVolume(float volume)</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 110</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-110-8'>Permalink</a></p>
+<p class='comment'>Sets normalized music volume.</p>
+<p class='comment'><strong>volume</strong> Linear volume, normally from zero to one.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetVolume(volume);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-116-8'><code class='signature'>public void PauseSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 116</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-116-8'>Permalink</a></p>
+<p class='comment'>Pauses all currently playing EventSound3D instances spawned by SfxManager.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.PauseSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-122-8'><code class='signature'>public void ResumeSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 122</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-122-8'>Permalink</a></p>
+<p class='comment'>Resumes sounds paused by the last SfxManager pause request.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResumeSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-128-8'><code class='signature'>public void DespawnSpawnedSfx()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 128</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-128-8'>Permalink</a></p>
+<p class='comment'>Stops and despawns all EventSound3D instances spawned by SfxManager.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.DespawnSpawnedSfx();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-134-8'><code class='signature'>public void EnableSfxSpawning()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 134</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-134-8'>Permalink</a></p>
+<p class='comment'>Allows SfxManager to accept future EventSound3D spawn requests.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.EnableSfxSpawning();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-140-8'><code class='signature'>public void DisableSfxSpawning()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 140</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-140-8'>Permalink</a></p>
+<p class='comment'>Prevents SfxManager from accepting future EventSound3D spawn requests.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.DisableSfxSpawning();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-146-8'><code class='signature'>public void PauseMusic()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 146</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-146-8'>Permalink</a></p>
+<p class='comment'>Pauses background music while preserving its playback position.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.PauseMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-152-8'><code class='signature'>public void ResumeMusic()</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 152</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-152-8'>Permalink</a></p>
+<p class='comment'>Resumes background music when it is paused.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResumeMusic();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-158-8'><code class='signature'>public void SetRequestChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 158</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler-Runtime-Handlers-AudioHandler-cs-158-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent audio request channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetRequestChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler'><summary><code>DialoguePlayerLockHandler</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler</span></summary><div class='entry'>
+<code class='signature'>public class DialoguePlayerLockHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/PlayerLockHandler.cs'>Runtime/Handlers/PlayerLockHandler.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler'>Permalink</a></p>
+<p class='comment'>UnityEvent-facing bridge that locks or restores player movement and camera look together.</p>
+<p class='comment'><strong>Remarks</strong> Place this in the persistent Player scene and invoke it from dialogue or cutscene lifecycle events. Assign both references explicitly so locking remains deterministic across scenes.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler-Runtime-Handlers-PlayerLockHandler-cs-22-8'><code class='signature'>public void LockPlayer()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLockHandler.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler-Runtime-Handlers-PlayerLockHandler-cs-22-8'>Permalink</a></p>
+<p class='comment'>Disables player movement and camera look.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.LockPlayer();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler-Runtime-Handlers-PlayerLockHandler-cs-29-8'><code class='signature'>public void UnlockPlayer()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLockHandler.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.DialoguePlayerLockHandler-Runtime-Handlers-PlayerLockHandler-cs-29-8'>Permalink</a></p>
+<p class='comment'>Restores player movement and camera look.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.UnlockPlayer();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.FlagHandler'><summary><code>FlagHandler</code> <span class='source'>QuietStatic.Toolkit.Flags.FlagHandler</span></summary><div class='entry'>
+<code class='signature'>public class FlagHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Runtime/Handlers/FlagHandler.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler'>Permalink</a></p>
+<p class='comment'>Inspector-friendly helper for setting one or more progression flags.</p>
+<p class='comment'><strong>Remarks</strong> This component is useful when a flag needs to be set from a UnityEvent, animation event, trigger callback, timeline signal, button press, or other Inspector-configured interaction. The actual flag storage is handled by FlagManager. This class only forwards configured flag ids to the active FlagManager.Instance.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-30-8'><code class='signature'>public void SetValues()</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 30</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-30-8'>Permalink</a></p>
+<p class='comment'>Applies configured typed assignments through the shared manager.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetValues();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-37-8'><code class='signature'>public void SetBoolean(bool value)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-37-8'>Permalink</a></p>
+<p class='comment'>Sets the configured Boolean value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetBoolean(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-39-8'><code class='signature'>public void SetInteger(int value)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-39-8'>Permalink</a></p>
+<p class='comment'>Sets the configured Integer value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetInteger(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-41-8'><code class='signature'>public void SetFloat(float value)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-41-8'>Permalink</a></p>
+<p class='comment'>Sets the configured Float value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetFloat(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-43-8'><code class='signature'>public void SetString(string value)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-43-8'>Permalink</a></p>
+<p class='comment'>Sets the configured String value.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetString(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-45-8'><code class='signature'>public void AddInteger(int delta)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-45-8'>Permalink</a></p>
+<p class='comment'>Adds to the configured Integer value without overflow.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.AddInteger(delta);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-47-8'><code class='signature'>public void AddFloat(float delta)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 47</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-47-8'>Permalink</a></p>
+<p class='comment'>Adds to the configured Float value, rejecting nonfinite results.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.AddFloat(delta);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-58-8'><code class='signature'>public void SetFlags()</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-58-8'>Permalink</a></p>
+<p class='comment'>Sets every flag configured in flagsToSet.</p>
+<p class='comment'><strong>Remarks</strong> This method is designed to be called from the Inspector, such as from a UnityEvent, animation event, trigger event, or UI button. If no FlagManager singleton exists, the method safely does nothing.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L659'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 659</a></figcaption><pre><code>introductionCompleteFlags?.SetFlags();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-83-8'><code class='signature'>public void SetFlag(string flagId)</code><p class='source'><a href='../../../Runtime/Handlers/FlagHandler.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Flags.FlagHandler-Runtime-Handlers-FlagHandler-cs-83-8'>Permalink</a></p>
+<p class='comment'>Sets a single flag by id.</p>
+<p class='comment'><strong>flagId</strong> The flag id to set on the active FlagManager.</p>
+<p class='comment'><strong>Remarks</strong> This method is useful for UnityEvents or code paths that need to pass one specific flag id instead of using the preconfigured list. If no FlagManager singleton exists, the method safely does nothing.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetFlag(flagId);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Interactions.InteractionHandler'><summary><code>InteractionHandler</code> <span class='source'>QuietStatic.Toolkit.Interactions.InteractionHandler</span></summary><div class='entry'>
+<code class='signature'>public class InteractionHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/InteractionHandler.cs'>Runtime/Handlers/InteractionHandler.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHandler'>Permalink</a></p>
+<p class='comment'>Wrapper for communicating with the Interaction UI Manager to send and recieve messages</p>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-14-8'><code class='signature'>public void ShowPrompt(string prompt)</code><p class='source'><a href='../../../Runtime/Handlers/InteractionHandler.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-14-8'>Permalink</a></p>
+<p class='comment'>Shows a prompt under the HUD crosshair</p>
+<p class='comment'><strong>prompt</strong> What to show under the crosshair</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowPrompt(prompt);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-22-8'><code class='signature'>public void HidePrompt()</code><p class='source'><a href='../../../Runtime/Handlers/InteractionHandler.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-22-8'>Permalink</a></p>
+<p class='comment'>Hides the text under the HUD crosshair</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.HidePrompt();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-31-8'><code class='signature'>public void ShowMessage(string text)</code><p class='source'><a href='../../../Runtime/Handlers/InteractionHandler.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-31-8'>Permalink</a></p>
+<p class='comment'><strong>text</strong> </p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowMessage(text);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-41-8'><code class='signature'>public void ShowMessageForSeconds(string text, float seconds)</code><p class='source'><a href='../../../Runtime/Handlers/InteractionHandler.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Interactions.InteractionHandler-Runtime-Handlers-InteractionHandler-cs-41-8'>Permalink</a></p>
+<p class='comment'><strong>text</strong> </p>
+<p class='comment'><strong>seconds</strong> </p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ShowMessageForSeconds(text, seconds);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction'><summary><code>MusicDialogueAction</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction</span></summary><div class='entry'>
+<code class='signature'>public enum MusicDialogueAction</code>
+<p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 31</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-33-12'><code class='signature'>KeepPlaying</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-33-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-34-12'><code class='signature'>Pause</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-34-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-35-12'><code class='signature'>Stop</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.MusicDialogueAction-Runtime-Handlers-AudioHandler-cs-35-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.ObjectiveHandler'><summary><code>ObjectiveHandler</code> <span class='source'>QuietStatic.ObjectiveHandler</span></summary><div class='entry'>
+<code class='signature'>public class ObjectiveHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Runtime/Handlers/ObjectiveHandler.cs, line 9</a> · <a href='#api-QuietStatic.ObjectiveHandler'>Permalink</a></p>
+<p class='comment'>UnityEvent-facing bridge for objective lifecycle commands.</p>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-16-8'><code class='signature'>public void ActivateObjective()</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 16</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-16-8'>Permalink</a></p>
+<p class='comment'>Activates the definition assigned in the Inspector.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ActivateObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-22-8'><code class='signature'>public void ActivateObjective(ObjectiveDefinition definition)</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 22</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-22-8'>Permalink</a></p>
+<p class='comment'>Activates a supplied objective definition.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ActivateObjective(definition);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-28-8'><code class='signature'>public void CompleteObjective()</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 28</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-28-8'>Permalink</a></p>
+<p class='comment'>Completes the definition assigned in the Inspector.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CompleteObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-34-8'><code class='signature'>public void CompleteObjective(ObjectiveDefinition definition)</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 34</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-34-8'>Permalink</a></p>
+<p class='comment'>Completes a supplied objective definition.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CompleteObjective(definition);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-40-8'><code class='signature'>public void CompleteActiveObjective()</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 40</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-40-8'>Permalink</a></p>
+<p class='comment'>Completes whichever objective is currently active.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.CompleteActiveObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-46-8'><code class='signature'>public void ClearActiveObjective()</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 46</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-46-8'>Permalink</a></p>
+<p class='comment'>Clears the active objective without completing it.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ClearActiveObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-52-8'><code class='signature'>public void RefreshActiveObjective()</code><p class='source'><a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Source, line 52</a> · <a href='#api-QuietStatic.ObjectiveHandler-Runtime-Handlers-ObjectiveHandler-cs-52-8'>Permalink</a></p>
+<p class='comment'>Refreshes the active objective&#39;s presentation event.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RefreshActiveObjective();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.PlayerLookHandler'><summary><code>PlayerLookHandler</code> <span class='source'>QuietStatic.PlayerLookHandler</span></summary><div class='entry'>
+<code class='signature'>public class PlayerLookHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Runtime/Handlers/PlayerLookHandler.cs, line 9</a> · <a href='#api-QuietStatic.PlayerLookHandler'>Permalink</a></p>
+<p class='comment'>Scene-local bridge for making an NPC look toward the persistent player.</p>
+<div class='member' id='api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-18-8'><code class='signature'>public void LookAtPlayer()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Source, line 18</a> · <a href='#api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-18-8'>Permalink</a></p>
+<p class='comment'>Starts looking at the player registered with PlayerManager.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.LookAtPlayer();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-32-8'><code class='signature'>public void LookAtPlayerTemporarily()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Source, line 32</a> · <a href='#api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-32-8'>Permalink</a></p>
+<p class='comment'>Temporarily looks at the player without replacing the NPC&#39;s ordinary look target. Intended for dialogue and cutscenes.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.LookAtPlayerTemporarily();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-43-8'><code class='signature'>public void StopLookingAtPlayerTemporarily()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Source, line 43</a> · <a href='#api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-43-8'>Permalink</a></p>
+<p class='comment'>Ends a dialogue or cutscene look override.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopLookingAtPlayerTemporarily();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-49-8'><code class='signature'>public void StopLookingAtPlayer()</code><p class='source'><a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Source, line 49</a> · <a href='#api-QuietStatic.PlayerLookHandler-Runtime-Handlers-PlayerLookHandler-cs-49-8'>Permalink</a></p>
+<p class='comment'>Stops the configured NPC look-at behavior.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopLookingAtPlayer();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.SceneTransitionHandler'><summary><code>SceneTransitionHandler</code> <span class='source'>QuietStatic.SceneTransitionHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneTransitionHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Runtime/Handlers/SceneTransitionHandler.cs, line 17</a> · <a href='#api-QuietStatic.SceneTransitionHandler'>Permalink</a></p>
+<p class='comment'>UnityEvent-facing bridge for full scene transitions.</p>
+<p class='comment'><strong>Remarks</strong> Place this handler beside a button, interactable, animation, or other scene-owned event source. It sends requests through the configured channel so scene content does not directly depend on a persistent manager.</p>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-53-8'><code class='signature'>public event Action&lt;SceneTransitionResult&gt; TransitionFinished</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 53</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-53-8'>Permalink</a></p>
+<p class='comment'>Raised when the request submitted by this handler reaches a terminal success or failure result.</p>
+</div>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-56-8'><code class='signature'>public bool IsTransitionPending { get; }</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 56</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-56-8'>Permalink</a></p>
+<p class='comment'>Whether this handler is awaiting its submitted request&#39;s result.</p>
+</div>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-81-8'><code class='signature'>public void Transition()</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 81</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-81-8'>Permalink</a></p>
+<p class='comment'>Transitions using the configured map connection.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Transition();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-90-8'><code class='signature'>public bool TryTransition()</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 90</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-90-8'>Permalink</a></p>
+<p class='comment'>Attempts the configured transition and reports whether it was accepted for execution or completed successfully during dispatch.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs#L149'>Stolen &#183; Assets/Stolen/Scripts/Runtime/UI/TitleMenuActions.cs, line 149</a></figcaption><pre><code>startTransition.TryTransition()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-101-8'><code class='signature'>public void TransitionToConnection(string id)</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 101</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-101-8'>Permalink</a></p>
+<p class='comment'>Transitions using a connection ID supplied by a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.TransitionToConnection(id);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-110-8'><code class='signature'>public bool TryTransitionToConnection(string id)</code><p class='source'><a href='../../../Runtime/Handlers/SceneTransitionHandler.cs'>Source, line 110</a> · <a href='#api-QuietStatic.SceneTransitionHandler-Runtime-Handlers-SceneTransitionHandler-cs-110-8'>Permalink</a></p>
+<p class='comment'>Attempts a mapped transition and reports whether it was accepted for execution or completed successfully during dispatch.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.TryTransitionToConnection(id);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction'><summary><code>SfxDialogueAction</code> <span class='source'>QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction</span></summary><div class='entry'>
+<code class='signature'>public enum SfxDialogueAction</code>
+<p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Runtime/Handlers/AudioHandler.cs, line 24</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-26-12'><code class='signature'>KeepPlaying</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-26-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-27-12'><code class='signature'>Pause</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-27-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-28-12'><code class='signature'>Despawn</code><p class='source'><a href='../../../Runtime/Handlers/AudioHandler.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Audio.AudioHandler.SfxDialogueAction-Runtime-Handlers-AudioHandler-cs-28-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.SpawnHandler'><summary><code>SpawnHandler</code> <span class='source'>QuietStatic.SpawnHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class SpawnHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Handlers/SpawnHandler.cs'>Runtime/Handlers/SpawnHandler.cs, line 9</a> · <a href='#api-QuietStatic.SpawnHandler'>Permalink</a></p>
+<p class='comment'>Trigger- and UnityEvent-facing bridge for authoritative spawn commands.</p>
+<div class='member' id='api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-41-8'><code class='signature'>public void MoveConfiguredTarget()</code><p class='source'><a href='../../../Runtime/Handlers/SpawnHandler.cs'>Source, line 41</a> · <a href='#api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-41-8'>Permalink</a></p>
+<p class='comment'>Moves the configured target to the configured spawn point.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.MoveConfiguredTarget();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-49-8'><code class='signature'>public void MoveConfiguredTargetTo(string requestedSpawnId)</code><p class='source'><a href='../../../Runtime/Handlers/SpawnHandler.cs'>Source, line 49</a> · <a href='#api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-49-8'>Permalink</a></p>
+<p class='comment'>Moves the configured target to a supplied spawn point.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.MoveConfiguredTargetTo(requestedSpawnId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-57-8'><code class='signature'>public void SpawnConfiguredPrefab()</code><p class='source'><a href='../../../Runtime/Handlers/SpawnHandler.cs'>Source, line 57</a> · <a href='#api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-57-8'>Permalink</a></p>
+<p class='comment'>Instantiates the configured prefab at the configured point.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SpawnConfiguredPrefab();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-63-8'><code class='signature'>public void SpawnPrefab(GameObject requestedPrefab)</code><p class='source'><a href='../../../Runtime/Handlers/SpawnHandler.cs'>Source, line 63</a> · <a href='#api-QuietStatic.SpawnHandler-Runtime-Handlers-SpawnHandler-cs-63-8'>Permalink</a></p>
+<p class='comment'>Instantiates a supplied prefab at the configured point.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SpawnPrefab(requestedPrefab);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

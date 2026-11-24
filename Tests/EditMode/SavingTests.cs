@@ -83,15 +83,15 @@ namespace QuietStatic.Tests.EditMode
             var managerObject = new GameObject("Save Manager");
             SaveManager manager = managerObject.AddComponent<SaveManager>();
             SetPrivateField(manager, "filePrefix", prefix);
+            string path = Path.Combine(Application.persistentDataPath, $"{prefix}0.json");
+            string backupPath = path + ".bak";
 
             try
             {
                 Assert.That(manager.SaveSlot(0, "FirstSpawn"), Is.True);
+                byte[] firstSave = File.ReadAllBytes(path);
                 Assert.That(manager.SaveSlot(0, "SecondSpawn"), Is.True);
-
-                string path = Path.Combine(
-                    Application.persistentDataPath,
-                    $"{prefix}0.json");
+                Assert.That(File.ReadAllBytes(backupPath), Is.EqualTo(firstSave));
                 File.WriteAllText(path, "{not valid json");
 
                 bool found = manager.TryGetSlotMetadata(
@@ -102,6 +102,43 @@ namespace QuietStatic.Tests.EditMode
                 Assert.That(found, Is.True, error);
                 Assert.That(metadata.RecoveredFromBackup, Is.True);
                 Assert.That(metadata.ArrivalSpawnId, Is.EqualTo("FirstSpawn"));
+                Assert.That(File.ReadAllBytes(path), Is.EqualTo(firstSave));
+                Assert.That(File.ReadAllBytes(backupPath), Is.EqualTo(firstSave));
+                Assert.That(manager.TryGetSlotMetadata(0, out metadata, out error), Is.True, error);
+                Assert.That(metadata.RecoveredFromBackup, Is.False);
+                Assert.That(manager.DeleteSlot(0), Is.True);
+                Assert.That(File.Exists(path), Is.False);
+                Assert.That(File.Exists(backupPath), Is.False);
+            }
+            finally
+            {
+                manager.DeleteSlot(0);
+                Object.DestroyImmediate(managerObject);
+            }
+        }
+
+        [Test]
+        public void MetadataChecksProjectValidationOnBothPrimaryAndBackup()
+        {
+            string prefix = $"test_validation_{System.Guid.NewGuid():N}_";
+            var managerObject = new GameObject("Save Manager");
+            var manager = managerObject.AddComponent<SaveManager>();
+            SetPrivateField(manager, "filePrefix", prefix);
+            try
+            {
+                Assert.That(manager.SaveSlot(0, "Allowed"), Is.True);
+                Assert.That(manager.SaveSlot(0, "Rejected"), Is.True);
+                var checkedSpawns = new List<string>();
+                manager.ValidateCheckpoint = data =>
+                {
+                    checkedSpawns.Add(data.arrivalSpawnId);
+                    return data.arrivalSpawnId == "Rejected" ? "Spawn rejected by the project." : null;
+                };
+
+                Assert.That(manager.TryGetSlotMetadata(0, out SaveSlotMetadata metadata, out string error), Is.True, error);
+                Assert.That(checkedSpawns, Is.EqualTo(new[] { "Rejected", "Allowed" }));
+                Assert.That(metadata.RecoveredFromBackup, Is.True);
+                Assert.That(metadata.ArrivalSpawnId, Is.EqualTo("Allowed"));
             }
             finally
             {

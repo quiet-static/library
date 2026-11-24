@@ -42,6 +42,8 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public event Action<DialogueRunner> DialogueEnded;
 
+        internal event Action<DialogueSession> SessionEnded;
+
         [Header("Dialogue")]
         [Tooltip("Dialogue tree this runner should play.")]
         [SerializeField] private DialogueTree dialogueTree;
@@ -70,7 +72,9 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>
         /// Gets whether this runner is currently traversing dialogue.
         /// </summary>
-        public bool IsRunning { get; private set; }
+        public bool IsRunning => ActiveSession != null;
+
+        internal DialogueSession ActiveSession { get; private set; }
 
         /// <summary>Number of choices currently visible under active flag state.</summary>
         public int AvailableChoiceCount =>
@@ -106,17 +110,21 @@ namespace QuietStatic.Toolkit.Dialogue
         /// </summary>
         public void StartDialogue()
         {
-            if (dialogueTree == null || IsRunning)
-            {
-                return;
-            }
+            if (dialogueTree != null && !IsRunning)
+                StartDialogue(new DialogueSession(dialogueTree));
+        }
 
-            IsRunning = true;
+        internal void StartDialogue(DialogueSession session)
+        {
+            ActiveSession = session;
+            dialogueTree = session.Tree;
 
             DialogueStarted?.Invoke(this);
+            if (ActiveSession != session) return;
             onDialogueStarted?.Invoke();
 
-            GoToNode(dialogueTree.StartNodeIndex);
+            if (ActiveSession == session)
+                GoToNode(session.Tree.StartNodeIndex);
         }
 
         /// <summary>
@@ -156,10 +164,13 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            DialogueTree.Choice choice = CurrentNode.choices[choiceIndex];
+            DialogueSession session = ActiveSession;
+            DialogueTree.Node node = CurrentNode;
+            DialogueTree.Choice choice = node.choices[choiceIndex];
 
             SetFlags(choice.flagsToSet);
-            GoToOrEnd(choice.nextNodeIndex);
+            if (ActiveSession == session && CurrentNode == node)
+                GoToOrEnd(choice.nextNodeIndex);
         }
 
         /// <summary>Selects by visible UI index and maps back to authored choice order.</summary>
@@ -192,10 +203,12 @@ namespace QuietStatic.Toolkit.Dialogue
                 return;
             }
 
-            IsRunning = false;
+            DialogueSession ended = ActiveSession;
+            ActiveSession = null;
             CurrentNode = null;
             currentNodeIndex = -1;
 
+            SessionEnded?.Invoke(ended);
             DialogueEnded?.Invoke(this);
             onDialogueEnded?.Invoke();
         }
@@ -221,6 +234,8 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <param name="nodeIndex">Index of the node to visit.</param>
         private void GoToNode(int nodeIndex)
         {
+            DialogueSession session = ActiveSession;
+            if (session == null) return;
             if (dialogueTree == null || !dialogueTree.TryGetNode(nodeIndex, out DialogueTree.Node node))
             {
                 EndDialogue();
@@ -229,11 +244,14 @@ namespace QuietStatic.Toolkit.Dialogue
 
             currentNodeIndex = nodeIndex;
             CurrentNode = node;
+            session.HasEnteredNode = true;
 
-            SetFlags(CurrentNode.flagsToSetOnEnter);
+            SetFlags(node.flagsToSetOnEnter);
 
-            NodeChanged?.Invoke(this, CurrentNode);
-            onNodeChanged?.Invoke();
+            if (ActiveSession != session || CurrentNode != node) return;
+            NodeChanged?.Invoke(this, node);
+            if (ActiveSession == session && CurrentNode == node)
+                onNodeChanged?.Invoke();
         }
 
         /// <summary>

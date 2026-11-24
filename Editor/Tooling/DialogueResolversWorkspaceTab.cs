@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QuietStatic.Toolkit.Dialogue;
+using QuietStatic.Toolkit.Editor.Dialogue;
+using QuietStatic.Toolkit.Flags;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,6 +19,9 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         private readonly List<DialogueTreeResolver> resolvers = new();
         private readonly Dictionary<int, SerializedObject> serialized = new();
         private readonly HashSet<int> collapsed = new();
+        private readonly Dictionary<int, DialogueResolverPreview> previews = new();
+        private IReadOnlyDictionary<string, FlagValue> flagDefaults;
+        private bool hasFlagCatalogs;
         private IMGUIContainer gui;
         private int sceneHandle;
         private string search = string.Empty;
@@ -47,6 +52,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             if (!observing)
             {
                 EditorApplication.hierarchyChanged += Refresh;
+                EditorApplication.projectChanged += InvalidateFlagDefaults;
                 Undo.undoRedoPerformed += Refresh;
                 observing = true;
             }
@@ -57,6 +63,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         public void OnDeselected()
         {
             EditorApplication.hierarchyChanged -= Refresh;
+            EditorApplication.projectChanged -= InvalidateFlagDefaults;
             Undo.undoRedoPerformed -= Refresh;
             observing = false;
             DisposeEditors();
@@ -66,6 +73,7 @@ namespace QuietStatic.Toolkit.Editor.Tooling
         public void Refresh()
         {
             DisposeEditors();
+            InvalidateFlagDefaults();
             scenes.Clear();
             resolvers.Clear();
             for (int index = 0; index < SceneManager.sceneCount; index++)
@@ -80,6 +88,8 @@ namespace QuietStatic.Toolkit.Editor.Tooling
             resolvers.Sort((left, right) => string.Compare(
                 ObjectLabel(left), ObjectLabel(right), StringComparison.OrdinalIgnoreCase));
             collapsed.RemoveWhere(id => !resolvers.Any(item => item.GetInstanceID() == id));
+            foreach (int id in previews.Keys.Where(id => !resolvers.Any(item => item.GetInstanceID() == id)).ToArray())
+                previews.Remove(id);
             gui?.MarkDirtyRepaint();
         }
 
@@ -139,7 +149,30 @@ namespace QuietStatic.Toolkit.Editor.Tooling
                 // SerializedObject preserves Undo, prefab overrides, property drawers,
                 // and scene dirty state just like editing the component in the Inspector.
                 data.ApplyModifiedProperties();
+                DrawPreview(item, id);
             }
+        }
+
+        private void DrawPreview(DialogueTreeResolver resolver, int id)
+        {
+            previews.TryGetValue(id, out DialogueResolverPreview preview);
+            bool expanded = EditorGUILayout.Foldout(preview?.Expanded == true, "Rule Preview", true);
+            if (!expanded)
+            {
+                if (preview != null) preview.Expanded = false;
+                return;
+            }
+
+            if (preview == null) previews[id] = preview = new DialogueResolverPreview();
+            preview.Expanded = true;
+            flagDefaults ??= DialogueResolverPreview.LoadFlagDefaults(out hasFlagCatalogs);
+            preview.Draw(resolver, flagDefaults, hasFlagCatalogs);
+        }
+
+        private void InvalidateFlagDefaults()
+        {
+            flagDefaults = null;
+            gui?.MarkDirtyRepaint();
         }
 
         private bool Matches(DialogueTreeResolver item) => string.IsNullOrEmpty(search) ||

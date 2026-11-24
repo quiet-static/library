@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 namespace QuietStatic.Toolkit.Spawning
 {
@@ -13,7 +15,7 @@ namespace QuietStatic.Toolkit.Spawning
         /// <summary>Finds the active scene spawn point with an exact normalized ID.</summary>
         /// <param name="spawnId">Spawn-point identifier.</param>
         /// <returns>The matching spawn point, or null when none is active.</returns>
-        public static SpawnPoint FindSpawnPoint(string spawnId)
+        public static SpawnPoint FindSpawnPoint(string spawnId, ISet<Scene> excludedScenes = null)
         {
             if (string.IsNullOrWhiteSpace(spawnId))
             {
@@ -26,6 +28,7 @@ namespace QuietStatic.Toolkit.Spawning
                 .FirstOrDefault(
                     spawnPoint =>
                         spawnPoint != null &&
+                        excludedScenes?.Contains(spawnPoint.gameObject.scene) != true &&
                         string.Equals(
                             spawnPoint.Id,
                             normalizedId,

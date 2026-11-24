@@ -342,6 +342,34 @@ namespace QuietStatic.Tests.PlayMode
             Assert.That(finishedCount, Is.Zero);
         }
 
+        [UnityTest]
+        public IEnumerator SequenceAppliesCharacterActionsBetweenStartAndFinishCallbacks()
+        {
+            var actor = Track(new GameObject("Actor"));
+            var marker = Track(new GameObject("Placement"));
+            marker.transform.position = new Vector3(3f, 1f, -2f);
+            var controller = Track(new GameObject("Character Controller")).AddComponent<CutsceneCharacterController>();
+            SetField(controller, "characters", new List<CutsceneCharacterController.CutsceneCharacterEntry>
+            { new() { characterId = "actor", existingInstance = actor } });
+            var step = new CutsceneSequenceRunner.Step
+            {
+                characterController = controller,
+                characterActions = new List<CutsceneCharacterController.CharacterStepAction>
+                { new() { characterId = "actor", spawnPoint = marker.transform, setActive = false } },
+                onStepStarted = new UnityEvent(), onStepFinished = new UnityEvent()
+            };
+            Vector3 atStart = Vector3.one;
+            Vector3 atFinish = Vector3.one;
+            step.onStepStarted.AddListener(() => atStart = actor.transform.position);
+            step.onStepFinished.AddListener(() => atFinish = actor.transform.position);
+            var runner = CreateSequenceRunner(step);
+            runner.Play();
+            for (int frame = 0; frame < 10 && runner.IsRunning; frame++) yield return null;
+            Assert.That(atStart, Is.EqualTo(Vector3.zero));
+            Assert.That(atFinish, Is.EqualTo(marker.transform.position));
+            Assert.That(runner.IsRunning, Is.False);
+        }
+
         private CutsceneSequenceRunner CreateSequenceRunner(
             params CutsceneSequenceRunner.Step[] steps)
         {

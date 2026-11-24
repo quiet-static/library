@@ -1,6 +1,6 @@
 # Quiet Static Toolkit
 
-A reusable Unity 6 toolkit for narrative, horror, and exploration games. The package
+A reusable Unity 6.3 toolkit for narrative, horror, and exploration games. The package
 provides focused components for player control, interactions, flags, objectives,
 dialogue, cameras, audio, cutscenes, additive scene flow, and common UI.
 
@@ -79,13 +79,15 @@ Inspector-facing IDs should come from the provided databases.
    Content** to narrow interactions and dialogue to a loaded scene or GameObject subtree,
    and use **Clutter** to author optional flavor-text inspections.
 
-Every runtime module contains a README with setup, hierarchy examples, and integration
-notes. API comments and Inspector tooltips document individual components and fields.
+The [runtime module index](Runtime/README.md) links to setup and integration notes.
+API comments and Inspector tooltips document individual components and fields.
 
-Open [the Quiet Static Library reference](docs/index.html) in your browser to search
-the Code and Assets tabs.
+Open the [offline Quiet Static Library reference](docs/index.html) in your browser.
+The Code tab searches public APIs, Assets catalogs bundled Unity assets and samples,
+and Guides contains the rendered setup and authoring documentation. Build instructions
+are in the [guide index](docs/Guides/README.md).
 
 For step-by-step scene recipes, see
-[`docs/Runtime/CommonComponentRecipes.md`](docs/Runtime/CommonComponentRecipes.md). It covers
+[`docs/Guides/Runtime/CommonComponentRecipes.md`](docs/Guides/Runtime/CommonComponentRecipes.md). It covers
 basic and flag-gated interactions, hold and autonomous progress, dialogue, staged behavior,
 object states, reusable prefabs, and troubleshooting.

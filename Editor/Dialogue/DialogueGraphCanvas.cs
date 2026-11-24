@@ -14,9 +14,10 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
     {
         private sealed class NodeView : Node
         {
-            internal NodeView(DialogueGraphNode model, DialogueTree.Node source)
+            internal NodeView(DialogueGraphNode model, DialogueTree.Node source, Action<string> select)
             {
                 NodeId = model.StableId;
+                RegisterCallback<MouseDownEvent>(evt => { if (evt.button == 0) select?.Invoke(NodeId); });
                 title = (model.IsEntry ? "ENTRY • " : string.Empty) + model.StableId;
                 viewDataKey = model.StableId;
                 Input = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
@@ -60,6 +61,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         internal event Action Changed;
+        internal event Action<string> NodeSelected;
         internal Func<string, bool> DeleteNodeRequested;
 
         internal bool FrameNode(string query)
@@ -86,7 +88,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 var views = new Dictionary<string, NodeView>(StringComparer.Ordinal);
                 foreach (DialogueGraphNode node in model.Nodes)
                 {
-                    var view = new NodeView(node, tree.Nodes[node.Index]);
+                    var view = new NodeView(node, tree.Nodes[node.Index], id => NodeSelected?.Invoke(id));
                     Vector2 position = GraphLayoutStore.instance.TryGetPosition(tree, node.StableId, out Vector2 saved)
                         ? saved : new Vector2((node.Index % 4) * 310f, (node.Index / 4) * 210f);
                     view.SetPosition(new Rect(position, new Vector2(250f, 150f)));
@@ -107,7 +109,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter) =>
-            ports.Where(port => port != startPort && port.node != startPort.node && port.direction != startPort.direction).ToList();
+            tree == null || tree.GeneratedFromJson ? new List<Port>() :
+            ports.Where(port => port != startPort && port.direction != startPort.direction).ToList();
 
         private GraphViewChange HandleGraphChanged(GraphViewChange change)
         {
@@ -115,14 +118,27 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             foreach (NodeView node in change.movedElements?.OfType<NodeView>() ?? Enumerable.Empty<NodeView>())
                 GraphLayoutStore.instance.SetPosition(tree, node.NodeId, node.GetPosition().position);
 
-            foreach (NodeView node in change.elementsToRemove?.OfType<NodeView>() ?? Enumerable.Empty<NodeView>())
-                DeleteNodeRequested?.Invoke(node.NodeId);
+            if (tree.GeneratedFromJson)
+            {
+                change.elementsToRemove?.Clear();
+                change.edgesToCreate?.Clear();
+                return change;
+            }
+
+            if (change.elementsToRemove?.OfType<NodeView>().Any() == true)
+            {
+                foreach (NodeView deleted in change.elementsToRemove.OfType<NodeView>().ToArray())
+                    DeleteNodeRequested?.Invoke(deleted.NodeId);
+                change.elementsToRemove.Clear();
+                Changed?.Invoke();
+                return change;
+            }
 
             Edge[] removed = change.elementsToRemove?.OfType<Edge>().ToArray() ?? Array.Empty<Edge>();
             Edge[] created = change.edgesToCreate?.ToArray() ?? Array.Empty<Edge>();
             foreach (Edge edge in removed)
             {
-                if (created.Length > 0) continue;
+                if (created.Any(replacement => replacement.output == edge.output)) continue;
                 SetTarget(edge.output, null);
             }
             foreach (Edge edge in created)

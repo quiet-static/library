@@ -150,6 +150,13 @@ namespace QuietStatic.Toolkit.Cinematics
             yield return FadeRoutine(0f, duration);
         }
 
+        internal IEnumerator ReplaceFadeRoutine(ScreenFadeTarget target, float? duration)
+        {
+            StopActiveFade();
+            bool toBlack = target == ScreenFadeTarget.Black;
+            yield return FadeRoutine(toBlack ? 1f : 0f, duration ?? (toBlack ? fadeToBlackDuration : fadeToClearDuration));
+        }
+
         /// <summary>
         /// Immediately sets the fade overlay alpha.
         /// </summary>

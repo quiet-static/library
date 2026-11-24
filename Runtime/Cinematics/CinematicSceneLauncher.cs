@@ -13,6 +13,7 @@ namespace QuietStatic.Toolkit.Cinematics
         [SerializeField] private SceneReference targetScene = new();
         [Tooltip("Must match the Location ID on the destination Cinematic Scene Player.")]
         [SerializeField] private string locationId;
+        [CinematicId]
         [Tooltip("Stable ID from the destination player's Cinematic Database.")]
         [SerializeField] private string cinematicId;
 

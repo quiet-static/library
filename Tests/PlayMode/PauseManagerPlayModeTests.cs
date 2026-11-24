@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.State;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -11,6 +12,15 @@ namespace QuietStatic.Tests.PlayMode
     public sealed class PauseManagerPlayModeTests
     {
         private readonly List<GameObject> createdObjects = new();
+        private CursorLockMode originalCursorLock;
+        private bool originalCursorVisible;
+
+        [SetUp]
+        public void CaptureCursorState()
+        {
+            originalCursorLock = Cursor.lockState;
+            originalCursorVisible = Cursor.visible;
+        }
 
         [UnityTearDown]
         public IEnumerator TearDown()
@@ -27,6 +37,8 @@ namespace QuietStatic.Tests.PlayMode
 
             createdObjects.Clear();
             yield return null;
+            Cursor.lockState = originalCursorLock;
+            Cursor.visible = originalCursorVisible;
         }
 
         [UnityTest]
@@ -107,11 +119,97 @@ namespace QuietStatic.Tests.PlayMode
             }
         }
 
+        [UnityTest]
+        public IEnumerator OverlappingPauseAndLoadRestoreTimeAfterBothRelease()
+        {
+            CreateManagers("Playing", pauseTimeScale: true, out _, out PauseManager pauseManager);
+            Time.timeScale = 0.65f;
+
+            pauseManager.PauseGame();
+            using (TimeScaleFreeze load = TimeScaleFreeze.Acquire())
+            {
+                pauseManager.ResumeGame();
+                Assert.That(Time.timeScale, Is.Zero);
+            }
+            Assert.That(Time.timeScale, Is.EqualTo(0.65f));
+
+            using (TimeScaleFreeze load = TimeScaleFreeze.Acquire())
+            {
+                pauseManager.PauseGame();
+            }
+            Assert.That(Time.timeScale, Is.Zero);
+
+            pauseManager.enabled = false;
+            Assert.That(Time.timeScale, Is.EqualTo(0.65f));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ForceResumeSetsNormalTimeAfterOtherFreezeReleases()
+        {
+            CreateManagers("Playing", pauseTimeScale: true, out _, out PauseManager pauseManager);
+            Time.timeScale = 0.65f;
+            pauseManager.PauseGame();
+
+            using (TimeScaleFreeze load = TimeScaleFreeze.Acquire())
+            {
+                pauseManager.ForceResumeTime();
+                Assert.That(Time.timeScale, Is.Zero);
+            }
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ClosingDialogueWhilePausedKeepsCursorAvailableUntilResume()
+        {
+            CreateManagers("Playing", pauseTimeScale: false, out _, out PauseManager pauseManager, manageCursor: true);
+            DialogueUIManager dialogue = CreateDialogueUi();
+
+            dialogue.ShowDialogueUI();
+            pauseManager.PauseGame();
+            dialogue.HideDialogueUI();
+            Assert.That(Cursor.visible, Is.True);
+
+            pauseManager.ResumeGame();
+            Assert.That(Cursor.visible, Is.False);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ExternalStateChangeReleasesPauseOwnershipWhileDialogueRetainsItsClaim()
+        {
+            CreateManagers("Playing", pauseTimeScale: false, out GameStateManager gameState,
+                out PauseManager pauseManager, manageCursor: true);
+            DialogueUIManager dialogue = CreateDialogueUi();
+            SetField(pauseManager, "pausedState", " Paused ");
+
+            pauseManager.PauseGame();
+            dialogue.ShowDialogueUI();
+            gameState.SetState("Cutscene");
+            Assert.That(Cursor.visible, Is.True);
+
+            dialogue.enabled = false;
+            Assert.That(Cursor.visible, Is.False);
+            yield return null;
+        }
+
+        private DialogueUIManager CreateDialogueUi()
+        {
+            GameObject owner = Track(new GameObject("Dialogue UI"));
+            owner.SetActive(false);
+            var dialogue = owner.AddComponent<DialogueUIManager>();
+            SetField(dialogue, "hiddenCursorLockMode", CursorLockMode.None);
+            owner.SetActive(true);
+            return dialogue;
+        }
+
         private void CreateManagers(
             string startingState,
             bool pauseTimeScale,
             out GameStateManager gameState,
-            out PauseManager pauseManager)
+            out PauseManager pauseManager,
+            bool manageCursor = false)
         {
             GameObject gameStateObject = Track(new GameObject("Game State Manager"));
             gameStateObject.SetActive(false);
@@ -125,7 +223,8 @@ namespace QuietStatic.Tests.PlayMode
             SetField(pauseManager, "gameStateManager", gameState);
             SetField(pauseManager, "usePauseScene", false);
             SetField(pauseManager, "pauseTimeScale", pauseTimeScale);
-            SetField(pauseManager, "manageCursor", false);
+            SetField(pauseManager, "manageCursor", manageCursor);
+            SetField(pauseManager, "gameplayCursorLockMode", CursorLockMode.None);
             pauseObject.SetActive(true);
         }
 

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor / Cinematics — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Editor / Cinematics</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands'><code>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/CinematicTreeSetup.cs#L80'>Stolen &#183; Assets/Stolen/Scripts/Editor/CinematicTreeSetup.cs, line 80</a></figcaption><pre><code>CinematicTreeCommands.ImportJson(tree, File.ReadAllText(sourcePath));</code></pre></figure></section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicCutsceneCameraDirectorEditor'><summary><code>CinematicCutsceneCameraDirectorEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicCutsceneCameraDirectorEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicCutsceneCameraDirectorEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicCutsceneCameraDirectorEditor'>Permalink</a></p>
+<p class='comment'>Adds validation and undoable edit-mode shot placement to the camera director.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicCutsceneCameraDirectorEditor-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-17-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicCutsceneCameraDirectorEditor-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-17-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder'><summary><code>CinematicExamplePrefabBuilder</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder</span></summary><div class='entry'>
+<code class='signature'>public static class CinematicExamplePrefabBuilder</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicExamplePrefabBuilder.cs'>Editor/Cinematics/CinematicExamplePrefabBuilder.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder'>Permalink</a></p>
+<p class='comment'>Generates working example assets for cinematics and readable interactions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder-Editor-Cinematics-CinematicExamplePrefabBuilder-cs-18-8'><code class='signature'>public static void Generate()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicExamplePrefabBuilder.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder-Editor-Cinematics-CinematicExamplePrefabBuilder-cs-18-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>CinematicExamplePrefabBuilder.Generate();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder-Editor-Cinematics-CinematicExamplePrefabBuilder-cs-24-8'><code class='signature'>public static void GenerateSilently()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicExamplePrefabBuilder.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicExamplePrefabBuilder-Editor-Cinematics-CinematicExamplePrefabBuilder-cs-24-8'>Permalink</a></p>
+<p class='comment'>Generates examples without displaying a completion dialog.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>CinematicExamplePrefabBuilder.GenerateSilently();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring'><summary><code>CinematicShotAuthoring</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring</span></summary><div class='entry'>
+<code class='signature'>public static class CinematicShotAuthoring</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicShotAuthoring.cs'>Editor/Cinematics/CinematicShotAuthoring.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring'>Permalink</a></p>
+<p class='comment'>Undoable authoring operations on a director&#39;s existing scene-local shot list.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-15-8'><code class='signature'>public static int Create(CinematicCutsceneCameraDirector director, string name, Vector3 position, Quaternion rotation, float fieldOfView, int copyFrom = -1)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotAuthoring.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-15-8'>Permalink</a></p>
+<p class='comment'>Creates an independent marker and shot using a world-space camera pose.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = CinematicShotAuthoring.Create(director, name, position, rotation, fieldOfView, copyFrom);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-58-8'><code class='signature'>public static int Duplicate(CinematicCutsceneCameraDirector director, int index)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotAuthoring.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-58-8'>Permalink</a></p>
+<p class='comment'>Duplicates a shot without sharing its editable position marker or stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicShotEditorTests.cs'>Tests/EditMode/CinematicShotEditorTests.cs, line 294</a></figcaption><pre><code>int index = CinematicShotAuthoring.Duplicate(director, 0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-73-8'><code class='signature'>public static void Capture(CinematicCutsceneCameraDirector director, int index, Vector3 position, Quaternion rotation, float fieldOfView)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotAuthoring.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotAuthoring-Editor-Cinematics-CinematicShotAuthoring-cs-73-8'>Permalink</a></p>
+<p class='comment'>Replaces a shot&#39;s framing with a camera pose, retaining its stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicShotEditorTests.cs'>Tests/EditMode/CinematicShotEditorTests.cs, line 270</a></figcaption><pre><code>CinematicShotAuthoring.Capture(director, 0, new Vector3(8, 2, 9), Quaternion.Euler(0, 90, 0), 28);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow'><summary><code>CinematicShotEditorWindow</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicShotEditorWindow : EditorWindow</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicShotEditorWindow.cs'>Editor/Cinematics/CinematicShotEditorWindow.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow'>Permalink</a></p>
+<p class='comment'>Creates, edits, and previews shared cinematic shots in loaded scenes.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow-Editor-Cinematics-CinematicShotEditorWindow-cs-19-8'><code class='signature'>public static void Open()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotEditorWindow.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow-Editor-Cinematics-CinematicShotEditorWindow-cs-19-8'>Permalink</a></p>
+<p class='comment'>Opens the shot authoring tool from the Content Workspace.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>CinematicShotEditorWindow.Open();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow-Editor-Cinematics-CinematicShotEditorWindow-cs-22-8'><code class='signature'>public static void Open(CinematicCutsceneCameraDirector target)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotEditorWindow.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotEditorWindow-Editor-Cinematics-CinematicShotEditorWindow-cs-22-8'>Permalink</a></p>
+<p class='comment'>Opens the tool with a specific scene camera director selected.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs, line 32</a></figcaption><pre><code>CinematicShotEditorWindow.Open(director);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer'><summary><code>CinematicShotIdDrawer</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicShotIdDrawer : PropertyDrawer</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicShotIdDrawer.cs'>Editor/Cinematics/CinematicShotIdDrawer.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer'>Permalink</a></p>
+<p class='comment'>Draws stable cinematic shot IDs with an edit-mode preview action.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer-Editor-Cinematics-CinematicShotIdDrawer-cs-16-8'><code class='signature'>public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotIdDrawer.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer-Editor-Cinematics-CinematicShotIdDrawer-cs-16-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnGUI(position, property, label);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer-Editor-Cinematics-CinematicShotIdDrawer-cs-95-8'><code class='signature'>public static SerializedProperty FindSibling(SerializedProperty property, string siblingFieldName)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicShotIdDrawer.cs'>Source, line 95</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotIdDrawer-Editor-Cinematics-CinematicShotIdDrawer-cs-95-8'>Permalink</a></p>
+<p class='comment'>Finds a field beside another serialized field, including nested array data.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicShotEditorTests.cs'>Tests/EditMode/CinematicShotEditorTests.cs, lines 212–215</a></figcaption><pre><code>Assert.That(
+    CinematicShotIdDrawer.FindSibling(stepShot, &quot;cameraDirector&quot;)
+        .propertyPath,
+    Is.EqualTo(&quot;steps.Array.data[0].cameraDirector&quot;));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility'><summary><code>CinematicShotPreviewUtility</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility</span></summary><div class='entry'>
+<code class='signature'>public static class CinematicShotPreviewUtility</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs, line 116</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility'>Permalink</a></p>
+<p class='comment'>Shared undoable edit-mode operation used by cinematic shot inspectors.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-122-8'><code class='signature'>public static bool MoveCameraToShot( CinematicCutsceneCameraDirector director, string shotId)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Source, line 122</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-122-8'>Permalink</a></p>
+<p class='comment'>Moves a director&#39;s cutscene camera to a configured shot.</p>
+<p class='comment'><strong>director</strong> Director that owns the requested shot.</p>
+<p class='comment'><strong>shotId</strong> Stable ID of the requested shot.</p>
+<p class='comment'><strong>Returns</strong> True when the shot was found and applied.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = CinematicShotPreviewUtility.MoveCameraToShot(director, shotId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-139-8'><code class='signature'>public static bool MoveCameraToShot( CinematicCutsceneCameraDirector director, int shotIndex)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicCutsceneCameraDirectorEditor.cs'>Source, line 139</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicShotPreviewUtility-Editor-Cinematics-CinematicCutsceneCameraDirectorEditor-cs-139-8'>Permalink</a></p>
+<p class='comment'>Moves a director&#39;s cutscene camera to a configured shot.</p>
+<p class='comment'><strong>director</strong> Director that owns the requested shot.</p>
+<p class='comment'><strong>shotIndex</strong> Zero-based index of the requested shot.</p>
+<p class='comment'><strong>Returns</strong> True when the shot was usable and applied.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = CinematicShotPreviewUtility.MoveCameraToShot(director, shotIndex);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands'><summary><code>CinematicTreeCommands</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands</span></summary><div class='entry'>
+<code class='signature'>public static class CinematicTreeCommands</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Editor/Cinematics/CinematicTreeCommands.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands'>Permalink</a></p>
+<p class='comment'>Undo-aware linear authoring and validated cinematic-tree JSON interchange.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-20-8'><code class='signature'>public static void Add(CinematicTree tree)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-20-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicTreeAuthoringTests.cs'>Tests/EditMode/CinematicTreeAuthoringTests.cs, line 18</a></figcaption><pre><code>CinematicTreeCommands.Add(tree);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-33-8'><code class='signature'>public static void Duplicate(CinematicTree tree, int index)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-33-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicTreeAuthoringTests.cs'>Tests/EditMode/CinematicTreeAuthoringTests.cs, line 24</a></figcaption><pre><code>CinematicTreeCommands.Duplicate(tree, 0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-43-8'><code class='signature'>public static void Move(CinematicTree tree, int from, int to)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-43-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicTreeAuthoringTests.cs'>Tests/EditMode/CinematicTreeAuthoringTests.cs, line 21</a></figcaption><pre><code>CinematicTreeCommands.Move(tree, 0, 1);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-51-8'><code class='signature'>public static void Delete(CinematicTree tree, int index)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-51-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicTreeAuthoringTests.cs'>Tests/EditMode/CinematicTreeAuthoringTests.cs, line 29</a></figcaption><pre><code>CinematicTreeCommands.Delete(tree, 0);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-67-8'><code class='signature'>public static string ExportJson(CinematicTree tree)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-67-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/CinematicTreeAuthoringTests.cs'>Tests/EditMode/CinematicTreeAuthoringTests.cs, line 37</a></figcaption><pre><code>string exported = CinematicTreeCommands.ExportJson(tree);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-71-8'><code class='signature'>public static void ImportJson(CinematicTree tree, string json)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeCommands.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCommands-Editor-Cinematics-CinematicTreeCommands-cs-71-8'>Permalink</a></p>
+<p class='comment'>Validates the entire import before changing the target. IDs and order survive round trips.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Editor/CinematicTreeSetup.cs#L80'>Stolen &#183; Assets/Stolen/Scripts/Editor/CinematicTreeSetup.cs, line 80</a></figcaption><pre><code>CinematicTreeCommands.ImportJson(tree, File.ReadAllText(sourcePath));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer'><summary><code>CinematicTreeCueDrawer</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicTreeCueDrawer : PropertyDrawer</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Editor/Cinematics/CinematicTreePlayerEditor.cs, line 28</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer-Editor-Cinematics-CinematicTreePlayerEditor-cs-31-8'><code class='signature'>public override float GetPropertyHeight(SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer-Editor-Cinematics-CinematicTreePlayerEditor-cs-31-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.GetPropertyHeight(property, label);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer-Editor-Cinematics-CinematicTreePlayerEditor-cs-33-8'><code class='signature'>public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeCueDrawer-Editor-Cinematics-CinematicTreePlayerEditor-cs-33-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnGUI(position, property, label);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeInspector'><summary><code>CinematicTreeInspector</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeInspector</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicTreeInspector : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Editor/Cinematics/CinematicTreeWorkspaceWindow.cs, line 187</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeInspector'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeInspector-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-190-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 190</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeInspector-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-190-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter'><summary><code>CinematicTreeJsonImporter</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter</span></summary><div class='entry'>
+<code class='signature'>public static class CinematicTreeJsonImporter</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreeJsonImporter.cs'>Editor/Cinematics/CinematicTreeJsonImporter.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter'>Permalink</a></p>
+<p class='comment'>Imports Cinematic Tree JSON while preserving an existing asset GUID.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter-Editor-Cinematics-CinematicTreeJsonImporter-cs-12-8'><code class='signature'>public static void ValidateJson(string json)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeJsonImporter.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter-Editor-Cinematics-CinematicTreeJsonImporter-cs-12-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 429</a></figcaption><pre><code>CinematicTreeJsonImporter.ValidateJson(json);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter-Editor-Cinematics-CinematicTreeJsonImporter-cs-19-8'><code class='signature'>public static CinematicTree Import(TextAsset source, string outputFolder)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeJsonImporter.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeJsonImporter-Editor-Cinematics-CinematicTreeJsonImporter-cs-19-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/NarrativeBatchJsonImporter.cs'>Editor/NarrativeBatchJsonImporter.cs, line 322</a></figcaption><pre><code>CinematicTreeJsonImporter.Import(source, plan.NarrativeOutputFolder)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreePlayerEditor'><summary><code>CinematicTreePlayerEditor</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreePlayerEditor</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicTreePlayerEditor : UnityEditor.Editor</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Editor/Cinematics/CinematicTreePlayerEditor.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreePlayerEditor'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreePlayerEditor-Editor-Cinematics-CinematicTreePlayerEditor-cs-12-8'><code class='signature'>public override void OnInspectorGUI()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreePlayerEditor-Editor-Cinematics-CinematicTreePlayerEditor-cs-12-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab'><summary><code>CinematicTreesWorkspaceTab</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicTreesWorkspaceTab : AssetCatalogWorkspaceTab</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Editor/Cinematics/CinematicTreeWorkspaceWindow.cs, line 197</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-200-8'><code class='signature'>public override string Id { get; }</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 200</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-200-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-201-8'><code class='signature'>public override string DisplayName { get; }</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 201</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-201-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-202-8'><code class='signature'>public override int Order { get; }</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 202</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreesWorkspaceTab-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-202-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow'><summary><code>CinematicTreeWorkspaceWindow</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow</span></summary><div class='entry'>
+<code class='signature'>public sealed class CinematicTreeWorkspaceWindow : EditorWindow</code>
+<p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Editor/Cinematics/CinematicTreeWorkspaceWindow.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow'>Permalink</a></p>
+<p class='comment'>Searchable cinematic-tree browser, linear graph, beat editor and typewriter preview.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-23-8'><code class='signature'>public static void Open()</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-23-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>CinematicTreeWorkspaceWindow.Open();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-25-8'><code class='signature'>public static void Open(CinematicTree value)</code><p class='source'><a href='../../../Editor/Cinematics/CinematicTreeWorkspaceWindow.cs'>Source, line 25</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CinematicTreeWorkspaceWindow-Editor-Cinematics-CinematicTreeWorkspaceWindow-cs-25-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Cinematics/CinematicTreePlayerEditor.cs'>Editor/Cinematics/CinematicTreePlayerEditor.cs, line 16</a></figcaption><pre><code>CinematicTreeWorkspaceWindow.Open(player.Tree);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Cinematics.CutsceneExplorerWindow'><summary><code>CutsceneExplorerWindow</code> <span class='source'>QuietStatic.Toolkit.Editor.Cinematics.CutsceneExplorerWindow</span></summary><div class='entry'>
+<code class='signature'>public sealed class CutsceneExplorerWindow : EditorWindow</code>
+<p class='source'><a href='../../../Editor/Cinematics/CutsceneExplorerWindow.cs'>Editor/Cinematics/CutsceneExplorerWindow.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CutsceneExplorerWindow'>Permalink</a></p>
+<p class='comment'>Browses, validates, creates, and previews cutscene runners.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Cinematics.CutsceneExplorerWindow-Editor-Cinematics-CutsceneExplorerWindow-cs-22-8'><code class='signature'>public static void Open()</code><p class='source'><a href='../../../Editor/Cinematics/CutsceneExplorerWindow.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Editor.Cinematics.CutsceneExplorerWindow-Editor-Cinematics-CutsceneExplorerWindow-cs-22-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>CutsceneExplorerWindow.Open();</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

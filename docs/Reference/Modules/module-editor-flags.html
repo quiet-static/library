@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor / Flags — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Editor / Flags</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter'><code>QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter</code></a>.</p><figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/FlagCatalogJsonExporterTests.cs'>Tests/EditMode/FlagCatalogJsonExporterTests.cs, lines 105–108</a></figcaption><pre><code>string exportedPath = FlagCatalogJsonExporter.Export(
+    database,
+    outputPath,
+    &quot;game_flags&quot;);</code></pre></figure></section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter'><summary><code>FlagCatalogJsonExporter</code> <span class='source'>QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter</span></summary><div class='entry'>
+<code class='signature'>public static class FlagCatalogJsonExporter</code>
+<p class='source'><a href='../../../Editor/Flags/FlagCatalogJsonExporter.cs'>Editor/Flags/FlagCatalogJsonExporter.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter'>Permalink</a></p>
+<p class='comment'>Exports a Unity FlagDatabase as a version-one narrative flag catalog.</p>
+<p class='comment'><strong>Remarks</strong> The resulting JSON is compatible with the Quiet Static dialogue authorer and with NarrativeContentJsonImporter. Exporting does not modify the source asset.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-57-8'><code class='signature'>public static IReadOnlyList&lt;string&gt; Validate( FlagDatabase database, string catalogId = null)</code><p class='source'><a href='../../../Editor/Flags/FlagCatalogJsonExporter.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-57-8'>Permalink</a></p>
+<p class='comment'>Validates a database for export without writing a file.</p>
+<p class='comment'><strong>database</strong> Database whose definitions will be exported.</p>
+<p class='comment'><strong>catalogId</strong> Optional catalog ID. When omitted, the source asset filename (or object name for an unsaved object) is used.</p>
+<p class='comment'><strong>Returns</strong> Validation errors. An empty collection means the database is exportable.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagCatalogJsonExporter.Validate(database, catalogId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-112-8'><code class='signature'>public static string BuildJson(FlagDatabase database, string catalogId = null)</code><p class='source'><a href='../../../Editor/Flags/FlagCatalogJsonExporter.cs'>Source, line 112</a> · <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-112-8'>Permalink</a></p>
+<p class='comment'>Builds normalized, authorer-compatible JSON without changing the database or filesystem.</p>
+<p class='comment'><strong>database</strong> Database whose definitions will be serialized.</p>
+<p class='comment'><strong>catalogId</strong> Optional catalog ID. When omitted, the source asset filename (or object name for an unsaved object) is used.</p>
+<p class='comment'><strong>Returns</strong> Pretty-printed UTF-16 managed text ready to save as UTF-8 JSON.</p>
+<p class='comment'><strong>Throws ArgumentException</strong> The database cannot form a valid catalog.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = FlagCatalogJsonExporter.BuildJson(database, catalogId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-145-8'><code class='signature'>public static string Export( FlagDatabase database, string outputPath, string catalogId = null)</code><p class='source'><a href='../../../Editor/Flags/FlagCatalogJsonExporter.cs'>Source, line 145</a> · <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-145-8'>Permalink</a></p>
+<p class='comment'>Writes a normalized catalog to a JSON file using an atomic replace operation.</p>
+<p class='comment'><strong>database</strong> Database whose definitions will be exported.</p>
+<p class='comment'><strong>outputPath</strong> Absolute or project-relative destination ending in .json.</p>
+<p class='comment'><strong>catalogId</strong> Optional catalog ID. When omitted, the source asset filename (or object name for an unsaved object) is used.</p>
+<p class='comment'><strong>Returns</strong> The absolute path of the exported JSON file.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/FlagCatalogJsonExporterTests.cs'>Tests/EditMode/FlagCatalogJsonExporterTests.cs, lines 105–108</a></figcaption><pre><code>string exportedPath = FlagCatalogJsonExporter.Export(
+    database,
+    outputPath,
+    &quot;game_flags&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-156-8'><code class='signature'>public static string ExportWithSavePanel(FlagDatabase database)</code><p class='source'><a href='../../../Editor/Flags/FlagCatalogJsonExporter.cs'>Source, line 156</a> · <a href='#api-QuietStatic.Toolkit.Editor.Flags.FlagCatalogJsonExporter-Editor-Flags-FlagCatalogJsonExporter-cs-156-8'>Permalink</a></p>
+<p class='comment'>Prompts for a destination and exports the supplied database.</p>
+<p class='comment'><strong>Returns</strong> The absolute output path, or null when cancelled.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Editor/Tooling/ContentWorkspaceCatalogTabs.cs'>Editor/Tooling/ContentWorkspaceCatalogTabs.cs, line 237</a></figcaption><pre><code>FlagCatalogJsonExporter.ExportWithSavePanel(database);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.Editor.FlagDatabaseAssetPostprocessor'><summary><code>FlagDatabaseAssetPostprocessor</code> <span class='source'>QuietStatic.Toolkit.Flags.Editor.FlagDatabaseAssetPostprocessor</span></summary><div class='entry'>
+<code class='signature'>public class FlagDatabaseAssetPostprocessor : AssetPostprocessor</code>
+<p class='source'><a href='../../../Editor/Flags/FlagDatabasePostprocessor.cs'>Editor/Flags/FlagDatabasePostprocessor.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagDatabaseAssetPostprocessor'>Permalink</a></p>
+<p class='comment'>Clears the flag dropdown cache whenever project assets change.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer'><summary><code>FlagIdDrawer</code> <span class='source'>QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagIdDrawer : PropertyDrawer</code>
+<p class='source'><a href='../../../Editor/Flags/FlagIdDrawer.cs'>Editor/Flags/FlagIdDrawer.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer'>Permalink</a></p>
+<p class='comment'>Draws strings marked with FlagIdAttribute as searchable, database-backed selectors while preserving the serialized string value.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-29-8'><code class='signature'>public override float GetPropertyHeight(SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Flags/FlagIdDrawer.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-29-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.GetPropertyHeight(property, label);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-55-8'><code class='signature'>public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Flags/FlagIdDrawer.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-55-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnGUI(position, property, label);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-203-8'><code class='signature'>public static void ClearCache()</code><p class='source'><a href='../../../Editor/Flags/FlagIdDrawer.cs'>Source, line 203</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagIdDrawer-Editor-Flags-FlagIdDrawer-cs-203-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/TypedFlagTests.cs'>Tests/EditMode/TypedFlagTests.cs, line 34</a></figcaption><pre><code>FlagIdDrawer.ClearCache();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer'><summary><code>FlagValueDrawer</code> <span class='source'>QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagValueDrawer : PropertyDrawer</code>
+<p class='source'><a href='../../../Editor/Flags/FlagValueDrawer.cs'>Editor/Flags/FlagValueDrawer.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer'>Permalink</a></p>
+<p class='comment'>Shows the selected value kind and only its matching payload.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer-Editor-Flags-FlagValueDrawer-cs-11-8'><code class='signature'>public override float GetPropertyHeight(SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Flags/FlagValueDrawer.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer-Editor-Flags-FlagValueDrawer-cs-11-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.GetPropertyHeight(property, label);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer-Editor-Flags-FlagValueDrawer-cs-13-8'><code class='signature'>public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)</code><p class='source'><a href='../../../Editor/Flags/FlagValueDrawer.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Flags.Editor.FlagValueDrawer-Editor-Flags-FlagValueDrawer-cs-13-8'>Permalink</a></p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.OnGUI(position, property, label);</code></pre></figure>
+</div>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

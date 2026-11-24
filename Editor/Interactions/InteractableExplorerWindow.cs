@@ -82,7 +82,7 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 $"{progress} autonomous progress • {issues} setup issue(s)",
                 issues > 0 ? MessageType.Warning : MessageType.Info);
             EditorGUILayout.HelpBox(
-                "Edit prompts and messages below. Changes support Undo. Save scenes after editing; " +
+                "Edit prompts, flag requirements, and outcome messages below. Changes support Undo. Save scenes after editing; " +
                 "use Save Prefab Changes for project prefab edits.", MessageType.Info);
 
             scroll = EditorGUILayout.BeginScrollView(scroll);
@@ -159,14 +159,14 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                 using (var data = new SerializedObject(entry.Target))
                 {
                     data.Update();
-                    SerializedProperty prompt = data.FindProperty(entry.Target is Interactable ? "displayName" : "hoverPrompt");
-                    EditorGUILayout.PropertyField(prompt, new GUIContent("Prompt"));
-                    SerializedProperty progressName = data.FindProperty("progressName");
-                    if (progressName != null) EditorGUILayout.PropertyField(progressName, new GUIContent("Progress Label"));
-                    DrawEventMessages(data);
-                    if (data.ApplyModifiedProperties()) entry.Prompt = prompt.stringValue;
+                    SerializedProperty prompt = InteractionTargetAuthoring.DrawPrompt(data);
+                    InteractionOutcomeEditor.DrawInteractionDetails(data);
+                    if (data.ApplyModifiedProperties())
+                    {
+                        entry.Prompt = prompt.stringValue;
+                        entry.Requirement = DescribeRequirement(data);
+                    }
                 }
-                EditorGUILayout.LabelField("Requirement", entry.Requirement);
 
                 if (entry.CompletionFlags.Length > 0)
                 {
@@ -189,76 +189,12 @@ namespace QuietStatic.Toolkit.Editor.Interactions
                         MessageType.Warning);
                 }
 
-                foreach (ConditionalInteractionMessage conditional in
-                         entry.ConditionalMessages)
-                {
-                    if (conditional != null) DrawConditionalMessages(conditional);
-                }
                 foreach (FlavorTextInteraction flavor in entry.Owner.GetComponents<FlavorTextInteraction>())
                 {
                     using var data = new SerializedObject(flavor);
                     data.Update();
                     EditorGUILayout.PropertyField(data.FindProperty("flavorText"), new GUIContent("Flavor Text"));
                     data.ApplyModifiedProperties();
-                }
-            }
-        }
-
-        private static void DrawConditionalMessages(
-            ConditionalInteractionMessage conditional)
-        {
-            EditorGUILayout.Space(2f);
-            EditorGUILayout.LabelField(
-                "Conditional UI Messages",
-                EditorStyles.boldLabel);
-
-            using var data = new SerializedObject(conditional);
-            data.Update();
-            SerializedProperty rules = data.FindProperty("rules");
-            for (int index = 0; index < rules.arraySize; index++)
-            {
-                SerializedProperty rule = rules.GetArrayElementAtIndex(index);
-                string ruleLabel = rule.FindPropertyRelative("label").stringValue;
-                string label = string.IsNullOrWhiteSpace(ruleLabel)
-                    ? $"Rule {index + 1}"
-                    : ruleLabel;
-                string condition = DescribeRequirement(conditional.Rules[index]?.Requirement);
-                EditorGUILayout.LabelField($"{index + 1}. {label} [{condition}]", EditorStyles.miniBoldLabel);
-                EditorGUILayout.PropertyField(rule.FindPropertyRelative("message"), new GUIContent("Message"));
-            }
-            EditorGUILayout.PropertyField(data.FindProperty("defaultMessage"), new GUIContent("Fallback"));
-            data.ApplyModifiedProperties();
-        }
-
-        /// <summary>Exposes only static string arguments on interaction UI calls, preserving all event wiring.</summary>
-        private static void DrawEventMessages(SerializedObject data)
-        {
-            foreach (var message in EventMessages(data))
-            {
-                EditorGUILayout.LabelField(message.Label, EditorStyles.miniBoldLabel);
-                message.Text.stringValue = EditorGUILayout.TextArea(message.Text.stringValue, GUILayout.MinHeight(42f));
-            }
-        }
-
-        private static IEnumerable<(string Label, SerializedProperty Text)> EventMessages(SerializedObject data)
-        {
-            SerializedProperty property = data.GetIterator();
-            for (bool enter = true; property.NextVisible(enter); enter = false)
-            {
-                if (property.propertyType != SerializedPropertyType.Generic) continue;
-                SerializedProperty calls = property.FindPropertyRelative("m_PersistentCalls.m_Calls");
-                if (calls == null || !calls.isArray) continue;
-                for (int index = 0; index < calls.arraySize; index++)
-                {
-                    SerializedProperty call = calls.GetArrayElementAtIndex(index);
-                    if (call.FindPropertyRelative("m_Target").objectReferenceValue is not InteractionUIChannel ||
-                        call.FindPropertyRelative("m_Mode").intValue != (int)UnityEngine.Events.PersistentListenerMode.String)
-                        continue;
-                    string method = call.FindPropertyRelative("m_MethodName").stringValue;
-                    if (method != nameof(InteractionUIChannel.ShowMessage) && method != nameof(InteractionUIChannel.ShowPrompt))
-                        continue;
-                    yield return ($"{property.displayName} / {method} [{index + 1}]",
-                        call.FindPropertyRelative("m_Arguments.m_StringArgument"));
                 }
             }
         }
@@ -338,55 +274,14 @@ namespace QuietStatic.Toolkit.Editor.Interactions
 
         private void AddTargets(GameObject root, string location)
         {
-            foreach (Interactable target in
-                     root.GetComponentsInChildren<Interactable>(true))
-            {
+            foreach (Component target in InteractionTargetAuthoring.FindTargets(root))
                 entries.Add(CreateEntry(target, location));
-            }
-
-            foreach (HoldInteractable target in
-                     root.GetComponentsInChildren<HoldInteractable>(true))
-            {
-                entries.Add(CreateEntry(target, location));
-            }
-
-            foreach (ActivatedProgressInteractable target in
-                     root.GetComponentsInChildren<ActivatedProgressInteractable>(true))
-            {
-                entries.Add(CreateEntry(target, location));
-            }
         }
 
         private static Entry CreateEntry(Component target, string location)
         {
             using var serializedTarget = new SerializedObject(target);
-            string prompt;
-            string[] completionFlags;
-
-            if (target is Interactable)
-            {
-                prompt = ReadString(serializedTarget, "displayName", "Interact");
-                completionFlags = ReadStringArray(
-                    serializedTarget,
-                    "flagsToSetOnSuccess");
-            }
-            else if (target is HoldInteractable)
-            {
-                prompt = ReadString(
-                    serializedTarget,
-                    "hoverPrompt",
-                    "Hold to interact");
-                completionFlags = ReadStringArray(
-                    serializedTarget,
-                    "flagsToSetOnCompletion");
-            }
-            else
-            {
-                prompt = ReadString(serializedTarget, "hoverPrompt", "Start");
-                completionFlags = ReadStringArray(
-                    serializedTarget,
-                    "flagsToSetOnCompletion");
-            }
+            InteractionTargetAuthoring targetType = InteractionTargetAuthoring.For(target);
 
             GameObject owner = target.gameObject;
             HoldActivitySequence activitySequence =
@@ -399,16 +294,12 @@ namespace QuietStatic.Toolkit.Editor.Interactions
             {
                 Target = target,
                 Owner = owner,
-                Kind = target is Interactable
-                    ? "One-shot"
-                    : target is HoldInteractable
-                        ? "Hold"
-                        : "Progress",
+                Kind = targetType.Kind,
                 Location = location,
                 HierarchyPath = GetHierarchyPath(owner.transform),
-                Prompt = prompt,
+                Prompt = ReadString(serializedTarget, targetType.PromptProperty, targetType.DefaultPrompt),
                 Requirement = DescribeRequirement(serializedTarget),
-                CompletionFlags = completionFlags,
+                CompletionFlags = ReadStringArray(serializedTarget, targetType.CompletionFlags),
                 RequiresCrosshairTarget = requiresCrosshairTarget,
                 HasCollider =
                     InteractionTargetColliderUtility.HasRaycastCollider(target),
@@ -445,7 +336,8 @@ namespace QuietStatic.Toolkit.Editor.Interactions
         private static bool MatchesEventText(Component target, string query)
         {
             using var data = new SerializedObject(target);
-            return EventMessages(data).Any(message => ContainsIgnoreCase(message.Text.stringValue, query));
+            return InteractionOutcomeEditor.EventMessages(data)
+                .Any(message => ContainsIgnoreCase(message.Text.stringValue, query));
         }
 
         private static bool HasIssue(Entry entry) =>

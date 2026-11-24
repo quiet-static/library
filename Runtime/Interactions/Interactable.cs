@@ -1,4 +1,5 @@
 using System;
+using QuietStatic.Toolkit.Characters.NPC;
 using QuietStatic.Toolkit.Flags;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,12 +7,12 @@ using UnityEngine.Events;
 namespace QuietStatic.Toolkit.Interactions
 {
     /// <summary>
-    /// Defines a world interaction with optional flag requirements, progression effects,
-    /// and Inspector-configured success or failure callbacks.
+    /// Defines a world interaction with optional grabbing, flag requirements, progression
+    /// effects, and Inspector-configured success or failure callbacks.
     /// </summary>
     /// <remarks>
     /// The component owns interaction rules, not input or UI. An <see cref="Interactor"/>
-    /// attempts the action, global events notify cross-scene listeners, and serialized
+    /// attempts the action, C# events notify interested listeners, and serialized
     /// UnityEvents drive local behavior such as animation or audio.
     /// </remarks>
     [AddComponentMenu("Quiet Static Toolkit/Interactions/Interactable")]
@@ -34,6 +35,10 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Optional flags required before this interaction succeeds.")]
         [SerializeField] private FlagRequirement requirement;
 
+        [Header("Dialogue Action")]
+        [Tooltip("Optional NPC dialogue started directly by this interaction. The prompt appears when a conversation is available. Leave Is Grabbable off for dialogue-only targets.")]
+        [SerializeField] private NPCDialogueBehaviour dialogueAction;
+
         [Header("Success Behavior")]
         [Tooltip("Disable further interaction attempts after the first successful interaction.")]
         [SerializeField] private bool disableAfterSuccess;
@@ -53,8 +58,15 @@ namespace QuietStatic.Toolkit.Interactions
         [Tooltip("Scene-local callbacks invoked after failure flags and the global failure event.")]
         [SerializeField] private UnityEvent onInteractionFailed;
 
+        [Header("Grabbing")]
+        [Tooltip("Let the player pick up this object. Uses a Grabbable and a dynamic Rigidbody on this GameObject.")]
+        [SerializeField] private bool isGrabbable;
+
         /// <summary>Gets the player-facing interaction label.</summary>
         public string DisplayName => displayName;
+
+        /// <summary>Gets the optional dialogue action used by this interaction.</summary>
+        public NPCDialogueBehaviour DialogueAction => dialogueAction;
 
         /// <summary>
         /// Gets whether camera targeting may look past nearer colliders that do not own an
@@ -69,6 +81,35 @@ namespace QuietStatic.Toolkit.Interactions
         /// <summary>Gets whether this component currently accepts interaction attempts.</summary>
         public bool IsEnabled { get; private set; } = true;
 
+        /// <summary>
+        /// Gets or sets whether this interaction may pick up the object. Disabling
+        /// grabbing releases the object and retains its Grabbable settings.
+        /// </summary>
+        public bool IsGrabbable
+        {
+            get => isGrabbable;
+            set
+            {
+                isGrabbable = value;
+                if (!Application.IsPlaying(this))
+                {
+                    return;
+                }
+
+                if (TryGetComponent(out Grabbable grabbable))
+                {
+                    if (!value)
+                    {
+                        grabbable.Deactivate();
+                    }
+                }
+                else if (value)
+                {
+                    gameObject.AddComponent<Grabbable>();
+                }
+            }
+        }
+
         /// <summary>Checks the runtime enabled state and configured flag requirement.</summary>
         /// <returns>True when an interaction attempt would succeed.</returns>
         public bool CanInteract()
@@ -79,7 +120,18 @@ namespace QuietStatic.Toolkit.Interactions
         /// <inheritdoc />
         public bool IsInteractionAvailable(Interactor interactor)
         {
-            return IsEnabled;
+            if (!IsEnabled)
+            {
+                return false;
+            }
+
+            if (isGrabbable)
+            {
+                return interactor != null && TryGetComponent(out Grabbable grabbable) &&
+                    interactor.CanGrab(grabbable);
+            }
+
+            return dialogueAction == null || (CanInteract() && dialogueAction.HasAvailableDialogue(interactor));
         }
 
         /// <summary>Attempts the interaction and invokes the matching event path.</summary>
@@ -101,6 +153,18 @@ namespace QuietStatic.Toolkit.Interactions
             if (!CanInteract())
             {
                 HandleFailedInteraction(interactor);
+                return false;
+            }
+
+            if (isGrabbable)
+            {
+                if (interactor == null || !TryGetComponent(out Grabbable grabbable) || !interactor.TryGrab(grabbable))
+                {
+                    return false;
+                }
+            }
+            else if (dialogueAction != null && !dialogueAction.TryStartInteractionDialogue(interactor))
+            {
                 return false;
             }
 
@@ -127,6 +191,14 @@ namespace QuietStatic.Toolkit.Interactions
             }
 
             IsEnabled = isEnabled;
+        }
+
+        private void OnDisable()
+        {
+            if (isGrabbable && TryGetComponent(out Grabbable grabbable))
+            {
+                grabbable.Deactivate();
+            }
         }
 
         private void HandleSuccessfulInteraction(Interactor interactor)

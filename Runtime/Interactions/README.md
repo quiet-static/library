@@ -1,10 +1,10 @@
 # Interactions
 
-See [`CinematicsAndReadablesSetup.md`](../../docs/Runtime/CinematicsAndReadablesSetup.md)
+See [`CinematicsAndReadablesSetup.md`](../../docs/Guides/Runtime/CinematicsAndReadablesSetup.md)
 for the complete readable-item overlay recipe and example generator.
 
 For complete Inspector-oriented setup recipes and reusable target prefabs, see
-[`docs/Runtime/CommonComponentRecipes.md`](../../docs/Runtime/CommonComponentRecipes.md).
+[`docs/Guides/Runtime/CommonComponentRecipes.md`](../../docs/Guides/Runtime/CommonComponentRecipes.md).
 
 `Interactor` selects one target from the center of a camera, while
 `Interactable` owns an object's requirements and success/failure behavior.
@@ -42,7 +42,7 @@ clutter. It listens to the neighboring `Interactable` and publishes its text thr
 `InteractionUIChannel` after a successful inspection. It contains no dialogue flow,
 flags, objective state, or progression behavior.
 
-Open **Tools > Quiet Static > Workspace** and choose **Clutter** to set up selected
+Open **Tools > Quiet Static > Workspace** and choose **Scene Tools > Clutter Interactables** to set up selected
 scene objects. The tool adds or repairs the interaction target, highlighter, trigger
 collider, interaction layer, UI channel, and flavor component without duplicating
 components. Prompts and flavor text can then be edited in that tool or in the
@@ -102,6 +102,83 @@ The camera ray answers "what is the player aiming at?" while the origin-distance
 check answers "can the active player reach it?" Trigger colliders remain valid
 raycast targets because the Interactor queries colliders with
 `QueryTriggerInteraction.Collide`; they no longer imply proximity-driven input.
+
+## Grabbable objects
+
+1. Enable **Is Grabbable** on an `Interactable` in the scene or in Prefab Mode.
+   Configure the added `Grabbable` companion. Give the object a dynamic `Rigidbody`
+   with collision detection enabled and a solid collider on a layer the player can target.
+2. On the player's `Interactor`, assign **Hold Transform** to a hand or carry point
+   outside the player's colliders. Assign **Holder Root** when the active `PlayerManager`
+   player or the hold transform's root is unsuitable as the throwing character.
+3. Keep **Interact** wired to `Interactor.HandleInteractInput` for pickup. In the
+   existing gameplay action map, add **Throw** and **Drop** Button actions and an
+   optional **CancelThrow** Button action. Assign the `Interactor` to **Grabbable
+   Interactor** on `PlayerInputReader` and match the action names. Use standard button
+   presses. Projects with custom input can call `HandleThrowPressed`,
+   `HandleThrowReleased`, `HandleDropInput`, and `CancelThrowCharge` directly, and
+   should cancel an active charge when gameplay input is disabled.
+4. Assign the existing HUD progress root and slider on `InteractionUIManager` to
+   show **Throw strength** while charging. Holding **Throw** builds charge from the
+   minimum to the maximum impulse, and releasing throws in the camera's aim direction.
+   With **Use Charge Throw** unchecked, pressing **Throw** immediately applies the
+   maximum impulse. **Drop** releases the object and **CancelThrow** keeps it in hand.
+   Picking up another grabbable drops the previous one.
+
+**Hold Position Offset** and **Hold Rotation Offset** adjust the prop relative to
+the hold transform. **Throw Direction Offset** adjusts its launch angle relative to
+the aim direction. **Min Throw Force** and **Max Throw Force** set the impulse in
+newton-seconds, and **Charge Duration** sets the time to full strength. A duration
+of zero reaches full strength as soon as the button is pressed.
+
+### React to throw impacts
+
+**Publish Throw Collision Events** controls whether the prop raises
+`Grabbable.ThrowImpacted`. **Impact Event Policy** defaults to **First Impact Only**.
+Use **Every Impact Until Sleeping** to report subsequent collisions while the prop
+is moving. Ordinary drops never publish throw-impact events.
+
+The event carries the thrown `Interactable`, its display name as `ObjectIdentifier`,
+the `Thrower`, and collision data such as `HitCollider`, `Point`, and `Impulse`.
+This example lets a window run a scene effect when a particular prop hits it.
+Assign the prop and window collider in the Inspector, then wire **On Window Hit**.
+
+```csharp
+using QuietStatic.Toolkit.Interactions;
+using UnityEngine;
+using UnityEngine.Events;
+
+public sealed class WindowThrowReaction : MonoBehaviour
+{
+    [SerializeField] private Grabbable watchedProp;
+    [SerializeField] private Collider windowCollider;
+    [SerializeField] private UnityEvent onWindowHit;
+
+    private void OnEnable()
+    {
+        if (watchedProp != null)
+        {
+            watchedProp.ThrowImpacted += OnImpact;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (watchedProp != null)
+        {
+            watchedProp.ThrowImpacted -= OnImpact;
+        }
+    }
+
+    private void OnImpact(ThrowImpactEvent impact)
+    {
+        if (impact.HitCollider == windowCollider)
+        {
+            onWindowHit?.Invoke();
+        }
+    }
+}
+```
 
 ## Hold interactions
 

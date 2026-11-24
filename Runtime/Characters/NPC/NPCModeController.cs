@@ -81,13 +81,11 @@ namespace QuietStatic.Toolkit.Characters.NPC
         /// <param name="modeName">Configured mode name.</param>
         public void SetModeByName(string modeName)
         {
-            for (int i = 0; i < modes.Length; i++)
+            int index = FindModeIndex(modeName);
+            if (index >= 0)
             {
-                if (string.Equals(modes[i].modeName, modeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetMode(i);
-                    return;
-                }
+                SetMode(index);
+                return;
             }
 
             GameLogger.Warning(
@@ -95,6 +93,19 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 this,
                 $"NPC mode '{modeName}' was not found on {name}."
             );
+        }
+
+        internal int FindModeIndex(string modeName)
+        {
+            if (modes == null) return -1;
+
+            for (int index = 0; index < modes.Length; index++)
+            {
+                if (modes[index] != null &&
+                    string.Equals(modes[index].modeName, modeName, StringComparison.OrdinalIgnoreCase)) return index;
+            }
+
+            return -1;
         }
 
         private bool IsValid(int index) => modes != null && index >= 0 && index < modes.Length;

@@ -14,7 +14,7 @@ manager and `InputBindingOverridesLoader` in the persistent Systems scene.
 Assign the game's InputActionAsset to the loader, then add one rebind row per
 action and select its action reference and binding index.
 
-`SettingsManager.OnSettingChanged` publishes a `GameSettingId` after every
+`SettingsManager.SettingChanged` publishes a `GameSettingId` after every
 change. Managers can subscribe directly and read the typed property from
 `SettingsManager.Instance`. Scene-authored reactions can instead use a
 `SettingsChangeRelay`. `AccessibilitySettingsApplier` covers common component
@@ -25,6 +25,11 @@ replace `SettingsMenuView` when a project needs the manager's additional accessi
 resolution, brightness, ambience, or dialogue settings. The audio mixer may expose
 `AmbienceVolume` and `DialogueVolume` in addition to master, music, and SFX. Missing
 mixer parameters are harmless, allowing projects to adopt controls gradually.
+
+Moving the Master, Music, or SFX slider previews the volume on the assigned mixer
+immediately. **Apply** commits pending settings. **Back** discards pending changes and
+restores the committed mixer volumes. Disabling the view also restores the committed
+mixer volumes if a preview was active.
 
 Use `ClosedCaptionPresenter.ShowCaption(string)` from meaningful sound events.
 It automatically suppresses captions when the player's preference is off.

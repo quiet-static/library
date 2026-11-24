@@ -29,6 +29,7 @@ namespace QuietStatic.Toolkit.Settings
         [SerializeField] private Button applyChanges;
 
         private bool hasPendingChanges;
+        private bool hasVolumePreview;
         private bool isApplying;
 
         [Header("Navigation")]
@@ -55,9 +56,9 @@ namespace QuietStatic.Toolkit.Settings
             musicVolume?.onValueChanged.AddListener(value => SetReadout(musicVolumeValue, value, true));
             sfxVolume?.onValueChanged.AddListener(value => SetReadout(sfxVolumeValue, value, true));
             lookSensitivity?.onValueChanged.AddListener(value => SetReadout(lookSensitivityValue, value, false));
-            masterVolume?.onValueChanged.AddListener(_ => MarkPending());
-            musicVolume?.onValueChanged.AddListener(_ => MarkPending());
-            sfxVolume?.onValueChanged.AddListener(_ => MarkPending());
+            masterVolume?.onValueChanged.AddListener(_ => PreviewVolumeChange());
+            musicVolume?.onValueChanged.AddListener(_ => PreviewVolumeChange());
+            sfxVolume?.onValueChanged.AddListener(_ => PreviewVolumeChange());
             lookSensitivity?.onValueChanged.AddListener(_ => MarkPending());
             vSync?.onValueChanged.AddListener(_ => MarkPending());
             resolution?.onValueChanged.AddListener(_ => MarkPending());
@@ -75,14 +76,14 @@ namespace QuietStatic.Toolkit.Settings
 
         private void BindManager()
         {
-            OnDisable();
+            UnbindManager();
             observedManager = SettingsManager.Instance;
             if (observedManager != null)
             {
-                observedManager.SettingsLoaded += Refresh;
+                observedManager.SettingsLoaded += HandleSettingsLoaded;
                 observedManager.SettingChanged += HandleSettingChanged;
             }
-            Refresh();
+            HandleSettingsLoaded();
             UpdateApplyButton();
         }
 
@@ -94,12 +95,41 @@ namespace QuietStatic.Toolkit.Settings
 
         private void OnDisable()
         {
+            DiscardVolumePreview();
+            UnbindManager();
+        }
+
+        private void UnbindManager()
+        {
             if (observedManager != null)
             {
-                observedManager.SettingsLoaded -= Refresh;
+                observedManager.SettingsLoaded -= HandleSettingsLoaded;
                 observedManager.SettingChanged -= HandleSettingChanged;
                 observedManager = null;
             }
+        }
+
+        private void HandleSettingsLoaded()
+        {
+            Refresh();
+            if (hasVolumePreview) PreviewVolume();
+        }
+
+        private void PreviewVolumeChange()
+        {
+            hasVolumePreview = true;
+            MarkPending();
+            PreviewVolume();
+        }
+
+        private void PreviewVolume() =>
+            observedManager?.PreviewMenuVolume(masterVolume?.value, musicVolume?.value, sfxVolume?.value);
+
+        private void DiscardVolumePreview()
+        {
+            if (!hasVolumePreview) return;
+            hasVolumePreview = false;
+            if (observedManager != null) observedManager.PreviewMenuVolume();
         }
 
         /// <summary>Refreshes every control without invoking its change callback.</summary>
@@ -163,6 +193,7 @@ namespace QuietStatic.Toolkit.Settings
                 if (vSync != null) manager.SetVSync(vSync.isOn);
                 if (resolution != null && resolution.options.Count > 0) manager.SetResolution(resolution.value);
                 hasPendingChanges = false;
+                hasVolumePreview = false;
             }
             finally { isApplying = false; }
             Refresh();
@@ -207,6 +238,7 @@ namespace QuietStatic.Toolkit.Settings
         /// <summary>Requests that the parent menu return to its previous page.</summary>
         public void RequestBack()
         {
+            DiscardVolumePreview();
             hasPendingChanges = false;
             Refresh();
             backRequested?.Invoke();

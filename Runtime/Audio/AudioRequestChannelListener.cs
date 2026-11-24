@@ -95,6 +95,10 @@ namespace QuietStatic.Toolkit.Audio
                 case AudioCommandType.ResumeMusic:
                     musicManager?.ResumeMusic();
                     break;
+                case AudioCommandType.GetMusicSource:
+                    if (musicManager != null && musicManager.MusicSource != null)
+                        command.MusicSourceFound?.Invoke(musicManager.MusicSource);
+                    break;
                 case AudioCommandType.PlaySfxAtPosition:
                     EventSound3D sound = sfxManager?.PlayAtPosition(
                         command.Clip,

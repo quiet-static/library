@@ -13,7 +13,11 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
     /// <summary>Unified editable dialogue graph and compact authoring workspace.</summary>
     public sealed class DialogueWorkspaceWindow : EditorWindow
     {
-        private DialogueTree tree;
+        [SerializeField] private DialogueTree tree;
+        [SerializeField] private string selectedNodeId;
+        private ObjectField treePicker;
+        private ToolbarToggle graphToggle;
+        private ToolbarToggle browserToggle;
         private DialogueGraphModel model;
         private DialogueGraphCanvas canvas;
         private IMGUIContainer details;
@@ -44,10 +48,10 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             window.SetTree(selected);
         }
 
-        [MenuItem("Assets/Open in Dialogue Workspace", true)]
+        [MenuItem(QuietStaticMenuPaths.AssetOpen + "Dialogue", true)]
         private static bool ValidateOpenSelected() => Selection.activeObject is DialogueTree;
 
-        [MenuItem("Assets/Open in Dialogue Workspace")]
+        [MenuItem(QuietStaticMenuPaths.AssetOpen + "Dialogue")]
         private static void OpenSelected()
         {
             DialogueWorkspaceWindow window = GetWindow<DialogueWorkspaceWindow>("Dialogue");
@@ -57,14 +61,16 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
         public void CreateGUI()
         {
             var toolbar = new Toolbar();
+            rootVisualElement.Clear();
             var picker = new ObjectField { objectType = typeof(DialogueTree), allowSceneObjects = false };
+            treePicker = picker;
             picker.style.minWidth = 230f;
             picker.SetValueWithoutNotify(tree);
             picker.RegisterValueChangedCallback(change => SetTree(change.newValue as DialogueTree));
             toolbar.Add(picker);
             toolbar.Add(new ToolbarButton(CreateTree) { text = "Create" });
             toolbar.Add(new ToolbarButton(AddNode) { text = "Add Node" });
-            toolbar.Add(new ToolbarButton(DuplicateEntry) { text = "Duplicate Entry" });
+            toolbar.Add(new ToolbarButton(DuplicateSelectedNode) { text = "Duplicate Node" });
             toolbar.Add(new ToolbarButton(() => canvas?.FrameAll()) { text = "Frame All" });
             var search = new ToolbarSearchField { style = { width = 150f } };
             search.RegisterValueChangedCallback(change => graphSearch = change.newValue);
@@ -74,8 +80,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             toolbar.Add(new ToolbarButton(Revert) { text = "Revert" });
             toolbar.Add(new ToolbarButton(Export) { text = "Export JSON" });
             toolbar.Add(new ToolbarButton(CreateEditableCopy) { text = "Editable Copy" });
-            var graphTab = new ToolbarToggle { text = "Graph", value = true };
-            var browseTab = new ToolbarToggle { text = "Browse" };
+            var graphTab = graphToggle = new ToolbarToggle { text = "Graph", value = true };
+            var browseTab = browserToggle = new ToolbarToggle { text = "Browse" };
             graphTab.RegisterValueChangedCallback(change => { if (change.newValue) ShowGraph(graphTab, browseTab); });
             browseTab.RegisterValueChangedCallback(change => { if (change.newValue) ShowBrowser(graphTab, browseTab); });
             toolbar.Add(graphTab);
@@ -86,7 +92,8 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
 
             graphPane = new TwoPaneSplitView(1, 390f, TwoPaneSplitViewOrientation.Horizontal);
             canvas = new DialogueGraphCanvas();
-            canvas.Changed += Refresh;
+            canvas.Changed += QueueRefresh;
+            canvas.NodeSelected += id => { selectedNodeId = id; details?.MarkDirtyRepaint(); };
             canvas.DeleteNodeRequested = DeleteNode;
             graphPane.Add(canvas);
             details = new IMGUIContainer(DrawDetails);
@@ -115,7 +122,20 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             browserPane.MarkDirtyRepaint();
         }
 
-        private void SetTree(DialogueTree value) { tree = value; Refresh(); }
+        private void OnEnable() => Undo.undoRedoPerformed += Refresh;
+        private void OnDisable() => Undo.undoRedoPerformed -= Refresh;
+        private void OnFocus() => Refresh();
+
+        private void QueueRefresh() => EditorApplication.delayCall += () => { if (this != null) Refresh(); };
+
+        private void SetTree(DialogueTree value)
+        {
+            if (tree != value) selectedNodeId = null;
+            tree = value;
+            treePicker?.SetValueWithoutNotify(tree);
+            if (graphPane != null && browserPane != null) ShowGraph(graphToggle, browserToggle);
+            Refresh();
+        }
 
         private void Refresh()
         {
@@ -147,43 +167,48 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             simulatedFlags = EditorGUILayout.TextField(new GUIContent("Simulated Flags", "Comma-separated flags; runtime state is never changed."), simulatedFlags);
             string[] previewFlags = simulatedFlags.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(flag => flag.Trim()).Where(flag => flag.Length > 0).ToArray();
-            var simulation = new SerializedObject(this);
+            using var simulation = new SerializedObject(this);
             EditorGUILayout.PropertyField(simulation.FindProperty("simulatedValues"), new GUIContent("Simulated Values"), true);
             simulation.ApplyModifiedProperties();
             var previewValues = simulatedValues.Where(entry => entry != null && !string.IsNullOrWhiteSpace(entry.flagId))
                 .GroupBy(entry => entry.flagId.Trim(), StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First().value, StringComparer.Ordinal);
-            var serialized = new SerializedObject(tree);
+            using var serialized = new SerializedObject(tree);
             serialized.Update();
             using (new EditorGUI.DisabledScope(tree.GeneratedFromJson))
             {
                 SerializedProperty nodes = serialized.FindProperty("nodes");
-                EditorGUILayout.LabelField("Nodes", EditorStyles.boldLabel);
-                for (int index = 0; index < nodes.arraySize; index++)
+                int index = Array.FindIndex(tree.Nodes ?? Array.Empty<DialogueTree.Node>(), node => node?.id == selectedNodeId);
+                index = DrawNodePicker(tree, index);
+                if (index >= 0 && index < nodes.arraySize)
                 {
                     SerializedProperty node = nodes.GetArrayElementAtIndex(index);
-                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                    selectedNodeId = node.FindPropertyRelative("id").stringValue;
+                    DrawNodeFields(tree, node, index);
+                    int[] available = DialoguePathPreview.AvailableChoiceIndexes(tree.Nodes[index], previewFlags, previewValues);
+                    if ((tree.Nodes[index].choices?.Length ?? 0) > 0)
+                        EditorGUILayout.LabelField("Preview Available", available.Length == 0 ? "<None>" : string.Join(", ", available.Select(choice => (choice + 1).ToString())));
+                    using (new EditorGUILayout.HorizontalScope())
                     {
-                        using (new EditorGUI.DisabledScope(true))
-                            EditorGUILayout.PropertyField(node.FindPropertyRelative("id"), new GUIContent(index == tree.StartNodeIndex ? "Entry ID" : "Stable ID"));
-                        EditorGUILayout.PropertyField(node.FindPropertyRelative("speaker"));
-                        EditorGUILayout.PropertyField(node.FindPropertyRelative("line"));
-                        EditorGUILayout.PropertyField(node.FindPropertyRelative("flagsToSetOnEnter"), true);
-                        EditorGUILayout.PropertyField(node.FindPropertyRelative("choices"), true);
-                        int[] available = DialoguePathPreview.AvailableChoiceIndexes(tree.Nodes[index], previewFlags, previewValues);
-                        if ((tree.Nodes[index].choices?.Length ?? 0) > 0)
-                            EditorGUILayout.LabelField("Preview Available", available.Length == 0 ? "<None>" : string.Join(", ", available.Select(choice => (choice + 1).ToString())));
-                        using (new EditorGUILayout.HorizontalScope())
+                        if (GUILayout.Button("Frame Node")) canvas?.FrameNode(selectedNodeId);
+                        if (GUILayout.Button("Set Entry"))
                         {
-                            if (GUILayout.Button("Set Entry")) DialogueGraphCommands.SetEntryNode(tree, node.FindPropertyRelative("id").stringValue);
-                            if (GUILayout.Button("Delete")) DeleteNode(node.FindPropertyRelative("id").stringValue);
+                            serialized.ApplyModifiedProperties();
+                            DialogueGraphCommands.SetEntryNode(tree, selectedNodeId);
+                            QueueRefresh();
+                        }
+                        if (GUILayout.Button("Delete Node"))
+                        {
+                            serialized.ApplyModifiedProperties();
+                            DeleteNode(selectedNodeId);
+                            GUIUtility.ExitGUI();
                         }
                     }
                 }
                 if (serialized.ApplyModifiedProperties())
                 {
                     EditorUtility.SetDirty(tree);
-                    EditorApplication.delayCall += Refresh;
+                    QueueRefresh();
                 }
             }
             EditorGUILayout.Space();
@@ -193,6 +218,80 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             foreach (string id in model?.DuplicateStableIds ?? Array.Empty<string>())
                 EditorGUILayout.HelpBox($"Stable node ID '{id}' is duplicated.", MessageType.Error);
             EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>Selects a node by its authored identity and speaker.</summary>
+        internal static int DrawNodePicker(DialogueTree source, int index)
+        {
+            if ((source.Nodes?.Length ?? 0) == 0)
+            {
+                EditorGUILayout.HelpBox("This tree has no nodes. Add a node to begin.", MessageType.Info);
+                return -1;
+            }
+            return EditorGUILayout.Popup("Edit Node", Mathf.Clamp(index, 0, source.Nodes.Length - 1),
+                source.Nodes.Select((node, i) => NodeLabel(node, i)).ToArray());
+        }
+
+        private static string NodeLabel(DialogueTree.Node node, int index) =>
+            $"{index}: {(string.IsNullOrWhiteSpace(node?.id) ? "<No ID>" : node.id)}" +
+            (string.IsNullOrWhiteSpace(node?.speaker) ? string.Empty : $" - {node.speaker}");
+
+        /// <summary>Edits node content, choices, and named local destinations through Unity serialization.</summary>
+        internal static void DrawNodeFields(DialogueTree source, SerializedProperty node, int index)
+        {
+            EditorGUILayout.LabelField(index == source.StartNodeIndex ? "Entry Node" : "Dialogue Node", EditorStyles.boldLabel);
+            using (new EditorGUI.DisabledScope(true))
+                EditorGUILayout.PropertyField(node.FindPropertyRelative("id"), new GUIContent("Stable ID"));
+            EditorGUILayout.PropertyField(node.FindPropertyRelative("speaker"));
+            EditorGUILayout.PropertyField(node.FindPropertyRelative("line"));
+            EditorGUILayout.PropertyField(node.FindPropertyRelative("presentationTags"), true);
+            EditorGUILayout.PropertyField(node.FindPropertyRelative("flagsToSetOnEnter"), true);
+            DrawDestination(source, node.FindPropertyRelative("nextNodeIndex"), "Next Node / Fallback");
+            EditorGUILayout.HelpBox("Drag an output to a node's In port to connect it, or choose a destination below. Next is used when no choices are available. End Dialogue closes this conversation.", MessageType.Info);
+            SerializedProperty choices = node.FindPropertyRelative("choices");
+            EditorGUILayout.LabelField($"Choices ({choices.arraySize})", EditorStyles.boldLabel);
+            for (int choiceIndex = 0; choiceIndex < choices.arraySize; choiceIndex++)
+            {
+                SerializedProperty choice = choices.GetArrayElementAtIndex(choiceIndex);
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.LabelField($"Choice {choiceIndex + 1}", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(choice.FindPropertyRelative("text"));
+                    DrawDestination(source, choice.FindPropertyRelative("nextNodeIndex"), "Destination");
+                    EditorGUILayout.PropertyField(choice.FindPropertyRelative("flagsToSet"), true);
+                    EditorGUILayout.PropertyField(choice.FindPropertyRelative("availabilityRequirement"), true);
+                    if (GUILayout.Button("Remove Choice"))
+                    {
+                        choices.DeleteArrayElementAtIndex(choiceIndex);
+                        break;
+                    }
+                }
+            }
+            if (GUILayout.Button("Add Choice")) AddChoice(choices);
+        }
+
+        private static void AddChoice(SerializedProperty choices)
+        {
+            int added = choices.arraySize++;
+            SerializedProperty choice = choices.GetArrayElementAtIndex(added);
+            choice.FindPropertyRelative("text").stringValue = "New choice";
+            choice.FindPropertyRelative("nextNodeIndex").intValue = -1;
+            choice.FindPropertyRelative("flagsToSet").arraySize = 0;
+            SerializedProperty requirement = choice.FindPropertyRelative("availabilityRequirement");
+            requirement.FindPropertyRelative("mode").enumValueIndex = 0;
+            requirement.FindPropertyRelative("flags").arraySize = 0;
+            requirement.FindPropertyRelative("comparisons").arraySize = 0;
+        }
+
+        private static void DrawDestination(DialogueTree source, SerializedProperty target, string label)
+        {
+            string[] labels = new[] { "End Dialogue" }.Concat((source.Nodes ?? Array.Empty<DialogueTree.Node>())
+                .Select((node, i) => NodeLabel(node, i))).ToArray();
+            bool invalid = target.intValue < -1 || target.intValue >= (source.Nodes?.Length ?? 0);
+            if (invalid) labels = labels.Concat(new[] { $"<Missing node index {target.intValue}>" }).ToArray();
+            int current = invalid ? labels.Length - 1 : target.intValue + 1;
+            int picked = EditorGUILayout.Popup(label, current, labels);
+            if (picked != current) target.intValue = picked - 1;
         }
 
         private void DrawBrowser()
@@ -217,7 +316,11 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
                 {
                     EditorGUILayout.LabelField(report.Tree.name, GUILayout.MinWidth(180f));
                     EditorGUILayout.LabelField($"{report.Nodes.Count} nodes • {report.ErrorCount} errors • {report.WarningCount} warnings • {report.ReferencePaths.Count} references");
-                    if (GUILayout.Button("Open", GUILayout.Width(60f))) SetTree(report.Tree);
+                    if (GUILayout.Button("Open", GUILayout.Width(60f)))
+                    {
+                        SetTree(report.Tree);
+                        ShowGraph(graphToggle, browserToggle);
+                    }
                     if (GUILayout.Button("Ping", GUILayout.Width(55f))) { Selection.activeObject = report.Tree; EditorGUIUtility.PingObject(report.Tree); }
                 }
             }
@@ -241,14 +344,18 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             if (tree == null || tree.GeneratedFromJson) return;
             string id = "node-" + Guid.NewGuid().ToString("N")[..8];
             DialogueGraphCommands.AddNode(tree, id);
+            selectedNodeId = id;
             Refresh();
         }
 
-        private void DuplicateEntry()
+        private void DuplicateSelectedNode()
         {
-            if (tree == null || tree.GeneratedFromJson || tree.StartNodeIndex < 0 || tree.StartNodeIndex >= tree.Nodes.Length) return;
-            string id = tree.Nodes[tree.StartNodeIndex].id + "-copy-" + Guid.NewGuid().ToString("N")[..6];
-            DialogueGraphCommands.DuplicateNode(tree, tree.Nodes[tree.StartNodeIndex].id, id);
+            if (tree == null || tree.GeneratedFromJson) return;
+            string sourceId = (tree.Nodes ?? Array.Empty<DialogueTree.Node>()).FirstOrDefault(node => node?.id == selectedNodeId)?.id;
+            if (string.IsNullOrWhiteSpace(sourceId)) return;
+            string id = sourceId + "-copy-" + Guid.NewGuid().ToString("N")[..6];
+            DialogueGraphCommands.DuplicateNode(tree, sourceId, id);
+            selectedNodeId = id;
             Refresh();
         }
 
@@ -259,7 +366,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             string impact = preview.Incoming.Count == 0 ? "No incoming links will change." : $"{preview.Incoming.Count} incoming link(s) will be cleared.";
             if (!EditorUtility.DisplayDialog("Delete Dialogue Node?", $"Delete '{id}'?\n\n{impact}", "Delete", "Cancel")) return false;
             DialogueGraphCommands.DeleteNode(tree, preview);
-            EditorApplication.delayCall += Refresh;
+            QueueRefresh();
             return true;
         }
 
@@ -297,8 +404,7 @@ namespace QuietStatic.Toolkit.Editor.Dialogue
             if (tree == null) return;
             string path = AssetDatabase.GetAssetPath(tree);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
-            tree = AssetDatabase.LoadAssetAtPath<DialogueTree>(path);
-            Refresh();
+            SetTree(AssetDatabase.LoadAssetAtPath<DialogueTree>(path));
         }
     }
 }

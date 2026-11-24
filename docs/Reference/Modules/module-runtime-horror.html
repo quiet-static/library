@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Horror — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Horror</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition'><code>QuietStatic.Toolkit.Horror.HorrorTensionDefinition</code></a>.</p><figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/HorrorTensionDefinitionTests.cs'>Tests/EditMode/HorrorTensionDefinitionTests.cs, line 67</a></figcaption><pre><code>Assert.That(definition.FindState(&quot;  Threat &quot;), Is.SameAs(state));</code></pre></figure></section>
+<section class='guide' id='guide-runtime-horror-readme-md'><h1 id='guide-runtime-horror-readme-md-horror-tension'>Horror tension</h1>
+<p><code>HorrorTensionDefinition</code> stores scene-independent ambience states. Each state has a
+stable ID, priority, flag activation requirement, music action, randomized entry SFX,
+and overlay color/alpha/transition time.</p>
+<p>Place one <code>HorrorTensionController</code> in a persistent scene with a dedicated 2D
+<code>AudioSource</code>. Optionally assign a persistent overlay <code>CanvasGroup</code> and <code>Image</code>.
+The controller selects the highest-priority matching state whenever flags change and
+falls back to the definition's default state. Call <code>SetState(string)</code> from a UnityEvent
+for explicit changes, or <code>ReevaluateFromFlags()</code> to resume rule-based selection.</p>
+<p>For example, a state requiring <code>ReadLetter</code> and <code>PowerOut</code> with priority 20 can change
+the music, play a stinger, and darken/tint the overlay as soon as both flags are set.
+Use <code>TensionStateEventRelay</code> for state-specific scene effects such as flickering lights,
+opening doors, enabling props, camera effects, or starting a cinematic.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.HorrorTensionController'><summary><code>HorrorTensionController</code> <span class='source'>QuietStatic.Toolkit.Horror.HorrorTensionController</span></summary><div class='entry'>
+<code class='signature'>public sealed class HorrorTensionController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Runtime/Horror/HorrorTensionController.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController'>Permalink</a></p>
+<p class='comment'>Applies music, entry SFX, and overlay effects for tension states.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-44-8'><code class='signature'>public HorrorTensionDefinition.State CurrentState { get; private set; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-44-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-45-8'><code class='signature'>public string CurrentStateId { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-45-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-46-8'><code class='signature'>public event Action&lt;HorrorTensionController, string, string&gt; TensionStateChanged</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 46</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-46-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-83-8'><code class='signature'>public void SetState(string stateId)</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-83-8'>Permalink</a></p>
+<p class='comment'>UnityEvent entry point that applies a state by stable ID.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetState(stateId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-96-8'><code class='signature'>public void ReevaluateFromFlags()</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 96</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-96-8'>Permalink</a></p>
+<p class='comment'>UnityEvent entry point that selects the best current flag rule.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ReevaluateFromFlags();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-137-8'><code class='signature'>public void SetAudioRequestChannel(AudioRequestChannel value)</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Source, line 137</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController-Runtime-Horror-HorrorTensionController-cs-137-8'>Permalink</a></p>
+<p class='comment'>Assigns the persistent audio command channel.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetAudioRequestChannel(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition'><summary><code>HorrorTensionDefinition</code> <span class='source'>QuietStatic.Toolkit.Horror.HorrorTensionDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class HorrorTensionDefinition : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Runtime/Horror/HorrorTensionDefinition.cs, line 12</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition'>Permalink</a></p>
+<p class='comment'>Configurable ambience states selected explicitly or from flags.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-87-8'><code class='signature'>public string DefaultStateId { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-87-8'>Permalink</a></p>
+<p class='comment'>Gets the normalized fallback state ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-90-8'><code class='signature'>public IReadOnlyList&lt;State&gt; States { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-90-8'>Permalink</a></p>
+<p class='comment'>Gets all configured tension states.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-93-8'><code class='signature'>public State FindState(string stateId)</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 93</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-93-8'>Permalink</a></p>
+<p class='comment'>Finds a tension state by exact stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/HorrorTensionDefinitionTests.cs'>Tests/EditMode/HorrorTensionDefinitionTests.cs, line 67</a></figcaption><pre><code>Assert.That(definition.FindState(&quot;  Threat &quot;), Is.SameAs(state));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-103-8'><code class='signature'>public State SelectState(FlagManager flags = null)</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 103</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition-Runtime-Horror-HorrorTensionDefinition-cs-103-8'>Permalink</a></p>
+<p class='comment'>Returns the highest-priority matching state or configured default.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/HorrorTensionDefinitionTests.cs'>Tests/EditMode/HorrorTensionDefinitionTests.cs, line 25</a></figcaption><pre><code>Assert.That(definition.SelectState(flags), Is.SameAs(calm));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State'><summary><code>State</code> <span class='source'>QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State</span></summary><div class='entry'>
+<code class='signature'>public sealed class State</code>
+<p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Runtime/Horror/HorrorTensionDefinition.cs, line 18</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State'>Permalink</a></p>
+<p class='comment'>One selectable ambience configuration and its flag-based activation rule.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-52-12'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-52-12'>Permalink</a></p>
+<p class='comment'>Gets the normalized stable state ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-54-12'><code class='signature'>public int Priority { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 54</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-54-12'>Permalink</a></p>
+<p class='comment'>Gets the authoring priority used to break matching-rule ties.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-56-12'><code class='signature'>public FlagRequirement ActivationRequirement { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-56-12'>Permalink</a></p>
+<p class='comment'>Gets the flag requirement used during automatic selection.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-58-12'><code class='signature'>public TensionMusicAction MusicAction { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-58-12'>Permalink</a></p>
+<p class='comment'>Gets the music operation applied when this state is entered.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-60-12'><code class='signature'>public AudioClip Music { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 60</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-60-12'>Permalink</a></p>
+<p class='comment'>Gets the music clip used by the Play operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-62-12'><code class='signature'>public bool FadeMusic { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-62-12'>Permalink</a></p>
+<p class='comment'>Gets whether music changes use the manager&#39;s configured crossfade.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-64-12'><code class='signature'>public IReadOnlyList&lt;AudioClip&gt; EntrySfx { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-64-12'>Permalink</a></p>
+<p class='comment'>Gets the candidate entry sounds.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-66-12'><code class='signature'>public float EntrySfxVolume { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-66-12'>Permalink</a></p>
+<p class='comment'>Gets the normalized entry-sound volume.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-68-12'><code class='signature'>public Color OverlayColor { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-68-12'>Permalink</a></p>
+<p class='comment'>Gets the target fullscreen overlay tint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-70-12'><code class='signature'>public float OverlayAlpha { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-70-12'>Permalink</a></p>
+<p class='comment'>Gets the target fullscreen overlay opacity.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-72-12'><code class='signature'>public float OverlayTransitionDuration { get; }</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-72-12'>Permalink</a></p>
+<p class='comment'>Gets the unscaled overlay blend duration in seconds.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-75-12'><code class='signature'>public bool MatchesFlags(FlagManager flags = null)</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionDefinition.State-Runtime-Horror-HorrorTensionDefinition-cs-75-12'>Permalink</a></p>
+<p class='comment'>Returns whether this state&#39;s configured flag rule is currently met.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Runtime/Horror/HorrorTensionDefinition.cs, line 110</a></figcaption><pre><code>state.MatchesFlags(flags)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.HorrorTensionController.StringUnityEvent'><summary><code>StringUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Horror.HorrorTensionController.StringUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class StringUnityEvent : UnityEvent&lt;string&gt;</code>
+<p class='source'><a href='../../../Runtime/Horror/HorrorTensionController.cs'>Runtime/Horror/HorrorTensionController.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.Horror.HorrorTensionController.StringUnityEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.TensionMusicAction'><summary><code>TensionMusicAction</code> <span class='source'>QuietStatic.Toolkit.Horror.TensionMusicAction</span></summary><div class='entry'>
+<code class='signature'>public enum TensionMusicAction</code>
+<p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Runtime/Horror/HorrorTensionDefinition.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Horror.TensionMusicAction'>Permalink</a></p>
+<p class='comment'>Music change applied when a tension state becomes active.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-37'><code class='signature'>KeepCurrent</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-37'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-50'><code class='signature'>Play</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-50'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-56'><code class='signature'>Stop</code><p class='source'><a href='../../../Runtime/Horror/HorrorTensionDefinition.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Horror.TensionMusicAction-Runtime-Horror-HorrorTensionDefinition-cs-9-56'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Horror.TensionStateEventRelay'><summary><code>TensionStateEventRelay</code> <span class='source'>QuietStatic.Toolkit.Horror.TensionStateEventRelay</span></summary><div class='entry'>
+<code class='signature'>public sealed class TensionStateEventRelay : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Horror/TensionStateEventRelay.cs'>Runtime/Horror/TensionStateEventRelay.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Horror.TensionStateEventRelay'>Permalink</a></p>
+<p class='comment'>Invokes scene-configured events for specific tension state changes.</p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

@@ -20,20 +20,31 @@ namespace QuietStatic.Toolkit.Dialogue
     public class DialogueEventPlayer : MonoBehaviour, ICinematicWaitSource
     {
         /// <summary>
-        /// Gets or sets whether optional collider triggers may start dialogue.
-        /// Direct calls to the dialogue start methods are unaffected.
+        /// Gets whether optional collider triggers may start dialogue, or sets the authored runtime gate.
+        /// Checkpoint restoration also suppresses triggers. Explicit dialogue starts are unaffected.
         /// </summary>
-        public static bool TriggerStartsEnabled { get; set; } = true;
+        public static bool TriggerStartsEnabled
+        {
+            get => triggerStartsEnabled && !RestoreSuppressesTriggerStarts;
+            set => triggerStartsEnabled = value;
+        }
+
+        private static bool triggerStartsEnabled = true;
+        internal static bool RestoreSuppressesTriggerStarts { get; set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetTriggerStartsEnabled()
         {
-            TriggerStartsEnabled = true;
+            triggerStartsEnabled = true;
+            RestoreSuppressesTriggerStarts = false;
         }
 
         [Header("Default Dialogue")]
-        [Tooltip("Optional tree used by the parameterless StartDialogue method.")]
+        [Tooltip("Tree used by configured starts when no Dialogue Tree Resolver is assigned.")]
         [SerializeField] private DialogueTree dialogueTree;
+
+        [Tooltip("Optional ordered rules used for configured starts, including collider triggers.")]
+        [SerializeField] private DialogueTreeResolver dialogueResolver;
 
         [Header("Start Requirement")]
         [Tooltip("Optional flag condition required before this dialogue can start. None always allows it.")]
@@ -50,7 +61,7 @@ namespace QuietStatic.Toolkit.Dialogue
         [Tooltip("When enabled, entering a trigger collider on this GameObject starts the default dialogue.")]
         [SerializeField] private bool startOnTriggerEnter;
 
-        [Tooltip("Optional tag required to start dialogue from the trigger. Leave blank to allow any collider.")]
+        [Tooltip("Optional tag matched on the entering collider or its actor hierarchy. Leave blank to allow any collider.")]
         [SerializeField] private string requiredTag = "Player";
 
         [Tooltip("When enabled, this trigger can successfully start its default dialogue only once.")]
@@ -72,16 +83,19 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>Raised for each node presented by this player's own dialogue session.</summary>
         public event Action<DialogueTree.Node> NodeChanged;
 
-        /// <summary>Gets the current node of this player's active session.</summary>
-        public DialogueTree.Node CurrentNode => activeTree != null && observedManager != null &&
-            observedManager.CurrentDialogueTree == activeTree ? observedManager.CurrentNode : null;
+        internal event Action<DialogueSession, GameObject> SessionStarted;
+        internal event Action<DialogueSession> SessionEnded;
 
-        private DialogueTree activeTree;
+        /// <summary>Gets the current node of this player's active session.</summary>
+        public DialogueTree.Node CurrentNode => IsRunning ? observedManager.CurrentNode : null;
+
+        private DialogueSession activeSession;
         private Transform activeSpeaker;
         private DialogueManager observedManager;
+        private bool presentedFirstNode;
 
         /// <summary>Gets whether dialogue started by this wrapper is still active.</summary>
-        public bool IsRunning => activeTree != null;
+        public bool IsRunning => observedManager != null && observedManager.OwnsSession(activeSession);
 
         /// <summary>Gets whether the optional collider trigger has already fired.</summary>
         public bool HasTriggered { get; private set; }
@@ -89,33 +103,7 @@ namespace QuietStatic.Toolkit.Dialogue
         /// <summary>Gets whether the configured flag requirement currently permits dialogue.</summary>
         public bool CanStartDialogue => startRequirement == null || startRequirement.IsMet();
 
-        private void OnEnable()
-        {
-            bool managerChanged = SubscribeToManager();
-            if (activeTree != null &&
-                (managerChanged ||
-                 observedManager == null ||
-                 observedManager.CurrentDialogueTree != activeTree))
-            {
-                CompleteActiveDialogue();
-            }
-        }
-
-        private void OnDisable()
-        {
-            // Keep observing a dialogue this wrapper started. Manager events are
-            // still delivered to disabled behaviours, so this preserves exact
-            // session identity even if another wrapper later starts the same tree.
-            if (activeTree == null)
-            {
-                UnsubscribeFromManager();
-            }
-        }
-
-        private void OnDestroy()
-        {
-            UnsubscribeFromManager();
-        }
+        private void OnDestroy() => DetachSession();
 
         /// <summary>
         /// Starts the dialogue configured in this component's Inspector.
@@ -135,9 +123,18 @@ namespace QuietStatic.Toolkit.Dialogue
         /// Attempts to start the dialogue configured in this component's Inspector.
         /// </summary>
         /// <returns>True when the persistent dialogue manager accepts the dialogue.</returns>
-        public bool TryStartDefaultDialogue()
+        public bool TryStartDefaultDialogue() => TryStartDefaultDialogue(null);
+
+        /// <summary>Starts the configured conversation for the actor that activated a scene event.</summary>
+        /// <param name="actor">The entering actor. Use null to resolve against the registered player.</param>
+        /// <returns>True when the dialogue entered its first node.</returns>
+        public bool TryStartDefaultDialogue(GameObject actor)
         {
-            return TryStartDialogue(dialogueTree, focusTarget, speaker);
+            DialogueTree tree = dialogueTree;
+            if (dialogueResolver != null && !dialogueResolver.TryResolve(out tree, null, actor))
+                return false;
+
+            return TryStartDialogue(tree, focusTarget, speaker, actor);
         }
 
         /// <summary>
@@ -146,64 +143,62 @@ namespace QuietStatic.Toolkit.Dialogue
         public bool TryStartDialogue(
             DialogueTree tree,
             Transform requestedFocusTarget,
-            Transform requestedSpeaker)
+            Transform requestedSpeaker) => TryStartDialogue(tree, requestedFocusTarget, requestedSpeaker, null);
+
+        private bool TryStartDialogue(
+            DialogueTree tree,
+            Transform requestedFocusTarget,
+            Transform requestedSpeaker,
+            GameObject actor)
         {
-            SubscribeToManager();
+            DialogueManager manager = DialogueManager.Instance;
             if (tree == null ||
-                observedManager == null ||
-                activeTree != null ||
+                manager == null ||
+                activeSession != null ||
                 !CanStartDialogue)
             {
                 return false;
             }
 
-            bool started = observedManager.StartDialogue(
-                tree,
-                requestedFocusTarget);
-
-            if (!started)
+            DialogueSession session = manager.StartDialogueSession(tree, requestedFocusTarget, accepted =>
             {
-                return false;
-            }
+                activeSession = accepted;
+                activeSpeaker = requestedSpeaker;
+                observedManager = manager;
+                presentedFirstNode = false;
+                accepted.NodePresented += HandleNodeChanged;
+                accepted.Completed += HandleDialogueEnded;
+            });
+            if (session == null || !session.HasEnteredNode) return false;
 
-            activeTree = tree;
-            activeSpeaker = requestedSpeaker;
-
-            if (requestedFocusTarget != null && CameraManager.Instance != null)
+            if (activeSession == session && IsRunning)
             {
-                CameraManager.Instance.BeginFocus(requestedFocusTarget);
+                SessionStarted?.Invoke(session, actor);
+                if (activeSession == session && IsRunning) onDialogueStarted?.Invoke();
             }
-
-            // The runner enters its first node synchronously inside StartDialogue, before
-            // this wrapper owns the accepted session. Deliver that node once ownership is set.
-            if (CurrentNode != null)
-            {
-                NodeChanged?.Invoke(CurrentNode);
-            }
-            onDialogueStarted?.Invoke();
             return true;
         }
 
-        /// <summary>Stops the active dialogue through the persistent dialogue manager.</summary>
+        /// <summary>Stops this player's active dialogue session.</summary>
         public void StopDialogue()
         {
-            DialogueManager.Instance?.StopDialogue();
+            if (IsRunning) observedManager.StopDialogue();
         }
 
-        /// <summary>Advances the active dialogue to its next linear node.</summary>
+        /// <summary>Advances this player's active dialogue to its next linear node.</summary>
         public void AdvanceDialogue()
         {
-            DialogueManager.Instance?.AdvanceDialogue();
+            if (IsRunning) observedManager.AdvanceDialogue();
         }
 
-        /// <summary>Selects an option on the active dialogue node.</summary>
+        /// <summary>Selects an option on this player's active dialogue node.</summary>
         /// <param name="choiceIndex">Zero-based choice index.</param>
         public void ChooseDialogueOption(int choiceIndex)
         {
-            DialogueManager.Instance?.ChooseDialogueOption(choiceIndex);
+            if (IsRunning) observedManager.ChooseDialogueOption(choiceIndex);
         }
 
-        /// <summary>Changes the dialogue tree used by parameterless start methods and triggers.</summary>
+        /// <summary>Changes the fixed tree used by configured starts without a resolver.</summary>
         /// <param name="tree">New default dialogue tree.</param>
         public void SetDefaultDialogue(DialogueTree tree)
         {
@@ -239,96 +234,83 @@ namespace QuietStatic.Toolkit.Dialogue
         {
             // Unity sends trigger messages to disabled MonoBehaviours too. A scene
             // owner disabling this wrapper must also suppress new trigger starts.
-            if (!isActiveAndEnabled || !TriggerStartsEnabled || QuietStatic.Toolkit.Saving.SaveManager.Instance?.IsLoading == true ||
+            if (!isActiveAndEnabled || !TriggerStartsEnabled ||
                 !startOnTriggerEnter ||
-                other == null ||
                 (triggerOnce && HasTriggered) ||
-                (!string.IsNullOrWhiteSpace(requiredTag) && !other.CompareTag(requiredTag)))
+                !TryGetTriggerActor(other, out GameObject actor))
             {
                 return;
             }
 
-            if (TryStartDefaultDialogue())
+            if (TryStartDefaultDialogue(actor))
             {
                 HasTriggered = true;
             }
         }
 
-        private void HandleDialogueEnded(UnityEngine.Object endedDialogue)
+        private bool TryGetTriggerActor(Collider other, out GameObject actor)
         {
-            if (activeTree == null || endedDialogue != activeTree)
+            actor = null;
+            if (other == null) return false;
+
+            Transform body = other.attachedRigidbody != null ? other.attachedRigidbody.transform : null;
+            Transform tagged = other.transform;
+            if (!string.IsNullOrWhiteSpace(requiredTag))
             {
-                return;
+                while (tagged != null && !tagged.CompareTag(requiredTag))
+                {
+                    // An independent body under the player (such as a carried prop) has its own tag.
+                    tagged = tagged == body ? null : tagged.parent;
+                }
+                if (tagged == null) return false;
             }
 
-            CompleteActiveDialogue();
-        }
-
-        private void HandleNodeChanged(DialogueTree tree, DialogueTree.Node node)
-        {
-            if (activeTree != null && tree == activeTree)
+            PlayerManager playerManager = PlayerManager.Instance;
+            GameObject registeredPlayer = playerManager != null ? playerManager.Player : null;
+            if (registeredPlayer != null &&
+                (tagged == registeredPlayer.transform || tagged.IsChildOf(registeredPlayer.transform)))
             {
-                NodeChanged?.Invoke(node);
+                actor = registeredPlayer;
             }
-        }
-
-        private void CompleteActiveDialogue()
-        {
-            if (activeTree == null)
+            else
             {
-                return;
+                actor = string.IsNullOrWhiteSpace(requiredTag) && body != null ? body.gameObject : tagged.gameObject;
             }
-
-            DialogueTree endedTree = activeTree;
-            Transform endedSpeaker = activeSpeaker;
-
-            activeTree = null;
-            activeSpeaker = null;
-
-            if (CameraManager.Instance != null)
-            {
-                CameraManager.Instance.EndFocus();
-            }
-
-            DialogueEnded?.Invoke(endedTree, endedSpeaker);
-            onDialogueEnded?.Invoke();
-
-            if (!isActiveAndEnabled)
-            {
-                UnsubscribeFromManager();
-            }
-        }
-
-        private bool SubscribeToManager()
-        {
-            DialogueManager manager = DialogueManager.Instance;
-            if (ReferenceEquals(observedManager, manager))
-            {
-                return false;
-            }
-
-            UnsubscribeFromManager();
-            observedManager = manager;
-            if (observedManager != null)
-            {
-                observedManager.DialogueEnded += HandleDialogueEnded;
-                observedManager.NodeChanged += HandleNodeChanged;
-            }
-
             return true;
         }
 
-        private void UnsubscribeFromManager()
+        private void HandleDialogueEnded(DialogueSession session)
         {
-            DialogueManager manager = observedManager;
-            observedManager = null;
-            if (manager == null)
-            {
-                return;
-            }
+            Transform endedSpeaker = activeSpeaker;
+            DetachSession();
+            if (!session.HasEnteredNode) return;
 
-            manager.DialogueEnded -= HandleDialogueEnded;
-            manager.NodeChanged -= HandleNodeChanged;
+            SessionEnded?.Invoke(session);
+            DialogueEnded?.Invoke(session.Tree, endedSpeaker);
+            onDialogueEnded?.Invoke();
+        }
+
+        private void HandleNodeChanged(DialogueTree.Node node)
+        {
+            if (!presentedFirstNode)
+            {
+                presentedFirstNode = true;
+                activeSession.BeginFocus();
+            }
+            NodeChanged?.Invoke(node);
+        }
+
+        private void DetachSession()
+        {
+            // An owner remains subscribed while disabled so it still receives completion.
+            if (activeSession != null)
+            {
+                activeSession.NodePresented -= HandleNodeChanged;
+                activeSession.Completed -= HandleDialogueEnded;
+            }
+            activeSession = null;
+            activeSpeaker = null;
+            observedManager = null;
         }
     }
 }

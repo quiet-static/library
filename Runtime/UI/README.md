@@ -13,7 +13,15 @@ UI
 
 Keep the UI scene persistent when transitions should preserve it. Let UI listen to manager
 events; avoid making gameplay objects search the canvas hierarchy.
-# Shared progress-bar styling
+## Menu button audio
+
+The starter title, pause, settings, and rebind prefabs use `AudibleButton` for menu
+actions. Add one `ButtonAudioFeedback` to the persistent audio scene and assign its click
+clip and output mixer group. The component plays the clip when an active, interactable
+`AudibleButton` receives a left click or a UI submit, including while listener audio is
+paused. Use `AudibleButton` for custom menu actions that should share this feedback.
+
+## Shared progress-bar styling
 
 `ProgressBarTheme` is a reusable ScriptableObject shared by world-space and
 screen-space meters. `WorldSpaceProgressBar` applies it directly, while

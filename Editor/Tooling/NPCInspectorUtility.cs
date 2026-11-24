@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QuietStatic.Toolkit.Characters.NPC;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace QuietStatic.Toolkit.Editor.Characters.NPC
@@ -88,7 +89,7 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
             }
 
             var availableTriggers = new HashSet<string>(
-                animator.parameters
+                ReadAnimatorParameters(animator)
                     .Where(parameter =>
                         parameter.type == AnimatorControllerParameterType.Trigger)
                     .Select(parameter => parameter.name),
@@ -105,13 +106,41 @@ namespace QuietStatic.Toolkit.Editor.Characters.NPC
             }
         }
 
-        private static Animator ResolveAnimator(NPCAnimationTrigger adapter)
+        internal static Animator ResolveAnimator(Component adapter)
         {
-            var serializedAdapter = new SerializedObject(adapter);
+            if (adapter == null) return null;
+
+            using var serializedAdapter = new SerializedObject(adapter);
             SerializedProperty animatorProperty =
                 serializedAdapter.FindProperty("animator");
-            return animatorProperty?.objectReferenceValue as Animator ??
-                   adapter.GetComponentInChildren<Animator>();
+            if (animatorProperty?.objectReferenceValue is Animator assigned && assigned != null) return assigned;
+
+            Animator activeAnimator = adapter.GetComponentInChildren<Animator>();
+            if (activeAnimator != null || adapter.gameObject.activeInHierarchy) return activeAnimator;
+
+            return adapter.GetComponentsInChildren<Animator>(true)
+                .FirstOrDefault(candidate => RemainsActiveWhenNpcEnables(candidate.transform, adapter.transform));
+        }
+
+        internal static IReadOnlyList<AnimatorControllerParameter> ReadAnimatorParameters(Animator animator)
+        {
+            if (animator == null) return Array.Empty<AnimatorControllerParameter>();
+
+            RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+            while (controller is AnimatorOverrideController overrides) controller = overrides.runtimeAnimatorController;
+            if (controller == null) return Array.Empty<AnimatorControllerParameter>();
+
+            return controller is AnimatorController editable ? editable.parameters : animator.parameters;
+        }
+
+        private static bool RemainsActiveWhenNpcEnables(Transform candidate, Transform root)
+        {
+            for (Transform current = candidate; current != root; current = current.parent)
+            {
+                if (!current.gameObject.activeSelf) return false;
+            }
+
+            return true;
         }
     }
 }

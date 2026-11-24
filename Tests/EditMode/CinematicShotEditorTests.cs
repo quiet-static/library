@@ -4,6 +4,8 @@ using NUnit.Framework;
 using QuietStatic.Toolkit.Cinematics;
 using QuietStatic.Toolkit.Editor.Cinematics;
 using UnityEditor;
+using UnityEditor.Animations;
+using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -317,6 +319,71 @@ namespace QuietStatic.Tests.EditMode
             Assert.That(director.transform.position, Is.EqualTo(original));
             director.PreviewShot(0);
             Assert.That(director.transform.position, Is.EqualTo(Vector3.one * 7));
+        }
+
+        [Test]
+        public void AnimationSearchFindsNestedStatePathsAndOverrideClips()
+        {
+            var controller = Track(new AnimatorController());
+            var machine = Track(new AnimatorStateMachine());
+            controller.AddLayer(new AnimatorControllerLayer { name = "Base Layer", stateMachine = machine });
+            var nested = machine.AddStateMachine("Conversation");
+            var state = nested.AddState("Wave");
+            var original = Track(new AnimationClip { name = "Wave Clip" });
+            var replacement = Track(new AnimationClip { name = "Alternate Wave" });
+            state.motion = original;
+            var overrides = Track(new AnimatorOverrideController(controller));
+            overrides[original] = replacement;
+            var found = CutsceneContentSearch.FindStates(overrides).Single();
+            Assert.That(found.Path, Is.EqualTo("Base Layer.Conversation.Wave"));
+            Assert.That(found.Layer, Is.Zero);
+            Assert.That(found.Clips, Is.EqualTo(new[] { replacement }));
+            Object.DestroyImmediate(state);
+            Object.DestroyImmediate(nested);
+        }
+
+        [Test]
+        public void CopyingShotCreatesIndependentFramingAndStableId()
+        {
+            var source = CreateDirector(out _, out var marker, out _);
+            SetShots(source, new List<CinematicCutsceneCameraDirector.CinematicShot>
+            { CreateShot("source.shot", "Source", marker, 52f) });
+            var destination = CreateDirector(out _, out _, out _);
+            int added = (int)typeof(CutsceneContentSearch).GetMethod("CopyShot", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { source, 0, destination });
+            using var data = new SerializedObject(destination);
+            var shot = data.FindProperty("shots").GetArrayElementAtIndex(added);
+            var copyMarker = (Transform)shot.FindPropertyRelative("cameraPositionMarker").objectReferenceValue;
+            Assert.That(copyMarker, Is.Not.SameAs(marker));
+            Assert.That(copyMarker.position, Is.EqualTo(marker.position));
+            Assert.That(Quaternion.Angle(copyMarker.rotation, marker.rotation), Is.LessThan(0.01f));
+            Assert.That(shot.FindPropertyRelative("fieldOfView").floatValue, Is.EqualTo(52f));
+            Assert.That(destination.GetExplicitShotId(added), Is.Not.EqualTo("source.shot"));
+            Assert.That(source.GetExplicitShotId(0), Is.EqualTo("source.shot"));
+            Undo.ClearUndo(destination);
+        }
+
+        [Test]
+        public void AddStepDoesNotCopyPreviousCallbacksOrCharacterActions()
+        {
+            var host = Track(new GameObject("Step Authoring Test"));
+            var runner = host.AddComponent<CutsceneSequenceRunner>();
+            SetField(runner, "steps", new[] { new CutsceneSequenceRunner.Step
+            {
+                name = "Existing", cameraShotId = "original-shot", waitAfterStep = 5f,
+                characterActions = new List<CutsceneCharacterController.CharacterStepAction>
+                { new() { characterId = "actor", animatorStateName = "Wave" } }
+            } });
+            using var data = new SerializedObject(runner);
+            typeof(CutsceneExplorerWindow).GetMethod("AddStep", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { data.FindProperty("steps") });
+            data.ApplyModifiedProperties();
+            Assert.That(runner.Steps.Count, Is.EqualTo(2));
+            Assert.That(runner.Steps[0].characterActions.Count, Is.EqualTo(1));
+            Assert.That(runner.Steps[1].characterActions, Is.Empty);
+            Assert.That(runner.Steps[1].cameraShotId, Is.Empty);
+            Assert.That(runner.Steps[1].waitAfterStep, Is.Zero);
+            Undo.ClearUndo(runner);
         }
 
         private CinematicCutsceneCameraDirector CreateDirector(

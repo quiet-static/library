@@ -1,4 +1,5 @@
 using QuietStatic.Toolkit.Dialogue;
+using QuietStatic.Toolkit.Interactions;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -114,19 +115,16 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            DialogueTree requestedTree = dialogueTree;
-            if (dialogueResolver != null && !dialogueResolver.TryResolve(out requestedTree))
+            if (!TryResolveDialogue(null, out DialogueTree requestedTree))
             {
-                return;
-            }
-
-            if (requestedTree == null)
-            {
-                GameLogger.Warning(
-                    "StartDialogue",
-                    this,
-                    $"{name} cannot start dialogue because no DialogueTree is assigned."
-                );
+                if (dialogueResolver == null)
+                {
+                    GameLogger.Warning(
+                        "StartDialogue",
+                        this,
+                        $"{name} cannot start dialogue because no DialogueTree is assigned."
+                    );
+                }
                 return;
             }
 
@@ -140,23 +138,53 @@ namespace QuietStatic.Toolkit.Characters.NPC
                 return;
             }
 
-            onDialogueRequested?.Invoke();
+            RequestDialogue(requestedTree);
+        }
 
-            Transform resolvedFocusTarget = focusTarget != null ? focusTarget : transform;
+        /// <summary>Checks whether the direct interaction has a conversation for this player.</summary>
+        internal bool HasAvailableDialogue(Interactor interactor) => TryGetAvailableDialogue(interactor, out _);
 
-            bool started = dialogueEventPlayer.TryStartDialogue(
-                requestedTree,
-                resolvedFocusTarget,
-                transform
-            );
+        /// <summary>Starts the available conversation and reports whether the handler accepted it.</summary>
+        internal bool TryStartInteractionDialogue(Interactor interactor) =>
+            TryGetAvailableDialogue(interactor, out DialogueTree tree) && RequestDialogue(tree);
 
-            if (!started)
+        private bool TryGetAvailableDialogue(Interactor interactor, out DialogueTree tree)
+        {
+            tree = null;
+            return isActiveAndEnabled && !IsInDialogue && dialogueEventPlayer != null &&
+                !dialogueEventPlayer.IsRunning && dialogueEventPlayer.CanStartDialogue &&
+                TryResolveDialogue(interactor, out tree);
+        }
+
+        private bool TryResolveDialogue(Interactor interactor, out DialogueTree tree)
+        {
+            if (dialogueResolver != null)
             {
-                return;
+                return dialogueResolver.TryResolve(out tree, null, interactor != null ? interactor.Actor : null, interactor);
             }
 
-            activeDialogueTree = requestedTree;
-            BeginDialogueState();
+            tree = dialogueTree;
+            return tree != null;
+        }
+
+        private bool RequestDialogue(DialogueTree requestedTree)
+        {
+            onDialogueRequested?.Invoke();
+
+            DialogueEventPlayer eventPlayer = dialogueEventPlayer;
+            Transform resolvedFocusTarget = focusTarget != null ? focusTarget : transform;
+            if (eventPlayer == null || !eventPlayer.TryStartDialogue(requestedTree, resolvedFocusTarget, transform))
+            {
+                return false;
+            }
+
+            if (eventPlayer == dialogueEventPlayer && eventPlayer.IsRunning && isActiveAndEnabled)
+            {
+                activeDialogueTree = requestedTree;
+                BeginDialogueState();
+            }
+
+            return true;
         }
 
         /// <summary>

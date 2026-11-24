@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using QuietStatic.Toolkit.Cameras;
 using QuietStatic.Toolkit.Dialogue;
 using QuietStatic.Toolkit.Flags;
 using QuietStatic.Toolkit.Cinematics;
@@ -188,12 +189,80 @@ namespace QuietStatic.Tests.PlayMode
                 second.TryStartDialogue(tree, null, null),
                 Is.True);
             first.enabled = true;
+            first.ChooseDialogueOption(0);
+            first.AdvanceDialogue();
+            first.StopDialogue();
+            Assert.That(second.IsRunning, Is.True);
             Assert.That(manager.StopDialogue(), Is.True);
 
             Assert.That(firstEnded, Is.EqualTo(1));
             Assert.That(secondEnded, Is.EqualTo(1));
             Assert.That(first.IsRunning, Is.False);
             Assert.That(second.IsRunning, Is.False);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ANodeCallbackCanEndAndReplaceItsSessionWithoutReplayingTheFirstNode()
+        {
+            DialogueTree tree = Track(CreateTree(new DialogueTree.Node { id = "start", nextNodeIndex = -1 }));
+            var managerObject = Track(new GameObject("Dialogue Manager"));
+            managerObject.AddComponent<DialogueRunner>();
+            managerObject.AddComponent<DialogueManager>();
+            DialogueEventPlayer first = Track(new GameObject("First")).AddComponent<DialogueEventPlayer>();
+            DialogueEventPlayer replacement = Track(new GameObject("Replacement")).AddComponent<DialogueEventPlayer>();
+            var observed = new List<string>();
+            first.NodeChanged += node =>
+            {
+                observed.Add("first:" + node.id);
+                Assert.That(first.CurrentNode, Is.SameAs(node));
+                first.StopDialogue();
+            };
+            first.DialogueEnded += (_, _) =>
+            {
+                observed.Add("first ended");
+                Assert.That(replacement.TryStartDialogue(tree, null, null), Is.True);
+            };
+            replacement.NodeChanged += node => observed.Add("replacement:" + node.id);
+
+            Assert.That(first.TryStartDialogue(tree, null, null), Is.True);
+            CollectionAssert.AreEqual(new[] { "first:start", "first ended", "replacement:start" }, observed);
+            Assert.That(first.IsRunning, Is.False);
+            Assert.That(replacement.IsRunning, Is.True);
+            replacement.StopDialogue();
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator DialogueReleasesOnlyItsOwnCameraFocus()
+        {
+            DialogueTree tree = Track(CreateTree(new DialogueTree.Node { id = "start", nextNodeIndex = -1 }));
+            var managerObject = Track(new GameObject("Dialogue Manager"));
+            managerObject.AddComponent<DialogueRunner>();
+            managerObject.AddComponent<DialogueManager>();
+            var cameraObject = Track(new GameObject("Camera Manager"));
+            cameraObject.AddComponent<CameraController>();
+            var focus = cameraObject.AddComponent<CameraFocusController>();
+            var camera = cameraObject.AddComponent<CameraManager>();
+            var player = Track(new GameObject("Dialogue Owner")).AddComponent<DialogueEventPlayer>();
+            Transform target = Track(new GameObject("Target")).transform;
+
+            Assert.That(player.TryStartDialogue(tree, null, null), Is.True);
+            focus.BeginFocus(target);
+            player.StopDialogue();
+            Assert.That(focus.IsFocusing, Is.True);
+            focus.EndFocus();
+
+            Assert.That(player.TryStartDialogue(tree, target, null), Is.True);
+            Assert.That(focus.IsFocusing, Is.True);
+            player.StopDialogue();
+            Assert.That(focus.IsFocusing, Is.False);
+
+            Assert.That(player.TryStartDialogue(tree, target, null), Is.True);
+            camera.BeginFocus(target);
+            player.StopDialogue();
+            Assert.That(focus.IsFocusing, Is.True);
+            focus.EndFocus();
             yield return null;
         }
 

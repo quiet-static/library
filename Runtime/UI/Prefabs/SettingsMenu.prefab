@@ -1958,9 +1958,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5637051003588809737}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 36895edfab5441089b56aae61975f491, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.UI.AudibleButton
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -3696,9 +3696,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8800000000000000000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 36895edfab5441089b56aae61975f491, type: 3}
   m_Name:
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: QuietStatic.Core.Runtime::QuietStatic.Toolkit.UI.AudibleButton
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0

@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Characters — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Characters</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor'><code>QuietStatic.Toolkit.Characters.Player.CharacterMotor</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StationConfrontationCameraPlayModeTests.cs#L46'>Stolen &#183; Assets/Tests/PlayMode/StationConfrontationCameraPlayModeTests.cs, line 46</a></figcaption><pre><code>motor.Tick(Vector2.zero, false, false);</code></pre></figure></section>
+<section class='guide' id='guide-runtime-characters-npc-readme-md'><h1 id='guide-runtime-characters-npc-readme-md-npcs'>NPCs</h1>
+<p>NPCs use a controller plus opt-in behaviors. <code>NPCModeController</code> decides which behavior
+is active; the NavMesh motor owns movement; animator and look-at components own presentation.</p>
+<pre><code class="language-text">NPC
+├── NavMeshAgent
+├── NPCController
+├── NPCModeController
+├── NPCNavMeshMotor
+├── NPCDoorOpener                      optional cross-cutting path-door support
+├── NPCAnimatorDriver
+├── NPCWanderBehaviour
+├── NPCWaypointRouteBehaviour
+├── NPCFollowBehaviour
+├── NPCDialogueBehaviour
+└── Visual
+    └── Animator
+</code></pre>
+<p>Bake a NavMesh before testing movement. Configure only the behaviors the character uses,
+and change modes through the controller/handler API rather than enabling scripts manually.</p>
+<h2 id='guide-runtime-characters-npc-readme-md-authored-waypoint-routes'>Authored waypoint routes</h2>
+<p>Use <code>NPCWaypointRouteBehaviour</code> when an NPC needs deliberate scene-authored stops rather
+than random-radius wandering:</p>
+<ol>
+<li>Create a scene object with <code>NPCWaypointRoute</code>.</li>
+<li>Add child objects with <code>NPCWaypoint</code>, then use <strong>Refresh Waypoints From Children</strong> on
+the route to capture hierarchy order.</li>
+<li>Configure each waypoint's wait range, arrival distance, optional facing, destination
+jitter, and optional Animator trigger.</li>
+<li>Add <code>NPCWaypointRouteBehaviour</code> to an NPC that already has <code>NPCController</code>,
+<code>NPCNavMeshMotor</code>, and a <code>NavMeshAgent</code>.</li>
+<li>Assign <code>NPCAnimationTrigger</code> when waypoint arrival should request an Animator trigger.
+<code>NPCAnimatorDriver</code> continues to own the normal locomotion Speed parameter.</li>
+</ol>
+<p>Routes are scene components because their positions are scene data. Multiple NPCs may
+share one route safely: every route behavior maintains an independent cursor and randomized
+destination offset. <code>Once</code> supports finite arrival/departure paths; <code>Loop</code>, <code>PingPong</code>, and
+<code>Random</code> support ambient background movement. A completed or unreachable route can also be
+restarted or advanced from scene logic through the component's public methods.</p>
+<p>Do not activate two movement behaviors on the same NPC at once. Put follow, wander, and
+waypoint-route behaviors in mutually exclusive <code>NPCModeController</code> modes when a character
+changes roles at runtime.</p>
+<h2 id='guide-runtime-characters-npc-readme-md-service-queues'>Service queues</h2>
+<p>Use a scene-local <code>NPCQueueController</code> when NPCs must enter in a fixed order, optionally
+occupy waiting positions, pause for game-specific service, and then leave. Add
+<code>NPCQueueMember</code> beside each NPC's <code>NPCController</code> and <code>NPCNavMeshMotor</code>, assign any
+pre-service stops, and list the members on the queue controller in service order.</p>
+<p>For concurrent arrivals, increase <strong>Maximum Active Members</strong> and provide one waiting
+position for each customer behind the register. Every active member follows its own
+pre-service route while service remains in the authored order. Advancing the line preserves
+unfinished browsing stops and their remaining wait time.</p>
+<p>Set <strong>Arrival Interval</strong> to stagger new members at the entrance while allowing earlier
+customers to browse or wait. The first member enters immediately; later arrivals wait at
+least this many game seconds. The timer pauses with the queue and resets on restart.
+Zero preserves simultaneous arrivals. Restoring a save still reconstructs followers at
+their waiting positions without replaying their entrances.</p>
+<p>Add <code>NPCWaypoint</code> to any pre-service destination that should pause. Its minimum/maximum
+wait durations, facing, destination jitter, animation trigger, and arrival event apply to
+each visiting member. Plain Transform destinations remain movement-only. For a browsing
+stop, set the wait range to 3–5 seconds and assign an existing Animator trigger through the
+member's <code>NPCAnimationTrigger</code>; <code>idle</code> can stand in until a browsing clip is available.
+Connect the motor's movement events to walking/idle triggers so walking resumes afterward.
+Waits use game time and pause with the queue. <code>RestoreAt</code> restores followers to their line
+positions rather than reconstructing partially completed browsing routes.</p>
+<p>The queue owns only spatial progression. Dialogue, interactions, transactions, objectives,
+and save data stay in the scene handler: listen for <code>MemberReadyForService</code>, call
+<code>BeginService</code> when the player engages the NPC, and call <code>CompleteService</code> when that game's
+service step finishes. <code>CancelQueue</code>, <code>ResetQueue</code>, <code>PauseQueue</code>, <code>ResumeQueue</code>, and runtime
+<code>Enqueue</code> support reuse without a persistent manager. <code>RestoreAt</code> reconstructs logical
+state without replaying queue or member lifecycle callbacks.</p>
+<p>Each member can select <code>NPCModeController</code> modes and fire animation triggers or UnityEvents
+for entering, waiting, service, and leaving. Direct transform movement after a failed
+NavMesh request is explicitly opt-in; leave it disabled when actors must stay on a baked
+NavMesh and handle <code>MovementFailed</code> instead.</p>
+<h3 id='guide-runtime-characters-npc-readme-md-doors-along-a-queue-route'>Doors along a queue route</h3>
+<p>Add <code>NPCDoorOpener</code> beside a queue member when its route crosses animated doors. Mark each
+door that NPCs may use with <code>NPCPathDoor</code>, assign its binary <code>InteractableUnlock</code>, and
+optionally assign the door's <code>Interactable</code> so the same enabled state and flag requirements
+govern NPC access. The marker is explicit: unrelated animated interactions are never opened.</p>
+<p>Set the path door's <strong>Clearance Delay</strong> long enough for both its opening animation and any
+carving <code>NavMeshObstacle</code> to update. Queue movement stops during that interval, rebuilds its
+path afterward, and reports <code>MovementFailed</code> for a locked door. NPC opening is idempotent,
+so two actors requesting the same open door cannot toggle it closed.</p>
+<h2 id='guide-runtime-characters-npc-readme-md-small-ambient-crowds'>Small ambient crowds</h2>
+<p><code>NPCCrowdController</code> is a thin scene-local coordinator for a handful of background actors.
+Assign one <code>NPCWaypointRouteBehaviour</code> per member and configure the initial delay, stagger,
+and optional random stagger jitter. The controller pauses assigned routes before starting
+them in order, and its Start/Stop/Restart methods are safe UnityEvent targets.</p>
+<p>Crowd members are noninteractive by composition: omit <code>Interactable</code> and
+<code>NPCDialogueBehaviour</code>. The crowd controller does not spawn characters, move agents itself,
+or reference persistent managers. Use separate routes, randomized starting points, or
+waypoint destination jitter when members should not bunch at identical destinations.</p>
+</section>
+<section class='guide' id='guide-runtime-characters-player-readme-md'><h1 id='guide-runtime-characters-player-readme-md-player'>Player</h1>
+<p>The player stack separates input, motor physics, movement state, and animation.</p>
+<pre><code class="language-text">Player
+├── CharacterController
+├── PlayerInputReader
+├── CharacterMotor
+├── PlayerController
+├── MovementStateController
+├── EntityState
+└── Visual
+    └── Animator + AnimationController
+</code></pre>
+<p><code>PlayerController</code> translates input into intent, <code>CharacterMotor</code> performs movement,
+<code>MovementStateController</code> classifies locomotion, and <code>AnimationController</code> presents it.
+Assign references on the prefab rather than searching for them every frame.</p>
+</section>
+<section class='guide' id='guide-runtime-characters-readme-md'><h1 id='guide-runtime-characters-readme-md-characters'>Characters</h1>
+<p>Character code is divided into <code>Player</code> locomotion and modular <code>NPC</code> behavior. Shared
+helpers such as <code>VelocityReporter</code> stay at this level.</p>
+<p>Use the provided player prefabs as a starting point. Keep the visual model/Animator on a
+child object and movement/collision/input components on the root so art can be replaced
+without rebuilding control logic.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.AnimationController'><summary><code>AnimationController</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.AnimationController</span></summary><div class='entry'>
+<code class='signature'>public class AnimationController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/AnimationController.cs'>Runtime/Characters/Player/AnimationController.cs, line 29</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.AnimationController'>Permalink</a></p>
+<p class='comment'>Synchronizes common movement-related values from a character movement system to a Unity Animator.</p>
+<p class='comment'><strong>Remarks</strong> This component is meant to sit on the same GameObject as an Animator and, usually, the character&#39;s movement components. It reads movement information from a CharacterMotor and a MovementStateController, then writes those values into Animator parameters each frame. Animator parameter names are configurable in the Inspector. Leave a parameter name blank to disable that specific Animator update without changing code. Supported Animator parameter types: float: movement speed.bool: grounded state.trigger: jump start.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor'><summary><code>CharacterMotor</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.CharacterMotor</span></summary><div class='entry'>
+<code class='signature'>public class CharacterMotor : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Runtime/Characters/Player/CharacterMotor.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor'>Permalink</a></p>
+<p class='comment'>Handles character movement using a CharacterController, including camera-relative movement, turning, jumping, gravity, and optional movement state updates.</p>
+<p class='comment'><strong>Remarks</strong> This component is intended to be reusable across third-person character-based projects. It does not read input directly; instead, it expects movement data to be provided through Tick(Vector2, bool, bool).</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-106-8'><code class='signature'>public void ResetMotion()</code><p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Source, line 106</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-106-8'>Permalink</a></p>
+<p class='comment'>Clears movement accumulated before an explicit teleport.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetMotion();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-117-8'><code class='signature'>public float VerticalVelocity { get; }</code><p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Source, line 117</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-117-8'>Permalink</a></p>
+<p class='comment'>Gets the current vertical velocity. Useful for animation state evaluation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-122-8'><code class='signature'>public float NormalizedSpeed { get; }</code><p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Source, line 122</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-122-8'>Permalink</a></p>
+<p class='comment'>Gets the current horizontal speed normalized against sprint speed.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-127-8'><code class='signature'>public bool IsGrounded { get; }</code><p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Source, line 127</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-127-8'>Permalink</a></p>
+<p class='comment'>Gets whether the character is currently grounded.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-156-8'><code class='signature'>public void Tick(Vector2 input, bool sprint, bool jumpPressed)</code><p class='source'><a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Source, line 156</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.CharacterMotor-Runtime-Characters-Player-CharacterMotor-cs-156-8'>Permalink</a></p>
+<p class='comment'>Processes one frame of character movement using externally supplied input data.</p>
+<p class='comment'><strong>input</strong> Raw movement input where X is horizontal movement and Y is forward/back movement.</p>
+<p class='comment'><strong>sprint</strong> Whether sprint movement speed should be used.</p>
+<p class='comment'><strong>jumpPressed</strong> Whether jump was requested this frame.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StationConfrontationCameraPlayModeTests.cs#L46'>Stolen &#183; Assets/Tests/PlayMode/StationConfrontationCameraPlayModeTests.cs, line 46</a></figcaption><pre><code>motor.Tick(Vector2.zero, false, false);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember'><summary><code>CrowdMember</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember</span></summary><div class='entry'>
+<code class='signature'>public sealed class CrowdMember</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Runtime/Characters/NPC/NPCCrowdController.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember'>Permalink</a></p>
+<p class='comment'>One independently moving member managed by this crowd.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember-Runtime-Characters-NPC-NPCCrowdController-cs-31-12'><code class='signature'>public NPCWaypointRouteBehaviour RouteBehaviour { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 31</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember-Runtime-Characters-NPC-NPCCrowdController-cs-31-12'>Permalink</a></p>
+<p class='comment'>Gets the route behavior controlled for this member.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember-Runtime-Characters-NPC-NPCCrowdController-cs-34-12'><code class='signature'>public float AdditionalStartDelay { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 34</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController.CrowdMember-Runtime-Characters-NPC-NPCCrowdController-cs-34-12'>Permalink</a></p>
+<p class='comment'>Gets the member-specific additional start delay.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.EntityState'><summary><code>EntityState</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.EntityState</span></summary><div class='entry'>
+<code class='signature'>public static class EntityState</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Runtime/Characters/Player/EntityState.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState'>Permalink</a></p>
+<p class='comment'>Defines shared character state types used by character movement, animation, and gameplay systems.</p>
+<p class='comment'><strong>Remarks</strong> This class is intentionally static because it acts as a lightweight namespace for reusable state enums. Keeping these values in one place helps different systems agree on the same movement-state names without each component needing to define its own duplicate enum.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode'><summary><code>FacingMode</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode</span></summary><div class='entry'>
+<code class='signature'>public enum FacingMode</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Runtime/Characters/NPC/NPCWaypoint.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode'>Permalink</a></p>
+<p class='comment'>Determines how an NPC is oriented while it waits at this waypoint.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-17-12'><code class='signature'>None</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-17-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-18-12'><code class='signature'>WaypointForward</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-18-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-19-12'><code class='signature'>Target</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint.FacingMode-Runtime-Characters-NPC-NPCWaypoint-cs-19-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival'><summary><code>FlagTriggeredNPCArrival</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival</span></summary><div class='entry'>
+<code class='signature'>public sealed class FlagTriggeredNPCArrival : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival'>Permalink</a></p>
+<p class='comment'>Transports an NPC to a scene anchor and optionally starts its dialogue when a gameplay flag becomes active.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-53-8'><code class='signature'>public bool HasTriggered { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-53-8'>Permalink</a></p>
+<p class='comment'>Gets whether this component has successfully transported its NPC.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-55-8'><code class='signature'>public Transform ArrivalActor { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 55</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-55-8'>Permalink</a></p>
+<p class='comment'>Actor whose placement is owned by this arrival.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-57-8'><code class='signature'>public bool IsDialoguePending { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-57-8'>Permalink</a></p>
+<p class='comment'>Whether a delayed arrival conversation has not started yet.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-60-8'><code class='signature'>public void RestoreArrivalState(bool value)</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 60</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-60-8'>Permalink</a></p>
+<p class='comment'>Restores the one-shot latch without replaying arrival events or dialogue.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RestoreArrivalState(value);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-115-8'><code class='signature'>public bool TryArrive()</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 115</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-115-8'>Permalink</a></p>
+<p class='comment'>Attempts the configured arrival immediately.</p>
+<p class='comment'><strong>Returns</strong> True when the NPC was transported.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.TryArrive();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-142-8'><code class='signature'>public void ResetArrival()</code><p class='source'><a href='../../../Runtime/Characters/NPC/FlagTriggeredNPCArrival.cs'>Source, line 142</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.FlagTriggeredNPCArrival-Runtime-Characters-NPC-FlagTriggeredNPCArrival-cs-142-8'>Permalink</a></p>
+<p class='comment'>Allows a one-shot arrival to be triggered again.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetArrival();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MemberEvent'><summary><code>MemberEvent</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MemberEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class MemberEvent : UnityEvent&lt;NPCQueueMember&gt;</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Runtime/Characters/NPC/NPCQueueController.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MemberEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MovementFailureEvent'><summary><code>MovementFailureEvent</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MovementFailureEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class MovementFailureEvent : UnityEvent&lt;NPCQueueMember, Transform&gt;</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Runtime/Characters/NPC/NPCQueueController.cs, line 20</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController.MovementFailureEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState'><summary><code>MovementState</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.EntityState.MovementState</span></summary><div class='entry'>
+<code class='signature'>public enum MovementState</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Runtime/Characters/Player/EntityState.cs, line 23</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState'>Permalink</a></p>
+<p class='comment'>Represents the current high-level movement state of a character.</p>
+<p class='comment'><strong>Remarks</strong> These values are usually set by a movement or state controller and then read by other systems, such as animation controllers, camera helpers, sound effects, or gameplay logic.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-28-12'><code class='signature'>Idle</code><p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-28-12'>Permalink</a></p>
+<p class='comment'>The character is grounded and not moving.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-33-12'><code class='signature'>Moving</code><p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-33-12'>Permalink</a></p>
+<p class='comment'>The character is grounded and currently moving.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-38-12'><code class='signature'>Jumping</code><p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-38-12'>Permalink</a></p>
+<p class='comment'>The character has started a jump or is moving upward through the air.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-43-12'><code class='signature'>Falling</code><p class='source'><a href='../../../Runtime/Characters/Player/EntityState.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.EntityState.MovementState-Runtime-Characters-Player-EntityState-cs-43-12'>Permalink</a></p>
+<p class='comment'>The character is airborne and moving downward or otherwise not grounded.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController'><summary><code>MovementStateController</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.MovementStateController</span></summary><div class='entry'>
+<code class='signature'>public class MovementStateController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Runtime/Characters/Player/MovementStateController.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController'>Permalink</a></p>
+<p class='comment'>Determines and stores a character&#39;s current high-level movement state.</p>
+<p class='comment'><strong>Remarks</strong> This component converts low-level movement data, such as grounded status, vertical velocity, and horizontal speed, into a simple reusable state value. Other systems can then read CurrentState instead of each system needing to duplicate movement-state logic. Typical consumers include animation controllers, footstep systems, landing effects, jump effects, sound triggers, and gameplay logic that needs to know whether a character is idle, moving, jumping, or falling.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-39-8'><code class='signature'>public EntityState.MovementState CurrentState { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-39-8'>Permalink</a></p>
+<p class='comment'>Gets the character&#39;s current resolved movement state.</p>
+<p class='comment'><strong>Remarks</strong> This value is updated when UpdateState or SetState is called. It starts as EntityState.MovementState.Idle by default.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-48-8'><code class='signature'>public EntityState.MovementState PreviousState { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-48-8'>Permalink</a></p>
+<p class='comment'>Gets the movement state that was active immediately before the current state.</p>
+<p class='comment'><strong>Remarks</strong> This is useful when another system needs to detect transitions, such as moving from jumping to falling or falling to idle.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-56-8'><code class='signature'>public bool StateChangedThisFrame { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-56-8'>Permalink</a></p>
+<p class='comment'>Gets whether the most recent state update changed the movement state.</p>
+<p class='comment'><strong>Remarks</strong> This value is recalculated each time SetState is called.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-86-8'><code class='signature'>public void UpdateState(bool isGrounded, float verticalVelocity, float speed)</code><p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-86-8'>Permalink</a></p>
+<p class='comment'>Updates the current movement state from the latest movement data.</p>
+<p class='comment'><strong>isGrounded</strong> Whether the character is currently touching the ground.</p>
+<p class='comment'><strong>verticalVelocity</strong> The character&#39;s current vertical velocity. Positive values indicate upward movement, while negative values indicate downward movement.</p>
+<p class='comment'><strong>speed</strong> The character&#39;s current horizontal movement speed.</p>
+<p class='comment'><strong>Remarks</strong> This is the main method other movement components should call after they calculate grounded status, vertical velocity, and speed.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/Player/CharacterMotor.cs'>Runtime/Characters/Player/CharacterMotor.cs, line 280</a></figcaption><pre><code>movementStateController.UpdateState(IsGrounded, VerticalVelocity, NormalizedSpeed);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-102-8'><code class='signature'>public void SetState(EntityState.MovementState newState)</code><p class='source'><a href='../../../Runtime/Characters/Player/MovementStateController.cs'>Source, line 102</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.MovementStateController-Runtime-Characters-Player-MovementStateController-cs-102-8'>Permalink</a></p>
+<p class='comment'>Explicitly assigns the current movement state.</p>
+<p class='comment'><strong>newState</strong> The movement state that should become active.</p>
+<p class='comment'><strong>Remarks</strong> Use this when another system already knows the state that should be active, or when forcing a special movement state during scripted behavior. This method also updates PreviousState and StateChangedThisFrame.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetState(newState);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger'><summary><code>NPCAnimationTrigger</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCAnimationTrigger : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCAnimationTrigger.cs'>Runtime/Characters/NPC/NPCAnimationTrigger.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger'>Permalink</a></p>
+<p class='comment'>Exposes an NPC Animator&#39;s trigger parameters to reusable scene events.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-29-8'><code class='signature'>public void TriggerConfigured()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCAnimationTrigger.cs'>Source, line 29</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-29-8'>Permalink</a></p>
+<p class='comment'>Fires the trigger configured in the Inspector.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.TriggerConfigured();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-36-8'><code class='signature'>public void SetTrigger(string triggerName)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCAnimationTrigger.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-36-8'>Permalink</a></p>
+<p class='comment'>Fires a named Animator trigger. Suitable for a UnityEvent string argument.</p>
+<p class='comment'><strong>triggerName</strong> Animator trigger parameter to fire.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Runtime/Characters/NPC/NPCQueueMember.cs, line 159</a></figcaption><pre><code>animationTrigger?.SetTrigger(readyAnimationTrigger);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-56-8'><code class='signature'>public void ResetTrigger(string triggerName)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCAnimationTrigger.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCAnimationTrigger-Runtime-Characters-NPC-NPCAnimationTrigger-cs-56-8'>Permalink</a></p>
+<p class='comment'>Clears a named Animator trigger. Suitable for a UnityEvent string argument.</p>
+<p class='comment'><strong>triggerName</strong> Animator trigger parameter to clear.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetTrigger(triggerName);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCAnimatorDriver'><summary><code>NPCAnimatorDriver</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCAnimatorDriver</span></summary><div class='entry'>
+<code class='signature'>public class NPCAnimatorDriver : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCAnimatorDriver.cs'>Runtime/Characters/NPC/NPCAnimatorDriver.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCAnimatorDriver'>Permalink</a></p>
+<p class='comment'>Updates an Animator from NavMesh movement without coupling animation to movement logic.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour'><summary><code>NPCBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCBehaviour</span></summary><div class='entry'>
+<code class='signature'>public abstract class NPCBehaviour : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCBehaviour.cs'>Runtime/Characters/NPC/NPCBehaviour.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour'>Permalink</a></p>
+<p class='comment'>Base class for attachable NPC behaviours coordinated by an NPCController.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour-Runtime-Characters-NPC-NPCBehaviour-cs-15-8'><code class='signature'>public bool IsBehaviourActive { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCBehaviour.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour-Runtime-Characters-NPC-NPCBehaviour-cs-15-8'>Permalink</a></p>
+<p class='comment'>Gets whether this behavior is currently active.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour-Runtime-Characters-NPC-NPCBehaviour-cs-40-8'><code class='signature'>public virtual void SetBehaviourActive(bool active)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCBehaviour.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCBehaviour-Runtime-Characters-NPC-NPCBehaviour-cs-40-8'>Permalink</a></p>
+<p class='comment'>Activates or deactivates this behavior and invokes its matching lifecycle hook.</p>
+<p class='comment'><strong>active</strong> Whether the behavior should be active.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Runtime/Characters/NPC/NPCDialogueBehaviour.cs, line 277</a></figcaption><pre><code>behaviour.SetBehaviourActive(false);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCController'><summary><code>NPCController</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCController</span></summary><div class='entry'>
+<code class='signature'>public class NPCController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Runtime/Characters/NPC/NPCController.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController'>Permalink</a></p>
+<p class='comment'>Lightweight root component for an NPC. It stores shared state and provides one place for handlers or scripted events to pause and resume all attached NPC behaviours.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-39-8'><code class='signature'>public string NpcId { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-39-8'>Permalink</a></p>
+<p class='comment'>Gets the stable NPC identifier.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-42-8'><code class='signature'>public string DisplayName { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-42-8'>Permalink</a></p>
+<p class='comment'>Gets the player-facing name, falling back to the GameObject name.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-45-8'><code class='signature'>public Transform Target { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-45-8'>Permalink</a></p>
+<p class='comment'>Gets the shared target used by attached NPC behaviors.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-48-8'><code class='signature'>public bool BehavioursEnabled { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-48-8'>Permalink</a></p>
+<p class='comment'>Gets whether the behavior master switch is enabled.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-51-8'><code class='signature'>public event Action&lt;Transform&gt; TargetChanged</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-51-8'>Permalink</a></p>
+<p class='comment'>Raised when the shared target changes.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-60-8'><code class='signature'>public void SetTarget(Transform newTarget)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 60</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-60-8'>Permalink</a></p>
+<p class='comment'>Changes the shared target and notifies attached systems.</p>
+<p class='comment'><strong>newTarget</strong> New shared target, or null to clear it.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L296'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 296</a></figcaption><pre><code>dan.SetTarget(approachPlayer.transform);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-71-8'><code class='signature'>public void ClearTarget()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 71</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-71-8'>Permalink</a></p>
+<p class='comment'>Clears the shared target.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L676'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 676</a></figcaption><pre><code>dan.ClearTarget();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-75-8'><code class='signature'>public void SetBehavioursEnabled(bool enabledState)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-75-8'>Permalink</a></p>
+<p class='comment'>Changes the active state of every attached NPC behavior.</p>
+<p class='comment'><strong>enabledState</strong> Whether attached behaviors should be active.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L784'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 784</a></figcaption><pre><code>dan?.SetBehavioursEnabled(recoveryBehavioursEnabled);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-90-8'><code class='signature'>public void EnableBehaviours()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-90-8'>Permalink</a></p>
+<p class='comment'>Enables all attached NPC behaviors.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.EnableBehaviours();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-93-8'><code class='signature'>public void DisableBehaviours()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCController.cs'>Source, line 93</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCController-Runtime-Characters-NPC-NPCController-cs-93-8'>Permalink</a></p>
+<p class='comment'>Disables all attached NPC behaviors.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L764'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 764</a></figcaption><pre><code>dan?.DisableBehaviours();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController'><summary><code>NPCCrowdController</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCCrowdController</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCCrowdController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Runtime/Characters/NPC/NPCCrowdController.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController'>Permalink</a></p>
+<p class='comment'>Starts, stops, and staggers a small set of ambient NPC route behaviours.</p>
+<p class='comment'><strong>Remarks</strong> Each member remains responsible for its own navigation and animation. This scene-owned coordinator intentionally contains no spawning, interaction, dialogue, or global-manager responsibilities.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-81-8'><code class='signature'>public IReadOnlyList&lt;CrowdMember&gt; Members { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-81-8'>Permalink</a></p>
+<p class='comment'>Gets the authored crowd membership.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-84-8'><code class='signature'>public bool IsRunning { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 84</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-84-8'>Permalink</a></p>
+<p class='comment'>Gets whether the crowd has been started and has not subsequently been stopped.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-124-8'><code class='signature'>public void StartCrowd()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-124-8'>Permalink</a></p>
+<p class='comment'>Starts all valid crowd members with the configured delays.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/PlayMode/NPCCrowdControllerPlayModeTests.cs'>Tests/PlayMode/NPCCrowdControllerPlayModeTests.cs, line 43</a></figcaption><pre><code>crowd.StartCrowd();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-154-8'><code class='signature'>public void StopCrowd()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 154</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-154-8'>Permalink</a></p>
+<p class='comment'>Stops pending starts and pauses every assigned crowd route.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopCrowd();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-160-8'><code class='signature'>public void RestartCrowd()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Source, line 160</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCCrowdController-Runtime-Characters-NPC-NPCCrowdController-cs-160-8'>Permalink</a></p>
+<p class='comment'>Stops the crowd, resets each route, and begins the configured stagger again.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RestartCrowd();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour'><summary><code>NPCDialogueBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour</span></summary><div class='entry'>
+<code class='signature'>public class NPCDialogueBehaviour : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Runtime/Characters/NPC/NPCDialogueBehaviour.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour'>Permalink</a></p>
+<p class='comment'>Adds dialogue participation to an NPC without placing dialogue-manager logic on the NPC. The component forwards its request through the scene-local DialogueEventPlayer.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-58-8'><code class='signature'>public DialogueTree DialogueTree { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 58</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-58-8'>Permalink</a></p>
+<p class='comment'>Gets the dialogue tree configured for this NPC.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-61-8'><code class='signature'>public bool IsInDialogue { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-61-8'>Permalink</a></p>
+<p class='comment'>Gets whether this NPC currently owns an active dialogue.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-110-8'><code class='signature'>public void StartDialogue()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 110</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-110-8'>Permalink</a></p>
+<p class='comment'>Resolves the current conversation, or uses the fixed tree when no resolver is assigned, and requests it through the scene-local DialogueEventPlayer. This method is suitable for an Interactable UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StartDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-165-8'><code class='signature'>public void StopDialogue()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 165</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-165-8'>Permalink</a></p>
+<p class='comment'>Stops the currently active dialogue through the scene handler.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopDialogue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-178-8'><code class='signature'>public void SetDialogueTree(DialogueTree tree)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 178</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-178-8'>Permalink</a></p>
+<p class='comment'>Replaces the fixed dialogue tree used when no resolver is assigned.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/GameObjectSetupMenuTests.cs'>Tests/EditMode/GameObjectSetupMenuTests.cs, line 139</a></figcaption><pre><code>npc.SetDialogueTree(tree);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-186-8'><code class='signature'>public void SetDialogueEventPlayer(DialogueEventPlayer eventPlayer)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Source, line 186</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDialogueBehaviour-Runtime-Characters-NPC-NPCDialogueBehaviour-cs-186-8'>Permalink</a></p>
+<p class='comment'>Assigns a different scene-local dialogue wrapper at runtime.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetDialogueEventPlayer(eventPlayer);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener'><summary><code>NPCDoorOpener</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCDoorOpener : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Runtime/Characters/NPC/NPCDoorOpener.cs, line 19</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener'>Permalink</a></p>
+<p class='comment'>Detects explicitly marked doors immediately ahead and requests safe passage.</p>
+<p class='comment'><strong>Remarks</strong> This component does not move the NPC. A queue, route, or other movement owner calls EvaluatePath and holds movement while it returns NPCDoorTraversalStatus.Waiting.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-52-8'><code class='signature'>public NPCPathDoor DetectedDoor { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-52-8'>Permalink</a></p>
+<p class='comment'>Gets the nearest marked door detected by the most recent evaluation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-73-8'><code class='signature'>public NPCDoorTraversalStatus EvaluatePath(Vector3 destination)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-73-8'>Permalink</a></p>
+<p class='comment'>Checks the short corridor toward a movement destination and requests the nearest marked door to open when necessary.</p>
+<p class='comment'><strong>destination</strong> Current movement destination in world space.</p>
+<p class='comment'><strong>Returns</strong> Whether movement may continue, should wait, or is blocked by a locked door.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L1033-L1035'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, lines 1033–1035</a></figcaption><pre><code>return danDoorOpener != null &amp;&amp; danMovementTarget != null
+    ? danDoorOpener.EvaluatePath(danMovementTarget.position)
+    : NPCDoorTraversalStatus.Clear;</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-117-8'><code class='signature'>public void ClearPendingDoor()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 117</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorOpener-Runtime-Characters-NPC-NPCDoorOpener-cs-117-8'>Permalink</a></p>
+<p class='comment'>Forgets a door wait when the owning movement operation is cancelled.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L556'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 556</a></figcaption><pre><code>danDoorOpener?.ClearPendingDoor();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus'><summary><code>NPCDoorTraversalStatus</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus</span></summary><div class='entry'>
+<code class='signature'>public enum NPCDoorTraversalStatus</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Runtime/Characters/NPC/NPCDoorOpener.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus'>Permalink</a></p>
+<p class='comment'>Result of checking the next short NPC movement segment for an openable door.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-8-8'><code class='signature'>Clear</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 8</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-8-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-9-8'><code class='signature'>Waiting</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-10-8'><code class='signature'>Blocked</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCDoorOpener.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCDoorTraversalStatus-Runtime-Characters-NPC-NPCDoorOpener-cs-10-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCFollowBehaviour'><summary><code>NPCFollowBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCFollowBehaviour</span></summary><div class='entry'>
+<code class='signature'>public class NPCFollowBehaviour : NPCBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCFollowBehaviour.cs'>Runtime/Characters/NPC/NPCFollowBehaviour.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCFollowBehaviour'>Permalink</a></p>
+<p class='comment'>Moves an NPC toward the controller target while preserving a configurable distance.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour'><summary><code>NPCLookAtBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour</span></summary><div class='entry'>
+<code class='signature'>public class NPCLookAtBehaviour : NPCBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Runtime/Characters/NPC/NPCLookAtBehaviour.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour'>Permalink</a></p>
+<p class='comment'>Rotates either the NPC&#39;s full body or only its head toward an assigned target. Humanoid head-only looking can use Animator IK to avoid fighting animated head bones.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-79-8'><code class='signature'>public bool HeadOnly { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets whether this behavior rotates only the head.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-82-8'><code class='signature'>public Transform CurrentTarget { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-82-8'>Permalink</a></p>
+<p class='comment'>Gets the temporary target when present, otherwise the normal target.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-183-8'><code class='signature'>public void SetLookTarget(Transform target)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 183</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-183-8'>Permalink</a></p>
+<p class='comment'>Sets the normal look target without changing the behavior&#39;s active state.</p>
+<p class='comment'><strong>target</strong> New normal look target.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetLookTarget(target);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-192-8'><code class='signature'>public void StartLookingAt(Transform target)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 192</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-192-8'>Permalink</a></p>
+<p class='comment'>Sets a normal look target and activates looking.</p>
+<p class='comment'><strong>target</strong> Target to look toward.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StartLookingAt(target);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-200-8'><code class='signature'>public void StartLookingAt(Transform target, Vector3 worldOffset)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 200</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-200-8'>Permalink</a></p>
+<p class='comment'>Sets a normal look target with a world-space offset and activates looking.</p>
+<p class='comment'><strong>target</strong> Target to look toward.</p>
+<p class='comment'><strong>worldOffset</strong> World-space offset from the target position.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Runtime/Handlers/PlayerLookHandler.cs, line 25</a></figcaption><pre><code>lookAt.StartLookingAt(target, offset);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-212-8'><code class='signature'>public void StartTemporaryLookAt(Transform target, Vector3 worldOffset = default)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 212</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-212-8'>Permalink</a></p>
+<p class='comment'>Temporarily overrides the normal look target. Dialogue and cutscenes can use this without destroying passive player-tracking state.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Runtime/Handlers/PlayerLookHandler.cs, line 39</a></figcaption><pre><code>lookAt.StartTemporaryLookAt(target, offset);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-221-8'><code class='signature'>public void StopTemporaryLook()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 221</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-221-8'>Permalink</a></p>
+<p class='comment'>Clears the temporary override and returns to the normal look target.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Runtime/Characters/NPC/NPCDialogueBehaviour.cs, line 245</a></figcaption><pre><code>lookAtBehaviour.StopTemporaryLook();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-228-8'><code class='signature'>public void StartLooking()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 228</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-228-8'>Permalink</a></p>
+<p class='comment'>Activates looking when a normal or temporary target is available.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StartLooking();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-238-8'><code class='signature'>public void ClearLookTarget()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 238</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-238-8'>Permalink</a></p>
+<p class='comment'>Clears the normal target while preserving any temporary override.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ClearLookTarget();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-248-8'><code class='signature'>public void StopLooking()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 248</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-248-8'>Permalink</a></p>
+<p class='comment'>Clears all targets and deactivates this behavior.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/PlayerLookHandler.cs'>Runtime/Handlers/PlayerLookHandler.cs, line 53</a></figcaption><pre><code>lookAt.StopLooking();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-259-8'><code class='signature'>public void SetHeadOnly(bool value)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Source, line 259</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCLookAtBehaviour-Runtime-Characters-NPC-NPCLookAtBehaviour-cs-259-8'>Permalink</a></p>
+<p class='comment'>Changes between head-only and full-body looking.</p>
+<p class='comment'><strong>value</strong> True for head-only looking; false for full-body looking.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetHeadOnly(value);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode'><summary><code>NPCMode</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode</span></summary><div class='entry'>
+<code class='signature'>public class NPCMode</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Runtime/Characters/NPC/NPCModeController.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-14-12'><code class='signature'>/// &lt;summary&gt;Designer-facing name used for mode lookup.&lt;/summary&gt; public string modeName</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-14-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-18-12'><code class='signature'>/// &lt;summary&gt;Behaviors enabled by this mode.&lt;/summary&gt; public NPCBehaviour[] enabledBehaviours</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 18</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-18-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-22-12'><code class='signature'>/// &lt;summary&gt;GameObjects enabled by this mode.&lt;/summary&gt; public GameObject[] enabledObjects</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-22-12'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-26-12'><code class='signature'>/// &lt;summary&gt;Callbacks invoked after this mode is applied.&lt;/summary&gt; public UnityEvent onModeEntered</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController.NPCMode-Runtime-Characters-NPC-NPCModeController-cs-26-12'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController'><summary><code>NPCModeController</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCModeController</span></summary><div class='entry'>
+<code class='signature'>public class NPCModeController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Runtime/Characters/NPC/NPCModeController.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController'>Permalink</a></p>
+<p class='comment'>Switches groups of attachable behaviours to let one NPC change roles at runtime.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-42-8'><code class='signature'>public int CurrentModeIndex { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-42-8'>Permalink</a></p>
+<p class='comment'>Gets the current mode index, or -1 before a valid mode is applied.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-45-8'><code class='signature'>public string CurrentModeName { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-45-8'>Permalink</a></p>
+<p class='comment'>Gets the current mode name, or an empty string when no mode is active.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-51-8'><code class='signature'>public void SetMode(int index)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-51-8'>Permalink</a></p>
+<p class='comment'>Applies a mode by array index.</p>
+<p class='comment'><strong>index</strong> Index in the configured modes array.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetMode(index);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-82-8'><code class='signature'>public void SetModeByName(string modeName)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCModeController.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCModeController-Runtime-Characters-NPC-NPCModeController-cs-82-8'>Permalink</a></p>
+<p class='comment'>Applies the first mode whose name matches, ignoring case.</p>
+<p class='comment'><strong>modeName</strong> Configured mode name.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Runtime/Characters/NPC/NPCQueueMember.cs, line 192</a></figcaption><pre><code>modeController.SetModeByName(modeName.Trim());</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor'><summary><code>NPCNavMeshMotor</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor</span></summary><div class='entry'>
+<code class='signature'>public class NPCNavMeshMotor : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Runtime/Characters/NPC/NPCNavMeshMotor.cs, line 8</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor'>Permalink</a></p>
+<p class='comment'>Shared NavMesh movement wrapper used by follow and wander behaviours.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-27-8'><code class='signature'>public NavMeshAgent Agent { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 27</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-27-8'>Permalink</a></p>
+<p class='comment'>Gets the wrapped NavMesh agent.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-30-8'><code class='signature'>public bool IsReady { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 30</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-30-8'>Permalink</a></p>
+<p class='comment'>Gets whether the agent can currently accept NavMesh commands.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-33-8'><code class='signature'>public bool IsMoving { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-33-8'>Permalink</a></p>
+<p class='comment'>Gets whether the agent currently has meaningful velocity.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-64-8'><code class='signature'>public bool TryPlaceOnNavMesh()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-64-8'>Permalink</a></p>
+<p class='comment'>Attempts to project and warp the agent onto a nearby NavMesh position.</p>
+<p class='comment'><strong>Returns</strong> True when the agent is already placed or was placed successfully.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L683'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 683</a></figcaption><pre><code>danMotor?.TryPlaceOnNavMesh();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-82-8'><code class='signature'>public bool SetDestination(Vector3 worldPosition, float sampleRadius = 2f)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-82-8'>Permalink</a></p>
+<p class='comment'>Projects a world position onto the NavMesh and assigns it as the destination.</p>
+<p class='comment'><strong>worldPosition</strong> Requested world-space destination.</p>
+<p class='comment'><strong>sampleRadius</strong> Radius used to find a nearby NavMesh position.</p>
+<p class='comment'><strong>Returns</strong> True when a valid destination was assigned.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCFollowBehaviour.cs'>Runtime/Characters/NPC/NPCFollowBehaviour.cs, line 93</a></figcaption><pre><code>motor.SetDestination(desiredPosition, destinationSampleRadius);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-97-8'><code class='signature'>public bool SetDestination( Vector3 worldPosition, out Vector3 resolvedDestination, float sampleRadius = 2f)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 97</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-97-8'>Permalink</a></p>
+<p class='comment'>Projects a world position onto the NavMesh, assigns it as the destination, and reports the exact sampled position used by the agent.</p>
+<p class='comment'><strong>worldPosition</strong> Requested world-space destination.</p>
+<p class='comment'><strong>resolvedDestination</strong> Sampled NavMesh destination when the request succeeds; otherwise the requested position.</p>
+<p class='comment'><strong>sampleRadius</strong> Radius used to find a nearby NavMesh position.</p>
+<p class='comment'><strong>Returns</strong> True when a valid destination was assigned.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs, lines 376–379</a></figcaption><pre><code>motor.SetDestination(
+   requestedDestination,
+   out resolvedDestination,
+   destinationSampleRadius)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-124-8'><code class='signature'>public bool Warp(Vector3 worldPosition, Quaternion worldRotation, float sampleRadius = 2f)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-124-8'>Permalink</a></p>
+<p class='comment'>Immediately moves the NPC to a nearby valid NavMesh position.</p>
+<p class='comment'><strong>worldPosition</strong> Requested world-space arrival position.</p>
+<p class='comment'><strong>worldRotation</strong> Rotation applied after the agent is moved.</p>
+<p class='comment'><strong>sampleRadius</strong> Radius used to find a nearby NavMesh position.</p>
+<p class='comment'><strong>Returns</strong> True when the NPC was transported successfully.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L445'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 445</a></figcaption><pre><code>danMotor.Warp(hit.position, dan.transform.rotation, .2f)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-145-8'><code class='signature'>public void Stop()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 145</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-145-8'>Permalink</a></p>
+<p class='comment'>Stops movement and clears the current path.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L303'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 303</a></figcaption><pre><code>danMotor.Stop();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-163-8'><code class='signature'>public void Resume()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 163</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-163-8'>Permalink</a></p>
+<p class='comment'>Allows the agent to resume its current path when ready.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCDialogueBehaviour.cs'>Runtime/Characters/NPC/NPCDialogueBehaviour.cs, line 251</a></figcaption><pre><code>motor?.Resume();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-171-8'><code class='signature'>public void SetAutomaticRotation(bool enabledState)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCNavMeshMotor.cs'>Source, line 171</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCNavMeshMotor-Runtime-Characters-NPC-NPCNavMeshMotor-cs-171-8'>Permalink</a></p>
+<p class='comment'>Changes whether the NavMesh agent rotates its transform automatically.</p>
+<p class='comment'><strong>enabledState</strong> Whether automatic rotation should be enabled.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCLookAtBehaviour.cs'>Runtime/Characters/NPC/NPCLookAtBehaviour.cs, line 281</a></figcaption><pre><code>motor?.SetAutomaticRotation(true);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor'><summary><code>NPCPathDoor</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCPathDoor</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCPathDoor : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Runtime/Characters/NPC/NPCPathDoor.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor'>Permalink</a></p>
+<p class='comment'>Opts an animated interaction into idempotent NPC door opening.</p>
+<p class='comment'><strong>Remarks</strong> This adapter deliberately checks an optional Interactable for lock requirements but does not execute the player interaction&#39;s flags or UnityEvents. InteractableUnlock remains the sole owner of animation state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-44-8'><code class='signature'>public NPCPathDoorState CurrentState { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-44-8'>Permalink</a></p>
+<p class='comment'>Gets the door&#39;s current state from its interaction, animation state, and clearance delay.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-80-8'><code class='signature'>public bool IsPassable { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 80</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-80-8'>Permalink</a></p>
+<p class='comment'>Gets whether an NPC may currently continue through the doorway.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-117-8'><code class='signature'>public NPCPathDoorState RequestPassage()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 117</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoor-Runtime-Characters-NPC-NPCPathDoor-cs-117-8'>Permalink</a></p>
+<p class='comment'>Requests passage without toggling an already-open door or invoking player effects.</p>
+<p class='comment'><strong>Returns</strong> The door state after evaluating or requesting passage.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L279'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, line 279</a></figcaption><pre><code>Assert.That(passage.RequestPassage(), Is.EqualTo(NPCPathDoorState.Opening));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState'><summary><code>NPCPathDoorState</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState</span></summary><div class='entry'>
+<code class='signature'>public enum NPCPathDoorState</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Runtime/Characters/NPC/NPCPathDoor.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState'>Permalink</a></p>
+<p class='comment'>Runtime passage state reported by an NPC-openable path door.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-9-8'><code class='signature'>Closed</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-9-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-10-8'><code class='signature'>Opening</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-10-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-11-8'><code class='signature'>Open</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-12-8'><code class='signature'>Locked</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCPathDoor.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCPathDoorState-Runtime-Characters-NPC-NPCPathDoor-cs-12-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController'><summary><code>NPCQueueController</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCQueueController</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCQueueController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Runtime/Characters/NPC/NPCQueueController.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController'>Permalink</a></p>
+<p class='comment'>Moves an ordered group of NPCs through waiting positions, service, and departure.</p>
+<p class='comment'><strong>Remarks</strong> The queue owns spatial progression only. Game-specific dialogue, transactions, objectives, and flags should subscribe to its events and call BeginService or CompleteService when their own work advances.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-118-8'><code class='signature'>public event Action&lt;NPCQueueMember, int&gt; MemberReadyForService</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 118</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-118-8'>Permalink</a></p>
+<p class='comment'>Raised when the front member reaches service.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-121-8'><code class='signature'>public event Action&lt;NPCQueueMember, int&gt; ServiceStarted</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 121</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-121-8'>Permalink</a></p>
+<p class='comment'>Raised when service begins for the front member.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-124-8'><code class='signature'>public event Action&lt;NPCQueueMember, int&gt; MemberDeparted</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-124-8'>Permalink</a></p>
+<p class='comment'>Raised when one member finishes leaving.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-127-8'><code class='signature'>public event Action QueueCompleted</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 127</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-127-8'>Permalink</a></p>
+<p class='comment'>Raised when no queued members remain.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-130-8'><code class='signature'>public event Action&lt;NPCQueueMember, Transform&gt; MovementFailed</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 130</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-130-8'>Permalink</a></p>
+<p class='comment'>Raised when an NPC cannot be routed to its current destination.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-133-8'><code class='signature'>public int CurrentIndex { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 133</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-133-8'>Permalink</a></p>
+<p class='comment'>Gets the zero-based index of the front member in the complete queue.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-136-8'><code class='signature'>public NPCQueueMember CurrentMember { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-136-8'>Permalink</a></p>
+<p class='comment'>Gets the front member, or null after the queue finishes.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-140-8'><code class='signature'>public NPCQueueMemberState CurrentState { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 140</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-140-8'>Permalink</a></p>
+<p class='comment'>Gets the front member&#39;s current state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-144-8'><code class='signature'>public bool IsRunning { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 144</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-144-8'>Permalink</a></p>
+<p class='comment'>Gets whether queue processing has begun and members remain.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-147-8'><code class='signature'>public bool IsPaused { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 147</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-147-8'>Permalink</a></p>
+<p class='comment'>Gets whether an active queue is temporarily holding all movement.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-150-8'><code class='signature'>public IReadOnlyList&lt;NPCQueueMember&gt; Members { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 150</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-150-8'>Permalink</a></p>
+<p class='comment'>Gets the configured and runtime-enqueued members in service order.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-230-8'><code class='signature'>public void BeginQueue()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 230</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-230-8'>Permalink</a></p>
+<p class='comment'>Resets and begins processing members from the start of the queue.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L877'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 877</a></figcaption><pre><code>customerQueue?.BeginQueue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-258-8'><code class='signature'>public void ResetQueue(bool hideMembers = true)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 258</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-258-8'>Permalink</a></p>
+<p class='comment'>Returns the queue and all configured members to their inactive state.</p>
+<p class='comment'><strong>hideMembers</strong> Whether queue-managed member objects should be hidden.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetQueue(hideMembers);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-265-8'><code class='signature'>public void PauseQueue()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 265</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-265-8'>Permalink</a></p>
+<p class='comment'>Temporarily stops every active member without discarding route progress.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L464'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 464</a></figcaption><pre><code>customerQueue?.PauseQueue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-281-8'><code class='signature'>public void ResumeQueue()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 281</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-281-8'>Permalink</a></p>
+<p class='comment'>Continues every route segment held by PauseQueue.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L442'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 442</a></figcaption><pre><code>customerQueue?.ResumeQueue();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-309-8'><code class='signature'>public bool BeginService()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 309</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-309-8'>Permalink</a></p>
+<p class='comment'>Marks the ready front member as actively being served.</p>
+<p class='comment'><strong>Returns</strong> True when service began.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L761'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 761</a></figcaption><pre><code>customerQueue.BeginService()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-326-8'><code class='signature'>public bool CompleteService()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 326</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-326-8'>Permalink</a></p>
+<p class='comment'>Sends the front member to the exit and advances the line after departure.</p>
+<p class='comment'><strong>Returns</strong> True when departure began.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L849'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 849</a></figcaption><pre><code>customerQueue.CompleteService()</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-343-8'><code class='signature'>public bool Enqueue(NPCQueueMember member)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 343</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-343-8'>Permalink</a></p>
+<p class='comment'>Adds a member to the end of the runtime queue.</p>
+<p class='comment'><strong>Returns</strong> True when the member was valid and not already queued.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L456'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, line 456</a></figcaption><pre><code>queue.Enqueue(member);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-366-8'><code class='signature'>public void CancelQueue(bool hideMembers = true)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 366</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-366-8'>Permalink</a></p>
+<p class='comment'>Stops movement and optionally hides all members without raising completion.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCQueueControllerTests.cs'>Tests/EditMode/NPCQueueControllerTests.cs, line 371</a></figcaption><pre><code>queue.CancelQueue(false);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-392-8'><code class='signature'>public void RestoreAt(int memberIndex, NPCQueueMemberState state)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Source, line 392</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueController-Runtime-Characters-NPC-NPCQueueController-cs-392-8'>Permalink</a></p>
+<p class='comment'>Reconstructs logical state without replaying queue or member lifecycle callbacks.</p>
+<p class='comment'><strong>memberIndex</strong> Index of the member at the front of the restored queue.</p>
+<p class='comment'><strong>state</strong> Logical state restored for that member.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationSequenceController.cs#L338'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationSequenceController.cs, line 338</a></figcaption><pre><code>customerQueue?.RestoreAt(customerIndex, NPCQueueMemberState.Entering);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember'><summary><code>NPCQueueMember</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCQueueMember</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCQueueMember : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Runtime/Characters/NPC/NPCQueueMember.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember'>Permalink</a></p>
+<p class='comment'>Adapts one NPC for reusable queue movement, behavior modes, and presentation events.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-80-8'><code class='signature'>public NPCController Controller { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 80</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-80-8'>Permalink</a></p>
+<p class='comment'>Gets the NPC controller coordinated by this queue member.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-83-8'><code class='signature'>public NPCNavMeshMotor Motor { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 83</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-83-8'>Permalink</a></p>
+<p class='comment'>Gets the movement motor coordinated by this queue member.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-86-8'><code class='signature'>public NPCDoorOpener DoorOpener { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-86-8'>Permalink</a></p>
+<p class='comment'>Gets the optional door opener coordinated by queue movement.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-89-8'><code class='signature'>public NPCAnimationTrigger AnimationTrigger { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 89</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-89-8'>Permalink</a></p>
+<p class='comment'>Gets the optional adapter used for queue and waypoint animation cues.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-92-8'><code class='signature'>public IReadOnlyList&lt;Transform&gt; PreServiceWaypoints { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 92</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-92-8'>Permalink</a></p>
+<p class='comment'>Gets the ordered route visited immediately before service.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-96-8'><code class='signature'>public NPCQueueMemberState State { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 96</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-96-8'>Permalink</a></p>
+<p class='comment'>Gets the member&#39;s current queue lifecycle state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-136-8'><code class='signature'>public void ApplyState(NPCQueueMemberState state, bool notifyListeners = true)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 136</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMember-Runtime-Characters-NPC-NPCQueueMember-cs-136-8'>Permalink</a></p>
+<p class='comment'>Applies a queue state and its configured behavior and presentation hooks.</p>
+<p class='comment'><strong>state</strong> New queue lifecycle state.</p>
+<p class='comment'><strong>notifyListeners</strong> Whether this member&#39;s animation triggers and lifecycle UnityEvents should run. Restore operations can suppress them while still applying the behavior mode for the state.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationCounterReactionTests.cs#L22'>Stolen &#183; Assets/Tests/Editor/StationCounterReactionTests.cs, line 22</a></figcaption><pre><code>member.ApplyState(NPCQueueMemberState.ReadyForService, false);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState'><summary><code>NPCQueueMemberState</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState</span></summary><div class='entry'>
+<code class='signature'>public enum NPCQueueMemberState</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Runtime/Characters/NPC/NPCQueueMember.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState'>Permalink</a></p>
+<p class='comment'>Lifecycle states applied to an NPC participating in an NPCQueueController.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-11-8'><code class='signature'>Inactive</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-12-8'><code class='signature'>Entering</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-13-8'><code class='signature'>Waiting</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-14-8'><code class='signature'>ReadyForService</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-15-8'><code class='signature'>InService</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-15-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-16-8'><code class='signature'>Leaving</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-16-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-17-8'><code class='signature'>Completed</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCQueueMember.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCQueueMemberState-Runtime-Characters-NPC-NPCQueueMember-cs-17-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour'><summary><code>NPCStartupBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCStartupBehaviour : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCStartupBehaviour.cs'>Runtime/Characters/NPC/NPCStartupBehaviour.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour'>Permalink</a></p>
+<p class='comment'>Applies scene-configured startup state to an NPC after its components initialize.</p>
+<p class='comment'><strong>Remarks</strong> Use the startup event to configure animation, behavior modes, targets, visibility, dialogue, or other scene-specific state without coupling those systems together.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-28-8'><code class='signature'>public bool HasApplied { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCStartupBehaviour.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-28-8'>Permalink</a></p>
+<p class='comment'>Gets whether this component has applied its startup state.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-45-8'><code class='signature'>public void ApplyStartupState()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCStartupBehaviour.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-45-8'>Permalink</a></p>
+<p class='comment'>Invokes the configured startup actions once. This can also be called manually by scene initialization flows that need deterministic ordering.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ApplyStartupState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-57-8'><code class='signature'>public void ResetStartupState()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCStartupBehaviour.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCStartupBehaviour-Runtime-Characters-NPC-NPCStartupBehaviour-cs-57-8'>Permalink</a></p>
+<p class='comment'>Allows the startup state to be applied again manually.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.ResetStartupState();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour'><summary><code>NPCWanderBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour</span></summary><div class='entry'>
+<code class='signature'>public class NPCWanderBehaviour : NPCBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWanderBehaviour.cs'>Runtime/Characters/NPC/NPCWanderBehaviour.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour'>Permalink</a></p>
+<p class='comment'>Lets a background NPC roam randomly or among assigned patrol points.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint'><summary><code>NPCWaypoint</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypoint</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCWaypoint : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Runtime/Characters/NPC/NPCWaypoint.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint'>Permalink</a></p>
+<p class='comment'>Describes one scene-owned stop on an authored NPC route.</p>
+<p class='comment'><strong>Remarks</strong> The Transform supplies the destination. The remaining fields describe what an NPC should do after reaching it, without coupling the waypoint to a particular character.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-64-8'><code class='signature'>public float ArrivalDistance { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 64</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-64-8'>Permalink</a></p>
+<p class='comment'>Gets the planar distance that counts as reaching this waypoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-67-8'><code class='signature'>public float DestinationJitterRadius { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 67</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-67-8'>Permalink</a></p>
+<p class='comment'>Gets the random horizontal destination offset radius.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-70-8'><code class='signature'>public float MinimumWaitDuration { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 70</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-70-8'>Permalink</a></p>
+<p class='comment'>Gets the minimum configured wait duration.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-73-8'><code class='signature'>public float MaximumWaitDuration { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets the normalized maximum configured wait duration.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-76-8'><code class='signature'>public FacingMode WaypointFacingMode { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 76</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-76-8'>Permalink</a></p>
+<p class='comment'>Gets the configured facing policy.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-79-8'><code class='signature'>public float FacingTurnSpeed { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 79</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-79-8'>Permalink</a></p>
+<p class='comment'>Gets the maximum facing turn speed in degrees per second.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-82-8'><code class='signature'>public float FacingTolerance { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 82</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-82-8'>Permalink</a></p>
+<p class='comment'>Gets the yaw tolerance used to finish facing.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-85-8'><code class='signature'>public string AnimatorTrigger { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-85-8'>Permalink</a></p>
+<p class='comment'>Gets the normalized optional Animator trigger name.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-90-8'><code class='signature'>public float GetWaitDuration()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-90-8'>Permalink</a></p>
+<p class='comment'>Chooses a wait duration inside this waypoint&#39;s configured range.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 39</a></figcaption><pre><code>Assert.That(waypoint.GetWaitDuration(), Is.EqualTo(3f));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-105-8'><code class='signature'>public bool TryGetFacingDirection(Vector3 actorPosition, out Vector3 direction)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 105</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-105-8'>Permalink</a></p>
+<p class='comment'>Resolves the horizontal direction an NPC should face at this waypoint.</p>
+<p class='comment'><strong>actorPosition</strong> Current world position of the NPC.</p>
+<p class='comment'><strong>direction</strong> Normalized horizontal facing direction when available.</p>
+<p class='comment'><strong>Returns</strong> True when this waypoint has a valid facing direction.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, lines 40–42</a></figcaption><pre><code>Assert.That(
+    waypoint.TryGetFacingDirection(Vector3.zero, out Vector3 direction),
+    Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-135-8'><code class='signature'>public void NotifyReached(NPCController npc)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypoint.cs'>Source, line 135</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypoint-Runtime-Characters-NPC-NPCWaypoint-cs-135-8'>Permalink</a></p>
+<p class='comment'>Invokes this waypoint&#39;s arrival callbacks for an NPC route runner.</p>
+<p class='comment'><strong>npc</strong> NPC that reached the waypoint.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCQueueController.cs'>Runtime/Characters/NPC/NPCQueueController.cs, line 843</a></figcaption><pre><code>waypoint.NotifyReached(motion.Member.Controller);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute'><summary><code>NPCWaypointRoute</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCWaypointRoute : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRoute.cs'>Runtime/Characters/NPC/NPCWaypointRoute.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute'>Permalink</a></p>
+<p class='comment'>Stores an ordered, scene-owned collection of NPC waypoints.</p>
+<p class='comment'><strong>Remarks</strong> Waypoint positions belong to a scene, so this route is a MonoBehaviour rather than a ScriptableObject. Multiple NPC route behaviours may safely share one route because each behaviour owns its own traversal state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-20-8'><code class='signature'>public int Count { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRoute.cs'>Source, line 20</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-20-8'>Permalink</a></p>
+<p class='comment'>Gets the number of authored entries, including any null entries.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-23-8'><code class='signature'>public IReadOnlyList&lt;NPCWaypoint&gt; Waypoints { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRoute.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-23-8'>Permalink</a></p>
+<p class='comment'>Gets the authored waypoint collection as a read-only list.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-26-8'><code class='signature'>public NPCWaypoint GetWaypoint(int index)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRoute.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-26-8'>Permalink</a></p>
+<p class='comment'>Gets a waypoint by authored array index, or null when the index is invalid.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 57</a></figcaption><pre><code>Assert.That(route.GetWaypoint(0), Is.SameAs(first));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-37-8'><code class='signature'>public void RefreshWaypointsFromChildren()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRoute.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRoute-Runtime-Characters-NPC-NPCWaypointRoute-cs-37-8'>Permalink</a></p>
+<p class='comment'>Rebuilds the route from child NPCWaypoint components in hierarchy order. This is available from the component context menu for quick scene authoring.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 54</a></figcaption><pre><code>route.RefreshWaypointsFromChildren();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour'><summary><code>NPCWaypointRouteBehaviour</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour</span></summary><div class='entry'>
+<code class='signature'>public sealed class NPCWaypointRouteBehaviour : NPCBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs, line 25</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour'>Permalink</a></p>
+<p class='comment'>Moves one NPC through a scene-owned waypoint route.</p>
+<p class='comment'><strong>Remarks</strong> This behavior owns route traversal only. NPCNavMeshMotor owns movement, NPCAnimatorDriver owns locomotion presentation, and NPCAnimationTrigger receives optional waypoint animation cues. An optional NPCDoorOpener can hold each movement segment until marked doors are passable.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-93-8'><code class='signature'>public event Action RouteStarted</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 93</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-93-8'>Permalink</a></p>
+<p class='comment'>Raised when a valid route starts or restarts.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-96-8'><code class='signature'>public event Action&lt;NPCWaypoint&gt; WaypointReached</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 96</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-96-8'>Permalink</a></p>
+<p class='comment'>Raised when this NPC reaches a waypoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-99-8'><code class='signature'>public event Action RouteCompleted</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 99</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-99-8'>Permalink</a></p>
+<p class='comment'>Raised when a Once route reaches its final valid waypoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-102-8'><code class='signature'>public NPCWaypointRoute Route { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 102</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-102-8'>Permalink</a></p>
+<p class='comment'>Gets the currently assigned route.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-105-8'><code class='signature'>public NPCDoorOpener DoorOpener { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 105</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-105-8'>Permalink</a></p>
+<p class='comment'>Gets the optional adapter used to request passage through marked doors.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-108-8'><code class='signature'>public NPCWaypointTraversalMode TraversalMode { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 108</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-108-8'>Permalink</a></p>
+<p class='comment'>Gets the current traversal policy.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-111-8'><code class='signature'>public int CurrentWaypointIndex { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 111</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-111-8'>Permalink</a></p>
+<p class='comment'>Gets the current authored waypoint index, or -1 when no valid route exists.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-116-8'><code class='signature'>public NPCWaypoint CurrentWaypoint { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 116</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-116-8'>Permalink</a></p>
+<p class='comment'>Gets the waypoint this NPC is moving toward or waiting at.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-119-8'><code class='signature'>public bool IsWaitingAtWaypoint { get; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 119</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-119-8'>Permalink</a></p>
+<p class='comment'>Gets whether the NPC is dwelling at its current waypoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-122-8'><code class='signature'>public bool IsRouteComplete { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 122</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-122-8'>Permalink</a></p>
+<p class='comment'>Gets whether a Once route has reached its final waypoint.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-199-8'><code class='signature'>public void SetRoute(NPCWaypointRoute newRoute)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 199</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-199-8'>Permalink</a></p>
+<p class='comment'>Assigns a different scene route and resets traversal without changing active state.</p>
+<p class='comment'><strong>newRoute</strong> Route to assign, or null to clear the current route.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCDoorTraversalTests.cs'>Tests/EditMode/NPCDoorTraversalTests.cs, line 264</a></figcaption><pre><code>behaviour.SetRoute(route);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-214-8'><code class='signature'>public void SetTraversalMode(NPCWaypointTraversalMode mode)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 214</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-214-8'>Permalink</a></p>
+<p class='comment'>Changes traversal policy and restarts the route from its configured start.</p>
+<p class='comment'><strong>mode</strong> New traversal policy.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 72</a></figcaption><pre><code>behaviour.SetTraversalMode(NPCWaypointTraversalMode.Loop);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-222-8'><code class='signature'>public void SetStartingWaypointIndex(int index)</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 222</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-222-8'>Permalink</a></p>
+<p class='comment'>Changes the authored starting index used by future route restarts.</p>
+<p class='comment'><strong>index</strong> Authored route index, clamped when the route restarts.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 146</a></figcaption><pre><code>behaviour.SetStartingWaypointIndex(1);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-228-8'><code class='signature'>public void StartRoute()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 228</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-228-8'>Permalink</a></p>
+<p class='comment'>Starts or resumes traversal. A completed Once route is restarted.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/NPC/NPCCrowdController.cs'>Runtime/Characters/NPC/NPCCrowdController.cs, line 215</a></figcaption><pre><code>routeBehaviour.StartRoute();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-246-8'><code class='signature'>public void StopRoute()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 246</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-246-8'>Permalink</a></p>
+<p class='comment'>Pauses traversal and clears the active NavMesh path.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.StopRoute();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-252-8'><code class='signature'>public void RestartRoute()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 252</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-252-8'>Permalink</a></p>
+<p class='comment'>Resets traversal to its configured start and activates the route.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 147</a></figcaption><pre><code>behaviour.RestartRoute();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-269-8'><code class='signature'>public void SkipCurrentWaypoint()</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 269</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-269-8'>Permalink</a></p>
+<p class='comment'>Advances without treating the current waypoint as reached. Scene logic may use this to bypass a temporarily unsuitable or intentionally omitted stop.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/NPCWaypointRouteTests.cs'>Tests/EditMode/NPCWaypointRouteTests.cs, line 74</a></figcaption><pre><code>behaviour.SkipCurrentWaypoint();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode'><summary><code>NPCWaypointTraversalMode</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode</span></summary><div class='entry'>
+<code class='signature'>public enum NPCWaypointTraversalMode</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode'>Permalink</a></p>
+<p class='comment'>Traversal policies available to an authored NPC waypoint route.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-12-8'><code class='signature'>Once</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-13-8'><code class='signature'>Loop</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-14-8'><code class='signature'>PingPong</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-15-8'><code class='signature'>Random</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointTraversalMode-Runtime-Characters-NPC-NPCWaypointRouteBehaviour-cs-15-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.PlayerActivityHandler'><summary><code>PlayerActivityHandler</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.PlayerActivityHandler</span></summary><div class='entry'>
+<code class='signature'>public class PlayerActivityHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/PlayerActivityHandler.cs'>Runtime/Characters/Player/PlayerActivityHandler.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.PlayerActivityHandler'>Permalink</a></p>
+<p class='comment'>Applies a cross-scene activity to player-owned movement, camera, and optional progress visuals.</p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.Player.PlayerController'><summary><code>PlayerController</code> <span class='source'>QuietStatic.Toolkit.Characters.Player.PlayerController</span></summary><div class='entry'>
+<code class='signature'>public class PlayerController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/Player/PlayerController.cs'>Runtime/Characters/Player/PlayerController.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.PlayerController'>Permalink</a></p>
+<p class='comment'>Connects shared gameplay input to a character movement motor.</p>
+<p class='comment'><strong>Remarks</strong> This component does not read Unity input actions directly and does not contain movement physics. It receives processed gameplay input from an IMoveInputSource and sends it to CharacterMotor.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.PlayerController-Runtime-Characters-Player-PlayerController-cs-41-8'><code class='signature'>public event Action&lt;PlayerController&gt; Footstep</code><p class='source'><a href='../../../Runtime/Characters/Player/PlayerController.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.PlayerController-Runtime-Characters-Player-PlayerController-cs-41-8'>Permalink</a></p>
+<p class='comment'>Raised whenever this character should play a footstep sound.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.Player.PlayerController-Runtime-Characters-Player-PlayerController-cs-157-8'><code class='signature'>public void SetMovementEnabled(bool enabled)</code><p class='source'><a href='../../../Runtime/Characters/Player/PlayerController.cs'>Source, line 157</a> · <a href='#api-QuietStatic.Toolkit.Characters.Player.PlayerController-Runtime-Characters-Player-PlayerController-cs-157-8'>Permalink</a></p>
+<p class='comment'>Disables player movement. Can be used for events requiring locking the player in place</p>
+<p class='comment'><strong>enabled</strong> Whether movement should be enabled or not</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Characters/Player/PlayerActivityHandler.cs'>Runtime/Characters/Player/PlayerActivityHandler.cs, line 103</a></figcaption><pre><code>playerController?.SetMovementEnabled(false);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.VelocityReporter'><summary><code>VelocityReporter</code> <span class='source'>QuietStatic.Toolkit.Characters.VelocityReporter</span></summary><div class='entry'>
+<code class='signature'>public class VelocityReporter : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Characters/VelocityReporter.cs'>Runtime/Characters/VelocityReporter.cs, line 31</a> · <a href='#api-QuietStatic.Toolkit.Characters.VelocityReporter'>Permalink</a></p>
+<p class='comment'>Calculates and exposes this GameObject&#39;s current velocity based on its frame-to-frame position changes.</p>
+<p class='comment'><strong>Remarks</strong> VelocityReporter is useful when an object does not already expose velocity through a physics component, or when another system needs an easy way to read movement information from a Transform. The component provides two velocity values: rawVelocity: the immediate frame-to-frame velocity.velocity: a smoothed velocity that is less jittery. This can be reused by NPC follow behavior, look-ahead targeting, animation logic, camera prediction, or movement-based effects.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-33-8'><code class='signature'>public float smoothingTimeFactor = 0.5f</code><p class='source'><a href='../../../Runtime/Characters/VelocityReporter.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-33-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-63-8'><code class='signature'>public Vector3 rawVelocity { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/VelocityReporter.cs'>Source, line 63</a> · <a href='#api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-63-8'>Permalink</a></p>
+<p class='comment'>Gets the direct frame-to-frame velocity of this GameObject.</p>
+<p class='comment'><strong>Remarks</strong> This value is calculated by dividing the position delta by Time.deltaTime. It responds immediately, but it can be noisy when movement changes suddenly between frames.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-73-8'><code class='signature'>public Vector3 velocity { get; private set; }</code><p class='source'><a href='../../../Runtime/Characters/VelocityReporter.cs'>Source, line 73</a> · <a href='#api-QuietStatic.Toolkit.Characters.VelocityReporter-Runtime-Characters-VelocityReporter-cs-73-8'>Permalink</a></p>
+<p class='comment'>Gets the smoothed velocity of this GameObject.</p>
+<p class='comment'><strong>Remarks</strong> This value gradually moves toward rawVelocity using Vector3.SmoothDamp(Vector3, Vector3, ref Vector3, float). Use this when another system needs a more stable velocity value.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode'><summary><code>WanderMode</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode</span></summary><div class='entry'>
+<code class='signature'>public enum WanderMode</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWanderBehaviour.cs'>Runtime/Characters/NPC/NPCWanderBehaviour.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode'>Permalink</a></p>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode-Runtime-Characters-NPC-NPCWanderBehaviour-cs-10-33'><code class='signature'>RandomRadius</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWanderBehaviour.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode-Runtime-Characters-NPC-NPCWanderBehaviour-cs-10-33'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode-Runtime-Characters-NPC-NPCWanderBehaviour-cs-10-47'><code class='signature'>PatrolPoints</code><p class='source'><a href='../../../Runtime/Characters/NPC/NPCWanderBehaviour.cs'>Source, line 10</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWanderBehaviour.WanderMode-Runtime-Characters-NPC-NPCWanderBehaviour-cs-10-47'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour.WaypointEvent'><summary><code>WaypointEvent</code> <span class='source'>QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour.WaypointEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class WaypointEvent : UnityEvent&lt;NPCWaypoint&gt;</code>
+<p class='source'><a href='../../../Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs'>Runtime/Characters/NPC/NPCWaypointRouteBehaviour.cs, line 30</a> · <a href='#api-QuietStatic.Toolkit.Characters.NPC.NPCWaypointRouteBehaviour.WaypointEvent'>Permalink</a></p>
+<p class='comment'>Inspector event carrying the waypoint reached by this NPC.</p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

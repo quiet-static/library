@@ -3,14 +3,20 @@
 Runtime code is grouped by responsibility. Components are intentionally small and can
 be combined without adopting every toolkit system.
 
-- `Core`, `Managers`, and `Handlers` provide global state and event-driven coordination.
-- `Flags`, `Objectives`, `Dialogue`, and `Deductions` provide narrative progression.
-- `Characters`, `Input`, `Cameras`, `Interactions`, and `Minigames` provide
-  player-facing gameplay.
-- `SceneFlow`, `Spawning`, and `Cinematics` coordinate transitions and sequences.
-- `Saving` coordinates versioned slots across flags, scenes, spawn points, and
-  explicitly registered state participants.
-- `Audio`, `UI`, `Settings`, `Animation`, and `Utilities` provide reusable presentation helpers.
+- [Core](Core/README.md), [Managers](Managers/README.md), [Handlers](Handlers/README.md),
+  and [Events](Event/README.md) provide global state and cross-scene communication.
+- [Flags](Flags/README.md), [Objectives](Objectives/README.md), [Dialogue](Dialogue/README.md),
+  [Narrative](Narrative/README.md), and [Deductions](Deductions/Deductions/README.md) provide narrative progression.
+- [Characters](Characters/README.md), [Input](Input/README.md), [Cameras](Cameras/README.md),
+  [Interactions](Interactions/README.md), and [Minigames](Minigames/README.md) provide player-facing gameplay.
+- [Scene Flow](SceneFlow/README.md), [Spawning](Spawning/README.md), and
+  [Cinematics](Cinematics/README.md) coordinate transitions and sequences.
+- [Saving](Saving/README.md) coordinates versioned slots across flags, scenes, spawn points, and
+  registered state participants.
+- [Audio](Audio/README.md), [UI](UI/README.md), [Settings](Settings/README.md),
+  [Animation](Animation/README.md), and [Utilities](Utilities/README.md) provide reusable presentation helpers.
+- [Horror](Horror/README.md) and [Jumpscares](Jumpscare/README.md) provide tension and scares.
+- The HTML [Code reference](../docs/index.html) also covers Pause and Debug Tools.
 
 Cross-scene player activities use `PlayerActivityChannel`, `HoldActivitySequence`, and
 `PlayerActivityHandler`.

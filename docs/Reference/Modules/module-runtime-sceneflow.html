@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / SceneFlow — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / SceneFlow</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper'><code>QuietStatic.Toolkit.SceneFlow.SceneBootstrapper</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenSettingsStartupPlayModeTests.cs#L44'>Stolen &#183; Assets/Tests/PlayMode/StolenSettingsStartupPlayModeTests.cs, line 44</a></figcaption><pre><code>bootstrap.BootstrapRoutine()</code></pre></figure></section>
+<section class='guide' id='guide-runtime-sceneflow-readme-md'><h1 id='guide-runtime-sceneflow-readme-md-scene-flow'>Scene flow</h1>
+<p>Scene flow supports a tiny bootstrap scene, persistent system/UI/player scenes, and
+replaceable additive content scenes.</p>
+<h2 id='guide-runtime-sceneflow-readme-md-profile-driven-bootstrap'>Profile-driven bootstrap</h2>
+<p>The preferred startup authority is a <code>SceneBootstrapProfile</code>. It defines ordered
+persistent scenes, the first active content scene, optional initial support/retained
+scenes, and whether unrelated scenes (including the tiny bootstrap scene) unload.</p>
+<p>Open <code>Tools &gt; Quiet Static &gt; Project Setup</code> to create a bootstrap profile, scene map,
+and request channel; locate and add referenced scenes to Build Settings; and create
+bootstrap or manager objects in the current scene.</p>
+<p>Recommended layout:</p>
+<pre><code class="language-text">Bootstrap scene
+└── SceneBootstrapper (profile)
+
+Persistent systems scene
+└── SceneFlowManager (Load Startup Scene On Awake disabled)
+
+Persistent UI/player/audio scenes
+└── Project-specific persistent services
+</code></pre>
+<p>At runtime <code>SceneBootstrapper</code> loads persistent scenes in profile order, waits one
+frame for initialization, configures the manager's persistent-scene policy, invokes
+<code>On Persistent Scenes Ready</code>, and asks the manager to perform the initial faded
+transition. Use the ready event for general setup components that must run after all
+persistent services exist but before content begins. The transition runs on the
+persistent manager, so unloading the bootstrap scene cannot cancel it.</p>
+<p>Keep <code>SceneFlowManager.Load Startup Scene On Awake</code> disabled when a bootstrap profile
+owns startup so only one component can initiate content loading.</p>
+<p>Use <code>SceneReference</code> fields instead of hand-typed scene names where available. Add every
+loadable scene to Build Settings. <code>SceneTransitionTrigger</code> should describe local trigger
+behavior while <code>SceneFlowManager</code> owns the actual transition.</p>
+<p>Create a <code>SceneFlowRequestChannel</code> asset when replaceable content scenes need to issue
+commands to the persistent manager. Assign it to both the manager and transition
+triggers. The same channel also exposes UnityEvent-friendly additive load, unload, and
+active-scene commands. A trigger calls <code>SceneFlowManager</code> directly when no channel is
+assigned.</p>
+<p>For a full additive content transition, create a <code>SceneTransitionRequest</code>.
+The request can load support scenes, retain selected nonpersistent scenes, and carry
+an optional transient condition ID for destination-owned entry behavior. This condition
+is not a saved gameplay flag. Await <code>SceneFlowManager.TransitionToSceneRoutine</code> when
+other persistent code needs to coordinate with the complete transition.</p>
+<h2 id='guide-runtime-sceneflow-readme-md-faded-transitions-and-connection-maps'>Faded transitions and connection maps</h2>
+<p>For a fader in a separate persistent UI scene, assign one <code>ScreenFadeChannel</code> asset to
+<code>SceneFlowManager</code> and to a <code>ScreenFadeChannelHandler</code> beside that UI scene's
+<code>ScreenFader</code>. Enable <strong>Fade During Transitions</strong>. A full transition then fades to black,
+loads the target and its support scenes, makes the target active, unloads the previous
+nonpersistent content, and fades clear. Time scale does not affect either fade. A directly
+assigned or uniquely discoverable fader remains supported as the local fallback when the
+channel has no active handler.</p>
+<p>Create a <strong>Scene Flow Map</strong> from <code>Assets &gt; Create &gt; Quiet Static Toolkit &gt; Scene Flow</code>,
+then open the Scene Flow tab in <code>Tools &gt; Quiet Static &gt; Workspace</code>. Each connection has a stable ID,
+source, destination, optional support/retained scenes, and cleanup policy. Scene fields
+select from enabled Build Settings scenes. A mapped request carries its connection ID
+as the destination condition, so multiple routes into one scene remain distinguishable.
+Assign the map and connection ID to a <code>SceneTransitionTrigger</code>; triggers and handlers
+dispatch only configured map connections.</p>
+<p>Add one <code>SceneTransitionDefinition</code> to a destination scene. Its ordered responses each
+contain a condition ID, an optional persistent <code>FlagRequirement</code>, and a UnityEvent. The
+first response whose exact condition and flag requirement match is invoked. A blank
+condition is ignored. Requests without a condition do not invoke the definition, which
+keeps existing transitions and save restoration unchanged. The definition's general
+entry event runs for every conditioned transition into the scene. Assign the same
+<code>SceneFlowMap</code> to the definition to select inbound connection IDs from its Inspector;
+custom IDs remain available for direct transitions.</p>
+<p>Destination responses run after the target becomes active and old content is unloaded,
+but before the transition fades clear. Use their UnityEvents for scene-owned setup such
+as choosing an entrance, placing a spawn target through <code>SpawnHandler</code>, starting local
+dialogue, or selecting route-specific presentation.</p>
+<p>For UnityEvents, add a <code>SceneTransitionHandler</code> to the event-owning scene object. Assign
+the map and select a connection, assign the request channel, then connect an
+interactable's <strong>On Interaction Succeeded</strong> (or a hold/progress interactable's
+<strong>On Completed</strong>) to <code>SceneTransitionHandler.Transition()</code>. The string-parameter
+<code>TransitionToConnection</code> and <code>TransitionToScene</code> methods are also available for dynamic
+UnityEvents, buttons, animation events, and Timeline signals.</p>
+<h2 id='guide-runtime-sceneflow-readme-md-scene-modes'>Scene modes</h2>
+<p>Add one <code>SceneModeDefinition</code> to each content scene to declare whether the scene is for
+normal play or a cutscene and which game state should become active. Keep one
+<code>SceneModeManager</code> in the persistent Systems scene; it reads the definition whenever the
+active scene changes and applies the configured game state.</p>
+<p>Add <code>SceneModeCameraHandler</code> to play and cutscene cameras that share a loaded scene set.
+Each handler enables its camera and optional audio listener only for its configured mode.
+When a content scene is opened directly without the persistent manager, the handler uses
+that scene's local definition so isolated scene testing still selects the correct camera.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection'><summary><code>Connection</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection</span></summary><div class='entry'>
+<code class='signature'>public sealed class Connection</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Runtime/SceneFlow/SceneFlowMap.cs, line 16</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection'>Permalink</a></p>
+<p class='comment'>One directed connection between two content scenes.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-41-12'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-41-12'>Permalink</a></p>
+<p class='comment'>Gets the stable connection ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-43-12'><code class='signature'>public string FromSceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 43</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-43-12'>Permalink</a></p>
+<p class='comment'>Gets the source scene name.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-45-12'><code class='signature'>public string ToSceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-45-12'>Permalink</a></p>
+<p class='comment'>Gets the destination scene name.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-47-12'><code class='signature'>public bool UnloadOtherScenes { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 47</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-47-12'>Permalink</a></p>
+<p class='comment'>Gets whether unrelated nonpersistent scenes unload after transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-53-12'><code class='signature'>public SceneTransitionRequest CreateRequest()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 53</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap.Connection-Runtime-SceneFlow-SceneFlowMap-cs-53-12'>Permalink</a></p>
+<p class='comment'>Builds the runtime request represented by this connection. The stable connection ID becomes its destination condition.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/DebugTools/DebugDashboard.cs'>Runtime/DebugTools/DebugDashboard.cs, lines 742–744</a></figcaption><pre><code>RequestDebugTransition(
+    connection.CreateRequest(),
+    $&quot;connection &#39;{connection.Id}&#39;&quot;);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response'><summary><code>Response</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response</span></summary><div class='entry'>
+<code class='signature'>public sealed class Response</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Runtime/SceneFlow/SceneTransitionDefinition.cs, line 29</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response'>Permalink</a></p>
+<p class='comment'>One ordered transition condition and its destination-owned action.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-45-12'><code class='signature'>public string Label { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-45-12'>Permalink</a></p>
+<p class='comment'>Gets the optional authoring label.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-48-12'><code class='signature'>public string ConditionId { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-48-12'>Permalink</a></p>
+<p class='comment'>Gets the normalized transient condition ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-51-12'><code class='signature'>public FlagRequirement Requirement { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition.Response-Runtime-SceneFlow-SceneTransitionDefinition-cs-51-12'>Permalink</a></p>
+<p class='comment'>Gets the optional persistent flag requirement.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper'><summary><code>SceneBootstrapper</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneBootstrapper</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneBootstrapper : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapper.cs'>Runtime/SceneFlow/SceneBootstrapper.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper'>Permalink</a></p>
+<p class='comment'>Loads a bootstrap profile and hands initial content ownership to a persistent SceneFlowManager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-42-8'><code class='signature'>public bool IsBootstrapping { get; private set; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapper.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-42-8'>Permalink</a></p>
+<p class='comment'>Whether this component is currently loading its profile.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-45-8'><code class='signature'>public string FailureReason { get; private set; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapper.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-45-8'>Permalink</a></p>
+<p class='comment'>The last failure description, or an empty string.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-56-8'><code class='signature'>public void Bootstrap()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapper.cs'>Source, line 56</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-56-8'>Permalink</a></p>
+<p class='comment'>Starts the configured bootstrap sequence from a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Bootstrap();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-65-8'><code class='signature'>public IEnumerator BootstrapRoutine()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapper.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapper-Runtime-SceneFlow-SceneBootstrapper-cs-65-8'>Permalink</a></p>
+<p class='comment'>Loads persistent scenes and requests the initial transition.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/StolenSettingsStartupPlayModeTests.cs#L44'>Stolen &#183; Assets/Tests/PlayMode/StolenSettingsStartupPlayModeTests.cs, line 44</a></figcaption><pre><code>bootstrap.BootstrapRoutine()</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile'><summary><code>SceneBootstrapProfile</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneBootstrapProfile : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Runtime/SceneFlow/SceneBootstrapProfile.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile'>Permalink</a></p>
+<p class='comment'>Reusable definition of the scenes required to start a game or application.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-37-8'><code class='signature'>public IReadOnlyList&lt;string&gt; PersistentSceneNames { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Source, line 37</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-37-8'>Permalink</a></p>
+<p class='comment'>Ordered, normalized persistent scene names.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-41-8'><code class='signature'>public string InitialSceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-41-8'>Permalink</a></p>
+<p class='comment'>Name of the initial active content scene.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-44-8'><code class='signature'>public bool IsValid { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-44-8'>Permalink</a></p>
+<p class='comment'>Whether the profile can start an initial transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-47-8'><code class='signature'>public IReadOnlyList&lt;string&gt; ReferencedSceneNames { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Source, line 47</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-47-8'>Permalink</a></p>
+<p class='comment'>All scenes referenced by this profile, without duplicates.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-52-8'><code class='signature'>public SceneTransitionRequest CreateInitialTransitionRequest()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneBootstrapProfile.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneBootstrapProfile-Runtime-SceneFlow-SceneBootstrapProfile-cs-52-8'>Permalink</a></p>
+<p class='comment'>Creates the initial content transition described by this profile.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneBootstrapProfileTests.cs'>Tests/EditMode/SceneBootstrapProfileTests.cs, lines 54–55</a></figcaption><pre><code>SceneTransitionRequest request =
+    profile.CreateInitialTransitionRequest();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand'><summary><code>SceneFlowCommand</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneFlowCommand</span></summary><div class='entry'>
+<code class='signature'>public readonly struct SceneFlowCommand</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Runtime/SceneFlow/SceneFlowRequestChannel.cs, line 18</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand'>Permalink</a></p>
+<p class='comment'>Typed cross-scene scene-flow command.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-21-8'><code class='signature'>public SceneFlowCommand( SceneFlowCommandType type, string sceneName = &quot;&quot;, SceneTransitionRequest transition = null)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 21</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-21-8'>Permalink</a></p>
+<p class='comment'>Creates a scene-flow command.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Runtime/SceneFlow/SceneFlowRequestChannel.cs, lines 127–130</a></figcaption><pre><code>new SceneFlowCommand(
+    SceneFlowCommandType.Transition,
+    request.TargetSceneName,
+    request)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-32-8'><code class='signature'>public SceneFlowCommandType Type { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 32</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-32-8'>Permalink</a></p>
+<p class='comment'>Requested scene-flow operation.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-35-8'><code class='signature'>public string SceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 35</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-35-8'>Permalink</a></p>
+<p class='comment'>Normalized scene name targeted by the command.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-38-8'><code class='signature'>public SceneTransitionRequest Transition { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommand-Runtime-SceneFlow-SceneFlowRequestChannel-cs-38-8'>Permalink</a></p>
+<p class='comment'>Detailed transition request for transition commands.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType'><summary><code>SceneFlowCommandType</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType</span></summary><div class='entry'>
+<code class='signature'>public enum SceneFlowCommandType</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Runtime/SceneFlow/SceneFlowRequestChannel.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType'>Permalink</a></p>
+<p class='comment'>Operation carried by a SceneFlowCommand.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-11-8'><code class='signature'>Transition</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 11</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-11-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-12-8'><code class='signature'>LoadAdditive</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-12-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-13-8'><code class='signature'>Unload</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 13</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-13-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-14-8'><code class='signature'>SetActive</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowCommandType-Runtime-SceneFlow-SceneFlowRequestChannel-cs-14-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap'><summary><code>SceneFlowMap</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneFlowMap</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneFlowMap : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Runtime/SceneFlow/SceneFlowMap.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap'>Permalink</a></p>
+<p class='comment'>Project-owned catalog of directed scene connections.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-86-8'><code class='signature'>public IReadOnlyList&lt;Connection&gt; Connections { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-86-8'>Permalink</a></p>
+<p class='comment'>Gets all directed connections in authoring order.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-90-8'><code class='signature'>public bool TryGetConnection(string connectionId, out Connection connection)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-90-8'>Permalink</a></p>
+<p class='comment'>Finds a connection by its stable identifier.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/CreditsSceneFlowTests.cs#L164'>Stolen &#183; Assets/Tests/Editor/CreditsSceneFlowTests.cs, line 164</a></figcaption><pre><code>Assert.That(map.TryGetConnection(CreditsRouteId, out var connection), Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-124-8'><code class='signature'>public IEnumerable&lt;Connection&gt; GetConnectionsFrom(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 124</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-124-8'>Permalink</a></p>
+<p class='comment'>Returns all connections leaving the named scene.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneFlowMapTests.cs'>Tests/EditMode/SceneFlowMapTests.cs, line 92</a></figcaption><pre><code>Assert.That(map.GetConnectionsFrom(&quot;House&quot;), Is.EqualTo(new[] { outgoing }));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-144-8'><code class='signature'>public bool TryCreateRequest( string connectionId, out SceneTransitionRequest request)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Source, line 144</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowMap-Runtime-SceneFlow-SceneFlowMap-cs-144-8'>Permalink</a></p>
+<p class='comment'>Creates a transition request for a configured connection.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L895'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 895</a></figcaption><pre><code>sceneFlowMap.TryCreateRequest(officeConnectionId, out request)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel'><summary><code>SceneFlowRequestChannel</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneFlowRequestChannel : CrossSceneCommandChannel&lt;SceneFlowCommand&gt;</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Runtime/SceneFlow/SceneFlowRequestChannel.cs, line 44</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel'>Permalink</a></p>
+<p class='comment'>Relays content-scene loading commands to a persistent scene-flow manager.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-54-8'><code class='signature'>public event Action&lt;string&gt; TransitionCompleted</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 54</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-54-8'>Permalink</a></p>
+<p class='comment'>Raised after the receiver completes a full content transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-60-8'><code class='signature'>public event Action&lt;SceneTransitionResult&gt; TransitionFinished</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 60</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-60-8'>Permalink</a></p>
+<p class='comment'>Raised after the receiver accepts or rejects a transition and produces its terminal success or failure result.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-66-8'><code class='signature'>public SceneTransitionResult LastTransitionResult { get; private set; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-66-8'>Permalink</a></p>
+<p class='comment'>Gets the most recently published result so temporarily disabled observers can reconcile a request after re-enabling.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-102-8'><code class='signature'>public void TransitionToScene(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 102</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-102-8'>Permalink</a></p>
+<p class='comment'>Requests a full content transition from a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.TransitionToScene(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-108-8'><code class='signature'>public bool TryTransitionToScene(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 108</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-108-8'>Permalink</a></p>
+<p class='comment'>Requests a full content transition and reports whether a receiver exists.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.TryTransitionToScene(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-114-8'><code class='signature'>public bool RequestTransition(SceneTransitionRequest request)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 114</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-114-8'>Permalink</a></p>
+<p class='comment'>Requests a full transition described by a reusable request object.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs#L915'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StationConfrontationController.cs, line 915</a></figcaption><pre><code>return sceneFlowChannel.RequestTransition(request);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-144-8'><code class='signature'>public void LoadAdditive(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 144</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-144-8'>Permalink</a></p>
+<p class='comment'>Requests an additive load from a UnityEvent.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.LoadAdditive(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-150-8'><code class='signature'>public bool TryLoadAdditive(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 150</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-150-8'>Permalink</a></p>
+<p class='comment'>Requests an additive load and reports whether a receiver exists.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/DebugTools/DebugDashboard.cs'>Runtime/DebugTools/DebugDashboard.cs, line 647</a></figcaption><pre><code>sceneFlowRequestChannel?.TryLoadAdditive(customScene.Trim());</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-158-8'><code class='signature'>public void Unload(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 158</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-158-8'>Permalink</a></p>
+<p class='comment'>Requests that a nonpersistent scene unload.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Unload(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-164-8'><code class='signature'>public bool TryUnload(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 164</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-164-8'>Permalink</a></p>
+<p class='comment'>Requests an unload and reports whether a receiver exists.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/DebugTools/DebugDashboard.cs'>Runtime/DebugTools/DebugDashboard.cs, line 686</a></figcaption><pre><code>sceneFlowRequestChannel?.TryUnload(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-172-8'><code class='signature'>public void SetActive(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 172</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-172-8'>Permalink</a></p>
+<p class='comment'>Requests that a loaded scene become active.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetActive(sceneName);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-178-8'><code class='signature'>public bool TrySetActive(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Source, line 178</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneFlowRequestChannel-Runtime-SceneFlow-SceneFlowRequestChannel-cs-178-8'>Permalink</a></p>
+<p class='comment'>Requests active-scene selection and reports whether a receiver exists.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/DebugTools/DebugDashboard.cs'>Runtime/DebugTools/DebugDashboard.cs, line 682</a></figcaption><pre><code>sceneFlowRequestChannel?.TrySetActive(sceneName);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneMode'><summary><code>SceneMode</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneMode</span></summary><div class='entry'>
+<code class='signature'>public enum SceneMode</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneMode.cs'>Runtime/SceneFlow/SceneMode.cs, line 4</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneMode'>Permalink</a></p>
+<p class='comment'>Describes the primary presentation and control mode of a content scene.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-6-8'><code class='signature'>Unspecified = 0</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneMode.cs'>Source, line 6</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-6-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-7-8'><code class='signature'>Play = 1</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneMode.cs'>Source, line 7</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-7-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-8-8'><code class='signature'>Cutscene = 2</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneMode.cs'>Source, line 8</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneMode-Runtime-SceneFlow-SceneMode-cs-8-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneModeCameraHandler'><summary><code>SceneModeCameraHandler</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneModeCameraHandler</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneModeCameraHandler : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneModeCameraHandler.cs'>Runtime/SceneFlow/SceneModeCameraHandler.cs, line 7</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeCameraHandler'>Permalink</a></p>
+<p class='comment'>Enables a camera and its listener only for one declared scene mode.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeCameraHandler-Runtime-SceneFlow-SceneModeCameraHandler-cs-38-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeCameraHandler.cs'>Source, line 38</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeCameraHandler-Runtime-SceneFlow-SceneModeCameraHandler-cs-38-8'>Permalink</a></p>
+<p class='comment'>Refreshes component activation from the currently declared scene mode.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneModeTests.cs'>Tests/EditMode/SceneModeTests.cs, line 75</a></figcaption><pre><code>handler.Refresh();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition'><summary><code>SceneModeDefinition</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneModeDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneModeDefinition : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneModeDefinition.cs'>Runtime/SceneFlow/SceneModeDefinition.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition'>Permalink</a></p>
+<p class='comment'>Declares the presentation mode and initial game state of a content scene.</p>
+<p class='comment'><strong>Remarks</strong> Place one definition in each active content scene. Persistent systems use it to select cameras and establish the default input mode without relying on scene-name conventions.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition-Runtime-SceneFlow-SceneModeDefinition-cs-23-8'><code class='signature'>public SceneMode Mode { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeDefinition.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition-Runtime-SceneFlow-SceneModeDefinition-cs-23-8'>Permalink</a></p>
+<p class='comment'>Gets the declared scene mode.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition-Runtime-SceneFlow-SceneModeDefinition-cs-26-8'><code class='signature'>public string InitialGameState { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeDefinition.cs'>Source, line 26</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeDefinition-Runtime-SceneFlow-SceneModeDefinition-cs-26-8'>Permalink</a></p>
+<p class='comment'>Gets the game state applied when this scene becomes active.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneModeManager'><summary><code>SceneModeManager</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneModeManager</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneModeManager : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneModeManager.cs'>Runtime/SceneFlow/SceneModeManager.cs, line 13</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeManager'>Permalink</a></p>
+<p class='comment'>Publishes the mode declared by the active content scene.</p>
+<p class='comment'><strong>Remarks</strong> This manager belongs in a persistent Systems scene. It changes the global game state when active content changes; InputModeManager then selects the appropriate controls.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-19-8'><code class='signature'>public event Action&lt;SceneMode&gt; ModeChanged</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeManager.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-19-8'>Permalink</a></p>
+<p class='comment'>Raised when the active content scene declares a different mode.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-22-8'><code class='signature'>public SceneMode CurrentMode { get; private set; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeManager.cs'>Source, line 22</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-22-8'>Permalink</a></p>
+<p class='comment'>Gets the currently resolved content-scene mode.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-68-8'><code class='signature'>public static SceneModeDefinition FindDefinition(Scene scene)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneModeManager.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneModeManager-Runtime-SceneFlow-SceneModeManager-cs-68-8'>Permalink</a></p>
+<p class='comment'>Finds the mode definition belonging to one loaded scene.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/CreditsSceneCompositionPlayModeTests.cs#L143'>Stolen &#183; Assets/Tests/PlayMode/CreditsSceneCompositionPlayModeTests.cs, line 143</a></figcaption><pre><code>Assert.That(SceneModeManager.FindDefinition(credits), Is.Not.Null);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneReference'><summary><code>SceneReference</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneReference</span></summary><div class='entry'>
+<code class='signature'>public class SceneReference</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneReference.cs'>Runtime/SceneFlow/SceneReference.cs, line 15</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneReference'>Permalink</a></p>
+<p class='comment'>Serializable wrapper for storing a Unity scene name in the Inspector.</p>
+<p class='comment'><strong>Remarks</strong> Unity does not serialize UnityEngine.SceneManagement.Scene values as editable Inspector references, so this class stores the scene by name instead. The referenced scene must still be added to Unity&#39;s Build Settings before it can be loaded at runtime.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-23-8'><code class='signature'>public SceneReference()</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneReference.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-23-8'>Permalink</a></p>
+<p class='comment'>Creates an empty Inspector-assignable scene reference.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/HouseCarSequenceControllerPlayModeTests.cs#L172'>Stolen &#183; Assets/Tests/PlayMode/HouseCarSequenceControllerPlayModeTests.cs, line 172</a></figcaption><pre><code>SetField(connection, &quot;fromScene&quot;, new SceneReference());</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-28-8'><code class='signature'>public SceneReference(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneReference.cs'>Source, line 28</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-28-8'>Permalink</a></p>
+<p class='comment'>Creates a reference from a runtime scene name.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/HouseCarSequenceControllerPlayModeTests.cs#L173'>Stolen &#183; Assets/Tests/PlayMode/HouseCarSequenceControllerPlayModeTests.cs, line 173</a></figcaption><pre><code>SetField(connection, &quot;toScene&quot;, new SceneReference(&quot;Office&quot;));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-41-8'><code class='signature'>public string SceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneReference.cs'>Source, line 41</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-41-8'>Permalink</a></p>
+<p class='comment'>Gets the configured scene name.</p>
+<p class='comment'><strong>Remarks</strong> This value is intended to be passed to scene loading systems such as SceneManager or SceneFlowManager. It may be empty if no scene has been assigned in the Inspector.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-50-8'><code class='signature'>public bool IsValid { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneReference.cs'>Source, line 50</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneReference-Runtime-SceneFlow-SceneReference-cs-50-8'>Permalink</a></p>
+<p class='comment'>Gets whether this scene reference contains a non-empty scene name.</p>
+<p class='comment'><strong>Remarks</strong> This only validates that the field has text. It does not verify that the scene exists in the project or that it has been added to Build Settings.</p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition'><summary><code>SceneTransitionDefinition</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneTransitionDefinition : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Runtime/SceneFlow/SceneTransitionDefinition.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition'>Permalink</a></p>
+<p class='comment'>Defines destination-scene behavior for incoming transition conditions.</p>
+<p class='comment'><strong>Remarks</strong> Place one definition in a content scene. After that scene becomes active and old content is unloaded, SceneFlowManager invokes the first response whose transient condition and persistent flag requirement both match. Requests without a condition do not invoke this definition. Entry actions run before the transition fades clear.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-86-8'><code class='signature'>public IReadOnlyList&lt;Response&gt; Responses { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 86</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-86-8'>Permalink</a></p>
+<p class='comment'>Gets the ordered destination responses.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-100-8'><code class='signature'>public bool Apply(string conditionId)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 100</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-100-8'>Permalink</a></p>
+<p class='comment'>Applies one incoming transition condition to this scene definition.</p>
+<p class='comment'><strong>conditionId</strong> Transient condition carried by the accepted transition request.</p>
+<p class='comment'><strong>Returns</strong> True when one conditional response was invoked; otherwise, false. For a nonempty condition, the general entry event is invoked regardless of the return value. Empty conditions are a complete no-op.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneTransitionDefinitionTests.cs'>Tests/EditMode/SceneTransitionDefinitionTests.cs, line 61</a></figcaption><pre><code>bool appliedExact = definition.Apply(&quot;route.entry&quot;);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-142-8'><code class='signature'>public static SceneTransitionDefinition FindInScene(Scene scene)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionDefinition.cs'>Source, line 142</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionDefinition-Runtime-SceneFlow-SceneTransitionDefinition-cs-142-8'>Permalink</a></p>
+<p class='comment'>Finds the first transition definition belonging to a loaded scene, including one on an inactive descendant.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneTransitionDefinitionTests.cs'>Tests/EditMode/SceneTransitionDefinitionTests.cs, lines 152–154</a></figcaption><pre><code>Assert.That(
+    SceneTransitionDefinition.FindInScene(root.scene),
+    Is.SameAs(definition));</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure'><summary><code>SceneTransitionFailure</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure</span></summary><div class='entry'>
+<code class='signature'>public enum SceneTransitionFailure</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Runtime/SceneFlow/SceneTransitionResult.cs, line 6</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure'>Permalink</a></p>
+<p class='comment'>Reason a scene transition did not complete successfully.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-9-8'><code class='signature'>Unknown</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 9</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-9-8'>Permalink</a></p>
+<p class='comment'>No terminal result has been produced.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-12-8'><code class='signature'>None</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 12</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-12-8'>Permalink</a></p>
+<p class='comment'>The transition completed successfully.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-14-8'><code class='signature'>EmptyTarget</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 14</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-14-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-15-8'><code class='signature'>AlreadyTransitioning</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 15</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-15-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-16-8'><code class='signature'>LoadFailed</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 16</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-16-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-17-8'><code class='signature'>ActivationFailed</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 17</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionFailure-Runtime-SceneFlow-SceneTransitionResult-cs-17-8'>Permalink</a></p>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest'><summary><code>SceneTransitionRequest</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest</span></summary><div class='entry'>
+<code class='signature'>public sealed class SceneTransitionRequest</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Runtime/SceneFlow/SceneTransitionRequest.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest'>Permalink</a></p>
+<p class='comment'>Describes one generic additive scene transition.</p>
+<p class='comment'><strong>Remarks</strong> The request contains scene-lifetime mechanics plus an optional opaque condition ID. The destination scene owns the meaning of that condition; the scene-flow system only carries and delivers it.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-40-8'><code class='signature'>public SceneTransitionRequest( string targetSceneName, IEnumerable&lt;string&gt; additionalScenesToLoad = null, IEnumerable&lt;string&gt; additionalScenesToKeep = null, bool unloadOtherScenes = true, string conditionId = &quot;&quot;, float fadeDuration = -1f)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 40</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-40-8'>Permalink</a></p>
+<p class='comment'>Creates a transition request.</p>
+<p class='comment'><strong>targetSceneName</strong> Scene that becomes active when loading completes.</p>
+<p class='comment'><strong>additionalScenesToLoad</strong> Optional support scenes that must be loaded before cleanup and remain loaded for this transition, such as a player, lighting, or local UI scene.</p>
+<p class='comment'><strong>additionalScenesToKeep</strong> Optional nonpersistent scenes that should survive this transition.</p>
+<p class='comment'><strong>unloadOtherScenes</strong> Whether other nonpersistent scenes should be unloaded.</p>
+<p class='comment'><strong>conditionId</strong> Optional transient condition used by the destination scene to select its entry behavior.</p>
+<p class='comment'><strong>fadeDuration</strong> Optional per-transition fade duration. Negative preserves the service default.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/SceneFlow/SceneFlowMap.cs'>Runtime/SceneFlow/SceneFlowMap.cs, lines 55–61</a></figcaption><pre><code>new SceneTransitionRequest(
+ToSceneName,
+GetNames(additionalScenesToLoad),
+GetNames(additionalScenesToKeep),
+unloadOtherScenes,
+Id,
+fadeDuration)</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-61-8'><code class='signature'>public string TargetSceneName { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 61</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-61-8'>Permalink</a></p>
+<p class='comment'>Gets the scene that becomes active.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-66-8'><code class='signature'>public IReadOnlyList&lt;string&gt; AdditionalScenesToLoad { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 66</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-66-8'>Permalink</a></p>
+<p class='comment'>Gets required support scenes loaded before, and retained through, cleanup.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-72-8'><code class='signature'>public IReadOnlyList&lt;string&gt; AdditionalScenesToKeep { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-72-8'>Permalink</a></p>
+<p class='comment'>Gets nonpersistent scenes retained for this transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-78-8'><code class='signature'>public bool UnloadOtherScenes { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 78</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-78-8'>Permalink</a></p>
+<p class='comment'>Gets whether unrelated nonpersistent scenes are unloaded.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-87-8'><code class='signature'>public string ConditionId { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 87</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-87-8'>Permalink</a></p>
+<p class='comment'>Gets the transient condition interpreted by the destination scene.</p>
+<p class='comment'><strong>Remarks</strong> This is route context, not a persistent gameplay flag. An empty value represents an ordinary, unconditioned transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-90-8'><code class='signature'>public float FadeDuration { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 90</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-90-8'>Permalink</a></p>
+<p class='comment'>Optional fade duration in seconds. A negative value preserves the scene-flow service default.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-95-8'><code class='signature'>public bool KeepsScene(string sceneName)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionRequest.cs'>Source, line 95</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionRequest-Runtime-SceneFlow-SceneTransitionRequest-cs-95-8'>Permalink</a></p>
+<p class='comment'>Returns whether this request explicitly retains a scene.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/SceneTransitionRequestTests.cs'>Tests/EditMode/SceneTransitionRequestTests.cs, line 53</a></figcaption><pre><code>Assert.That(request.KeepsScene(&quot;Player&quot;), Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult'><summary><code>SceneTransitionResult</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionResult</span></summary><div class='entry'>
+<code class='signature'>public readonly struct SceneTransitionResult</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Runtime/SceneFlow/SceneTransitionResult.cs, line 21</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult'>Permalink</a></p>
+<p class='comment'>Terminal result produced for every scene-transition request.</p>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-24-8'><code class='signature'>public SceneTransitionResult( string destination, SceneTransitionFailure failure, string message = &quot;&quot;) : this(destination, failure, message, null)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 24</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-24-8'>Permalink</a></p>
+<p class='comment'>Creates an uncorrelated transition result.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new SceneTransitionResult(destination, failure, message);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-33-8'><code class='signature'>public SceneTransitionResult( string destination, SceneTransitionFailure failure, string message, SceneTransitionRequest request)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-33-8'>Permalink</a></p>
+<p class='comment'>Creates a transition result correlated to its originating request.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var instance = new SceneTransitionResult(destination, failure, message, request);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-49-8'><code class='signature'>public SceneTransitionRequest Request { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 49</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-49-8'>Permalink</a></p>
+<p class='comment'>Exact request that produced this result, or null for legacy and manually constructed uncorrelated results.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-52-8'><code class='signature'>public string Destination { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 52</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-52-8'>Permalink</a></p>
+<p class='comment'>Requested destination scene name.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-59-8'><code class='signature'>public SceneTransitionFailure Failure { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 59</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-59-8'>Permalink</a></p>
+<p class='comment'>Failure category, SceneTransitionFailure.None after success, or SceneTransitionFailure.Unknown when the result has not been initialized.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-62-8'><code class='signature'>public string Message { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 62</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-62-8'>Permalink</a></p>
+<p class='comment'>Human-readable failure detail, empty after success.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-65-8'><code class='signature'>public bool Succeeded { get; }</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 65</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-65-8'>Permalink</a></p>
+<p class='comment'>Whether the destination became the active scene.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-68-8'><code class='signature'>public static SceneTransitionResult Success(string destination)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 68</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-68-8'>Permalink</a></p>
+<p class='comment'>Creates a successful result.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/SceneFlow/SceneFlowRequestChannel.cs'>Runtime/SceneFlow/SceneFlowRequestChannel.cs, line 98</a></figcaption><pre><code>PublishTransitionResult(SceneTransitionResult.Success(sceneName));</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-72-8'><code class='signature'>public static SceneTransitionResult Success( string destination, SceneTransitionRequest request)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 72</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-72-8'>Permalink</a></p>
+<p class='comment'>Creates a successful result correlated to its request.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/DebugTraceTests.cs'>Tests/EditMode/DebugTraceTests.cs, lines 155–160</a></figcaption><pre><code>publish.Invoke(channel, new object[]
+{
+    SceneTransitionResult.Success(
+        first.TargetSceneName,
+        first),
+});</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-78-8'><code class='signature'>public static SceneTransitionResult Failed( string destination, SceneTransitionFailure failure, string message)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 78</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-78-8'>Permalink</a></p>
+<p class='comment'>Creates a failed result.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = SceneTransitionResult.Failed(destination, failure, message);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-85-8'><code class='signature'>public static SceneTransitionResult Failed( string destination, SceneTransitionFailure failure, string message, SceneTransitionRequest request)</code><p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionResult.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionResult-Runtime-SceneFlow-SceneTransitionResult-cs-85-8'>Permalink</a></p>
+<p class='comment'>Creates a failed result correlated to its request.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/StationSequenceControllerTests.cs#L886-L890'>Stolen &#183; Assets/Tests/Editor/StationSequenceControllerTests.cs, lines 886–890</a></figcaption><pre><code>SceneTransitionResult.Failed(
+    &quot;Office&quot;,
+    SceneTransitionFailure.LoadFailed,
+    &quot;Test load failure.&quot;,
+    request)</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.SceneFlow.SceneTransitionTrigger'><summary><code>SceneTransitionTrigger</code> <span class='source'>QuietStatic.Toolkit.SceneFlow.SceneTransitionTrigger</span></summary><div class='entry'>
+<code class='signature'>public class SceneTransitionTrigger : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/SceneFlow/SceneTransitionTrigger.cs'>Runtime/SceneFlow/SceneTransitionTrigger.cs, line 17</a> · <a href='#api-QuietStatic.Toolkit.SceneFlow.SceneTransitionTrigger'>Permalink</a></p>
+<p class='comment'>Trigger-volume helper that starts a scene transition when a matching collider enters.</p>
+<p class='comment'><strong>Remarks</strong> This component is intended for simple doorway, hallway, portal, or level-exit triggers. When an object enters the trigger, the component can optionally validate the object&#39;s tag, invoke a UnityEvent, and then request the configured scene through its command channel. The target scene must still be included in Unity&#39;s Build Settings for runtime scene loading to succeed.</p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

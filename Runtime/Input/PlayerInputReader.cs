@@ -1,4 +1,5 @@
 using System;
+using QuietStatic.Toolkit.Interactions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -34,6 +35,16 @@ namespace QuietStatic.Toolkit.Input
         [Tooltip("Button action used to interact with the current target.")]
         [SerializeField] private string interactActionName = "Interact";
 
+        [Header("Grabbable Input")]
+        [Tooltip("Optional interactor that receives throw, drop, and cancel actions from this reader.")]
+        [SerializeField] private Interactor grabbableInteractor;
+        [Tooltip("Optional Button action pressed to start a throw and released to finish charging.")]
+        [SerializeField] private string throwActionName = "Throw";
+        [Tooltip("Optional Button action pressed to drop the held object.")]
+        [SerializeField] private string dropActionName = "Drop";
+        [Tooltip("Optional Button action pressed to cancel a charge while retaining the held object.")]
+        [SerializeField] private string cancelThrowActionName = "CancelThrow";
+
         /// <summary>
         /// Cached gameplay input state manager.
         /// </summary>
@@ -49,6 +60,9 @@ namespace QuietStatic.Toolkit.Input
         private InputAction jumpAction;
         private InputAction sprintAction;
         private InputAction interactAction;
+        private InputAction throwAction;
+        private InputAction dropAction;
+        private InputAction cancelThrowAction;
 
         /// <summary>
         /// Resolves required input references.
@@ -76,6 +90,13 @@ namespace QuietStatic.Toolkit.Input
                 jumpAction = playerActionMap.FindAction(jumpActionName, true);
                 sprintAction = playerActionMap.FindAction(sprintActionName, true);
                 interactAction = playerActionMap.FindAction(interactActionName, true);
+
+                if (grabbableInteractor != null)
+                {
+                    throwAction = FindOptionalAction(throwActionName);
+                    dropAction = FindOptionalAction(dropActionName);
+                    cancelThrowAction = FindOptionalAction(cancelThrowActionName);
+                }
             }
             catch (Exception exception)
             {
@@ -99,7 +120,7 @@ namespace QuietStatic.Toolkit.Input
                 InputModeManager.Instance.RegisterGameplayInput(this);
             }
 
-            if (playerActionMap != null)
+            if (isActiveAndEnabled && playerActionMap != null)
             {
                 playerActionMap.Enable();
             }
@@ -110,6 +131,11 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void OnDisable()
         {
+            if (grabbableInteractor != null)
+            {
+                grabbableInteractor.CancelThrowCharge();
+            }
+
             if (playerActionMap != null)
             {
                 playerActionMap.Disable();
@@ -131,15 +157,23 @@ namespace QuietStatic.Toolkit.Input
         /// </summary>
         private void Update()
         {
-            if (!TryResolveInputManager() ||
-                playerActionMap == null ||
-                !playerActionMap.enabled)
+            if (playerActionMap == null || !playerActionMap.enabled)
             {
+                if (grabbableInteractor != null)
+                {
+                    grabbableInteractor.CancelThrowCharge();
+                }
+
                 return;
             }
 
-            CaptureMovementInput();
-            CaptureActionInput();
+            if (TryResolveInputManager())
+            {
+                CaptureMovementInput();
+                CaptureActionInput();
+            }
+
+            CaptureGrabbableInput();
         }
 
         private bool TryResolveInputManager()
@@ -180,6 +214,51 @@ namespace QuietStatic.Toolkit.Input
             if (interactAction.WasPressedThisFrame())
             {
                 inputManager.QueueInteract();
+            }
+        }
+
+        private InputAction FindOptionalAction(string name) =>
+            string.IsNullOrWhiteSpace(name) ? null : playerActionMap.FindAction(name);
+
+        private void CaptureGrabbableInput()
+        {
+            if (grabbableInteractor == null)
+            {
+                return;
+            }
+
+            if (dropAction != null && dropAction.enabled && dropAction.WasPressedThisFrame())
+            {
+                grabbableInteractor.HandleDropInput();
+                return;
+            }
+
+            if (cancelThrowAction != null && cancelThrowAction.enabled &&
+                cancelThrowAction.WasPressedThisFrame())
+            {
+                grabbableInteractor.CancelThrowCharge();
+                return;
+            }
+
+            if (throwAction == null)
+            {
+                return;
+            }
+
+            if (!throwAction.enabled)
+            {
+                grabbableInteractor.CancelThrowCharge();
+                return;
+            }
+
+            if (throwAction.WasPressedThisFrame())
+            {
+                grabbableInteractor.HandleThrowPressed();
+            }
+
+            if (throwAction.WasReleasedThisFrame())
+            {
+                grabbableInteractor.HandleThrowReleased();
             }
         }
 

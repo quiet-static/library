@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime / Objectives — API reference — Quiet Static Library</title>
+<style>
+  :root { color-scheme: light; --ink: #193245; --blue: #205777; --muted: #486171; --line: #ccdae2; --wash: #eef4f7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: var(--ink); background: var(--wash); }
+  a { color: var(--blue); text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #ad710e; outline-offset: 3px; }
+  .wrap { max-width: 82rem; margin: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  header { background: #16415c; color: white; }
+  header p { margin: 0; padding-block: 1rem .65rem; font-size: 1.15rem; font-weight: 650; }
+  header small { margin-left: .65rem; color: #d1e4ef; font-weight: 400; }
+  nav ul { display: flex; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  nav a { display: block; padding: .55rem 1.2rem; color: white; }
+  nav a[aria-current] { background: var(--wash); color: var(--ink); font-weight: 650; text-decoration: none; border-radius: .4rem .4rem 0 0; }
+  .layout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); padding-block: 1.5rem 3rem; }
+  main { min-width: 0; background: white; border: 1px solid var(--line); padding: clamp(1rem, 4vw, 2.5rem); }
+  h1, h2, h3 { line-height: 1.2; }
+  h1 { margin-top: 0; font-size: clamp(1.85rem, 4vw, 2.6rem); }
+  h2 { margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  aside h2 { font-size: 1rem; margin: 1.2rem 0 .45rem; }
+  aside ul { padding-left: 1.25rem; margin-top: .25rem; }
+  aside li { margin-block: .18rem; }
+  input { width: 100%; padding: .55rem .65rem; background: white; border: 1px solid #7c96a6; border-radius: .25rem; font: inherit; }
+  label { display: block; font-weight: 650; margin-bottom: .3rem; }
+  details, .asset { margin: .65rem 0; border: 1px solid var(--line); border-radius: .25rem; }
+  summary { padding: .6rem .8rem; background: var(--wash); cursor: pointer; overflow-wrap: anywhere; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
+  .entry, .asset { padding: .75rem .85rem; }
+  .asset h3 { margin: 0 0 .3rem; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .asset p, .source { margin-block: .35rem; }
+  .source, #result { color: var(--muted); }
+  .source { font-size: .9rem; overflow-wrap: anywhere; }
+  .member { margin-block: .75rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  .signature { display: block; padding: .4rem .55rem; background: var(--wash); overflow-wrap: anywhere; }
+  code, pre { font-family: ui-monospace, Consolas, monospace; }
+  pre { overflow: auto; }
+  section, [data-entry] { scroll-margin-block: 1rem; }
+  [data-entry]:target { outline: 2px solid #ad710e; outline-offset: 2px; }
+  .asset img { width: 3rem; padding: .35rem; background: var(--blue); border-radius: .25rem; }
+  .guide { overflow-wrap: anywhere; }
+  section.guide { margin-block: 1.35rem; }
+  details.guide > section { padding: .75rem 1rem; }
+  .guide h1 { font-size: 1.5rem; }
+  .guide h2 { font-size: 1.2rem; }
+  .guide table { display: block; max-width: 100%; overflow: auto; border-collapse: collapse; }
+  .guide th, .guide td { border: 1px solid var(--line); padding: .4rem .6rem; text-align: left; }
+  .guide th, .example pre, .guide pre { background: var(--wash); }
+  .guide pre, .example pre { padding: .65rem .8rem; }
+  .example { margin: .6rem 0 1rem; }
+  .example figcaption { font-size: .9rem; color: var(--muted); }
+  .example pre { margin: .25rem 0; }
+  .guide img { max-width: 100%; width: auto; padding: 0; background: transparent; }
+  .type-index { overflow-wrap: anywhere; padding-inline-start: 1.25rem; }
+  [hidden] { display: none !important; }
+  @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } aside ul { columns: 2; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p>Quiet Static Library <small>0.1.0</small></p>
+    <nav aria-label="Documentation tabs"><ul>
+      <li><a href="../../index.html" aria-current='page'>Code</a></li>
+      <li><a href="../assets.html">Assets</a></li>
+      <li><a href="../guides.html">Guides</a></li>
+    </ul></nav>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside aria-label="Reference index">
+    <label for="search">Search this module</label>
+    <input type="search" id="search">
+    <div id="result" role="status"></div>
+    <h2>On this page</h2>
+    <ul><li><a href='#example'>Usage example</a></li>
+<li><a href='#api'>Public API</a></li></ul>
+  </aside>
+  <main>
+<h1>Runtime / Objectives</h1>
+<p><a href="../../index.html">All modules</a> · <a href="#api">Public API</a></p>
+<section id='example'><h2>Usage example</h2><p>Example for <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase'><code>QuietStatic.Toolkit.Objectives.ObjectiveDatabase</code></a>.</p><figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/HouseNarrativeProgressionTests.cs#L483'>Stolen &#183; Assets/Tests/Editor/HouseNarrativeProgressionTests.cs, line 483</a></figcaption><pre><code>ObjectiveDefinition objective = database.FindById(objectiveId);</code></pre></figure></section>
+<section class='guide' id='guide-runtime-objectives-readme-md'><h1 id='guide-runtime-objectives-readme-md-objectives'>Objectives</h1>
+<p>Objectives use reusable definitions and a persistent lifecycle owner:</p>
+<pre><code class="language-text">GameplayManagers
+`-- ObjectiveManager
+    `-- ObjectiveDatabase
+
+Scene
+`-- ObjectiveHandler (UnityEvent commands)
+
+UI
+`-- ObjectivePresenter (title and description)
+</code></pre>
+<p>Create <code>ObjectiveDefinition</code> assets with stable IDs, player-facing text, and
+optional flag-based activation and completion requirements. Add them to one
+<code>ObjectiveDatabase</code> from lowest to highest activation priority and assign that
+database to the persistent <code>ObjectiveManager</code>.</p>
+<p>The manager owns resolution, the active definition, and completed-ID history. It
+selects the highest-priority eligible definition, completes configured objectives
+when their flag requirement becomes true, and implements <code>ISaveParticipant</code>, so
+<code>SaveManager</code> automatically captures and restores the lifecycle state.</p>
+<p>Use <code>ObjectiveHandler</code> on scene objects for trigger and UnityEvent commands.
+Use <code>ObjectivePresenter</code> for UI. It derives all displayed text from the manager's
+active definition and may show fallback text while no objective is active.</p>
+</section>
+<section class='catalog' id='api'><h2>Public API</h2><p>Source excerpts show calls from Stolen, toolkit samples, tests, or library code. In call patterns, supply the named arguments and use an instance of the documented type for <code>instance</code>.</p>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase'><summary><code>ObjectiveDatabase</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectiveDatabase</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectiveDatabase : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectiveDatabase.cs'>Runtime/Objectives/ObjectiveDatabase.cs, line 10</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase'>Permalink</a></p>
+<p class='comment'>Project-level catalog used to resolve stable objective IDs.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-19-8'><code class='signature'>public IReadOnlyList&lt;ObjectiveDefinition&gt; Objectives { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDatabase.cs'>Source, line 19</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-19-8'>Permalink</a></p>
+<p class='comment'>Gets the configured objective definitions.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-23-8'><code class='signature'>public ObjectiveDefinition FindById(string objectiveId)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDatabase.cs'>Source, line 23</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-23-8'>Permalink</a></p>
+<p class='comment'>Finds an objective by its stable ID.</p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/Editor/HouseNarrativeProgressionTests.cs#L483'>Stolen &#183; Assets/Tests/Editor/HouseNarrativeProgressionTests.cs, line 483</a></figcaption><pre><code>ObjectiveDefinition objective = database.FindById(objectiveId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-48-8'><code class='signature'>public bool Contains(ObjectiveDefinition objective)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDatabase.cs'>Source, line 48</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDatabase-Runtime-Objectives-ObjectiveDatabase-cs-48-8'>Permalink</a></p>
+<p class='comment'>Returns whether the database contains the supplied definition.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, line 45</a></figcaption><pre><code>Assert.That(database.Contains(objective), Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition'><summary><code>ObjectiveDefinition</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectiveDefinition</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectiveDefinition : ScriptableObject</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Runtime/Objectives/ObjectiveDefinition.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition'>Permalink</a></p>
+<p class='comment'>Reusable definition for an objective that can be activated, completed, and saved.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-33-8'><code class='signature'>public string Id { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 33</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-33-8'>Permalink</a></p>
+<p class='comment'>Gets the stable objective ID.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-36-8'><code class='signature'>public string Title { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 36</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-36-8'>Permalink</a></p>
+<p class='comment'>Gets the short player-facing title.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-39-8'><code class='signature'>public string Description { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 39</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-39-8'>Permalink</a></p>
+<p class='comment'>Gets the optional longer description.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-42-8'><code class='signature'>public FlagRequirement ActivationRequirement { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 42</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-42-8'>Permalink</a></p>
+<p class='comment'>Gets the optional automatic activation rule.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-45-8'><code class='signature'>public FlagRequirement CompletionRequirement { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 45</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-45-8'>Permalink</a></p>
+<p class='comment'>Gets the optional automatic completion rule.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-51-8'><code class='signature'>public string DisplayText { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 51</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-51-8'>Permalink</a></p>
+<p class='comment'>Gets the preferred single-label text, using the description when supplied and falling back to the title.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-57-8'><code class='signature'>public bool IsCompletionMet(FlagManager flagManager = null)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveDefinition.cs'>Source, line 57</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveDefinition-Runtime-Objectives-ObjectiveDefinition-cs-57-8'>Permalink</a></p>
+<p class='comment'>Returns whether this objective has a configured completion rule that is met.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, lines 141–143</a></figcaption><pre><code>Assert.That(
+    objective.IsCompletionMet(flagManager),
+    Is.True);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager'><summary><code>ObjectiveManager</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectiveManager</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectiveManager : ToolkitSingleton&lt;ObjectiveManager&gt;, ISaveParticipant</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Runtime/Objectives/ObjectiveManager.cs, line 19</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager'>Permalink</a></p>
+<p class='comment'>Owns the active objective and completed-objective history.</p>
+<p class='comment'><strong>Remarks</strong> Keep one instance in the persistent Systems scene. Scene objects should issue commands through QuietStatic.ObjectiveHandler or events.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-75-8'><code class='signature'>public event Action ObjectiveLifecycleChanged</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-75-8'>Permalink</a></p>
+<p class='comment'>Raised after any objective lifecycle transition.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-78-8'><code class='signature'>public ObjectiveDefinition ActiveObjective { get; private set; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 78</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-78-8'>Permalink</a></p>
+<p class='comment'>Gets the currently active objective, if any.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-81-8'><code class='signature'>public IReadOnlyCollection&lt;string&gt; CompletedObjectiveIds { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 81</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-81-8'>Permalink</a></p>
+<p class='comment'>Gets completed stable objective IDs.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-85-8'><code class='signature'>public ObjectiveDatabase Database { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 85</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-85-8'>Permalink</a></p>
+<p class='comment'>Gets the configured objective database.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-88-8'><code class='signature'>public string SaveId { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 88</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-88-8'>Permalink</a></p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-137-8'><code class='signature'>public bool HasCompleted(ObjectiveDefinition objective)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 137</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-137-8'>Permalink</a></p>
+<p class='comment'>Returns whether the supplied objective has been completed.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.HasCompleted(objective);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-143-8'><code class='signature'>public bool HasCompleted(string objectiveId)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 143</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-143-8'>Permalink</a></p>
+<p class='comment'>Returns whether an objective ID has been completed.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>var result = instance.HasCompleted(objectiveId);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-152-8'><code class='signature'>public bool ActivateObjective(ObjectiveDefinition objective)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 152</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-152-8'>Permalink</a></p>
+<p class='comment'>Makes a definition active. Completed objectives are rejected unless replay is enabled.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, lines 73–75</a></figcaption><pre><code>Assert.That(
+    objectiveManager.ActivateObjective(completed),
+    Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-179-8'><code class='signature'>public bool CompleteActiveObjective()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 179</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-179-8'>Permalink</a></p>
+<p class='comment'>Marks the active objective complete.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, lines 76–78</a></figcaption><pre><code>Assert.That(
+    objectiveManager.CompleteActiveObjective(),
+    Is.True);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-185-8'><code class='signature'>public bool CompleteObjective(ObjectiveDefinition objective)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 185</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-185-8'>Permalink</a></p>
+<p class='comment'>Marks a definition complete and deactivates it when necessary.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Runtime/Handlers/ObjectiveHandler.cs, line 36</a></figcaption><pre><code>ObjectiveManager.Instance?.CompleteObjective(definition);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-210-8'><code class='signature'>public bool ClearActiveObjective()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 210</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-210-8'>Permalink</a></p>
+<p class='comment'>Clears the active objective without marking it complete.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, line 87</a></figcaption><pre><code>objectiveManager.ClearActiveObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-224-8'><code class='signature'>public void RefreshActiveObjective()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 224</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-224-8'>Permalink</a></p>
+<p class='comment'>Notifies listeners to refresh the current objective.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Runtime/Handlers/ObjectiveHandler.cs'>Runtime/Handlers/ObjectiveHandler.cs, line 54</a></figcaption><pre><code>ObjectiveManager.Instance?.RefreshActiveObjective();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-238-8'><code class='signature'>public void EvaluateActiveObjectiveCompletion()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 238</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-238-8'>Permalink</a></p>
+<p class='comment'>Completes the active objective when its configured flag rule is met.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.EvaluateActiveObjectiveCompletion();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-247-8'><code class='signature'>public void EvaluateActiveObjectiveCompletion(FlagManager flagManager)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 247</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-247-8'>Permalink</a></p>
+<p class='comment'>Completes the active objective against an explicit flag manager.</p>
+<p class='comment'><strong>flagManager</strong> Flag state used to evaluate the completion rule.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, line 144</a></figcaption><pre><code>objectiveManager.EvaluateActiveObjectiveCompletion(flagManager);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-261-8'><code class='signature'>public void RefreshObjectivesFromFlags()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 261</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-261-8'>Permalink</a></p>
+<p class='comment'>Completes the current objective when appropriate, then selects the highest-priority incomplete database objective whose activation rule is met.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RefreshObjectivesFromFlags();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-270-8'><code class='signature'>public void RefreshObjectivesFromFlags(FlagManager flagManager)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 270</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-270-8'>Permalink</a></p>
+<p class='comment'>Refreshes automatic objective lifecycle against an explicit flag manager.</p>
+<p class='comment'><strong>flagManager</strong> Flag state used for activation and completion rules.</p>
+<figure class='example'><figcaption>Usage in <a href='../../../Tests/EditMode/ObjectiveLifecycleTests.cs'>Tests/EditMode/ObjectiveLifecycleTests.cs, line 179</a></figcaption><pre><code>objectiveManager.RefreshObjectivesFromFlags(flagManager);</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-320-8'><code class='signature'>public string CaptureSaveState()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 320</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-320-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Tests/PlayMode/SaveResumePlayModeTests.cs#L79'>Stolen &#183; Assets/Tests/PlayMode/SaveResumePlayModeTests.cs, line 79</a></figcaption><pre><code>string objectives = ObjectiveManager.Instance.CaptureSaveState();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-333-8'><code class='signature'>public void RestoreSaveState(string json)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Source, line 333</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager-Runtime-Objectives-ObjectiveManager-cs-333-8'>Permalink</a></p>
+<figure class='example'><figcaption>Usage in <a href='https://github.com/quiet-static/stolen/blob/4b49c421bbe45ff92b0661af011f138d56345fe6/Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs#L286'>Stolen &#183; Assets/Stolen/Scripts/Runtime/StolenSaveSession.cs, line 286</a></figcaption><pre><code>ObjectiveManager.Instance?.RestoreSaveState(string.Empty);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectivePresenter'><summary><code>ObjectivePresenter</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectivePresenter</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectivePresenter : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectivePresenter.cs'>Runtime/Objectives/ObjectivePresenter.cs, line 11</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectivePresenter'>Permalink</a></p>
+<p class='comment'>Presents the active objective without owning objective lifecycle state.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectivePresenter-Runtime-Objectives-ObjectivePresenter-cs-44-8'><code class='signature'>public TMP_Text DisplayLabel { get; }</code><p class='source'><a href='../../../Runtime/Objectives/ObjectivePresenter.cs'>Source, line 44</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectivePresenter-Runtime-Objectives-ObjectivePresenter-cs-44-8'>Permalink</a></p>
+<p class='comment'>The primary story-objective label, used to align secondary objective views.</p>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectivePresenter-Runtime-Objectives-ObjectivePresenter-cs-98-8'><code class='signature'>public void Refresh()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectivePresenter.cs'>Source, line 98</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectivePresenter-Runtime-Objectives-ObjectivePresenter-cs-98-8'>Permalink</a></p>
+<p class='comment'>Refreshes labels from the authoritative objective manager.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.Refresh();</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectiveManager.ObjectiveUnityEvent'><summary><code>ObjectiveUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectiveManager.ObjectiveUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class ObjectiveUnityEvent : UnityEvent&lt;ObjectiveDefinition&gt;</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectiveManager.cs'>Runtime/Objectives/ObjectiveManager.cs, line 26</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveManager.ObjectiveUnityEvent'>Permalink</a></p>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController'><summary><code>ObjectiveVisibilityController</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController</span></summary><div class='entry'>
+<code class='signature'>public class ObjectiveVisibilityController : MonoBehaviour</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectiveVisibilityController.cs'>Runtime/Objectives/ObjectiveVisibilityController.cs, line 9</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController'>Permalink</a></p>
+<p class='comment'>Shows or hides an objective UI object based on configured game states.</p>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController-Runtime-Objectives-ObjectiveVisibilityController-cs-75-8'><code class='signature'>public void RefreshVisibility()</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveVisibilityController.cs'>Source, line 75</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController-Runtime-Objectives-ObjectiveVisibilityController-cs-75-8'>Permalink</a></p>
+<p class='comment'>Rechecks objective visibility using the current game state.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.RefreshVisibility();</code></pre></figure>
+</div>
+<div class='member' id='api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController-Runtime-Objectives-ObjectiveVisibilityController-cs-89-8'><code class='signature'>public void SetVisible(bool visible)</code><p class='source'><a href='../../../Runtime/Objectives/ObjectiveVisibilityController.cs'>Source, line 89</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectiveVisibilityController-Runtime-Objectives-ObjectiveVisibilityController-cs-89-8'>Permalink</a></p>
+<p class='comment'>Forces the objective UI visible or hidden.</p>
+<figure class='example'><figcaption>Call pattern</figcaption><pre><code>instance.SetVisible(visible);</code></pre></figure>
+</div>
+</div></details>
+<details data-entry id='api-QuietStatic.Toolkit.Objectives.ObjectivePresenter.StringUnityEvent'><summary><code>StringUnityEvent</code> <span class='source'>QuietStatic.Toolkit.Objectives.ObjectivePresenter.StringUnityEvent</span></summary><div class='entry'>
+<code class='signature'>public sealed class StringUnityEvent : UnityEvent&lt;string&gt;</code>
+<p class='source'><a href='../../../Runtime/Objectives/ObjectivePresenter.cs'>Runtime/Objectives/ObjectivePresenter.cs, line 14</a> · <a href='#api-QuietStatic.Toolkit.Objectives.ObjectivePresenter.StringUnityEvent'>Permalink</a></p>
+</div></details>
+</section>
+  </main>
+</div>
+<script>
+  const search = document.querySelector('#search');
+  const sections = Array.from(document.querySelectorAll('.catalog')).map(section => ({
+    section,
+    link: document.querySelector('a[href="#' + section.id + '"]')?.closest('li'),
+    items: Array.from(section.querySelectorAll('[data-entry]')).map(entry => ({
+      entry,
+      text: (entry.textContent + ' ' + (entry.dataset.search || '')).toLowerCase()
+    }))
+  }));
+  if (!sections.length) search.closest('aside').querySelectorAll('label, input').forEach(item => item.hidden = true);
+  search.addEventListener('input', () => {
+    const words = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const { section, link, items } of sections) {
+      let matches = 0;
+      for (const { entry, text } of items) {
+        entry.hidden = !words.every(word => text.includes(word));
+        if (!entry.hidden) matches++;
+      }
+      section.hidden = matches === 0;
+      if (link) link.hidden = section.hidden;
+      count += matches;
+    }
+    document.querySelector('#result').textContent = words.length
+      ? (count ? count + (count === 1 ? ' match' : ' matches') : 'No matches.')
+      : '';
+  });
+
+  function revealTarget() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.closest('[hidden]')) {
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    for (let details = target.closest('details'); details; details = details.parentElement.closest('details')) {
+      details.open = true;
+    }
+    target.scrollIntoView();
+  }
+
+  window.addEventListener('hashchange', revealTarget);
+  revealTarget();
+</script>
+</body>
+</html>

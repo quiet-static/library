@@ -193,18 +193,24 @@ namespace QuietStatic.Tests.EditMode
         {
             var root = new GameObject("Save manager"); objects.Add(root);
             var save = root.AddComponent<SaveManager>();
-            string path = System.IO.Path.GetTempFileName();
+            string prefix = $"test_v1_{Guid.NewGuid():N}_";
+            typeof(SaveManager).GetField("filePrefix", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(save, prefix);
+            string path = System.IO.Path.Combine(Application.persistentDataPath, prefix + "0.json");
+            const string legacyJson = "{\"version\":1,\"activeFlags\":[\"story.started\"]}";
             try
             {
-                System.IO.File.WriteAllText(path, "{\"version\":1,\"activeFlags\":[\"story.started\"]}");
-                object[] arguments = { path, null, null };
-                bool read = (bool)typeof(SaveManager).GetMethod("TryDeserializeFile", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .Invoke(save, arguments);
-                Assert.That(read, Is.True, arguments[2] as string);
-                var data = (SaveGameData)arguments[1];
-                Assert.That(data.version, Is.EqualTo(2));
-                Assert.That(data.activeFlags, Is.EqualTo(new[] { "story.started" }));
-                Assert.That(data.flagValues, Is.Empty);
+                System.IO.File.WriteAllText(path, legacyJson);
+                SaveGameData migrated = null;
+                save.ValidateCheckpoint = data =>
+                {
+                    migrated = data;
+                    return null;
+                };
+                Assert.That(save.TryGetSlotMetadata(0, out SaveSlotMetadata metadata, out string error), Is.True, error);
+                Assert.That(metadata.Version, Is.EqualTo(2));
+                Assert.That(migrated.activeFlags, Is.EqualTo(new[] { "story.started" }));
+                Assert.That(migrated.flagValues, Is.Empty);
+                Assert.That(System.IO.File.ReadAllText(path), Is.EqualTo(legacyJson));
             }
             finally { System.IO.File.Delete(path); }
         }
